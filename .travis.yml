@@ -1,0 +1,11 @@
+dist: trusty
+
+git:
+  depth: false
+
+branches:
+  only:
+    - master
+
+script:
+  - ./build.sh
