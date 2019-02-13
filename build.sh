@@ -4,7 +4,9 @@ set -e
 
 mkdir -p build
 repoUrl=${REPO_URL:-https://charts.kubesphere.io}
+echo "Downloading Helm Client ..."
 curl -sL https://storage.googleapis.com/kubernetes-helm/helm-v2.12.3-linux-amd64.tar.gz | tar --strip-components=1 -xzf - linux-amd64/helm
+echo "Downloading current Helm index ..."
 curl -sL $repoUrl/qingcloud/index.yaml -o build/index.yaml
 findNewCharts() {
   local existingCharts="$(grep -oE "[^/]+\.tgz$" build/index.yaml)"
@@ -17,6 +19,7 @@ findNewCharts() {
   done
 }
 
+echo "Checking new charts ..."
 newCharts="$(findNewCharts)"
 [ -z "$newCharts" ] && {
   echo "No new charts found. Exiting ..."
