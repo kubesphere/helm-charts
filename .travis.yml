@@ -7,5 +7,12 @@ branches:
   only:
     - master
 
-script:
-  - ./build.sh
+jobs:
+  include:
+    - stage: check
+      script: ./build.sh
+      if: type = pull_request
+    - stage: deploy
+      script: ./build.sh deploy
+      if: type = push
+
