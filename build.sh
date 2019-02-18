@@ -82,8 +82,8 @@ updateRepo() {
 updateRepos() {
   ensureVars BASE_URL
   echo "Updating Helm repos ..."
-  for repo in $(ls -d $srcDir); do
-    updateRepo $repo
+  for repo in $(ls $srcDir); do
+    [ -f "$srcDir/$repo" ] || updateRepo $repo
   done
 }
 
@@ -98,8 +98,8 @@ pushUpdates() {
   ensureVars GITHUB_USER GITHUB_TOKEN
   git fetch
   git checkout --track origin/gh-pages
-  for repo in $(ls -d $buildDir); do
-    mkdir -p $repo && mv $buildDir/$repo/* $repo/ &&  git add $repo
+  for repo in $(ls $buildDir); do
+    mkdir -p $repo && mv $buildDir/$repo/* $repo/ && git add $repo
   done
   git commit -m "Update Charts"
   injectGithubToken
