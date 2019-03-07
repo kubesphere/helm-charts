@@ -1,0 +1,671 @@
+# This file is a template, and might need editing before it works on your project.
+# Auto DevOps
+# This CI/CD configuration provides a standard pipeline for
+# * building a Docker image (using a buildpack if necessary),
+# * storing the image in the container registry,
+# * running tests from a buildpack,
+# * running code quality analysis,
+# * creating a review app for each topic branch,
+# * and continuous deployment to production
+#
+# In order to deploy, you must have a Kubernetes cluster configured either
+# via a project integration, or via group/project variables.
+# AUTO_DEVOPS_DOMAIN must also be set as a variable at the group or project
+# level, or manually added below.
+#
+# If you want to deploy to staging first, or enable canary deploys,
+# uncomment the relevant jobs in the pipeline below.
+#
+# If Auto DevOps fails to detect the proper buildpack, or if you want to
+# specify a custom buildpack, set a project variable `BUILDPACK_URL` to the
+# repository URL of the buildpack.
+# e.g. BUILDPACK_URL=https://github.com/heroku/heroku-buildpack-ruby.git#v142
+# If you need multiple buildpacks, add a file to your project called
+# `.buildpacks` that contains the URLs, one on each line, in order.
+# Note: Auto CI does not work with multiple buildpacks yet
+
+image: registry.gitlab.com/gitlab-org/gitlab-build-images:gitlab-charts-build-base
+
+variables:
+  GOOGLE_APPLICATION_CREDENTIALS: ${CI_PROJECT_DIR}/.google_keyfile.json
+  # AUTO_DEVOPS_DOMAIN is the application deployment domain and should be set as a variable at the group or project level.
+  # AUTO_DEVOPS_DOMAIN: domain.example.com
+
+  POSTGRES_USER: user
+  POSTGRES_PASSWORD: testing-password
+  POSTGRES_ENABLED: "false"
+  POSTGRES_DB: $CI_ENVIRONMENT_SLUG
+
+stages:
+  - prepare
+  - review
+  - staging
+  - canary
+  - stable
+  - specs
+  - qa
+  - package
+  - cleanup
+
+lint_package:
+  stage: package
+  when: always
+  script:
+    - helm init --client-only
+    - helm repo add gitlab https://charts.gitlab.io
+    - helm dependencies update
+    - helm lint --set certmanager-issuer.email=support@gitlab.com
+    - mkdir -p build
+    - helm package -d build .
+  artifacts:
+    expire_in: 3d
+    paths:
+    - build
+  except:
+    - tags
+
+release_package:
+  stage: package
+  when: always
+  script:
+    - curl --request POST --form "token=$CI_JOB_TOKEN" --form ref=master
+        --form "variables[CHART_NAME]=$CI_PROJECT_NAME"
+        --form "variables[RELEASE_REF]=$CI_COMMIT_REF_NAME"
+        https://gitlab.com/api/v4/projects/2860651/trigger/pipeline
+  only:
+    - tags@charts/gitlab
+
+
+review:
+  stage: review
+  script:
+    - check_kube_domain
+    - ensure_namespace
+    - install_tiller
+    - create_secret
+    - install_external_dns
+    - if ! crdExists || previousDeployFailed ; then OPERATOR_BOOTSTRAP=true deploy ; fi
+    - deploy
+    - add_license
+    - echo "export QA_ENVIRONMENT_URL=gitlab-$CI_ENVIRONMENT_SLUG.$AUTO_DEVOPS_DOMAIN" >> variables
+    - echo "export GITLAB_ROOT_DOMAIN=$CI_ENVIRONMENT_SLUG.$AUTO_DEVOPS_DOMAIN"        >> variables
+    - echo "export GITLAB_URL=gitlab-$CI_ENVIRONMENT_SLUG.$AUTO_DEVOPS_DOMAIN"         >> variables
+    - echo "export REGISTRY_URL=registry-$CI_ENVIRONMENT_SLUG.$AUTO_DEVOPS_DOMAIN"     >> variables
+    - echo "export S3_ENDPOINT=https://minio-$CI_ENVIRONMENT_SLUG.$AUTO_DEVOPS_DOMAIN" >> variables
+  artifacts:
+    paths:
+    - variables
+  environment:
+    name: review/$CI_COMMIT_REF_NAME
+    url: https://gitlab-$CI_ENVIRONMENT_SLUG.$AUTO_DEVOPS_DOMAIN
+    on_stop: stop_review
+  variables:
+    HOST_SUFFIX: "$CI_ENVIRONMENT_SLUG"
+    DOMAIN: "-$CI_ENVIRONMENT_SLUG.$AUTO_DEVOPS_DOMAIN"
+  only:
+    refs:
+      - branches
+    kubernetes: active
+  except:
+    - master
+
+stop_review:
+  stage: review
+  variables:
+    GIT_CHECKOUT: "false"
+  script:
+    - git checkout master
+    - delete
+    - cleanup
+  environment:
+    name: review/$CI_COMMIT_REF_NAME
+    action: stop
+  when: manual
+  allow_failure: true
+  only:
+    refs:
+      - branches
+    kubernetes: active
+  except:
+    - master
+
+# Keys that start with a dot (.) will not be processed by GitLab CI.
+# Staging and canary jobs are disabled by default, to enable them
+# remove the dot (.) before the job name.
+# https://docs.gitlab.com/ee/ci/yaml/README.html#hidden-keys
+
+# Staging deploys are disabled by default since
+# continuous deployment to production is enabled by default
+# If you prefer to automatically deploy to staging and
+# only manually promote to production, enable this job by removing the dot (.),
+# and uncomment the `when: manual` line in the `production` job.
+
+.staging:
+  stage: staging
+  script:
+    - check_kube_domain
+    - check_domain_ip
+#    - download_chart
+    - ensure_namespace
+    - install_tiller
+    - create_secret
+    - deploy
+  environment:
+    name: staging
+    url: https://gitlab-staging.$AUTO_DEVOPS_DOMAIN
+  variables:
+    DOMAIN: -staging.$AUTO_DEVOPS_DOMAIN
+  only:
+    refs:
+      - master
+    kubernetes: active
+
+# Canaries are disabled by default, but if you want them,
+# and know what the downsides are, enable this job by removing the dot (.),
+# and uncomment the `when: manual` line in the `production` job.
+
+.canary:
+  stage: canary
+  script:
+    - check_kube_domain
+    - check_domain_ip
+#    - download_chart
+    - ensure_namespace
+    - install_tiller
+    - create_secret
+    - deploy canary
+  environment:
+    name: production
+    url: https://gitlab.$AUTO_DEVOPS_DOMAIN
+  variables:
+    DOMAIN: ".$AUTO_DEVOPS_DOMAIN"
+  when: manual
+  only:
+    refs:
+      - master
+    kubernetes: active
+
+# This job continuously deploys to production on every push to `master`.
+# To make this a manual process, either because you're enabling `staging`
+# or `canary` deploys, or you simply want more control over when you deploy
+# to production, uncomment the `when: manual` line in the `production` job.
+
+stable:
+  stage: stable
+  script:
+    - check_kube_domain
+    - check_domain_ip
+    - download_chart
+    - ensure_namespace
+    - install_tiller
+    - create_secret
+    - if ! crdExists || previousDeployFailed ; then OPERATOR_BOOTSTRAP=true deploy ; fi
+    - deploy
+    - delete canary
+    - echo "export QA_ENVIRONMENT_URL=gitlab.$AUTO_DEVOPS_DOMAIN" >> variables
+    - echo "export GITLAB_ROOT_DOMAIN=$AUTO_DEVOPS_DOMAIN"        >> variables
+    - echo "export S3_ENDPOINT=https://minio.$AUTO_DEVOPS_DOMAIN" >> variables
+  artifacts:
+    paths:
+    - variables
+  environment:
+    name: production
+    url: https://gitlab.$AUTO_DEVOPS_DOMAIN
+  variables:
+    DOMAIN: ".$AUTO_DEVOPS_DOMAIN"
+#  when: manual
+  only:
+    refs:
+      - master
+    kubernetes: active
+
+review_helm_test:
+  stage: qa
+  environment:
+    name: review/$CI_COMMIT_REF_NAME
+    url: https://gitlab-$CI_ENVIRONMENT_SLUG.$AUTO_DEVOPS_DOMAIN
+    on_stop: stop_review
+  script:
+    - export TILLER_NAMESPACE=$KUBE_NAMESPACE
+    - helm test --cleanup "$CI_ENVIRONMENT_SLUG"
+  only:
+    refs:
+      - branches
+    kubernetes: active
+  except:
+    refs:
+      - master
+
+production_helm_test:
+  stage: qa
+  environment:
+    name: production
+    url: https://gitlab.$AUTO_DEVOPS_DOMAIN
+  script:
+    - export TILLER_NAMESPACE=$KUBE_NAMESPACE
+    - helm test --cleanup "$CI_ENVIRONMENT_SLUG"
+  only:
+    refs:
+      - master@charts/gitlab
+    kubernetes: active
+
+
+debug_review:
+  stage: qa
+  when: on_failure
+  script:
+    - kubectl -n "$KUBE_NAMESPACE" describe pod
+    - kubectl -n "$KUBE_NAMESPACE" get pod,jobs,secret,ing,cm,sa,svc,role,rolebinding,pvc
+  artifacts:
+    paths:
+    - variables
+  environment:
+    name: review/$CI_COMMIT_REF_NAME
+    url: https://gitlab-$CI_ENVIRONMENT_SLUG.$AUTO_DEVOPS_DOMAIN
+    on_stop: stop_review
+  variables:
+    HOST_SUFFIX: "$CI_ENVIRONMENT_SLUG"
+    DOMAIN: "-$CI_ENVIRONMENT_SLUG.$AUTO_DEVOPS_DOMAIN"
+  only:
+    refs:
+      - branches
+    kubernetes: active
+  except:
+    - master
+
+danger-review:
+  image: registry.gitlab.com/gitlab-org/gitlab-build-images:danger
+  stage: prepare
+  cache: {}
+  only:
+    variables:
+      - $DANGER_GITLAB_API_TOKEN
+  except:
+    refs:
+      - master
+      - tags
+  script:
+    - git version
+    - danger --fail-on-errors=true
+
+check_docs_internal_links:
+  image: "registry.gitlab.com/gitlab-org/gitlab-build-images:gitlab-docs-lint"
+  stage: prepare
+  cache: {}
+  dependencies: []
+  before_script: []
+  script:
+    - mv doc/ /tmp/gitlab-docs/content/charts
+    - cd /tmp/gitlab-docs
+    # Build HTML from Markdown
+    - bundle exec nanoc
+    # Check the internal links
+    - bundle exec nanoc check internal_links
+
+# ---------------------------------------------------------------------------
+
+.auto_devops: &auto_devops |
+  # Auto DevOps variables and functions
+  [[ "$TRACE" ]] && set -x
+  auto_database_url=postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${CI_ENVIRONMENT_SLUG}-postgres:5432/${POSTGRES_DB}
+  export DATABASE_URL=${DATABASE_URL-$auto_database_url}
+  export CI_APPLICATION_REPOSITORY=$CI_REGISTRY_IMAGE/$CI_COMMIT_REF_SLUG
+  export CI_APPLICATION_TAG=$CI_COMMIT_SHA
+  export CI_CONTAINER_NAME=ci_job_build_${CI_JOB_ID}
+  export TILLER_NAMESPACE=$KUBE_NAMESPACE
+
+  function previousDeployFailed() {
+    set +e
+    echo "Checking for previous deployment of $CI_ENVIRONMENT_SLUG"
+    deployment_status=$(helm status $CI_ENVIRONMENT_SLUG >/dev/null 2>&1)
+    status=$?
+    # if `status` is `0`, deployment exists, has a status
+    if [ $status -eq 0 ]; then
+      echo "Previous deployment found, checking status"
+      deployment_status=$(helm status $CI_ENVIRONMENT_SLUG | grep ^STATUS | cut -d' ' -f2)
+      echo "Previous deployment state: $deployment_status"
+      if [[ "$deployment_status" == "FAILED" || "$deployment_status" == "PENDING_UPGRADE" || "$deployment_status" == "PENDING_INSTALL" ]]; then
+        status=0;
+      else
+        status=1;
+      fi
+    else
+      echo "Previous deployment NOT found."
+    fi
+    set -e
+    return $status
+  }
+
+  function crdExists() {
+    echo "Checking for existing GitLab Operator CRD"
+    kubectl get crd/gitlabs.${CI_ENVIRONMENT_SLUG}.gitlab.com >/dev/null 2>&1
+    status=$?
+    if [ $status -eq 0 ]; then
+      echo "GitLab Operator CRD exists."
+    else
+      echo "GitLab Operator CRD does NOT exist."
+    fi
+    return $status
+  }
+
+  function deploy() {
+    track="${1-stable}"
+    name="$CI_ENVIRONMENT_SLUG"
+
+    if [[ "$track" != "stable" ]]; then
+      name="$name-$track"
+    fi
+
+    replicas="1"
+    service_enabled="false"
+    postgres_enabled="$POSTGRES_ENABLED"
+    # canary uses stable db
+    [[ "$track" == "canary" ]] && postgres_enabled="false"
+
+    env_track=$( echo $track | tr -s  '[:lower:]'  '[:upper:]' )
+    env_slug=$( echo ${CI_ENVIRONMENT_SLUG//-/_} | tr -s  '[:lower:]'  '[:upper:]' )
+
+    if [[ "$track" == "stable" ]]; then
+      # for stable track get number of replicas from `PRODUCTION_REPLICAS`
+      eval new_replicas=\$${env_slug}_REPLICAS
+      service_enabled="true"
+    else
+      # for all tracks get number of replicas from `CANARY_PRODUCTION_REPLICAS`
+      eval new_replicas=\$${env_track}_${env_slug}_REPLICAS
+    fi
+    if [[ -n "$new_replicas" ]]; then
+      replicas="$new_replicas"
+    fi
+
+    #ROOT_PASSWORD=$(cat /dev/urandom | LC_TYPE=C tr -dc "[:alpha:]" | head -c 16)
+    #echo "Generated root login: $ROOT_PASSWORD"
+    kubectl create secret generic "${CI_ENVIRONMENT_SLUG}-gitlab-initial-root-password" --from-literal=password=$ROOT_PASSWORD -o yaml --dry-run | kubectl replace --force -f -
+
+    # YAML_FILE=""${AUTO_DEVOPS_DOMAIN//\./-}.yaml"
+    # Cleanup and previous installs, as FAILED and PENDING_UPGRADE will cause errors with `upgrade`
+    if [ "$CI_ENVIRONMENT_SLUG" != "production" ] && previousDeployFailed ; then
+      echo "Deployment in bad state, cleaning up $CI_ENVIRONMENT_SLUG"
+      delete
+      cleanup
+    fi
+    helm repo add gitlab https://charts.gitlab.io/
+    helm dep update .
+
+    # If OPERATOR_BOOTSTRAP is set, we _do not_ want to use --wait / --timeout
+    WAIT="--wait --timeout 600"
+    if [ -n "${OPERATOR_BOOTSTRAP}" ]; then
+      WAIT=""
+    fi
+
+    helm upgrade --install \
+      $WAIT \
+      --set releaseOverride="$CI_ENVIRONMENT_SLUG" \
+      --set global.hosts.hostSuffix="$HOST_SUFFIX" \
+      --set global.hosts.domain="$AUTO_DEVOPS_DOMAIN" \
+      --set global.ingress.annotations."external-dns\.alpha\.kubernetes\.io/ttl"="10" \
+      --set global.ingress.tls.secretName=helm-charts-win-tls \
+      --set global.ingress.configureCertmanager=false \
+      --set certmanager.install=false \
+      --set gitlab.unicorn.maxReplicas=3 \
+      --set gitlab.sidekiq.maxReplicas=2 \
+      --set gitlab.task-runner.enabled=true \
+      --set gitlab.gitlab-shell.maxReplicas=3 \
+      --set redis.resources.requests.cpu=100m \
+      --set minio.resources.requests.cpu=100m \
+      --set global.operator.enabled=true \
+      --set global.operator.bootstrap=${OPERATOR_BOOTSTRAP-false} \
+      --namespace="$KUBE_NAMESPACE" \
+      --version="$CI_PIPELINE_ID-$CI_JOB_ID" \
+      "$name" \
+      .
+  }
+
+  function add_license() {
+    if [ -z "${REVIEW_APPS_EE_LICENSE}" ]; then echo "License not found" && return; fi
+
+    while [ -z "$(kubectl get pods -n ${KUBE_NAMESPACE} --field-selector=status.phase=Running -lapp=task-runner,release=${CI_ENVIRONMENT_SLUG} --no-headers -o=custom-columns=NAME:.metadata.name)" ]; do
+      echo "Waiting till task-runner pod is ready";
+      sleep 5;
+    done
+
+    task_runner_pod=$(kubectl get pods -n ${KUBE_NAMESPACE} --field-selector=status.phase=Running -lapp=task-runner,release=${CI_ENVIRONMENT_SLUG} --no-headers -o=custom-columns=NAME:.metadata.name)
+
+    if [ -z "${task_runner_pod}" ]; then echo "Task runner pod not found" && return; fi
+    echo "Task runner pod is ${task_runner_pod}"
+
+    echo "${REVIEW_APPS_EE_LICENSE}" > /tmp/license.gitlab
+    kubectl -n "$KUBE_NAMESPACE" cp /tmp/license.gitlab ${task_runner_pod}:/tmp/license.gitlab
+    rm /tmp/license.gitlab
+
+    kubectl -n "$KUBE_NAMESPACE" exec -it ${task_runner_pod} -- /srv/gitlab/bin/rails runner -e production \
+     '
+     content = File.read("/tmp/license.gitlab").strip;
+     FileUtils.rm_f("/tmp/license.gitlab");
+
+     unless License.where(data:content).empty?
+       puts "License already exists";
+       Kernel.exit 0;
+     end
+
+     unless License.new(data: content).save
+       puts "Could not add license";
+       Kernel.exit 0;
+     end
+
+     puts "License added";
+     '
+  }
+
+  function setup_test_db() {
+    if [ -z ${KUBERNETES_PORT+x} ]; then
+      DB_HOST=postgres
+    else
+      DB_HOST=localhost
+    fi
+    export DATABASE_URL="postgres://${POSTGRES_USER}:${POSTGRES_PASSWORD}@${DB_HOST}:5432/${POSTGRES_DB}"
+  }
+
+  function download_chart() {
+    if [[ ! -d chart ]]; then
+      auto_chart=${AUTO_DEVOPS_CHART:-gitlab/auto-deploy-app}
+      auto_chart_name=$(basename $auto_chart)
+      auto_chart_name=${auto_chart_name%.tgz}
+    else
+      auto_chart="chart"
+      auto_chart_name="chart"
+    fi
+
+    helm init --client-only
+    helm repo add gitlab https://charts.gitlab.io
+    if [[ ! -d "$auto_chart" ]]; then
+      helm fetch ${auto_chart} --untar
+    fi
+    if [ "$auto_chart_name" != "chart" ]; then
+      mv ${auto_chart_name} chart
+    fi
+
+    helm dependency update chart/
+    helm dependency build chart/
+  }
+
+  function ensure_namespace() {
+    kubectl describe namespace "$KUBE_NAMESPACE" || kubectl create namespace "$KUBE_NAMESPACE"
+  }
+
+  function check_kube_domain() {
+    if [ -z ${AUTO_DEVOPS_DOMAIN+x} ]; then
+      echo "In order to deploy, AUTO_DEVOPS_DOMAIN must be set as a variable at the group or project level, or manually added in .gitlab-cy.yml"
+      false
+    else
+      true
+    fi
+  }
+
+  function check_domain_ip() {
+    # Expect the `DOMAIN` is a wildcard.
+    domain_ip=$(nslookup gitlab$DOMAIN 2>/dev/null | grep "Address 1:" | cut -d' ' -f3)
+    if [ -z $domain_ip ]; then
+      echo "There was a problem resolving the IP of 'gitlab$DOMAIN'. Be sure you have configured a DNS entry."
+      false
+    else
+      export DOMAIN_IP=$domain_ip
+      echo "Found IP for gitlab$DOMAIN: $DOMAIN_IP"
+      true
+    fi
+  }
+
+  function install_tiller() {
+    echo "Checking Tiller..."
+    helm init --upgrade --service-account tiller
+    kubectl rollout status -n "$TILLER_NAMESPACE" -w "deployment/tiller-deploy"
+    if ! helm version --debug; then
+      echo "Failed to init Tiller."
+      return 1
+    fi
+    echo ""
+  }
+
+  function install_external_dns() {
+    echo "Checking External DNS..."
+    release_name="gitlab-external-dns"
+    if ! helm status --tiller-namespace "${TILLER_NAMESPACE}" "${release_name}" > /dev/null 2>&1 ; then
+      # We need to store the credentials in a secret
+      kubectl create secret generic "${release_name}-secret" --from-literal="credentials.json=${GOOGLE_CLOUD_KEYFILE_JSON}"
+      helm install stable/external-dns \
+        -n "${release_name}" \
+        --namespace "${TILLER_NAMESPACE}" \
+        --set provider="google" \
+        --set domain-filter[0]="helm-charts.win" \
+        --set google.project="${GOOGLE_PROJECT_ID}" \
+        --set google.serviceAccountSecret="${release_name}-secret" \
+        --set txtOwnerId="${TILLER_NAMESPACE}" \
+        --set rbac.create="true" \
+        --set policy="sync"
+    fi
+  }
+
+  function create_secret() {
+    kubectl create secret -n "$KUBE_NAMESPACE" \
+      docker-registry gitlab-registry-docker \
+      --docker-server="$CI_REGISTRY" \
+      --docker-username="$CI_REGISTRY_USER" \
+      --docker-password="$CI_REGISTRY_PASSWORD" \
+      --docker-email="$GITLAB_USER_EMAIL" \
+      -o yaml --dry-run | kubectl replace -n "$KUBE_NAMESPACE" --force -f -
+  }
+
+  function delete() {
+    track="${1-stable}"
+    name="$CI_ENVIRONMENT_SLUG"
+
+    if [[ "$track" != "stable" ]]; then
+      name="$name-$track"
+    fi
+    helm delete --purge "$name" || true
+  }
+
+  function cleanup() {
+    gitlabs=''
+    if crdExists ; then
+      gitlabs=',gitlabs'
+    fi
+
+    kubectl -n "$KUBE_NAMESPACE" get ingress,svc,pdb,hpa,deploy,statefulset,job,pod,secret,configmap,pvc,secret,clusterrole,clusterrolebinding,role,rolebinding,sa,crd${gitlabs} 2>&1 \
+      | grep "$CI_ENVIRONMENT_SLUG" \
+      | awk '{print $1}' \
+      | xargs kubectl -n "$KUBE_NAMESPACE" delete \
+      || true
+  }
+
+.specs: &specs
+  image: registry.gitlab.com/gitlab-org/gitlab-build-images:ruby-2.5.3-git-2.18-chrome-71.0-node-8.x-yarn-1.12-graphicsmagick-1.3.29-docker-18.06.1
+  stage: specs
+  services:
+  - docker:dind
+  variables:
+    DOCKER_DRIVER: overlay2
+    DOCKER_HOST: tcp://docker:2375
+    GITLAB_PASSWORD: $ROOT_PASSWORD
+    RELEASE_NAME: $CI_ENVIRONMENT_SLUG
+    S3_CONFIG_PATH: /etc/gitlab/minio
+  script:
+    - source variables
+    - apt-get update && apt-get install -y --no-install-recommends curl ca-certificates
+    - curl -LsO https://storage.googleapis.com/kubernetes-release/release/v1.9.3/bin/linux/amd64/kubectl
+    - chmod +x kubectl
+    - mv kubectl /usr/local/bin/kubectl
+    - mkdir -p /etc/gitlab/minio
+    - kubectl get secret ${CI_ENVIRONMENT_SLUG}-minio-secret -o jsonpath='{.data.accesskey}' | base64 --decode > /etc/gitlab/minio/accesskey
+    - kubectl get secret ${CI_ENVIRONMENT_SLUG}-minio-secret -o jsonpath='{.data.secretkey}' | base64 --decode > /etc/gitlab/minio/secretkey
+    - bundle install -j $(nproc) --without non_test --path gems
+    - bundle exec rspec -c -f d spec
+  after_script:
+    - *auto_devops
+    - add_license
+  artifacts:
+    when: on_failure
+    expire_in: 7d
+    paths:
+    - tmp/capybara
+  cache:
+    key: "${CI_JOB_NAME}"
+    paths:
+    - gems
+
+review_specs:
+  <<: *specs
+  environment:
+    name: review/$CI_COMMIT_REF_NAME
+    url: https://gitlab-$CI_ENVIRONMENT_SLUG.$AUTO_DEVOPS_DOMAIN
+    on_stop: stop_review
+  only:
+    refs:
+      - branches
+    kubernetes: active
+  except:
+    refs:
+      - master
+
+production_specs:
+  <<: *specs
+  environment:
+    name: production
+    url: https://gitlab.$AUTO_DEVOPS_DOMAIN
+  only:
+    refs:
+      - master
+    kubernetes: active
+
+qa:
+  image: registry.gitlab.com/gitlab-org/gitlab-omnibus-builder:ruby_docker-0.0.7
+  stage: qa
+  services:
+  - docker:dind
+  variables:
+    DOCKER_DRIVER: overlay2
+    DOCKER_HOST: tcp://docker:2375
+    QA_ARTIFACTS_DIR: $CI_PROJECT_DIR
+  script:
+    - docker login -u gitlab-ci-token -p "$CI_JOB_TOKEN" "$CI_REGISTRY"
+    - gem install gitlab-qa
+    - source variables
+    - app_version=$(ruby -e "require 'yaml'; puts YAML.safe_load(File.read('Chart.yaml'))['appVersion']")
+    - qa_version="nightly"
+    - if [ "$app_version" != "master"  ]; then
+    -   qa_version="${app_version}-ee"
+    - fi
+    - GITLAB_USERNAME=root GITLAB_PASSWORD=$ROOT_PASSWORD GITLAB_ADMIN_USERNAME=root GITLAB_ADMIN_PASSWORD=$ROOT_PASSWORD EE_LICENSE=$REVIEW_APPS_EE_LICENSE gitlab-qa Test::Instance::Any EE:$qa_version https://$QA_ENVIRONMENT_URL
+  artifacts:
+    when: on_failure
+    expire_in: 7d
+    paths:
+    - ./gitlab-qa-run-*
+  only:
+    refs:
+      - branches
+    kubernetes: active
+  retry: 1
+  allow_failure: true
+
+before_script:
+  - *auto_devops
