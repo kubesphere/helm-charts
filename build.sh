@@ -134,5 +134,5 @@ pushUpdates() {
 
 prepareHelm
 updateRepos
-[ -n "$updatedRepos" ] || [ "$1" != "deploy" ] || pushUpdates
+[ -z "$updatedRepos" ] || [ "$1" != "deploy" ] || pushUpdates
 
