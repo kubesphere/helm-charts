@@ -17,7 +17,7 @@ entries:
     sources:
     - https://gitlab.com/charts/gitlab
     urls:
-    - https://charts.gitlab.io/gitlab-1.6.1.tgz
+    - https://charts.kubesphere.io/qingcloud/gitlab-1.6.1.tgz
     version: 1.6.1
   harbor:
   - appVersion: 1.7.0
@@ -42,6 +42,6 @@ entries:
     - https://github.com/goharbor/harbor
     - https://github.com/goharbor/harbor-helm
     urls:
-    - https://charts.kubesphere.io/harbor-1.0.0.tgz
+    - https://charts.kubesphere.io/qingcloud/harbor-1.0.0.tgz
     version: 1.0.0
 generated: 2019-03-07T12:50:39.70250304Z
