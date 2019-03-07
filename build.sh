@@ -33,6 +33,25 @@ findUpdatedCharts() {
   done
 }
 
+reposCount=0
+generateRepoName() {
+  reposCount=$((reposCount+1))
+  echo -n "repo-$reposCount"
+}
+
+addDependencyRepos() {
+  local knownRepos="$(helm repo list | awk 'NR>1 {print $2}')"
+  for chartDir in $@; do
+    local reqFile="$chartDir/requirements.yaml"
+    if [ -f "$reqFile" ]; then
+      local repoUrls="$(awk '$1=="repository:" {print $2}' $reqFile | uniq)"
+      [ -z "$repoUrls" ] || for repoUrl in $repoUrls; do
+        echo $knownRepos | grep -q ${repoUrl%/} || helm repo add $(generateRepoName) ${repoUrl%/}
+      done
+    fi
+  done
+}
+
 srcDir=src
 buildDir=build
 mkdir -p $buildDir
@@ -63,14 +82,20 @@ updateRepo() {
 
   echo "Finding updated charts ..."
   updatedCharts="$(findUpdatedCharts $repoSrcDir $indexFile)"
+  updatedCharts="$(echo $updatedCharts)"
   if [ -z "$updatedCharts" ]; then
     echo "No charts added or updated in repo '$repo'."
     return 0
   fi
 
+  echo Linting charts [$updatedCharts] ...
+  helm lint $updatedCharts
+
+  echo Adding dependency repos for [$updatedCharts] ...
+  addDependencyRepos $updatedCharts
+
   echo Packaging charts [$updatedCharts] ...
-  helm lint $(echo $updatedCharts)
-  helm package $(echo $updatedCharts) --destination $repoDir
+  helm package $updatedCharts --destination $repoDir -u
 
   local mergeOpts
   [ -f "$indexFile" ] && mergeOpts="--merge $indexFile"
