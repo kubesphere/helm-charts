@@ -1,5 +1,24 @@
 apiVersion: v1
 entries:
+  gitlab:
+  - apiVersion: v1
+    appVersion: 11.8.1
+    created: 2019-03-07T12:50:39.713338604Z
+    description: Web-based Git-repository manager with wiki and issue-tracking features.
+    digest: 87cc48ebcc2db174879439a71078b46cd8d8075e960a88673c690ea71ef449e4
+    home: https://about.gitlab.com/
+    icon: https://gitlab.com/gitlab-com/gitlab-artwork/raw/master/logo/logo-square.png
+    keywords:
+    - gitlab
+    maintainers:
+    - email: support@gitlab.com
+      name: GitLab Inc.
+    name: gitlab
+    sources:
+    - https://gitlab.com/charts/gitlab
+    urls:
+    - https://charts.gitlab.io/gitlab-1.6.1.tgz
+    version: 1.6.1
   harbor:
   - appVersion: 1.7.0
     created: 2019-02-13T13:24:16.09200433+08:00
@@ -25,4 +44,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/harbor-1.0.0.tgz
     version: 1.0.0
-generated: 2019-02-13T13:24:16.090072192+08:00
+generated: 2019-03-07T12:50:39.70250304Z
