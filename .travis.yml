@@ -16,3 +16,5 @@ jobs:
       script: ./build.sh deploy
       if: type = push
 
+notifications:
+  slack: kubesphere:OAhuHKLZdksTBQGBUW6UapFn
