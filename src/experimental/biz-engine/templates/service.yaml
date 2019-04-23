@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "biz-engine.fullname" . }}
+  labels:
+    app: {{ template "biz-engine.name" . }}
+    chart: {{ template "biz-engine.chart" . }}
+    release: {{ .Release.Name }}
+    heritage: {{ .Release.Service }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.port }}
+      targetPort: 5700
+      protocol: TCP
+      name: http
+  selector:
+    app: {{ template "biz-engine.name" . }}
+    release: {{ .Release.Name }}
