@@ -1,0 +1,13 @@
+apiVersion: v1
+entries:
+  biz-engine:
+  - apiVersion: v1
+    appVersion: "1.0"
+    created: 2019-04-23T06:44:12.718079673Z
+    description: A Helm chart for Kubernetes
+    digest: 33f4d335520d635643f921bc9a354342f11287b7e1660981d75f61910c49d6db
+    name: biz-engine
+    urls:
+    - https://charts.kubesphere.io/experimental/biz-engine-0.1.0.tgz
+    version: 0.1.0
+generated: 2019-04-23T06:44:12.717465827Z
