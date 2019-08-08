@@ -22,7 +22,7 @@ data:
   DISABLE_API: "false"
   DISABLE_STATEFILES: "false"
   ALLOW_OVERWRITE: "true"
-  CHART_URL:
+  #CHART_URL: {{ .Values.externalURL }}/chartrepo
   AUTH_ANONYMOUS_GET: "false"
   TLS_CERT:
   TLS_KEY:
@@ -45,6 +45,7 @@ data:
 {{- else if eq $storageType "gcs" }}
   STORAGE: "google"
   STORAGE_GOOGLE_BUCKET: {{ $storage.gcs.bucket }}
+  GOOGLE_APPLICATION_CREDENTIALS: /etc/chartmuseum/gcs-key.json
   {{- if $storage.gcs.rootdirectory }}
   STORAGE_GOOGLE_PREFIX: {{ $storage.gcs.rootdirectory }}
   {{- end }}
