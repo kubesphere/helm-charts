@@ -28,6 +28,7 @@ spec:
       initContainers:
       - name: "remove-lost-found"
         image: {{ .Values.database.internal.image.repository }}:{{ .Values.database.internal.image.tag }}
+        imagePullPolicy: {{ .Values.imagePullPolicy }}
         command: ["rm", "-Rf", "/var/lib/postgresql/data/lost+found"]
         volumeMounts:
         - name: database-data
@@ -40,7 +41,7 @@ spec:
           exec:
             command:
             - /docker-healthcheck.sh
-          initialDelaySeconds: 1
+          initialDelaySeconds: 60
           periodSeconds: 10
         readinessProbe:
           exec:
@@ -48,8 +49,10 @@ spec:
             - /docker-healthcheck.sh
           initialDelaySeconds: 1
           periodSeconds: 10
+{{- if .Values.database.internal.resources }}
         resources:
 {{ toYaml .Values.database.internal.resources | indent 10 }}
+{{- end }}
         envFrom:
           - secretRef:
               name: "{{ template "harbor.database" . }}"

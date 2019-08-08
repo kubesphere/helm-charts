@@ -19,6 +19,7 @@ spec:
       annotations:
         checksum/configmap: {{ include (print $.Template.BasePath "/core/core-cm.yaml") . | sha256sum }}
         checksum/secret: {{ include (print $.Template.BasePath "/core/core-secret.yaml") . | sha256sum }}
+        checksum/secret-jobservice: {{ include (print $.Template.BasePath "/jobservice/jobservice-secrets.yaml") . | sha256sum }}
 {{- if .Values.core.podAnnotations }}
 {{ toYaml .Values.core.podAnnotations | indent 8 }}
 {{- end }}
@@ -39,6 +40,11 @@ spec:
             port: 8080
           initialDelaySeconds: 20
           periodSeconds: 10
+        envFrom:
+        - configMapRef:
+            name: "{{ template "harbor.core" . }}"
+        - secretRef:
+            name: "{{ template "harbor.core" . }}"
         env:
           - name: CORE_SECRET
             valueFrom:
@@ -50,20 +56,6 @@ spec:
               secretKeyRef:
                 name: "{{ template "harbor.jobservice" . }}"
                 key: secret
-          - name: _REDIS_URL
-            value: {{ template "harbor.redisForCore" . }}
-          - name: _REDIS_URL_REG
-            value: {{ template "harbor.redisForGC" . }}
-          - name: LOG_LEVEL
-            value: {{ .Values.logLevel }}
-          - name: CONFIG_PATH
-            value: /etc/core/app.conf
-          - name: SYNC_REGISTRY
-            value: "false"
-          - name: ADMINSERVER_URL
-            value: "http://{{ template "harbor.adminserver" . }}"
-          - name: CHART_CACHE_DRIVER
-            value: "redis"
         ports:
         - containerPort: 8080
         volumeMounts:
@@ -75,14 +67,18 @@ spec:
           subPath: key
         - name: token-service-private-key
           mountPath: /etc/core/private_key.pem
-          subPath: tokenServicePrivateKey
-        {{- if eq (include "harbor.autoGenCert" .) "true" }}
+          subPath: tls.key
+        {{- if .Values.expose.tls.enabled }}
         - name: ca-download
           mountPath: /etc/core/ca/ca.crt
           subPath: ca.crt
         {{- end }}
         - name: psc
           mountPath: /etc/core/token
+{{- if .Values.core.resources }}
+        resources:
+{{ toYaml .Values.core.resources | indent 10 }}
+{{- end }}
       volumes:
       - name: config
         configMap:
@@ -95,14 +91,20 @@ spec:
               path: key
       - name: token-service-private-key
         secret:
+          {{- if .Values.core.secretName }}
+          secretName: {{ .Values.core.secretName }}
+          {{- else }}
           secretName: {{ template "harbor.core" . }}
-      {{- if eq (include "harbor.autoGenCert" .) "true" }}
+          {{- end }}
+      {{- if .Values.expose.tls.enabled }}
       - name: ca-download
         secret:
         {{- if eq (include "harbor.autoGenCertForIngress" .) "true" }}
           secretName: "{{ template "harbor.ingress" . }}"
-        {{- else }}
+        {{- else if eq (include "harbor.autoGenCertForNginx" .) "true" }}
           secretName: {{ template "harbor.nginx" . }}
+        {{- else }}
+          secretName: {{ .Values.expose.tls.secretName }}
         {{- end }}
           items:
             - key: ca.crt
