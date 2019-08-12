@@ -1,0 +1,11 @@
+apiVersion: v1
+appVersion: 1.16.0
+description: Nginx chart for Kubernetes
+icon: https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Nginx_logo.svg/500px-Nginx_logo.svg.png
+maintainers:
+- email: hongliangwang@yunify.com
+  name: Hongliang Wang
+name: nginx
+sources:
+- https://github.com/kubesphere/helm-charts/src/qingcloud/nginx
+version: 1.0.0
