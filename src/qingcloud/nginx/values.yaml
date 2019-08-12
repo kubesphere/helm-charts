@@ -1,0 +1,91 @@
+replicaCount: 1
+
+image:
+  # html:
+  #   repository: nginx
+  #   tag: 1.16.0-alpine
+  #   pullPolicy: IfNotPresent
+  nginx:
+    repository: nginx
+    tag: 1.16.0-alpine
+    pullPolicy: IfNotPresent
+
+nameOverride: ""
+fullnameOverride: ""
+
+service:
+  name: http
+  type: ClusterIP
+  port: 80
+
+ingress:
+  enabled: false
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  paths: []
+  hosts:
+    - nginx.local
+  tls: []
+  #  - secretName: nginx-tls
+  #    hosts:
+  #      - nginx.local
+
+extraVolumes: |
+  # - name: extra
+  #   emptyDir: {}
+
+extraVolumeMounts: |
+  # - name: extras
+  #   mountPath: /usr/share/nginx/html
+  #   readOnly: true
+
+extraInitContainers: |
+  # - name: do-something
+  #   image: busybox
+  #   imagePullPolicy: IfNotPresent
+  #   command: ['do', 'something']
+
+readinessProbe:
+  path: "/"
+  initialDelaySeconds: 5
+  periodSeconds: 3
+  failureThreshold: 6
+livenessProbe:
+  path: "/"
+  initialDelaySeconds: 5
+  periodSeconds: 3
+
+resources: {}
+  # limits:
+  #  cpu: 100m
+  #  memory: 128Mi
+  # requests:
+  #  cpu: 100m
+  #  memory: 128Mi
+
+configurationFile: {}
+#  nginx.conf: |-
+#  http {
+#    server {
+#      listen 80;
+#      location / {
+#        root /usr/share/nginx/html;
+#      }
+#    }
+#  }
+
+extraConfigurationFiles: {}
+#  default.conf: |-
+#    server {
+#      listen 80;
+#      location / {
+#        root /usr/share/nginx/html;
+#      }
+#    }
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}

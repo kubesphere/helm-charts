@@ -1,0 +1,10 @@
+{{- if .Values.configurationFile }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "nginx.fullname" . }}-main-config
+  namespace: {{ .Release.Namespace }}
+data:
+  nginx.conf: |-
+{{ tpl .Values.configurationFile . | indent 4 }}
+{{- end -}}
