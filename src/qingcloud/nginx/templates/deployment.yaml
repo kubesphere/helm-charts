@@ -1,0 +1,112 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "nginx.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "nginx.name" . }}
+    helm.sh/chart: {{ include "nginx.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "nginx.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "nginx.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      initContainers:
+      {{- if .Values.image.html }}
+      - name: copy-html
+        image: {{ .Values.image.html.repository }}:{{ .Values.image.html.tag }}
+        imagePullPolicy: {{ .Values.image.html.pullPolicy }}
+        command:
+        - sh
+        - -c
+        - cp -r /html/* /nginx-html
+        volumeMounts:
+        - name: html
+          mountPath: /nginx-html
+        resources:
+          requests:
+            memory: 10Mi
+            cpu: 10m
+      {{- end }}
+      {{- if .Values.extraInitContainers }}
+{{ tpl .Values.extraInitContainers . | indent 6 }}
+      {{- end }}
+
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.nginx.repository }}:{{ .Values.image.nginx.tag }}"
+          imagePullPolicy: {{ .Values.image.nginx.pullPolicy }}
+          ports:
+            - name: http
+              containerPort: {{ .Values.service.port }}
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.livenessProbe.path }}
+              port: {{ .Values.service.port }}
+            initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.readinessProbe.path }}
+              port: {{ .Values.service.port }}
+            initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
+            failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+          {{- if .Values.configurationFile }}
+          - name: main-config
+            mountPath: /etc/nginx/nginx.conf
+            subPath: nginx.conf
+          {{- end }}
+          {{- if .Values.extraConfigurationFiles }}
+          - name: extra-configs
+            mountPath: /etc/nginx/conf.d
+          {{- end }}
+          {{- if .Values.image.html }}
+          - name: html
+            mountPath: /usr/share/nginx/html
+          {{- end }}
+          {{- if .Values.extraVolumeMounts }}
+{{ tpl .Values.extraVolumeMounts . | indent 10 }}
+          {{- end }}
+
+      volumes:
+      - name: html
+        emptyDir: {}
+      {{- if .Values.configurationFile }}
+      - name: main-config
+        configMap:
+          name: {{ template "nginx.fullname" . }}-main-config
+      {{- end }}
+      {{- if .Values.extraConfigurationFiles }}
+      - name: extra-configs
+        configMap:
+          name: {{ template "nginx.fullname" . }}-extra-configs
+      {{- end }}
+      {{- if .Values.extraVolumes }}
+{{ tpl .Values.extraVolumes . | indent 6 }}
+      {{- end }}
+      {{- with .Values.nodeSelector }}
+
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
