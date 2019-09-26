@@ -36,8 +36,8 @@ spec:
             memory: 10Mi
             cpu: 10m
       {{- end }}
-      {{- if .Values.extraInitContainers }}
-{{ tpl .Values.extraInitContainers . | indent 6 }}
+      {{- with .Values.extraInitContainers }}
+      {{- toYaml . | nindent 6 }}
       {{- end }}
 
       containers:
@@ -77,8 +77,8 @@ spec:
           - name: html
             mountPath: /usr/share/nginx/html
           {{- end }}
-          {{- if .Values.extraVolumeMounts }}
-{{ tpl .Values.extraVolumeMounts . | indent 10 }}
+          {{- with .Values.extraVolumeMounts }}
+          {{- toYaml . | nindent 10 }}
           {{- end }}
 
       volumes:
@@ -94,11 +94,10 @@ spec:
         configMap:
           name: {{ template "nginx.fullname" . }}-extra-configs
       {{- end }}
-      {{- if .Values.extraVolumes }}
-{{ tpl .Values.extraVolumes . | indent 6 }}
+      {{- with .Values.extraVolumes }}
+      {{- toYaml . | nindent 6 }}
       {{- end }}
       {{- with .Values.nodeSelector }}
-
       nodeSelector:
         {{- toYaml . | nindent 8 }}
       {{- end }}

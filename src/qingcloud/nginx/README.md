@@ -41,8 +41,8 @@ Parameter | Description | Default
 `service.type` | The service type, can be `ClusterIP`, `NodePort` | `ClusterIP`
 `service.port` | The service port within the pod container | `80`
 `service.nodePort` | If `service.type` is `NodePort`, this value will be used | none
-`extraVolumes` | Extra volumes | none
-`extraMountVolumes` | Extra mount volumes | none
-`extraInitContainers` | Extra init containers | none
+`extraVolumes` | Extra volumes | []
+`extraMountVolumes` | Extra mount volumes | []
+`extraInitContainers` | Extra init containers | []
 `configurationFile` | Custom configuration file to override `/etc/nginx/nginx.conf` | none
 `extraConfigurationFiles` | Custom configuration files to put under `/etc/nginx/conf.d` | none
