@@ -8,4 +8,4 @@ maintainers:
 name: nginx
 sources:
 - https://github.com/kubesphere/helm-charts/src/qingcloud/nginx
-version: 1.0.0
+version: 1.1.0
