@@ -31,16 +31,16 @@ ingress:
   #    hosts:
   #      - nginx.local
 
-extraVolumes: |
+extraVolumes: []
   # - name: extra
   #   emptyDir: {}
 
-extraVolumeMounts: |
+extraVolumeMounts: []
   # - name: extras
   #   mountPath: /usr/share/nginx/html
   #   readOnly: true
 
-extraInitContainers: |
+extraInitContainers: []
   # - name: do-something
   #   image: busybox
   #   imagePullPolicy: IfNotPresent
