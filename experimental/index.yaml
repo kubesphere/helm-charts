@@ -10,4 +10,14 @@ entries:
     urls:
     - https://charts.kubesphere.io/experimental/biz-engine-0.1.0.tgz
     version: 0.1.0
-generated: 2019-04-23T06:44:12.717465827Z
+  redis:
+  - apiVersion: v1
+    appVersion: 5.0.5
+    created: 2019-09-26T09:34:08.450096078Z
+    description: A Redis Helm chart for Kubernetes
+    digest: c80ecbbf303ebbacde4a152031286c580fc8c68030fdcc46e847140d8d8edc6d
+    name: redis
+    urls:
+    - https://charts.kubesphere.io/experimental/redis-0.1.0.tgz
+    version: 0.1.0
+generated: 2019-09-26T09:34:08.449435331Z
