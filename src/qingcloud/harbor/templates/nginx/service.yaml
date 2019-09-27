@@ -1,4 +1,4 @@
-{{- if ne .Values.expose.type "ingress" }}
+{{- if or (eq .Values.expose.type "clusterIP") (eq .Values.expose.type "nodePort") (eq .Values.expose.type "loadBalancer") }}
 apiVersion: v1
 kind: Service
 metadata:
@@ -61,6 +61,9 @@ spec:
 {{ include "harbor.labels" . | indent 4 }}
 spec:
   type: LoadBalancer
+  {{- if $loadBalancer.IP }}
+  loadBalancerIP: {{ $loadBalancer.IP }}
+  {{- end }}
   ports:
     - name: http
       port: {{ $loadBalancer.ports.httpPort }}
