@@ -20,6 +20,30 @@ entries:
     - https://charts.kubesphere.io/qingcloud/gitlab-1.6.1.tgz
     version: 1.6.1
   harbor:
+  - appVersion: 1.8.3
+    created: 2019-09-27T01:49:44.206807244Z
+    description: An open source trusted cloud native registry that stores, signs,
+      and scans content
+    digest: 7363d53ae7098f361cd967a6a5958dedcabb7d44716983e2f4f01d22c3938d1d
+    engine: gotpl
+    home: https://goharbor.io
+    icon: https://raw.githubusercontent.com/goharbor/harbor/master/docs/img/harbor_logo.png
+    keywords:
+    - docker
+    - registry
+    - harbor
+    maintainers:
+    - email: huh@vmware.com
+      name: Jesse Hu
+    - email: username.taken@gmail.com
+      name: paulczar
+    name: harbor
+    sources:
+    - https://github.com/goharbor/harbor
+    - https://github.com/goharbor/harbor-helm
+    urls:
+    - https://charts.kubesphere.io/qingcloud/harbor-1.1.3.tgz
+    version: 1.1.3
   - appVersion: 1.8.2
     created: 2019-09-27T01:46:44.234941904Z
     description: An open source trusted cloud native registry that stores, signs,
@@ -171,4 +195,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/qingcloud/nginx-1.0.0.tgz
     version: 1.0.0
-generated: 2019-09-27T01:46:44.231841163Z
+generated: 2019-09-27T01:49:44.203602064Z
