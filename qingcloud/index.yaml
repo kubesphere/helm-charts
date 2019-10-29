@@ -195,4 +195,20 @@ entries:
     urls:
     - https://charts.kubesphere.io/qingcloud/nginx-1.0.0.tgz
     version: 1.0.0
-generated: 2019-09-27T01:49:44.203602064Z
+  tomcat:
+  - apiVersion: v1
+    appVersion: "7.0"
+    created: 2019-10-29T06:25:04.338252102Z
+    description: Deploy a basic tomcat application server with sidecar as web archive
+      container
+    digest: 0c5cd7256aa1536cba2e70890a0ef2ff5b07b74216253aca89c8e303370cb2ae
+    home: https://github.com/yahavb
+    icon: http://tomcat.apache.org/res/images/tomcat.png
+    maintainers:
+    - email: ybiran@ananware.systems
+      name: yahavb
+    name: tomcat
+    urls:
+    - https://charts.kubesphere.io/qingcloud/tomcat-0.4.0.tgz
+    version: 0.4.0
+generated: 2019-10-29T06:25:04.337542993Z
