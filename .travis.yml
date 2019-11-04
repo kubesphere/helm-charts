@@ -9,12 +9,15 @@ branches:
 
 jobs:
   include:
-    - stage: check
-      script: ./build.sh
+    - stage: verify
+      script: ./build.sh verify
       if: type = pull_request
     - stage: deploy
       script: ./build.sh deploy
       if: type = push
+    - stage: mirror
+      script: ./build.sh mirror
+      if: type = cron
 
 notifications:
   slack: kubesphere:OAhuHKLZdksTBQGBUW6UapFn
