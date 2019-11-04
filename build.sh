@@ -120,19 +120,42 @@ injectGithubToken() {
 
 pushUpdates() {
   ensureVars GITHUB_USER GITHUB_TOKEN
-  git fetch
-  git checkout --track origin/gh-pages
-  local repo
-  for repo in $(ls $buildDir); do
-    mkdir -p $repo && mv $buildDir/$repo/* $repo/ && git add $repo
-  done
-  git commit -m "Update Charts" --author="KubeSphere CI Bot <ks-ci-bot@users.noreply.github.com>"
+  git commit -m "Update" --author="KubeSphere CI Bot <ks-ci-bot@users.noreply.github.com>"
   injectGithubToken
   echo "Pushing updates to GitHub ..."
   git push origin HEAD:gh-pages
 }
 
-prepareHelm
-updateRepos
-[ -z "$updatedRepos" ] || [ "$1" != "deploy" ] || pushUpdates
+verify() {
+  prepareHelm
+  updateRepos
+}
 
+deploy() {
+  verify
+
+  [ -z "$updatedRepos" ] || {
+    git fetch
+    git checkout --track origin/gh-pages
+    local repo
+    for repo in $(ls $buildDir); do
+      mkdir -p $repo && mv $buildDir/$repo/* $repo/ && git add $repo
+    done
+    pushUpdates
+  }
+}
+
+mirror() {
+  local original=https://kubernetes-charts.storage.googleapis.com
+  local mirrored=https://helm-chart-repo.pek3a.qingstor.com/kubernetes-charts
+  git fetch
+  git checkout --track origin/gh-pages
+  mkdir -p mirror
+  cd mirror
+  curl -L $original/index.yaml -o index.yaml
+  sed -i "s#$original#$mirrored#g" index.yaml
+
+  pushUpdates
+}
+
+$@
