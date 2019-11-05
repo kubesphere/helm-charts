@@ -2,6 +2,9 @@ require 'spec_helper'
 
 describe "Restoring a backup" do
   before(:all) do
+    stdout, status = wait_for_dependencies
+    fail stdout unless status.success?
+
     wait_until_app_ready
     ensure_backups_on_object_storage
     stdout, status = restore_from_backup
@@ -42,7 +45,7 @@ describe "Restoring a backup" do
     it 'Issue attachments should load correctly' do
       visit '/root/testproject1/issues/1'
 
-      image_selector = 'div.wiki > p > a > img'
+      image_selector = 'div.md > p > a > img'
 
       expect(page).to have_selector(image_selector)
       image_src = page.all("img.js-lazy-loaded")[1][:src]

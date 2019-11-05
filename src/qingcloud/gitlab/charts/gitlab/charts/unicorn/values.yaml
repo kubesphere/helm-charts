@@ -38,6 +38,9 @@ ingress:
   annotations: {}
 workerProcesses: 2
 workerTimeout: 60
+memory: # in MB units
+  min: 700
+  max: 1024
 hpa:
   targetAverageValue: 1
 workhorse:
@@ -117,6 +120,11 @@ global:
       proxy_download: true
       bucket:
       connection: {}
+    externalDiffs:
+      when:
+      proxy_download: true
+      bucket:
+      connection: {}
     ldap:
       servers: {}
       # 'main' is the GitLab 'provider ID' of this LDAP server
@@ -185,3 +193,5 @@ resources:
 maxUnavailable: 1
 minReplicas: 2
 maxReplicas: 10
+helmTests:
+  enabled: true

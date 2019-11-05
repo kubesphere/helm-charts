@@ -27,10 +27,35 @@ global:
   ## doc/charts/globals.md#gitlab-version
   # gitlabVersion: master
 
+  enterpriseImages:
+    migrations:
+      repository: mirrorgitlabcontainers/gitlab-rails-ee
+    sidekiq:
+      repository: mirrorgitlabcontainers/gitlab-sidekiq-ee
+    task-runner:
+      repository: mirrorgitlabcontainers/gitlab-task-runner-ee
+    unicorn:
+      repository: mirrorgitlabcontainers/gitlab-unicorn-ee
+      workhorse:
+        repository: mirrorgitlabcontainers/gitlab-workhorse-ee
+
+  communityImages:
+    migrations:
+      repository: mirrorgitlabcontainers/gitlab-rails-ce
+    sidekiq:
+      repository: mirrorgitlabcontainers/gitlab-sidekiq-ce
+    task-runner:
+      repository: mirrorgitlabcontainers/gitlab-task-runner-ce
+    unicorn:
+      repository: mirrorgitlabcontainers/gitlab-unicorn-ce
+      workhorse:
+        repository: mirrorgitlabcontainers/gitlab-workhorse-ce
+
   ## doc/charts/globals.md#application-resource
   application:
     create: false
     links: []
+    allowClusterRoles: true
   ## doc/charts/globals.md#configure-host-settings
   hosts:
     domain: example.com
@@ -38,30 +63,6 @@ global:
     https: true
     externalIP:
     ssh: ~
-
-  enterpriseImages:
-    migrations:
-      repository: dockerhub.qingcloud.com/gitlab_org/gitlab-rails-ee
-    sidekiq:
-      repository: dockerhub.qingcloud.com/gitlab_org/gitlab-sidekiq-ee
-    task-runner:
-      repository: dockerhub.qingcloud.com/gitlab_org/gitlab-task-runner-ee
-    unicorn:
-      repository: dockerhub.qingcloud.com/gitlab_org/gitlab-unicorn-ee
-      workhorse:
-        repository: dockerhub.qingcloud.com/gitlab_org/gitlab-workhorse-ee
-
-  communityImages:
-    migrations:
-      repository: dockerhub.qingcloud.com/gitlab_org/gitlab-rails-ce
-    sidekiq:
-      repository: dockerhub.qingcloud.com/gitlab_org/gitlab-sidekiq-ce
-    task-runner:
-      repository: dockerhub.qingcloud.com/gitlab_org/gitlab-task-runner-ce
-    unicorn:
-      repository: dockerhub.qingcloud.com/gitlab_org/gitlab-unicorn-ce
-      workhorse:
-        repository: dockerhub.qingcloud.com/gitlab_org/gitlab-workhorse-ce
 
   ## doc/charts/globals.md#configure-ingress-settings
   ingress:
@@ -90,7 +91,8 @@ global:
 
   ## doc/charts/globals.md#configure-redis-settings
   redis:
-    password: {}
+    password:
+      enabled: true
       # secret:
       # key:
     # host: redis.hostedsomewhere.else
@@ -129,6 +131,27 @@ global:
       builds: true
     webhookTimeout:
 
+    ## doc/charts/globals.md#cron-jobs-related-settings
+    cron_jobs: {}
+      # stuck_ci_jobs_worker:
+      #   cron: "0 * * * *"
+      # pipeline_schedule_worker:
+      #   cron: "19 * * * *"
+      # expire_build_artifacts_worker:
+      #   cron: "50 * * * *"
+      # repository_check_worker:
+      #   cron: "20 * * * *"
+      # admin_email_worker:
+      #   cron: "0 0 * * 0"
+      # repository_archive_cache_worker:
+      #   cron: "0 * * * *"
+      # pages_domain_verification_cron_worker:
+      #   cron: "*/15 * * * *"
+      # pseudonymizer_worker:
+      #   cron: "0 * * * *"
+      # schedule_migrate_external_diffs_worker
+      #   cron: "15 * * * *"
+
     ## doc/charts/globals.md#gravatarlibravatar-settings
     gravatar:
       plainUrl:
@@ -140,7 +163,7 @@ global:
       piwikUrl:
       piwikSiteId:
 
-    ## doc/charts/globals.md#lfs-artifacts-uploads-packages
+    ## doc/charts/globals.md#lfs-artifacts-uploads-packages-external-mr-diffs
     lfs:
       bucket: git-lfs
       connection: {}
@@ -158,6 +181,10 @@ global:
         # key:
     packages:
       bucket: gitlab-packages
+      connection: {}
+    externalDiffs:
+      when:
+      bucket: gitlab-mr-diffs
       connection: {}
 
     ## doc/charts/globals.md#pseudonymizer-settings
@@ -290,7 +317,7 @@ global:
   # configuration of certificates container & custom CA injection
   certificates:
     image:
-      repository: dockerhub.qingcloud.com/gitlab_org/alpine-certificates
+      repository: mirrorgitlabcontainers/alpine-certificates
       tag: 20171114-r3
     customCAs: []
     # - secret: custom-CA
@@ -300,8 +327,7 @@ global:
 ## Settings to for the Let's Encrypt ACME Issuer
 certmanager-issuer:
   image:
-    repository: dockerhub.qingcloud.com/gitlab_org/kubectl
-    pullPolicy: IfNotPresent
+    repository: mirrorgitlabcontainers/kubectl
   ## The email address to register certificates requested from Let's Encrypt.
   ## Required if using Let's Encrypt.
   # email: email@example.com
@@ -326,6 +352,7 @@ nginx-ingress:
   controller:
     image:
       repository: dockerhub.qingcloud.com/kubernetes_ingress_controller/nginx-ingress-controller
+      tag: "0.24.1"
     config:
       hsts-include-subdomains: "false"
       server-name-hash-bucket-size: "256"
@@ -358,7 +385,7 @@ nginx-ingress:
           prometheus.io/port: "10254"
   defaultBackend:
     image:
-      repository: dockerhub.qingcloud.com/k8s_gcr_io/defaultbackend
+      repository: mirrorgooglecontainers/defaultbackend-amd64
     minAvailable: 1
     replicaCount: 2
     resources:
@@ -392,24 +419,13 @@ prometheus:
 ## doc/charts/redis
 # redis:
 #   enabled: true
-#   init:
-#     image: busybox
-#     tag: 1.30.1
-#   metrics:
-#     image: oliver006/redis_exporter
-#     imageTag: v0.30.0
-
 ## doc/architecture/decisions.md#redis-ha
 ## doc/charts/redis-ha
 redis-ha:
   enabled: false
   nameOverride: redis
   image:
-    repository: dockerhub.qingcloud.com/gitlab_org/gitlab-redis-ha
-    pullPolicy: IfNotPresent
-  init:
-    image: busybox
-    tag: 1.30.1
+    repository: mirrorgitlabcontainers/gitlab-redis-ha
 
 ## Instllation & configuration of stable/prostgresql
 ## See requirements.yaml for current version
@@ -430,9 +446,6 @@ postgresql:
 ## doc/charts/registry/
 # registry:
 #   enabled: false
-#   init:
-#     image: busybox
-#     tag: 1.30.1
 
 
 ## Automatic shared secret generation
@@ -443,11 +456,9 @@ shared-secrets:
   rbac:
     create: true
   image:
-    repository: dockerhub.qingcloud.com/gitlab_org/kubectl
-    pullPolicy: IfNotPresent
+    repository: mirrorgitlabcontainers/kubectl
   selfsign:
-    repository: dockerhub.qingcloud.com/gitlab_org/cfssl-self-sign
-    pullPolicy: IfNotPresent
+    repository: mirrorgitlabcontainers/cfssl-self-sign
 
 ## Installation & configuration of gitlab/gitlab-runner
 ## See requirements.yaml for current version
@@ -468,65 +479,34 @@ gitlab-runner:
 ## Settings for individual sub-charts under GitLab
 ## Note: Many of these settings are configurable via globals
 gitlab:
-  ## doc/charts/gitlab/gitaly
+## doc/charts/gitlab/migrations
+#   migrations:
+#     enabled: false
+## doc/charts/gitlab/unicorn 
+#   unicorn:
+#     enabled: false
+## doc/charts/gitlab/sidekiq 
+#   sidekiq:
+#     enabled: false
+## doc/charts/gitlab/gitaly 
   gitaly:
-    init:
-      image: busybox
-      tag: 1.30.1
+#     enabled: false
     image:
-      repository: dockerhub.qingcloud.com/gitlab_org/gitaly
-      pullPolicy: IfNotPresent
-
-  ## doc/charts/gitlab/gitlab-shell
+      repository: mirrorgitlabcontainers/gitaly
+      tag: v12-3-4
+## doc/charts/gitlab/gitlab-shell
   gitlab-shell:
-    init:
-      image: busybox
-      tag: 1.30.1
+#     enabled: false
     image:
-      repository: dockerhub.qingcloud.com/gitlab_org/gitlab-shell
-
+      repository: mirrorgitlabcontainers/gitlab-shell
+      tag: v12-3-4
   mailroom:
     image:
-      repository: dockerhub.qingcloud.com/gitlab_org/gitlab-mailroom
-    init:
-      image: busybox
-      tag: 1.30.1
-
-  ## doc/charts/gitlab/migrations
-  migrations:
-    init:
-      image: busybox
-      tag: 1.30.1
-
+      repository: mirrorgitlabcontainers/gitlab-mailroom
   operator:
     image:
-      repository: dockerhub.qingcloud.com/gitlab_org/gitlab-operator
-      tag: v0.3
-      pullPolicy: IfNotPresent
+      repository: mirrorgitlabcontainers/gitlab-operator
     install:
       image:
-        repository: dockerhub.qingcloud.com/google_containers/hyperkube
-        pullPolicy: IfNotPresent
+        repository: mirrorgooglecontainers/hyperkube-amd64
 
-  ## doc/charts/gitlab/sidekiq
-  sidekiq:
-    init:
-      image: busybox
-      tag: 1.30.1
-
-  task-runner:
-    init:
-      image: busybox
-      tag: 1.30.1
-
-  ## doc/charts/gitlab/unicorn
-  unicorn:
-    init:
-      image: busybox
-      tag: 1.30.1
-
-minio:
-  imagePullPolicy: "IfNotPresent"
-  init:
-    image: busybox
-    tag: 1.30.1

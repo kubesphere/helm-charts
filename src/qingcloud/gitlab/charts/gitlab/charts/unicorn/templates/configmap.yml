@@ -16,7 +16,7 @@ data:
       database: {{ template "gitlab.psql.database" . }}
       pool: 10
       username: {{ template "gitlab.psql.username" . }}
-      password: <%= File.read("/etc/gitlab/postgres/psql-password") %>
+      password: "<%= File.read("/etc/gitlab/postgres/psql-password") %>"
       host: {{ template "gitlab.psql.host" . }}
       port: {{ template "gitlab.psql.port" . }}
       # load_balancing:
@@ -29,7 +29,8 @@ data:
   resque.yml.erb: |
     production:
       # Redis (single instance)
-      url: {{ template "gitlab.redis.scheme" . }}://:<%= File.read("/etc/gitlab/redis/password") %>@{{ template "gitlab.redis.host" . }}:{{ template "gitlab.redis.port" . }}
+      url: {{ template "gitlab.redis.url" . }}
+      id:
   unicorn.rb: |
     worker_processes {{ .Values.workerProcesses }}
     working_directory "/srv/gitlab"
@@ -56,8 +57,8 @@ data:
       defined?(::Prometheus::Client.reinitialize_on_pid_change) && Prometheus::Client.reinitialize_on_pid_change
     end
 
-    ENV['GITLAB_UNICORN_MEMORY_MIN'] = (400 * 1 << 20).to_s
-    ENV['GITLAB_UNICORN_MEMORY_MAX'] = (650 * 1 << 20).to_s
+    ENV['GITLAB_UNICORN_MEMORY_MIN'] = ({{ int .Values.memory.min }} * 1 << 20).to_s
+    ENV['GITLAB_UNICORN_MEMORY_MAX'] = ({{ int .Values.memory.max }} * 1 << 20).to_s
 
   gitlab.yml.erb: |
     production: &base
@@ -90,15 +91,17 @@ data:
       {{- if eq .incomingEmail.enabled true }}
 {{ include "gitlab.appConfig.incoming_email" . | indent 6 }}
       {{- end }}
+      {{- include "gitlab.appConfig.cronJobs" . | nindent 6 }}
       gravatar:
         plain_url: {{ .gravatar.plainUrl }}
         ssl_url: {{ .gravatar.sslUrl }}
 {{ include "gitlab.appConfig.extra" . | indent 6 }}
       {{- end }}
-      {{- include "gitlab.appConfig.objectStorage.configuration" (dict "name" "artifacts" "config" $.Values.global.appConfig.artifacts "context" $) | nindent 6 }}
-      {{- include "gitlab.appConfig.objectStorage.configuration" (dict "name" "lfs" "config" $.Values.global.appConfig.lfs "context" $) | nindent 6 }}
-      {{- include "gitlab.appConfig.objectStorage.configuration" (dict "name" "uploads" "config" $.Values.global.appConfig.uploads "context" $) | nindent 6 }}
-      {{- include "gitlab.appConfig.objectStorage.configuration" (dict "name" "packages" "config" $.Values.global.appConfig.packages "context" $) | nindent 6 }}
+      {{- include "gitlab.appConfig.artifacts.configuration" (dict "config" $.Values.global.appConfig.artifacts "context" $) | nindent 6 }}
+      {{- include "gitlab.appConfig.lfs.configuration" (dict "config" $.Values.global.appConfig.lfs "context" $) | nindent 6 }}
+      {{- include "gitlab.appConfig.uploads.configuration" (dict "config" $.Values.global.appConfig.uploads "context" $) | nindent 6 }}
+      {{- include "gitlab.appConfig.packages.configuration" (dict "config" $.Values.global.appConfig.packages "context" $) | nindent 6 }}
+      {{- include "gitlab.appConfig.external_diffs.configuration" (dict "config" $.Values.global.appConfig.externalDiffs "context" $) | nindent 6 }}
       pages:
         enabled: false
       mattermost:
@@ -129,35 +132,8 @@ data:
       ## Registry Integration
       {{- include "gitlab.appConfig.registry.configuration" $ | nindent 6 }}
   configure: |
-      set -e
-      config_dir="/init-config"
-      secret_dir="/init-secrets-unicorn"
-
-      for secret in redis shell gitaly registry postgres rails-secrets gitlab-workhorse ; do
-        mkdir -p "${secret_dir}/${secret}"
-        cp -v -r "${config_dir}/${secret}/." "${secret_dir}/${secret}/"
-      done
-      if [ -e "${config_dir}/minio" ]; then
-        mkdir -p "${secret_dir}/minio"
-        cp -v -r "${config_dir}/minio/." "${secret_dir}/minio/"
-      fi
-      if [ -e "${config_dir}/objectstorage" ]; then
-        mkdir -p "${secret_dir}/objectstorage"
-        cp -v -r "${config_dir}/objectstorage/." "${secret_dir}/objectstorage/"
-      fi
-      if [ -e "${config_dir}/ldap" ]; then
-        mkdir -p "${secret_dir}/ldap"
-        cp -v -r "${config_dir}/ldap/." "${secret_dir}/ldap/"
-      fi
-      if [ -e "${config_dir}/omniauth" ]; then
-        mkdir -p "${secret_dir}/omniauth"
-        cp -v -r "${config_dir}/omniauth/." "${secret_dir}/omniauth/"
-      fi
-      if [ -e "${config_dir}/smtp/smtp-password" ]; then
-        mkdir -p "${secret_dir}/smtp"
-        cp -v -r "${config_dir}/smtp/smtp-password" "${secret_dir}/smtp/"
-      fi
-{{- include "gitlab.psql.ssl.initScript" . | indent 6 }}
+    {{- include "gitlab.scripts.configure.secrets" (dict) | nindent 4 -}}
+    {{- include "gitlab.psql.ssl.initScript" . | nindent 4 }}
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -172,12 +148,16 @@ data:
   workhorse-config.toml.erb: |
     [redis]
     URL = "{{ template "gitlab.redis.scheme" . }}://{{ template "gitlab.redis.host" . }}:{{ template "gitlab.redis.port" . }}"
+    {{- if .Values.global.redis.password.enabled }}
     Password = "<%= File.read("/etc/gitlab/redis/password") %>"
+    {{- end }}
   configure: |
       set -e
       mkdir -p /init-secrets-workhorse/gitlab-workhorse
-      cp /init-config/gitlab-workhorse/secret /init-secrets-workhorse/gitlab-workhorse/secret
+      cp -v -r -L /init-config/gitlab-workhorse/secret /init-secrets-workhorse/gitlab-workhorse/secret
+      {{- if .Values.global.redis.password.enabled }}
       mkdir -p /init-secrets-workhorse/redis
-      cp /init-config/redis/password /init-secrets-workhorse/redis/
+      cp -v -r -L /init-config/redis/password /init-secrets-workhorse/redis/
+      {{- end }}
 # Leave this here - This line denotes end of block to the parser.
 {{- end }}

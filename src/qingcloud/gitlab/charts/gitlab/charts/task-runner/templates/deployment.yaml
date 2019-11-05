@@ -8,6 +8,9 @@ metadata:
 {{ include "gitlab.standardLabels" . | indent 4 }}
 spec:
   replicas: 1
+  strategy:
+    rollingUpdate: null
+    type: Recreate
   selector:
     matchLabels:
       app: {{ template "name" . }}
@@ -54,7 +57,7 @@ spec:
           args:
             - /bin/bash
             - -c
-            - cp /etc/gitlab/.s3cfg $HOME/.s3cfg && while sleep 3600; do :; done # alpine sleep has no infinity
+            - cp -v -r -L /etc/gitlab/.s3cfg $HOME/.s3cfg && while sleep 3600; do :; done # alpine sleep has no infinity
           image: "{{ coalesce .Values.image.repository (include "image.repository" .) }}:{{ coalesce .Values.image.tag (include "gitlab.versionTag" . ) }}"
           {{ template "gitlab.imagePullPolicy" . }}
           env:
@@ -88,6 +91,12 @@ spec:
             - name: task-runner-secrets
               mountPath: /srv/gitlab/config/secrets.yml
               subPath: rails-secrets/secrets.yml
+            - name: task-runner-tmp
+              mountPath: '/srv/gitlab/tmp'
+              {{- if and .Values.persistence.enabled .Values.persistence.subPath }}
+              subPath: "{{ .Values.persistence.subPath }}"
+              {{- end }}
+              readOnly: false
 {{ include "gitlab.certificates.volumeMount" . | indent 12 }}
           resources:
 {{ toYaml .Values.resources | indent 12 }}
@@ -103,6 +112,13 @@ spec:
             - configMap:
                 name: {{ .Values.global.appConfig.pseudonymizer.configMap }}
             {{- end }}
+      - name: task-runner-tmp
+        {{- if .Values.persistence.enabled }}
+        persistentVolumeClaim:
+          claimName: {{ template "fullname" . }}-tmp
+        {{- else }}
+        emptyDir: {}
+        {{- end }}
       - name: init-task-runner-secrets
         projected:
           defaultMode: 0400
@@ -122,11 +138,13 @@ spec:
               items:
                 - key: {{ template "gitlab.gitaly.authToken.key" . }}
                   path: gitaly/gitaly_token
+          {{- if .Values.global.redis.password.enabled }}
           - secret:
               name: {{ template "gitlab.redis.password.secret" . }}
               items:
                 - key: {{ template "gitlab.redis.password.key" . }}
                   path: redis/password
+          {{- end }}
           - secret:
               name: {{ template "gitlab.psql.password.secret" . }}
               items:
@@ -147,6 +165,7 @@ spec:
           {{- include "gitlab.minio.mountSecrets" $ | nindent 10 }}
           {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "lfs" "config" $.Values.global.appConfig.lfs) | nindent 10 }}
           {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "packages" "config" $.Values.global.appConfig.packages) | nindent 10 }}
+          {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "external_diffs" "config" $.Values.global.appConfig.externalDiffs) | nindent 10 }}
           {{- include "gitlab.appConfig.pseudonymizer.mountSecrets" $ | nindent 10 }}
           {{- include "gitlab.appConfig.ldap.servers.mountSecrets" $ | nindent 10 }}
           {{- include "gitlab.appConfig.omniauth.mountSecrets" $ | nindent 10 }}

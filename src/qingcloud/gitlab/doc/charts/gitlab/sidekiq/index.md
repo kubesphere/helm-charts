@@ -35,7 +35,6 @@ to the `helm install` command using the `--set` flags:
 | --------------------------- | ----------------- | ---------------------------------------- | 
 | `annotations`               |                   | Pod annotations                          | 
 | `concurrency`               | `10`              | Sidekiq default concurrency              | 
-| `cron_jobs`                 | `{}`              | Auxiliary cron jobs                      | 
 | `enabled`                   | `true`            | Sidekiq enabled flag                     | 
 | `extraContainers`           |                   | List of extra containers to include      | 
 | `extraInitContainers`       |                   | List of extra init containers to include | 
@@ -57,6 +56,9 @@ to the `helm install` command using the `--set` flags:
 | `resources.requests.cpu`    | `100m`            | Sidekiq minimum needed cpu               | 
 | `resources.requests.memory` | `600M`            | Sidekiq minimum needed memory            | 
 | `timeout`                   | `5`               | Sidekiq job timeout                      | 
+| `memoryKiller.maxRss`       | `2000000`         | Maximum RSS before delayed shutdown triggered expressed in kilobytes |
+| `memoryKiller.graceTime`    | `900`             | Time to wait before a triggered shutdown expressed in seconds|
+| `memoryKiller.shutdownWait` | `30`              | Amount of time after triggered shutdown for existing jobs to finish expressed in seconds |
 
 ## Chart configuration examples
 
@@ -186,28 +188,15 @@ on a per-pod basis.
 | Name          | Type    | Default | Description |
 |:------------- |:-------:|:------- |:----------- |
 | `concurrency` | Integer | `25`    | The number of tasks to process simultaneously. |
-| `cron_jobs`   |         |         | [See below](#cron_jobs). |
 | `replicas`    | Integer | `1`     | The number of `replicas` to use by default per pod definition. |
 | `timeout`     | Integer | `4`     | The sidekiq shutdown timeout. The number of seconds after sidekiq gets the TERM signal before it forcefully shuts down its processes. |
+| `memoryKiller.maxRss`       | Integer | `2000000`         | Maximum RSS before delayed shutdown triggered expressed in kilobytes |
+| `memoryKiller.graceTime`    | Integer | `900`             | Time to wait before a triggered shutdown expressed in seconds|
+| `memoryKiller.shutdownWait` | Integer | `30`              | Amount of time after triggered shutdown for existing jobs to finish expressed in seconds |
 
-### cron_jobs
-
-Sidekiq includes maintenance jobs that can be configured to run on a periodic basis
-using cron style schedules. A few examples are included below. See the sample
-[gitlab.yml](https://gitlab.com/gitlab-org/gitlab-ee/blob/master/config/gitlab.yml.example#L237-302)
-for more job examples.
-
-Cron jobs are configured globally for all Sidekiq pods. There are no per-pod settings.
-
-```YAML
-cron_jobs:
-  stuck_ci_jobs_worker:
-    cron: "0 * * * *"
-  pipeline_schedule_worker:
-    cron: "19 * * * *"
-  expire_build_artifacts_worker:
-    cron: "50 * * * *"
-```
+NOTE: **Note**: [Detailed documentation of the sidekiq memory killer is
+  available](https://docs.gitlab.com/ee/administration/operations/sidekiq_memory_killer.html#sidekiq-memorykiller)
+  in the Omnibus documentation.
 
 ## Per-pod Settings
 

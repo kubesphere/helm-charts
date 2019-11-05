@@ -41,6 +41,8 @@ to the `helm install` command using the `--set` flags.
 | `image.tag`                      |                       | Unicorn image tag                              |
 | `init.image`                     | `busybox`             | initContainer image                            |
 | `init.tag`                       | `latest`              | initContainer image tag                        |
+| `memory.min`                     | `400`                 | The minimum memory threshold (in megabytes) for the Unicorn worker killer |
+| `memory.max`                     | `650`                 | The maximum memory threshold (in megabytes) for the Unicorn worker killer |
 | `metrics.enabled`                | `true`                | Toggle Prometheus metrics exporter             |
 | `minio.bucket`                   | `git-lfs`             | Name of storage bucket, when using Minio       |
 | `minio.port`                     | `9000`                | Port for Minio service                         |
@@ -97,7 +99,7 @@ image:
 ```YAML
 annotations:
   kubernetes.io/example-annotation: annotation-value
-``` 
+```
 
 ## Using the Community Edition of this chart
 
@@ -133,6 +135,12 @@ you can set the body size with either of the following two parameters too:
 - `gitlab.unicorn.ingress.annotations."nginx\.ingress\.kubernetes\.io/proxy-body-size"`
 - `global.ingress.annotations."nginx\.ingress\.kubernetes\.io/proxy-body-size"`
 
+## Memory
+
+Memory thresholds for the [unicorn-worker-killer](https://docs.gitlab.com/ee/administration/operations/unicorn.html#unicorn-worker-killer)
+can be customized using the `memory.min` and `memory.max` chart values. While the default values are sane, you can increase (or lower)
+these values to fine-tune them for your environment or troubleshoot performance issues.
+
 ## External Services
 
 ### Redis
@@ -143,6 +151,7 @@ redis:
   serviceName: redis
   port: 6379
   password:
+    enabled: true
     secret: gitlab-redis
     key: redis-password
 ```
@@ -152,8 +161,9 @@ redis:
 | `host`            | String  |         | The hostname of the Redis server with the database to use. This can be omitted in lieu of `serviceName`. |
 | `serviceName`     | String  | `redis` | The name of the `service` which is operating the Redis database. If this is present, and `host` is not, the chart will template the hostname of the service (and current `.Release.Name`) in place of the `host` value. This is convenient when using Redis as a part of the overall GitLab chart. |
 | `port`            | Integer | `6379`  | The port on which to connect to the Redis server. |
-| `password.key`    | String  |         | The `password.key` attribute for PostgreSQL defines the name of the key in the secret (below) that contains the password. |
-| `password.secret` | String  |         | The `password.secret` attribute for PostgreSQL defines the name of the kubernetes `Secret` to pull from. |
+| `password.key`    | String  |         | The `password.key` attribute for Redis defines the name of the key in the secret (below) that contains the password. |
+| `password.secret` | String  |         | The `password.secret` attribute for Redis defines the name of the kubernetes `Secret` to pull from. |
+| `password.enabled`| Bool    | true    | The `password.enabled` provides a toggle for using a password with the Redis instance. |
 
 ### PostgreSQL
 
