@@ -8,6 +8,9 @@ metadata:
 {{ include "gitlab.standardLabels" . | indent 4 }}
 spec:
   replicas: 1
+  strategy:
+    rollingUpdate: null
+    type: Recreate
   selector:
     matchLabels:
       component: operator
@@ -23,8 +26,12 @@ spec:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ coalesce .Values.image.tag (include "gitlab.operator.parseVersion" .Values.version ) }}"
           env:
-          - name: API_SUBGROUP
+          - name: GITLAB_CLASS
             value: {{ .Release.Name }}
+          {{- if .Values.crdPrefix }}
+          - name: CRD_PREFIX
+            value: {{ .Values.crdPrefix }}
+          {{- end }}
           {{ template "gitlab.imagePullPolicy" . }}
           resources:
 {{ toYaml .Values.resources | indent 12 }}

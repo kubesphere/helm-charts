@@ -88,6 +88,7 @@ use it as shown below.
 
 *Include these options in your helm install command:*
 ```
+--set postgresql.install=false
 --set global.psql.host=production.postgress.hostname.local
 --set global.psql.password.secret=kubernetes_secret_name
 --set global.psql.password.key=key_that_contains_postgres_password
@@ -109,6 +110,39 @@ By default this chart provides an in-cluster minio deployment to provide an obje
 This configuration should not be used in production.
 
 You can read more about setting up your production-ready object storage in the [external object storage](../advanced/external-object-storage/index.md)
+
+### Prometheus
+
+We use the [upstream Prometheus chart][prometheus-configuration],
+and do not override values from our own defaults.
+We do, however, default disable `alertmanager`, `nodeExporter`, and
+`pushgateway`.
+
+Refer to the [Prometheus chart documentation][prometheus-configuration] for the
+exhaustive list of configuration options and ensure they are sub-keys to
+`prometheus`, as we use this as requirement chart.
+
+For instance, the requests for persistent storage can be controlled with:
+
+```yaml
+prometheus:
+  alertmanager:
+    enabled: false
+    persistentVolume:
+      enabled: false
+      size: 2GiB
+  pushgateway:
+    enabled: false
+    persistentVolume:
+      enabled: false
+      size: 2GiB
+  server:
+    persistentVolume:
+      enabled: true
+      size: 8GiB
+```
+
+[prometheus-configuration]: https://github.com/helm/charts/tree/master/stable/prometheus#configuration
 
 ### Outgoing email
 
