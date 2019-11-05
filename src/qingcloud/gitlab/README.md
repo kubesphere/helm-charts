@@ -5,7 +5,7 @@ Changes to the official chart:
 - Users in China have troubles to pull some Docker images used in this chart. We retagged them (untouched) and pushed them to [https://hub.docker.com](https://hub.docker.com).
 - Use fixed tags instead of "latest" for images, as well as change pull policy to "IfNotPresent" accordingly.
 
-[![pipeline status](https://gitlab.com/charts/gitlab/badges/master/pipeline.svg)](https://gitlab.com/charts/gitlab/pipelines)
+[![pipeline status](https://gitlab.com/gitlab-org/charts/gitlab/badges/master/pipeline.svg)](https://gitlab.com/gitlab-org/charts/gitlab/pipelines)
 
 # Cloud Native GitLab Helm Chart
 

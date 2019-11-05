@@ -1,6 +1,6 @@
 # Development styleguide
 
-Our contribution policies can be found in [CONTRIBUTING.md](https://gitlab.com/charts/gitlab/tree/master/CONTRIBUTING.md)
+Our contribution policies can be found in [CONTRIBUTING.md](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/CONTRIBUTING.md)
 
 ## Versioning and Release
 
@@ -58,16 +58,27 @@ redis:
   host: redis.example.com
   serviceName: redis
   port: 8080
+    sentinels:
+    - host: sentinel1.example.com
+      port: 26379
   password:
     secret: gitlab-redis
     key: redis-password
 ```
 
 - `redis` - the name for what the current chart needs to connect to
-- `host`  - overrides the use of serviceName, comment out by default use `0.0.0.0` as the example
+- `host`  - overrides the use of serviceName, comment out by default use `0.0.0.0` as the example. If using Redis Sentinels, the `host` attribute needs to be set to the cluster name as specified in the `sentinel.conf`.
 - `serviceName` - intended to be used by default instead of the host, connect using the Kubernetes Service name
 - `port` - the port to connect on. Comment out by default, and use the default port as the example.
 - `password`- defines settings for the Kubernetes Secret containing the password.
+- `sentinels.[].host` - defines the hostname of Redis Sentinel server for a Redis HA setup.
+- `sentinels.[].port` - defines the port on which to connect to the Redis Sentinel server. Defaults to `26379`.
+
+_Note:_ The current Redis Sentinel support only supports Sentinels that have
+been deployed separately from the GitLab chart. As a result, the Redis
+deployment through the GitLab chart should be disabled with `redis.enabled=false`
+and `redis-ha.enabled=false`. The Secret containing the Redis password
+will need to be manually created before deploying the GitLab chart.
 
 ### Sharing secrets
 
@@ -144,7 +155,7 @@ For example, where `gitaly` was the owning chart, and the other charts need to r
 
 ## Developing template helpers
 
-A charts template helpers are located in `templates/_helpers.tpl`. These contain the [named templates](https://docs.helm.sh/chart_template_guide/#declaring-and-using-templates-with-define-and-template)
+A charts template helpers are located in `templates/_helpers.tpl`. These contain the [named templates](https://helm.sh/docs/chart_template_guide/#declaring-and-using-templates-with-define-and-template)
 used within the chart.
 
 When using these templates, there a few things to keep in mind regarding the [golang templating syntax](https://golang.org/pkg/text/template/).
@@ -237,6 +248,51 @@ use initContainers][initContainer-vs-env].
 There are some cases where it is needed to extend the functionality of a chart in
 such a way that an upstream may not accept.
 
+#### When to utilize `toYaml` in templates
+
+It is frowned upon to default to utilizing a `toYaml` in the template files as
+this will put undue burden on supporting all functionalities of both Kuberentes
+and desired community configurations.  We primary focus on providing a
+reasonable default using the bare minimum configuration.  Our secondary focus
+would be to provide the ability to override the defaults for more advanced users
+of Kubernetes.  This should be done on a case-by-case basis as there are
+certainly scenarios where either option may be too cumbersome to support, or
+provides an unnecessarily complex template to maintain.
+
+An good example of a reasonable default with the ability to override can be
+found in the Horizontal Pod Autoscaler configuration for the registry subchart.
+We default to providing the bare minimum that can easily be supported, by
+exposing a specific configuration of controlling the HPA via the CPU Utilization
+and exposing only one configuration option to the community, the
+`targetAverageUtilization`.  Being that an HPA can provide much more
+flexibility, more advanced users may want to target different metrics and as
+such, is a perfect example of where we can utilize and if statement allowing the
+end user to provide a more complex HPA configuration in place.
+
+```yaml
+  metrics:
+  {{- if not .Values.hpa.customMetrics }}
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          targetAverageUtilization: {{ .Values.hpa.cpu.targetAverageUtilization }}
+  {{- else -}}
+    {{- toYaml .Values.hpa.customMetrics | nindent 4 -}}
+  {{- end -}}
+```
+
+In the above example, the minimum configuration will be a simple change in the
+`values.yaml` to update the `targetAverageUtilization`.
+
+Advanced users who have identified a better metric can override this overly
+simplistic HPA configuration by setting `.customMetrics` to an array containing
+precisely the Kubernetes API compatible configuration for the HPA metrics array.
+
+It is important that we maintain ease of use for the more advanced users to
+minimize their own configuration files without it being cumbersome.
+
 ## Handling configuration deprecations
 
 There are times in a development where changes in behavior require a functionally breaking change. We try to avoid such changes, but some items can not be handled without such a change.
@@ -251,9 +307,7 @@ See the documentation of the [deprecations template][] for further information o
 
 Due to the complexity of these charts and their level of flexibility, there are some overlaps where it is possible to produce a configuration that would lead to an unpredictable, or entirely non-functional deployment. In an effort to prevent known problematic settings combinations, we have implemented template logic designed to detect and warn the user that their configuration will not work
 
-See the documentation of the [checkConfig template][] for further information on the design, functionality, and how to add new configuration checks.
-
-[checkConfig template][checkconfig.md]
+See the documentation of the [checkConfig template](checkconfig.md) for further information on the design, functionality, and how to add new configuration checks.
 
 ## Verifying registry
 
