@@ -2,6 +2,252 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 1.9.8
+
+### Other (1 change)
+
+- Update GitLab Version to 11.11.8.
+
+
+## 1.9.7
+
+### Fixed (2 changes)
+
+- Freeze the version of redis exporter image. !850
+- Fixed shared secrets whitespace templating #1410. !861
+
+### Other (1 change)
+
+- Update GitLab Version to 11.11.7.
+
+
+## 1.9.6 (2019-07-03)
+
+### Other (1 change)
+
+- Update GitLab Version to 11.11.5.
+
+
+## 1.9.5 (2019-06-26)
+
+### Other (1 change)
+
+- Update GitLab Version to 11.11.4.
+
+
+## 1.9.4 (2019-06-21)
+
+### Added (1 change)
+
+- Add chart-info configmap to allow an upgrade path to the GitLab 12.0. !829
+
+### Other (1 change)
+
+- Update GitLab Version to 11.11.3.
+
+
+## 1.9.3 (2019-06-10)
+
+### Other (1 change)
+
+- Update GitLab Version to 11.11.3.
+
+
+## 1.9.2 (2019-06-05)
+
+### Other (2 changes)
+
+- Update gitlab-runner to 0.5.2/11.11.2. !806
+- Update GitLab Version to 11.11.2.
+
+
+## 1.9.1 (2019-06-03)
+
+### Other (2 changes)
+
+- Update GitLab Runner Helm Chart to 0.5.1. !801
+- Update GitLab Version to 11.11.1.
+
+
+## 1.9.0 (2019-05-22)
+
+### Changed (4 changes)
+
+- Transition Operator from Cluster to Namespace Role. !764
+- Replace subgroup with GitLab class annotation. !772
+- Rename subgroup to CRD prefix. !773
+- Add default Referrer-Policy to nginx-ingress headers. !774
+
+### Performance (1 change)
+
+- Unicorn: increase worker memory defaults.
+
+### Added (3 changes, 1 of them is from the community)
+
+- Add checkConfig logic to detect known bad configurations. !757
+- Persistent storage for task-runner tmp directory. !769 (jansmets)
+- Enable Sidekiq Memory Killer Configuration. !776
+
+### Other (2 changes)
+
+- Update gitlab-runner to 0.5.0/11.11.0. !798
+- Update GitLab Version to 11.11.0.
+
+
+## 1.8.4 (2019-05-01)
+
+### Other (1 change)
+
+- Update GitLab Version to 11.10.4.
+
+
+## 1.8.3 (2019-04-30)
+
+### Other (1 change)
+
+- Update GitLab Version to 11.10.3.
+
+
+## 1.8.2 (2019-04-29)
+
+### Other (1 change)
+
+- Update GitLab Version to 11.10.2.
+
+
+## 1.8.1 (2019-04-24)
+
+### Other (2 changes)
+
+- Update gitlab-runner to 0.4.1/11.10.1. !768
+- Update GitLab Version to 11.10.1.
+
+
+## 1.8.0 (2019-04-22)
+
+### Fixed (2 changes)
+
+- Quote read passwords in yml files. !717
+- Ensure README present in helm package. !752
+
+### Changed (2 changes)
+
+- Update operator to use recreate deployment strategy. !728
+- Bump gitlab-operator to v0.4. !744
+
+### Added (3 changes, 1 of them is from the community)
+
+- Expose unicorn memory limits via chart values. !738 (Paul Nicholson)
+- Add support for when setting for external diffs. !743
+- ElasticSearch is now available. !746
+
+### Other (2 changes)
+
+- Update gitlab-runner to 0.4.0/11.10.0. !765
+- Update GitLab Version to 11.10.0.
+
+
+## 1.7.5 (2019-04-11)
+
+### Other (1 change)
+
+- Update GitLab Version to 11.9.8.
+
+
+## 1.7.4 (2019-04-10)
+
+### Fixed (1 change)
+
+- Ensure README present in helm package. !752
+
+### Other (1 change)
+
+- Update GitLab Version to 11.9.7.
+
+
+## 1.7.3 (2019-04-05)
+
+### Fixed (2 changes)
+
+- Mount object storage secrets related to external diffs to pods. !745
+- Fix support for NGINX Ingress DaemonSets. !748
+
+### Other (1 change)
+
+- Update GitLab Version to 11.9.6.
+
+
+## 1.7.2 (2019-04-02)
+
+### Fixed (1 change)
+
+- Application: use groups in componentKinds. !740
+
+### Other (1 change)
+
+- Update GitLab Version to 11.9.4.
+
+
+## 1.7.1 (2019-03-25)
+
+### Other (2 changes)
+
+- Update gitlab-runner to 0.3.0/11.9.0. !735
+- Update GitLab Version to 11.9.1.
+
+
+## 1.7.0 (2019-03-22)
+
+### Fixed (5 changes, 3 of them are from the community)
+
+- Set the Redis client ID to nil as some servers have that command disabled. !666 (Vic Iglesias)
+- Set the life span of Registry certificate to 10 years. !701
+- Add Gitaly configuration to migrations job. !710
+- Add missing certificates initContainer to gitaly. !716 (Harry Lee (tclh123))
+- Provide Kubernetes 1.8 backwards compatibility for init-container secret copying. !720 (Fabian Jucker)
+
+### Changed (3 changes, 1 of them is from the community)
+
+- Extract shared configuration script of ruby-based pods into own template. !685 (Matthias van de Meent (Cofano Software Solutions))
+- Move cron_jobs setting from sidekiq to global context. !693
+- Allow disabling of the unicorn helm test. !721
+
+### Added (5 changes, 1 of them is from the community)
+
+- Allow use of password-less Redis services (external). !665 (Vic Iglesias)
+- Add support for using object storage for storing MR diffs. !698
+- Allow Disabling of ClusterRoles in ApplicationCRD. !702
+- Add eks_bootstrap_script. !706
+- Registry: Add caompatibility for Docker manifest schema1. !724
+
+### Other (2 changes)
+
+- Automate version mapping updates. !704
+- Update GitLab Version to 11.9.0.
+
+
+## 1.6.3 (2019-03-20)
+
+### Changed (1 change)
+
+- Allow disabling of the unicorn helm test. !721
+
+### Other (1 change)
+
+- Update GitLab Version to 11.8.3.
+
+
+## 1.6.2 (2019-03-13)
+
+### Fixed (1 change)
+
+- Add Gitaly configuration to migrations job. !710
+
+### Other (1 change)
+
+- Update GitLab Version to 11.8.2.
+
+
 ## 1.6.1 (2019-03-04)
 
 ### Fixed (1 change)

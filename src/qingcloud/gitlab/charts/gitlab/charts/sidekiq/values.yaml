@@ -28,6 +28,12 @@ metrics:
 redis:
   password: {}
 
+# https://docs.gitlab.com/ee/administration/operations/sidekiq_memory_killer.html#sidekiq-memorykiller
+memoryKiller:
+  maxRss: 2000000
+  graceTime: 900
+  shutdownWait: 30
+
 global:
   # imagePullPolicy: IfNotPresent
   hosts:
@@ -90,6 +96,11 @@ global:
       proxy_download: true
       bucket:
       connection: {}
+    externalDiffs:
+      when:
+      proxy_download: true
+      bucket:
+      connection: {}
     ldap:
       servers: {}
       # 'main' is the GitLab 'provider ID' of this LDAP server
@@ -147,24 +158,6 @@ rack_attack:
     # maxretry: 10
     # findtime: 60
     # bantime: 3600
-
-cron_jobs: {}
-  # stuck_ci_jobs_worker:
-  #   cron: "0 * * * *"
-  # pipeline_schedule_worker:
-  #   cron: "19 * * * *"
-  # expire_build_artifacts_worker:
-  #   cron: "50 * * * *"
-  # repository_check_worker:
-  #   cron: "20 * * * *"
-  # admin_email_worker:
-  #   cron: "0 0 * * 0"
-  # repository_archive_cache_worker:
-  #   cron: "0 * * * *"
-  # pages_domain_verification_cron_worker:
-  #   cron: "*/15 * * * *"
-  # pseudonymizer_worker:
-  #   cron: "0 * * * *"
 
 trusted_proxies: []
 

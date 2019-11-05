@@ -8,12 +8,10 @@ metadata:
 {{ include "gitlab.standardLabels" . | indent 4 }}
 data:
   configure: |
-    set -e
-    mkdir -p /init-secrets/redis /init-secrets/shell /init-secrets/ssh
-    cp /init-config/redis/password  /init-secrets/redis/password
-    cp /init-config/shell/.gitlab_shell_secret  /init-secrets/shell/.gitlab_shell_secret
-    cp /init-config/ssh_host_* /init-secrets/ssh/
-    chmod 0400 /init-secrets/ssh/ssh_host_*
+    {{- include "gitlab.scripts.configure.secrets" (dict "required" "shell" ) | nindent 4 -}}
+    mkdir -p /${secret_dir}/ssh
+    cp -v -r -L /${config_dir}/ssh_host_* /${secret_dir}/ssh/
+    chmod 0400 /${secret_dir}/ssh/ssh_host_*
   config.yml.erb: |
     # GitLab user. git by default
     user: git
@@ -33,7 +31,9 @@ data:
     redis:
       host: {{ template "gitlab.redis.host" . }}
       port: {{ template "gitlab.redis.port" . }}
+      {{- if .Values.global.redis.password.enabled }}
       pass: "<%= File.read("/etc/gitlab-secrets/redis/password") %>"
+      {{- end }}
       database: nil
       namespace: resque:gitlab
 

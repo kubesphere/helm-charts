@@ -106,7 +106,14 @@ module Gitlab
 
     def set_runner_token
       rails_dir = ENV['RAILS_DIR'] || '/srv/gitlab'
-      cmd = full_command("#{rails_dir}/bin/rails runner \"settings = ApplicationSetting.current; settings.set_runners_registration_token('#{runner_registration_token}'); settings.save!; ApplicationSetting.expire \"")
+      cmd = full_command("#{rails_dir}/bin/rails runner \"settings = ApplicationSetting.current_without_cache; settings.set_runners_registration_token('#{runner_registration_token}'); settings.save!; ApplicationSetting.expire \"")
+
+      stdout, status = Open3.capture2e(cmd)
+      return [stdout, status]
+    end
+
+    def wait_for_dependencies
+      cmd = full_command("/scripts/wait-for-deps")
 
       stdout, status = Open3.capture2e(cmd)
       return [stdout, status]
