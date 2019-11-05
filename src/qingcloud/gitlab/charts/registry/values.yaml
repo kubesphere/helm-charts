@@ -3,17 +3,62 @@ image:
   tag: '2.7.1'
   pullPolicy: 'IfNotPresent'
   pullSecrets: []
+
+deployment:
+  terminationGracePeriodSeconds: 30
+  readinessProbe:
+    enabled: true
+    path: '/debug/health'
+    # defaults to the debug port
+    # port: 5001
+    initialDelaySeconds: 5
+    periodSeconds: 5
+    timeoutSeconds: 1
+    successThreshold: 1
+    failureThreshold: 3
+  livenessProbe:
+    enabled: true
+    path: '/debug/health'
+    # defaults to the debug port
+    # port: 5001
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 1
+    successThreshold: 1
+    failureThreshold: 3
+
 service:
   name: registry
   type: ClusterIP
   externalPort: 5000
   internalPort: 5000
-  clusterIP: '0.0.0.0'
+  clusterIP:
+  loadBalancerIP:
+
+## Support for tolerations for pod scheduling
+tolerations: []
 
 ## Enable/Disable Chart
 enabled: true
 
+## Registry Maintenance Settings
+## See https://docs.docker.com/registry/configuration/#maintenance
+maintenance:
+  readOnly:
+    ## Enable read-only mode for Registry
+    enabled: false
+
 annotations: {}
+
+networkpolicy:
+  enabled: false
+  egress:
+    enabled: false
+    rules: []
+  ingress:
+    enabled: false
+    rules: []
+  annotations: {}
 
 ingress:
   enabled: true
@@ -115,14 +160,53 @@ tokenIssuer: 'gitlab-issuer'
 # See https://gitlab.com/gitlab-org/omnibus-gitlab/issues/3964
 authAutoRedirect: false
 
-# if replicas is >1, shared storage MUST be used.
-minReplicas: 2
-maxReplicas: 10
 maxUnavailable: 1
+
+# if minReplicas is >1, shared storage MUST be used.
+hpa:
+  minReplicas: 2
+  maxReplicas: 10
+  cpu:
+    targetAverageUtilization: 75
+
+  # Note that the HPA is limited to autoscaling/v2beta1
+  customMetrics: []
+
 storage: {}
-minio: {}
+minio:
+  redirect: false
 
 # https://github.com/docker/distribution/blob/master/docs/configuration.md#compatibility
 compatibility:
   schema1:
     enabled: false
+
+# Enable the registry to accept windows based docker images
+# See https://github.com/docker/distribution/issues/2795
+validation:
+  disabled: true
+
+# Configure the logging mechanism for the Container Registry as desired
+# See https://docs.docker.com/registry/configuration/#log
+log:
+  level: warn
+  fields:
+    service: registry
+
+debug:
+  addr:
+    port: 5001
+  prometheus:
+    enabled: false
+    path: '/metrics'
+
+# Amount of time to wait for HTTP connections to drain after
+# receiving a SIGTERM signal
+draintimeout: '0'
+
+# https://docs.docker.com/registry/configuration/#health
+health:
+  storagedriver:
+    enabled: false
+    interval: 10s
+    threshold: 3

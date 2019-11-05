@@ -9,23 +9,36 @@ function gen_random(){
   head -c 4096 /dev/urandom | LC_CTYPE=C tr -cd $1 | head -c $2
 }
 
+# Args: yaml file, search path
+function fetch_rails_value(){
+  local value=$(yq read $1 "${2}")
+  # Don't return null values
+  if [ "${value}" != "null" ]; then echo "${value}"; fi
+}
+
+# Args: secretname
+function label_secret(){
+  local secret_name=$1
+{{ if not .Values.global.application.create -}}
+  # Remove application labels if they exist
+  kubectl --namespace=$namespace label \
+    secret $secret_name $(echo '{{ include "gitlab.application.labels" . | replace ": " "=" | replace "\r\n" " " | replace "\n" " " }}' | sed -E 's/=[^ ]*/-/g')
+{{ end }}
+  kubectl --namespace=$namespace label \
+    --overwrite \
+    secret $secret_name {{ include "gitlab.standardLabels" . | replace ": " "=" | replace "\r\n" " " | replace "\n" " " }}
+}
+
 # Args: secretname, args
 function generate_secret_if_needed(){
-  secret_args=( "${@:2}")
-  secret_name=$1
+  local secret_args=( "${@:2}")
+  local secret_name=$1
   if ! $(kubectl --namespace=$namespace get secret $secret_name > /dev/null 2>&1); then
     kubectl --namespace=$namespace create secret generic $secret_name ${secret_args[@]}
   else
     echo "secret \"$secret_name\" already exists"
   fi;
-{{ if not .Values.global.application.create -}}
-  # Remove application labels if they exist
-  kubectl --namespace=$namespace label \
-    secret $secret_name $(echo '{{ include "gitlab.application.labels" . | replace ": " "=" | replace "\n" " " }}' | sed -E 's/=[^ ]*/-/g')
-{{ end }}
-  kubectl --namespace=$namespace label \
-    --overwrite \
-    secret $secret_name {{ include "gitlab.standardLabels" . | replace ": " "=" | replace "\n" " " }}
+  label_secret $secret_name
 }
 
 # Initial root password
@@ -62,20 +75,41 @@ generate_secret_if_needed {{ template "gitlab.registry.certificate.secret" . }} 
 
 # config/secrets.yaml
 if [ -n "$env" ]; then
-  secret_key_base=$(gen_random 'a-f0-9' 128) # equavilent to secureRandom.hex(64)
-  otp_key_base=$(gen_random 'a-f0-9' 128) # equavilent to secureRandom.hex(64)
-  db_key_base=$(gen_random 'a-f0-9' 128) # equavilent to secureRandom.hex(64)
-  openid_connect_signing_key=$(openssl genrsa 2048);
+  rails_secret={{ template "gitlab.rails-secrets.secret" . }}
 
-  cat << EOF > secrets.yml
-$env:
-  secret_key_base: $secret_key_base
-  otp_key_base: $otp_key_base
-  db_key_base: $db_key_base
-  openid_connect_signing_key: |
-$(openssl genrsa 2048 | awk '{print "    " $0}')
+  # Fetch the values from the existing secret if it exists
+  if $(kubectl --namespace=$namespace get secret $rails_secret > /dev/null 2>&1); then
+    kubectl --namespace=$namespace get secret $rails_secret -o jsonpath="{.data.secrets\.yml}" | base64 --decode > secrets.yml
+    secret_key_base=$(fetch_rails_value secrets.yml "${env}.secret_key_base")
+    otp_key_base=$(fetch_rails_value secrets.yml "${env}.otp_key_base")
+    db_key_base=$(fetch_rails_value secrets.yml "${env}.db_key_base")
+    openid_connect_signing_key=$(fetch_rails_value secrets.yml "${env}.openid_connect_signing_key")
+  fi;
+
+  # Generate defaults for any unset secrets
+  secret_key_base="${secret_key_base:-$(gen_random 'a-f0-9' 128)}" # equavilent to secureRandom.hex(64)
+  otp_key_base="${otp_key_base:-$(gen_random 'a-f0-9' 128)}" # equavilent to secureRandom.hex(64)
+  db_key_base="${db_key_base:-$(gen_random 'a-f0-9' 128)}" # equavilent to secureRandom.hex(64)
+  openid_connect_signing_key="${openid_connect_signing_key:-$(openssl genrsa 2048)}"
+
+  # Update the existing secret
+  cat << EOF > rails-secrets.yml
+apiVersion: v1
+kind: Secret
+metadata:
+  name: $rails_secret
+type: Opaque
+stringData:
+  secrets.yml: |-
+    $env:
+      secret_key_base: $secret_key_base
+      otp_key_base: $otp_key_base
+      db_key_base: $db_key_base
+      openid_connect_signing_key: |
+$(echo "${openid_connect_signing_key}" | awk '{print "        " $0}')
 EOF
-  generate_secret_if_needed {{ template "gitlab.rails-secrets.secret" . }} --from-file secrets.yml
+  kubectl --validate=false --namespace=$namespace apply -f rails-secrets.yml
+  label_secret $rails_secret
 fi
 
 # Shell ssh host keys
@@ -88,4 +122,10 @@ generate_secret_if_needed {{ template "gitlab.gitlab-shell.hostKeys.secret" . }}
 generate_secret_if_needed {{ template "gitlab.workhorse.secret" . }} --from-literal={{ template "gitlab.workhorse.key" . }}=$(gen_random 'a-zA-Z0-9' 32 | base64)
 
 # Registry http.secret secret
-generate_secret_if_needed {{ template "gitlab.registry.httpSecret.secret" . }} --from-literal={{ template "gitlab.registry.httpSecret.key" . }}=$(gen_random 'a-z0-9' 128 | base64)
+generate_secret_if_needed {{ template "gitlab.registry.httpSecret.secret" . }} --from-literal={{ template "gitlab.registry.httpSecret.key" . }}=$(gen_random 'a-z0-9' 128 | base64 -w 0)
+
+{{ if .Values.global.grafana.enabled -}}
+# Grafana password
+generate_secret_if_needed "gitlab-grafana-initial-password" --from-literal=password=$(gen_random 'a-zA-Z0-9' 64)
+{{ end }}
+

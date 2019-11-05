@@ -10,13 +10,20 @@ describe "Restoring a backup" do
     stdout, status = restore_from_backup
     fail stdout unless status.success?
 
+    # We run migrations once early to get the db into a place where we can set the runner token
+    # Ignore errors, we will run the migrations again after the token
+    run_migrations
+
+    stdout, status = set_runner_token
+    fail stdout unless status.success?
+
     stdout, status = run_migrations
     fail stdout unless status.success?
 
     stdout, status = enforce_root_password(ENV['GITLAB_PASSWORD']) if ENV['GITLAB_PASSWORD']
     fail stdout unless status.success?
 
-    stdout, status = set_runner_token
+    stdout, status = restart_unicorn
     fail stdout unless status.success?
 
     # Wait for the site to come up after the restore/migrations
@@ -39,17 +46,21 @@ describe "Restoring a backup" do
 
     it 'Should have runner registered' do
       visit '/admin/runners'
-      expect(page).to have_css('#content-body > div > div.runners-content .gl-responsive-table-row', minimum: 2)
+      expect(page).to have_css('#content-body div[id^=\'runner_\']', minimum: 1)
     end
 
     it 'Issue attachments should load correctly' do
       visit '/root/testproject1/issues/1'
 
-      image_selector = 'div.md > p > a > img'
+      image_selector = 'div.md > p > a > img.js-lazy-loaded'
+
+      # Image has additional classes added by JS async
+      wait(reload: false) do
+        has_selector?(image_selector)
+      end
 
       expect(page).to have_selector(image_selector)
-      image_src = page.all("img.js-lazy-loaded")[1][:src]
-
+      image_src = page.all(image_selector)[0][:src]
       open(image_src) do |f|
         expect(f.status[0]).to eq '200'
       end
@@ -74,7 +85,7 @@ describe "Restoring a backup" do
       object_storage.get_object(
         response_target: '/tmp/original_backup.tar',
         bucket: 'gitlab-backups',
-        key: '0_11.6.0-pre_gitlab_backup.tar'
+        key: '0_11.11.3_gitlab_backup.tar'
       )
 
       cmd = 'mkdir -p /tmp/original_backup && tar -xf /tmp/original_backup.tar -C /tmp/original_backup'

@@ -2,7 +2,7 @@
 
 > To obtain a backup tarball of an existing GitLab instance that used other installation methods like an omnibus-gitlab package or GitLab-Omnibus helm chart, follow the instructions [given in documentation](https://docs.gitlab.com/ee/raketasks/backup_restore.html#creating-a-backup-of-the-gitlab-system)
 >
-> **Note**: If you are restoring a backup taken from another instance, you must migrate your existing instance to using object storage before taking the backup. See [issue 646](https://gitlab.com/charts/gitlab/issues/646)
+> **Note**: If you are restoring a backup taken from another instance, you must migrate your existing instance to using object storage before taking the backup. See [issue 646](https://gitlab.com/gitlab-org/charts/gitlab/issues/646)
 
 GitLab backup restores are taken by running the `backup-utility` command on the `task-runner` pod provided in the chart.
 
@@ -21,19 +21,22 @@ The steps for restoring a GitLab installation are
 
 1. Make sure you have a running GitLab instance by deploying the charts. Ensure the `task-runner` pod is enabled and running by executing the following command
 
-    ```
-    $ kubectl get pods -lrelease=RELEASE_NAME,app=task-runner
-    ```
+   ```bash
+   kubectl get pods -lrelease=RELEASE_NAME,app=task-runner
+   ```
+
 1. Get the tarball ready in any of the above locations. Make sure it is named in the `<timestamp>_<version>_gitlab_backup.tar` format.
 1. Run the backup utility to restore the tarball
 
-    ```
-    $ kubectl exec <task-runner pod name> -it -- backup-utility --restore -t <timestamp>_<version>
-    ```
+   ```bash
+   kubectl exec <task-runner pod name> -it -- backup-utility --restore -t <timestamp>_<version>
+   ```
+
    Here, `<timestamp>_<version>` is from the name of the tarball stored in `gitlab-backups` bucket. In case you want to provide a public URL, use the following command
-    ```
-    $ kubectl exec <task-runner pod name> -it -- backup-utility --restore -f <URL>
-    ```
+
+   ```bash
+   kubectl exec <task-runner pod name> -it -- backup-utility --restore -f <URL>
+   ```
 
     You can provide a local path as a URL as long as it's in the format: `file://<path>`
 
@@ -62,21 +65,21 @@ Once you have the secrets created as a local yaml file:
 
 1. Find the object name for the rails secrets
 
-  ```
-  $ kubectl get secrets | grep rails-secret
-  ```
+   ```bash
+   kubectl get secrets | grep rails-secret
+   ```
 
 1. Delete the existing secret
 
-  ```
-  $ kubectl delete secret <rails-secret-name>
-  ```
+   ```bash
+   kubectl delete secret <rails-secret-name>
+   ```
 
 1. Create the new secret using the same name as the old, and passing in your local yaml file
 
-  ```
-  $ kubectl create secret generic <rails-secret-name> --from-file=secrets.yml=<local-yaml-filepath>
-  ```
+   ```bash
+   kubectl create secret generic <rails-secret-name> --from-file=secrets.yml=<local-yaml-filepath>
+   ```
 
 ### Restore the runner registration token
 
@@ -87,7 +90,7 @@ Follow these [troubleshooting steps](../troubleshooting/index.md#included-gitlab
 
 In order to use the new changes, the `unicorn` and `sidekiq` pods need to be restarted. The safest way to restart those pods is to run:
 
-```
+```bash
 kubectl delete pods -lapp=sidekiq,release=<helm release name>
 kubectl delete pods -lapp=unicorn,release=<helm release name>
 ```
@@ -95,15 +98,18 @@ kubectl delete pods -lapp=unicorn,release=<helm release name>
 ## (Optional) Reset the root user's password
 
 The restoration process does not update the `gitlab-initial-root-password` secret with the value from backup. For logging in as `root`, use the original password included in the backup. In the case that the password is no longer accessible, follow the steps below to reset it.
-   1. Attach to the unicorn pod by executing the command
 
-       ```bash
-       $ kubectl exec <unicorn pod name> -it bash
-       ```
-   1. Run the following command to reset the password of `root` user. Replace `#{password}` with a password of your choice
-       ```bash
-       $ /srv/gitlab/bin/rails runner "user = User.first; user.password='#{password}'; user.password_confirmation='#{password}'; user.save!"
-       ```
+1. Attach to the unicorn pod by executing the command
+
+   ```bash
+   kubectl exec <unicorn pod name> -it bash
+   ```
+
+1. Run the following command to reset the password of `root` user. Replace `#{password}` with a password of your choice
+
+   ```bash
+   /srv/gitlab/bin/rails runner "user = User.first; user.password='#{password}'; user.password_confirmation='#{password}'; user.save!"
+   ```
 
 ## Additional Information
 

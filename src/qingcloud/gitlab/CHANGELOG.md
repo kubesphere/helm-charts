@@ -2,6 +2,557 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 2.4.5
+
+### Other (2 changes)
+
+- Update GitLab Runner to v12.4.1. !1018
+- Update GitLab Version to 12.4.1.
+
+
+## 2.4.4
+
+### Added (1 change)
+
+- Added Redis Sentinel support. !999
+
+### Other (1 change)
+
+- Update GitLab Version to 12.4.1.
+
+
+## 2.4.3
+
+### Fixed (1 change)
+
+- Broken pluck expectation in gitlab.ingress.tls.configured #1653. !1013
+
+### Other (1 change)
+
+- Update GitLab Version to 12.4.1.
+
+
+## 2.4.2
+
+### Fixed (1 change)
+
+- Fix artifacts upload by ensuring appropriate tmp directory permissions. !1010
+
+### Other (1 change)
+
+- Update GitLab Version to 12.4.0.
+
+
+## 2.4.1
+
+### Fixed (2 changes)
+
+- Fix typo in nginx backend PDB. !1006
+- Unicorn add shared /tmp mount. !1009
+
+### Other (1 change)
+
+- Update GitLab Version to 12.4.0.
+
+
+## 2.4.0
+
+### Fixed (5 changes, 1 of them is from the community)
+
+- Handle CRLF line endings #1541. !938
+- Use specified Gitaly port in listen_address. !970
+- Convert Gitaly port to an Integer before rendering in config files. !979
+- Removed unused persistence.volumeName from gitaly's values.yaml. !990 (aurelien.balteaux)
+- Unicorn: set ipWhitelist default to documented value. !997
+
+### Changed (3 changes)
+
+- Switch to using newer APIs for ones dropped in k8s 1.16. !975
+- Update the grafana chart to 3.8.15. !976
+- Update unicorn.rb to match upstream changes. !988
+
+### Added (4 changes)
+
+- Added S/MIME support. !943
+- Allow to configure liveness and readiness probes for unicorn/workhorse. !985
+- Improve sidekiq readinessProbe to check for sidekiq process. !994
+- Add pre-upgrade hook for pausing Gitaly while operator is in place. !998
+
+### Other (3 changes)
+
+- Add example values for UBI-based deployment. !986
+- Update gitlab-runner to 0.10.0/12.4.0. !1003
+- Update GitLab Version to 12.4.0.
+
+
+## 2.3.8
+
+### Fixed (1 change)
+
+- 1499/Fix monitoring ip_whitelist : change kind comparison to slice. !993
+
+### Changed (1 change)
+
+- Provides ability to customize the Container Registry HPA. !991
+
+### Added (1 change, 1 of them is from the community)
+
+- Tolerations for gitlab-exporter. !996 (Taylor Daugherty)
+
+### Other (1 change)
+
+- Update GitLab Version to 12.3.5.
+
+
+## 2.3.7
+
+### Other (1 change)
+
+- Update GitLab Version to 12.3.5.
+
+
+## 2.3.6
+
+### Other (2 changes)
+
+- Update gitlab-runner to v0.9.1. !987
+- Update GitLab Version to 12.3.4.
+
+
+## 2.3.5
+
+### Fixed (1 change, 1 of them is from the community)
+
+- Fix volumeMounts indentation in task-runner backup-job. !983 (Chris Boot)
+
+### Other (1 change)
+
+- Update GitLab Version to 12.3.4.
+
+
+## 2.3.3
+
+### Other (1 change)
+
+- Update GitLab Version to 12.3.2.
+
+
+## 2.3.2
+
+### Other (1 change)
+
+- Update GitLab Version to 12.3.1.
+
+
+## 2.3.1
+
+### Fixed (1 change)
+
+- Pin gitlab-exporter version to the proper image.
+
+### Other (1 change)
+
+- Update GitLab Version to 12.3.0.
+
+
+## 2.3.0
+
+### Fixed (4 changes, 2 of them are from the community)
+
+- Set the default retention for Prometheus data to 15d. !905 (Gerard Hickey)
+- Removes duplicate http key from registry config. !923 (jarv)
+- Configure the backup cron to use a different tmp volume than the task-runner. !942
+- Disable object storage for disabled features. !962
+
+### Changed (4 changes, 1 of them is from the community)
+
+- Update operator to v0.7, introduces status subresource, and gitaly waiting fixes. !906
+- Update the sidekiq queues example with all of the queues #1429. !909 (Mike Rennie)
+- Set a sane default of 2 seconds for Unicorn 'readinessProbe.timeoutSeconds'. !950
+- Set a sane default of 2 seconds for Workhorse 'readinessProbe.timeoutSeconds'. !964
+
+### Added (6 changes, 4 of them are from the community)
+
+- Added Grafana support into chart install. !789 (Gerard Hickey)
+- Allow postgres to use a serviceName as well as a host #1458. !886 (Mike Rennie)
+- Allow the monitoring IP whitelist to be specified for unicorn #1499. !887 (Mike Rennie)
+- Add missing gitaly config options. !939
+- Added scheduling options for redis Subchart. !949 (Willi Eggeling)
+- Option to bypass two-factor auth for certain omniauth providers. !961
+
+### Other (3 changes)
+
+- Rename gitlab-monitor to gitlab-exporter. !897
+- Update gitlab-runner to 0.9.0/12.3.0. !965
+- Update GitLab Version to 12.3.0.
+
+
+## 2.2.11
+
+### Other (1 change)
+
+- Update GitLab Version to 12.2.8.
+
+
+## 2.2.10
+
+### Other (1 change)
+
+- Update GitLab Version to 12.2.7.
+
+
+## 2.2.9
+
+### Other (1 change)
+
+- Update GitLab Version to 12.2.7.
+
+### Fixed (1 change, 1 of them is from the community)
+
+- Fix volumeMounts indentation in task-runner backup-job. !983 (Chris Boot)
+
+### Other (1 change)
+
+- Update GitLab Version to 12.2.8.
+
+
+## 2.2.8
+
+### Other (1 change)
+
+- Update GitLab Version to 12.2.7.
+
+
+## 2.2.7
+
+### Fixed (1 change)
+
+- Disable object storage for disabled features. !962
+
+### Other (1 change)
+
+- Update GitLab Version to 12.2.6.
+
+
+## 2.2.6
+
+### Other (1 change)
+
+- Update GitLab Version to 12.2.5.
+
+
+## 2.2.5
+
+### Fixed (1 change)
+
+- Set/expose securityContext for upgrade check hook. !915
+
+### Added (2 changes, 1 of them is from the community)
+
+- Adds readiness and liveness configuration for Registry. !932
+- Allows draintimeout to be configured for registry. !934 (jarv)
+
+### Other (2 changes)
+
+- Update gitlab-runner to 0.8.0/12.2.0. !912
+- Update GitLab Version to 12.2.4.
+
+
+## 2.2.4
+
+### Added (2 changes, 2 of them are from the community)
+
+- Adds deployment annotations for the registry service. !893 (jarv)
+- Add support for the storagedriver health check. !922 (jarv)
+
+### Other (1 change)
+
+- Update GitLab Version to 12.2.4.
+
+
+## 2.2.3
+
+### Other (1 change)
+
+- Update GitLab Version to 12.2.4.
+
+
+## 2.2.2
+
+### Other (1 change)
+
+- Update GitLab Version to 12.2.3.
+
+
+## 2.2.1
+
+### Other (1 change)
+
+- Update GitLab Version to 12.2.1.
+
+
+## 2.2.0
+
+### Fixed (4 changes, 1 of them is from the community)
+
+- Workaround for pausing deployments during Helm upgrade. !783
+- separate sidekiq hpa resource with dashes. !880
+- Chart pull policies syntax restored to previous and documented names. !904
+- Fix issue with GCS cron backup getting stuck. (894)
+
+### Changed (2 changes)
+
+- Use global values for kubectl image, deprecate chart-local settings. !864
+- Registry: add loadBalancerIP configuration, template clusterIP. !874
+
+### Added (5 changes, 3 of them are from the community)
+
+- Provide option to disable using prepared statements for postgres #1444. !872 (Mike Renie)
+- Enable registry to accept windows images with foreign layers. !888 (Semjon Bibow)
+- Add loadBalancerIP and loadBalancerSourceRanges to gitlab-shell chart. !889 (Taylor Daugherty)
+- Registry: Adds optional networkpolicy configuration. !891
+- Adds the ability to finely configure logging options for the Container Registry. !899
+
+### Other (3 changes)
+
+- Update operator to v0.6 for newer k8s support. !895
+- Document global.ingress.class & sample Traefik. !898
+- Update GitLab Version to 12.2.0.
+
+
+## 2.1.14
+
+### Other (1 change)
+
+- Update GitLab Version to 12.1.14.
+
+
+## 2.1.13
+
+### Fixed (1 change, 1 of them is from the community)
+
+- Fix volumeMounts indentation in task-runner backup-job. !983 (Chris Boot)
+
+### Other (1 change)
+
+- Update GitLab Version to 12.1.14.
+
+
+## 2.1.12
+
+### Other (1 change)
+
+- Update GitLab Version to 12.1.13.
+
+
+## 2.1.11
+
+### Other (1 change)
+
+- Update GitLab Version to 12.1.12.
+
+
+## 2.1.10
+
+### Other (1 change)
+
+- Update GitLab Version to 12.1.11.
+
+
+## 2.1.8
+
+### Fixed (1 change)
+
+- Chart pull policies syntax restored to previous and documented names. !904
+
+### Other (1 change)
+
+- Update GitLab Version to 12.1.8.
+
+
+## 2.1.7
+
+### Other (1 change)
+
+- Update GitLab Version to 12.1.6.
+
+
+## 2.1.6
+
+### Fixed (1 change, 1 of them is from the community)
+
+- Disable client-side validation of kubectl apply to fix #1497. !885 (Semjon Bibow)
+
+### Other (1 change)
+
+- Update GitLab Version to 12.1.4.
+
+
+## 2.1.5
+
+### Fixed (1 change)
+
+- Generated Random Secrets Should Not Wrap. !875
+
+### Other (1 change)
+
+- Update GitLab Version to 12.1.4.
+
+
+## 2.1.4
+
+### Other (1 change)
+
+- Update GitLab Version to 12.1.4.
+
+
+## 2.1.3
+
+### Other (1 change)
+
+- Update GitLab Version to 12.1.3.
+
+
+## 2.1.2
+
+### Other (1 change)
+
+- Update GitLab Version to 12.1.2.
+
+
+## 2.1.1
+
+### Other (1 change)
+
+- Update GitLab Version to 12.1.1.
+
+
+## 2.1.0
+
+### Fixed (8 changes, 2 of them are from the community)
+
+- Mailroom: fix redis without passsword. !816 (arthur13)
+- Add ability to specify extrernal objectStorage for task-runner backup. !821 (Matthew Cascio)
+- Fix ability to set internal port of gitlab-workhorse. !840
+- Use sort to compare versions in upgrade logic. !846
+- Freeze the version of redis exporter image. !850
+- Fixed shared secrets whitespace templating #1410. !861
+- Escape and quote all passwords in ERB templates. !869
+- Set pullPolicy for CI to Always #1460. !873
+
+### Changed (2 changes)
+
+- Add prometheus metrics debug configuration. !838
+- Make version changes to chart files only if incoming version is higher. !859
+
+### Added (5 changes, 3 of them are from the community)
+
+- Make the Task Runner backup backend configurable. !707 (Vic Iglesias)
+- Support Git over SSH on OpenShift. !824
+- Registry: Add service port for Prometheus metrics. !842
+- Support for optional extra arguments for the cron based backup on Kubernetes. !854 (Gerard Boor)
+- Document global.appConfig.defaultProjectsFeatures.containerRegistry #1456. !871 (Mike Rennie)
+
+### Other (4 changes)
+
+- CI: add CI vars to helm properties. !851
+- Run before_fork only once on boot for Unicorn. !852
+- Update gitlab-runner to 0.7.0/12.1.0. !878
+- Update GitLab Version to 12.1.0.
+
+
+## 2.0.7
+
+### Other (1 change)
+
+- Update GitLab Version to 12.0.9.
+
+
+## 2.0.6
+
+### Other (1 change)
+
+- Update GitLab Version to 12.0.8.
+
+
+## 2.0.5
+
+### Other (1 change)
+
+- Update GitLab Version to 12.0.6.
+
+
+## 2.0.4
+
+### Fixed (4 changes)
+
+- Use sort to compare versions in upgrade logic. !846
+- Freeze the version of redis exporter image. !850
+- Fixed shared secrets whitespace templating #1410. !861
+- Escape and quote all passwords in ERB templates. !869
+
+### Other (1 change)
+
+- Update GitLab Version to 12.0.4.
+
+
+## 2.0.3 (2019-07-03)
+
+### Other (1 change)
+
+- Update GitLab Version to 12.0.3.
+
+
+## 2.0.2 (2019-06-26)
+
+### Changed (1 change)
+
+- Updated the gitlab-monitor tags to properly match its upstream release.
+
+### Other (2 changes)
+
+- Update gitlab-runner to 0.6.0/12.0.0. !832
+- Update GitLab Version to 12.0.2.
+
+
+## 2.0.1 (2019-06-25)
+
+### Other (1 change)
+
+- Update GitLab Version to 12.0.1.
+
+
+## 2.0.0 (2019-06-22)
+
+### Fixed (6 changes)
+
+- Ensure unicorn.rb issues appropriate lifecycle hooks. !791
+- Add missing object storage settings in task-runner. !793
+- Disable storage redirect of Registry when the internal Minio is used. !797
+- Port over https://github.com/helm/charts/pull/13646. !804
+- Add SMTP and other missing settings for task-runner. !809
+- Fix example smtp settings. !810
+
+### Changed (2 changes)
+
+- Prioritize the external object storage connection settings before the global minio configuration. !802
+- Updated supported Kubernetes to 1.10 and Helm to 2.12. !808
+
+### Added (6 changes, 2 of them are from the community)
+
+- Cron based backup support using Kubernetes and task runner. !548 (Thomas Miller)
+- Add support for tolerations. !553 (Mike Rennie)
+- Add gitlab-monitor to Helm Chart. !787
+- Add ability to specify network to use when creating a GKE cluster. !799
+- Modified anyuid to reflect project level instead of cluster. !803
+- Prevent upgrades from old chart versions. !828
+
+### Other (2 changes, 1 of them is from the community)
+
+- Default Registry replicas to minReplicas. !794 (skarbek)
+- Update GitLab Version to 12.0.0.
+
+
 ## 1.9.8
 
 ### Other (1 change)
@@ -19,13 +570,6 @@ entry.
 ### Other (1 change)
 
 - Update GitLab Version to 11.11.7.
-
-
-## 1.9.6 (2019-07-03)
-
-### Other (1 change)
-
-- Update GitLab Version to 11.11.5.
 
 
 ## 1.9.5 (2019-06-26)
@@ -92,6 +636,28 @@ entry.
 
 - Update gitlab-runner to 0.5.0/11.11.0. !798
 - Update GitLab Version to 11.11.0.
+
+
+## 1.8.6 (2019-07-03)
+
+### Other (1 change)
+
+- Update GitLab Version to 11.10.8.
+
+
+## 1.8.5 (2019-06-26)
+
+### Performance (1 change)
+
+- Unicorn: increase worker memory defaults.
+
+### Added (1 change, 1 of them is from the community)
+
+- Persistent storage for task-runner tmp directory. !769 (jansmets)
+
+### Other (1 change)
+
+- Update GitLab Version to 11.10.7.
 
 
 ## 1.8.4 (2019-05-01)
@@ -839,4 +1405,4 @@ entry.
 
 ## 2018-03-22 Alpha
 
-- See [alpha documentation](https://gitlab.com/charts/helm.gitlab.io/blob/master/doc/architecture/alpha.md)
+- See [alpha documentation](https://docs.gitlab.com/charts/releases/alpha.html)

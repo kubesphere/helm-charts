@@ -1,4 +1,4 @@
-## Architecture
+# Architecture
 
 We plan to support three tiers of components:
 
@@ -18,25 +18,45 @@ Configuration should be passed in a standard way for Docker, perhaps environment
 variables or a mounted file. This provides a clean common interface with the
 scheduler software.
 
-We plan to offer a container for the following services:
+### GitLab Docker Images
 
-* Sidekiq
-* Unicorn
-* Gitaly
-* Workhorse
-* Postgres (perhaps upstream Postgres), along with Postgres Exporter
-* Redis
-* GitLab Monitor
+The GitLab application is built using Docker images that contain GitLab
+specific services. The build environments for these images can be found in
+the [CNG repository](https://gitlab.com/gitlab-org/build/CNG).
 
-We likely plan to leverage the following existing official containers for
+The following GitLab components have images in the CNG repository.
+
+- Gitaly
+- GitLab Elasticsearch Indexer
+- [mail_room](https://github.com/tpitale/mail_room)
+- GitLab exporter
+- GitLab Shell
+- Sidekiq
+- Gitlab task-runner
+- Unicorn
+- Workhorse
+
+The following are forked charts which also use GitLab specific Docker images.
+
+- Redis-ha
+
+Docker images that are used for `initContainers` and various `Job`s.
+
+- alpine-certificates
+- kubectl
+
+### Official Docker Images
+
+We leverage the following existing official containers for
 underlying services:
 
-* Docker Distribution ([Docker Registry 2.0](https://github.com/docker/distribution))
-* Prometheus
-* Node Exporter
-* Nginx
-* cert-manager
-
+- Docker Distribution ([Docker Registry 2.0](https://github.com/docker/distribution))
+- Prometheus
+- NGINX Ingress
+- cert-manager
+- Redis
+- PostgreSQL
+- Grafana
 
 ## The GitLab Chart
 
@@ -46,10 +66,10 @@ Ingress, and certificate management charts.
 
 At this high level, a customer can make decisions like:
 
-* Whether they want to use the embedded Postgres chart, or to use an external
-database like Amazon RDS for Postgres.
-* To bring their own SSL certificates, or leverage Let's Encrypt.
-* To use a load balancer, or a dedicated ingress.
+- Whether they want to use the embedded Postgres chart, or to use an external
+  database like Amazon RDS for Postgres.
+- To bring their own SSL certificates, or leverage Let's Encrypt.
+- To use a load balancer, or a dedicated ingress.
 
 Customers who would like to get started quickly and easily should begin with this chart.
 
@@ -59,14 +79,19 @@ The gitlab chart is made of multiple subcharts. These charts provide individual 
 
 Subcharts included are :
 
-* [sidekiq](https://gitlab.com/charts/gitlab/tree/master/charts/gitlab/charts/sidekiq)
-* [unicorn](https://gitlab.com/charts/gitlab/tree/master/charts/gitlab/charts/unicorn)
-* [gitlab-shell](https://gitlab.com/charts/gitlab/tree/master/charts/gitlab/charts/gitlab-shell)
-* [gitaly](https://gitlab.com/charts/gitlab/tree/master/charts/gitlab/charts/gitaly)
-* [minio](https://gitlab.com/charts/gitlab/tree/master/charts/minio)
-* [redis](https://gitlab.com/charts/gitlab/tree/master/charts/redis)
-* [nginx](https://gitlab.com/charts/gitlab/tree/master/charts/nginx)
-* [registry](https://gitlab.com/charts/gitlab/tree/master/charts/registry)
+- [sidekiq](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/charts/gitlab/charts/sidekiq)
+- [unicorn](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/charts/gitlab/charts/unicorn)
+- [gitlab-shell](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/charts/gitlab/charts/gitlab-shell)
+- [gitaly](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/charts/gitlab/charts/gitaly)
+- [minio](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/charts/minio)
+- [redis](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/charts/redis)
+- [nginx](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/charts/nginx)
+- [registry](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/charts/registry)
+
+### Components list
+
+A list of which components are deployed when using the chart, and configuration instructions if needed,
+is available on the [architecture components list](https://docs.gitlab.com/ee/development/architecture.html#component-list) page.
 
 ## Design Decisions
 

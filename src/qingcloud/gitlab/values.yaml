@@ -3,7 +3,7 @@
 ## NOTICE
 # Due to the scope and complexity of this chart, all possible values are
 # not documented in this file. Extensive documentation for these values
-# and more can be found at https://gitlab.com/charts/gitlab/
+# and more can be found at https://gitlab.com/gitlab-org/charts/gitlab/
 
 ## Advanced Configuration
 # Documentation for advanced configuration can be found under doc/advanced
@@ -12,7 +12,7 @@
 # - external Redis
 # - external NGINX
 # - PersistentVolume configuration
-# - external Object Storage providers 
+# - external Object Storage providers
 
 ## The global properties are used to configure multiple charts at once.
 ## Extended documenation at doc/charts/globals.md
@@ -20,6 +20,12 @@ global:
   ## GitLab operator is Alpha. Not for production use.
   operator:
     enabled: false
+    rollout:
+      # Enables automatic pause for deployment rollout. This must be set to `true` to fix
+      # Helm's issue with 3-way merge. See:
+      #   https://gitlab.com/gitlab-org/charts/gitlab/issues/1262
+      #   https://github.com/helm/helm/issues/3805
+      autoPause: true
 
   ## doc/installation/deployment.md#deploy-the-community-edition
   # edition: ee
@@ -63,6 +69,9 @@ global:
     https: true
     externalIP:
     ssh: ~
+    gitlab: {}
+    minio: {}
+    registry: {}
 
   ## doc/charts/globals.md#configure-ingress-settings
   ingress:
@@ -88,6 +97,7 @@ global:
     # port: 123
     # username: gitlab
     # database: gitlabhq_production
+    # preparedStatements: false
 
   ## doc/charts/globals.md#configure-redis-settings
   redis:
@@ -97,6 +107,9 @@ global:
       # key:
     # host: redis.hostedsomewhere.else
     # port: 6379
+    # sentinels:
+    #   - host:
+    #     port:
 
   ## doc/charts/globals.md#configure-gitaly-settings
   gitaly:
@@ -112,6 +125,10 @@ global:
     enabled: true
     credentials: {}
       # secret:
+
+  ## doc/charts/globals.md#configure-grafana-integration
+  grafana:
+    enabled: false
 
   ## doc/charts/globals.md#configure-appconfig-settings
   ## Rails based portions of this chart share many settings
@@ -149,7 +166,7 @@ global:
       #   cron: "*/15 * * * *"
       # pseudonymizer_worker:
       #   cron: "0 * * * *"
-      # schedule_migrate_external_diffs_worker
+      # schedule_migrate_external_diffs_worker:
       #   cron: "15 * * * *"
 
     ## doc/charts/globals.md#gravatarlibravatar-settings
@@ -240,6 +257,7 @@ global:
       autoLinkLdapUser: false
       autoLinkSamlUser: false
       externalProviders: []
+      allowBypassTwoFactor: []
       providers: []
       # - secret: gitlab-google-oauth2
       #   key: provider
@@ -253,7 +271,7 @@ global:
     hostKeys: {}
       # secret:
 
-  ## Rails application secrets 
+  ## Rails application secrets
   ## Secret created according to doc/installation/secrets.md#gitlab-rails-secret
   ## If allowing shared-secrets generation, this is OPTIONAL.
   railsSecrets: {}
@@ -298,12 +316,21 @@ global:
     display_name: GitLab
     reply_to: ''
     subject_suffix: ''
+    smime:
+      enabled: false
+      secretName: ""
+      keyName: "tls.key"
+      certName: "tls.crt"
 
   ## Timezone for containers.
   time_zone: UTC
 
   ## Global Service Annotations
   service:
+    annotations: {}
+
+  ## Global Deployment Annotations
+  deployment:
     annotations: {}
 
   antiAffinity: soft
@@ -322,15 +349,28 @@ global:
     customCAs: []
     # - secret: custom-CA
     # - secret: more-custom-CAs
+
+  ## kubectl image used by hooks to carry out specific jobs
+  kubectl:
+    image:
+      repository: mirrorgitlabcontainers/kubectl
+      tag: v1.12.10
+      pullSecrets: []
 ## End of global
 
-## Settings to for the Let's Encrypt ACME Issuer
-certmanager-issuer:
+upgradeCheck:
+  enabled: true
   image:
-    repository: mirrorgitlabcontainers/kubectl
-  ## The email address to register certificates requested from Let's Encrypt.
-  ## Required if using Let's Encrypt.
-  # email: email@example.com
+    repository: busybox
+    tag: latest
+  securityContext:
+    # in alpine/debian/busybox based images, this is `nobody:nogroup`
+    runAsUser: 65534
+    fsGroup: 65534
+  tolerations: []
+  resources:
+    requests:
+      cpu: 50m
 
 ## Installation & configuration of stable/cert-manager
 ## See requirements.yaml for current version
@@ -413,6 +453,8 @@ prometheus:
     enabled: false
   pushgateway:
     enabled: false
+  server:
+    retention: 15d
 
 ## Configuration of Redis
 ## doc/architecture/decisions.md#redis
@@ -455,8 +497,6 @@ shared-secrets:
   enabled: true
   rbac:
     create: true
-  image:
-    repository: mirrorgitlabcontainers/kubectl
   selfsign:
     repository: mirrorgitlabcontainers/cfssl-self-sign
 
@@ -476,19 +516,62 @@ gitlab-runner:
       s3CachePath: gitlab-runner
       s3CacheInsecure: false
 
+
+## Installation & configuration of stable/grafana
+## See requirements.yaml for current version
+## Controlled by `global.grafana.enabled`
+grafana:
+  ## Override and provide "bogus" administation secrets
+  ## gitlab/gitlab-grafana provides overrides via shared-secrets
+  admin:
+    existingSecret: bogus
+  env:
+    GF_SECURITY_ADMIN_USER: bogus
+    GF_SECURITY_ADMIN_PASSWORD: bogus
+  ## This override allows gitlab/gitlab-grafana to completely override the secret
+  ##   handling behavior of the upstream chart in combination with the above.
+  command: [ "sh", "-x", "/tmp/scripts/import-secret.sh" ]
+  ## The following settings allow Grafana to dynamically create
+  ## dashboards and datasources from configmaps. See
+  ## https://github.com/helm/charts/tree/master/stable/grafana#sidecar-for-dashboards
+  sidecar:
+    dashboards:
+      enabled: true
+      label: gitlab_grafana_dashboard
+    datasources:
+      enabled: true
+      label: gitlab_grafana_datasource
+  ## We host Grafana as a sub-url of GitLab
+  grafana.ini:
+    server:
+      root_url: http://localhost/-/grafana/
+  ## We generate and provide random passwords
+  ## NOTE: the Secret & ConfigMap names are hard coded!
+  extraSecretMounts:
+    - name: initial-password
+      mountPath: /tmp/initial
+      readOnly: true
+      secretName: gitlab-grafana-initial-password
+      defaultMode: 400
+  extraConfigmapMounts:
+    - name: import-secret
+      mountPath: /tmp/scripts
+      configMap: gitlab-grafana-import-secret
+      readOnly: true
+
 ## Settings for individual sub-charts under GitLab
 ## Note: Many of these settings are configurable via globals
 gitlab:
 ## doc/charts/gitlab/migrations
 #   migrations:
 #     enabled: false
-## doc/charts/gitlab/unicorn 
+## doc/charts/gitlab/unicorn
 #   unicorn:
 #     enabled: false
-## doc/charts/gitlab/sidekiq 
+## doc/charts/gitlab/sidekiq
 #   sidekiq:
 #     enabled: false
-## doc/charts/gitlab/gitaly 
+## doc/charts/gitlab/gitaly
   gitaly:
 #     enabled: false
     image:
@@ -509,4 +592,8 @@ gitlab:
     install:
       image:
         repository: mirrorgooglecontainers/hyperkube-amd64
-
+  gitlab-exporter:
+    image:
+      repository: mirrorgitlabcontainers/gitlab-exporter
+## doc/charts/gitlab/gitlab-grafana
+#   gitlab-grafana:

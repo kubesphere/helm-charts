@@ -4,7 +4,7 @@ This document explains the technical implementation of the backup and restore in
 
 ## Task runner pod
 
-The [task runner chart](https://gitlab.com/charts/gitlab/tree/master/charts/gitlab/charts/task-runner) deploys a pod into the cluster. This pod will act as an entry point for interaction with other containers in the cluster.
+The [task runner chart](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/charts/gitlab/charts/task-runner) deploys a pod into the cluster. This pod will act as an entry point for interaction with other containers in the cluster.
 
 Using this pod user can run commands using `kubectl exec -it <pod name> -- <arbitrary command>`
 
@@ -40,6 +40,13 @@ The sequence of execution is:
 The default name of the bucket that will be used to store backups is `gitlab-backups`. This is configurable
 using the `BACKUP_BUCKET_NAME` environment variable.
 
+#### Backing up to Google Cloud Storage
+
+By default, the backup utility uses `s3cmd` to upload and download artifacts from object storage. While this can work with Google Cloud Storage (GCS),
+it requires using the Interoperability API which makes undesireable compromises to authentication and authorization. When using Google Cloud Storage
+for backups you can configure the backup utility script to use the Cloud Storage native CLI, `gsutil`, to do the upload and download
+of your artifacts by setting the `BACKUP_BACKEND` environment variable to `gcs`.
+
 ### Restore
 
 The backup utility when given an argument `--restore` attempts to restore from an existing backup to the running instance. This
@@ -50,8 +57,9 @@ When given a `-t` parameter it looks into backup bucket in object storage for a 
 given a `-f` parameter it expects that the given url is a valid uri of a backup tar in a location accessible from the container.
 
 After fetching the backup tar the sequence of execution is:
-1. For repositories and database run the [GitLab backup rake task](https://gitlab.com/gitlab-org/gitlab-ce/tree/master/lib/tasks/gitlab/backup.rake)
-2. For each of object storage backends
+
+1. For repositories and database run the [GitLab backup rake task](https://gitlab.com/gitlab-org/gitlab-foss/tree/master/lib/tasks/gitlab/backup.rake)
+1. For each of object storage backends:
    - tar the existing data in the corresponding object storage bucket naming it `<backup-name>.tar`
    - upload it to `tmp` bucket in object storage
    - clean up the corresponding bucket
