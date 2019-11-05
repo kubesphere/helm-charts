@@ -2,6 +2,24 @@ apiVersion: v1
 entries:
   gitlab:
   - apiVersion: v1
+    appVersion: 12.4.1
+    created: 2019-11-05T09:03:33.117447268Z
+    description: Web-based Git-repository manager with wiki and issue-tracking features.
+    digest: 312e800c7df5f35fb506c649136974188e542b38b4c224b9043447d489a29da7
+    home: https://about.gitlab.com/
+    icon: https://gitlab.com/gitlab-com/gitlab-artwork/raw/master/logo/logo-square.png
+    keywords:
+    - gitlab
+    maintainers:
+    - email: support@gitlab.com
+      name: GitLab Inc.
+    name: gitlab
+    sources:
+    - https://gitlab.com/gitlab-org/charts/gitlab
+    urls:
+    - https://charts.kubesphere.io/qingcloud/gitlab-2.4.5.tgz
+    version: 2.4.5
+  - apiVersion: v1
     appVersion: 11.11.8
     created: 2019-11-05T07:31:36.413033062Z
     description: Web-based Git-repository manager with wiki and issue-tracking features.
@@ -229,4 +247,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/qingcloud/tomcat-0.4.0.tgz
     version: 0.4.0
-generated: 2019-11-05T07:31:36.400307422Z
+generated: 2019-11-05T09:03:33.104047882Z
