@@ -5,7 +5,7 @@ must have installed locally.
 
 ## kubectl
 
-kubectl is the tool that talks to the Kubernetes API. kubectl 1.8 or higher is
+kubectl is the tool that talks to the Kubernetes API. kubectl 1.11 or higher is
 required and it needs to be compatible with your cluster
 ([+/- 1 minor release from your cluster](https://kubernetes.io/docs/tasks/tools/install-kubectl/#before-you-begin)).
 
@@ -17,9 +17,9 @@ cluster. Proceed with setting up Helm.
 ## Helm
 
 Helm is the package manager for Kubernetes. The `gitlab` chart is only tested and
-supported with Helm `v2` and helm 2.9 or higher is required. Helm `v1` is
-explicitly not supported. Helm `v3` may work, but there hasn't been and will not
-be any testing for the time being.
+supported with Helm `v2` and helm 2.12 or higher is required. Helm `v1` is
+explicitly not supported. Helm `v3` is not yet supported, and open issues can be
+found under our [Helm 3 issue label](https://gitlab.com/gitlab-org/charts/gitlab/issues?label_name%5B%5D=Helm+3).
 
 Helm consists of two parts, the `helm` (client) installed locally, and `tiller`
 (server) installed inside Kubernetes.
@@ -31,7 +31,7 @@ into the cluster. This should only be used when tiller cannot be normally deploy
 
 ### Getting Helm
 
-You can get Helm from the project's [releases page](https://github.com/kubernetes/helm/releases),
+You can get Helm from the project's [releases page](https://github.com/helm/helm/releases),
 or follow other options under the official documentation of
 [installing Helm](https://docs.helm.sh/using_helm/#installing-helm).
 
@@ -109,7 +109,6 @@ cluster, use `kubectl config set-cluster minikube` to set the active cluster.
 
 ### Upload the RBAC config
 
-
 #### Upload the RBAC config in GKE
 
 For GKE, you need to grab the admin credentials:
@@ -127,7 +126,7 @@ for this example we will include the cluster's name in it:
 ```sh
 CLUSTER_NAME=name-of-cluster
 kubectl config set-credentials $CLUSTER_NAME-admin-user --username=admin --password=xxxxxxxxxxxxxx
-kubectl --user=$CLUSTER_NAME-admin-user create -f https://gitlab.com/charts/gitlab/raw/master/doc/installation/examples/rbac-config.yaml
+kubectl --user=$CLUSTER_NAME-admin-user create -f https://gitlab.com/gitlab-org/charts/gitlab/raw/master/doc/installation/examples/rbac-config.yaml
 ```
 
 #### Upload the RBAC config in non-GKE clusters
@@ -135,7 +134,7 @@ kubectl --user=$CLUSTER_NAME-admin-user create -f https://gitlab.com/charts/gitl
 For other clusters like Amazon EKS, you can directly upload the RBAC configuration:
 
 ```sh
-kubectl create -f https://gitlab.com/charts/gitlab/raw/master/doc/installation/examples/rbac-config.yaml
+kubectl create -f https://gitlab.com/gitlab-org/charts/gitlab/raw/master/doc/installation/examples/rbac-config.yaml
 ```
 
 ### Initializing Helm
@@ -169,15 +168,13 @@ and [sprig](https://godoc.org/github.com/Masterminds/sprig).
 
 Some information on how all the inner workings behave:
 
-- [Functions and Pipelines](https://github.com/kubernetes/helm/blob/master/docs/chart_template_guide/functions_and_pipelines.md)
-- [Subcharts and Globals](https://github.com/kubernetes/helm/blob/master/docs/chart_template_guide/subcharts_and_globals.md)
+- [Functions and Pipelines](https://github.com/helm/helm/blob/master/docs/chart_template_guide/functions_and_pipelines.md)
+- [Subcharts and Globals](https://github.com/helm/helm/blob/master/docs/chart_template_guide/subcharts_and_globals.md)
 
 ### Tips and tricks
 
 Helm repository has some additional information on developing with helm in it's
-[tips and tricks section](https://github.com/kubernetes/helm/blob/master/docs/charts_tips_and_tricks.md).
-
-[helm-using]: https://docs.helm.sh/using_helm
+[tips and tricks section](https://github.com/helm/helm/blob/master/docs/charts_tips_and_tricks.md).
 
 ### Local tiller
 
@@ -185,7 +182,7 @@ CAUTION: **Not recommended:**
 This method is not well supported, but should work.
 
 If you are not able to run tiller in your cluster,
-[a script](https://gitlab.com/charts/gitlab/blob/master/bin/localtiller-helm)
+[a script](https://gitlab.com/gitlab-org/charts/gitlab/blob/master/bin/localtiller-helm)
 is included that should allow you to use helm with running tiller in your cluster.
 The script uses your personal Kubernetes credentials and configuration to apply
 the chart.

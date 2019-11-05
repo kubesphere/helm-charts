@@ -12,7 +12,22 @@ init:
   resources:
     requests:
       cpu: 50m
+
+# Tolerations for pod scheduling
+tolerations: []
+
+monitoring:
+  # Monitoring IP whitelist
+  ipWhitelist:
+  - 0.0.0.0/0
+  exporter:
+    enabled: false
+    port: 8083
+    blackoutSeconds: 10
+
+
 annotations: {}
+
 metrics:
   enabled: true
   annotations:
@@ -43,6 +58,21 @@ memory: # in MB units
   max: 1024
 hpa:
   targetAverageValue: 1
+
+deployment:
+  livenessProbe:
+    initialDelaySeconds: 20
+    periodSeconds: 60
+    timeoutSeconds: 30
+    successThreshold: 1
+    failureThreshold: 3
+  readinessProbe:
+    initialDelaySeconds: 0
+    periodSeconds: 10
+    timeoutSeconds: 2
+    successThreshold: 1
+    failureThreshold: 3
+
 workhorse:
   sentryDSN: ""
   extraArgs: ""
@@ -51,6 +81,18 @@ workhorse:
       cpu: 100m
       memory: 100M
   # image: registry.gitlab.com/gitlab-org/build/cng/gitlab-workhorse-ee
+  livenessProbe:
+    initialDelaySeconds: 20
+    periodSeconds: 60
+    timeoutSeconds: 30
+    successThreshold: 1
+    failureThreshold: 3
+  readinessProbe:
+    initialDelaySeconds: 0
+    periodSeconds: 10
+    timeoutSeconds: 2
+    successThreshold: 1
+    failureThreshold: 3
 global:
   # imagePullPolicy: IfNotPresent
   ingress:
@@ -77,6 +119,7 @@ global:
     # port: '5432'
     # database: 'gitlabhq_production'
     # username: 'gitlab'
+    # preparedStatements: false
     # password:
     #   secret: gitlab-postgres
     #   key: psql-password
@@ -146,6 +189,7 @@ global:
       autoLinkLdapUser: false
       autoLinkSamlUser: false
       externalProviders: []
+      allowBypassTwoFactor: []
       providers: []
       # - secret: gitlab-google-oauth2
       #   key: provider

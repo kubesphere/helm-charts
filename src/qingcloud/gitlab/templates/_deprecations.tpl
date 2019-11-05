@@ -28,10 +28,12 @@ Due to gotpl scoping, we can't make use of `range`, so we have to add action lin
 {{- $deprecated := append $deprecated (include "gitlab.deprecate.minio" .) -}}
 {{- $deprecated := append $deprecated (include "gitlab.deprecate.registryStorage" .) -}}
 {{- $deprecated := append $deprecated (include "gitlab.deprecate.registryHttpSecret" .) -}}
+{{- $deprecated := append $deprecated (include "gitlab.deprecate.registry.replicas" .) -}}
 {{- $deprecated := append $deprecated (include "gitlab.deprecate.unicorn.omniauth" .) -}}
 {{- $deprecated := append $deprecated (include "gitlab.deprecate.unicorn.ldap" .) -}}
 {{- $deprecated := append $deprecated (include "gitlab.deprecate.global.appConfig.ldap.password" .) -}}
 {{- $deprecated := append $deprecated (include "gitlab.deprecate.sidekiq.cronJobs" .) -}}
+{{- $deprecated := append $deprecated (include "gitlab.deprecate.local.kubectl" .) -}}
 
 {{- /* prepare output */}}
 {{- $deprecated := without $deprecated "" -}}
@@ -121,6 +123,16 @@ registry:
 {{- end -}}
 {{- end -}}
 
+{{/* Migration of Registry `minReplicas` and `maxReplicas` to `hpa.*` */}}
+{{- define "gitlab.deprecate.registry.replicas" -}}
+{{- if (hasKey .Values.registry "minReplicas") or (hasKey .Values.registry "maxReplicas") -}}
+registry:
+    The `minReplicas` property has been moved under the hpa object. Please create a configuration with the new path: `registry.hpa.minReplicas`.
+    The `maxReplicas` property has been moved under the hpa object. Please create a configuration with the new path: `registry.hpa.maxReplicas`.
+{{- end -}}
+{{- end -}}
+{{/* END deprecate.registry.replicas */}}
+
 {{/* Deprecation behaviors for configuration of Omniauth */}}
 {{- define "gitlab.deprecate.unicorn.omniauth" -}}
 {{- if hasKey .Values.gitlab.unicorn "omniauth" -}}
@@ -162,3 +174,17 @@ sidekiq:
 {{- end -}}
 {{- end -}}
 {{/* END deprecate.sidekiq.cronJobs */}}
+
+{{/* Deprecation behaviors for configuration of local kubectl images */}}
+{{- define "gitlab.deprecate.local.kubectl" -}}
+{{- range $chart := list "certmanager-issuer" "shared-secrets" -}}
+{{-   if hasKey (index $.Values $chart) "image" -}}
+{{ $chart }}:
+    Chart-local configuration of kubectl image has been moved to global. Please remove `{{ $chart }}.image.*` settings from your properties, and set `global.kubectl.image.*` instead.
+{{-     if and (eq $chart "shared-secrets") (hasKey (index $.Values $chart "image") "pullSecrets") }}
+    If you need to set `pullSecrets` of the self-sign image, please use `shared-secrets.selfsign.image.pullSecrets` instead.
+{{     end -}}
+{{-   end -}}
+{{- end -}}
+{{- end -}}
+{{/* END gitlab.deprecate.local.kubectl */}}

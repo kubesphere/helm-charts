@@ -1,9 +1,9 @@
-### Deploy Development Branch
+# Deploy Development Branch
 
 Clone the repository, and checkout the branch you want to deploy:
 
 ```sh
-git clone git@gitlab.com:charts/gitlab.git
+git clone git@gitlab.com:gitlab-org/charts/gitlab.git
 git checkout <BRANCH_NAME>
 ```
 
@@ -17,7 +17,6 @@ git checkout <BRANCH_NAME>
 > `file:///home/USER/charts/gitlab-runner/`. Pay close attention with absolute paths as it
 > is very easy to miss the leading slash on the filepath.
 
-
 Other steps from the [installation documentation](../installation/index.md) still apply. The difference is when deploying
 a development branch, you need to update the local dependencies, and pass the local git repo location to the helm command.
 
@@ -28,6 +27,7 @@ helm repo add gitlab https://charts.gitlab.io/
 helm dependencies update
 helm upgrade --install gitlab . \
   --timeout 600 \
+  --set global.imagePullPolicy=Always \
   --set global.hosts.domain=example.com \
   --set global.hosts.externalIP=10.10.10.10 \
   --set certmanager-issuer.email=me@example.com

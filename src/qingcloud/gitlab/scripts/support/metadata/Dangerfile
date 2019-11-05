@@ -6,7 +6,7 @@ if gitlab.mr_labels.empty?
   fail "Please add labels to this merge request."
 end
 
-warn "You may want to add ~Distribution label to this MR for gitlab-insights" unless gitlab.mr_labels.include?("Distribution")
+warn "You may want to add ~group::distribution label to this MR for gitlab-insights" unless gitlab.mr_labels.include?("group::distribution")
 
 unless gitlab.mr_json["assignee"]
   warn "This merge request does not have any assignee yet. Setting an assignee clarifies who needs to take action on the merge request at any given time."
@@ -25,7 +25,13 @@ if gitlab.branch_for_base != "master" && !has_pick_into_stable_label
 end
 
 has_qa_verified_label = gitlab.mr_labels.find { |label| label.start_with?('QA:verified') }
+is_docs_only_branch = gitlab.branch_for_head =~ /(^docs[\/-].*|.*-docs$)/
 
-unless has_qa_verified_label
+unless has_qa_verified_label || is_docs_only_branch
   warn "Please check the QA job and compare with builds on master. If no new failures are reported in QA job, add 'QA:verified' label."
+end
+
+THROUGHPUT_LABELS = ['Community contribution', 'security', 'bug', 'feature', 'backstage'].freeze
+if (gitlab.mr_labels & THROUGHPUT_LABELS).empty?
+  warn "This merge request is missing any [throughput labels](https://about.gitlab.com/handbook/engineering/management/throughput)."
 end

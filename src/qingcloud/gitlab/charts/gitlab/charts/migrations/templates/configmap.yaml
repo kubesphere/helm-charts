@@ -14,9 +14,10 @@ data:
       database: {{ template "gitlab.psql.database" . }}
       pool: 10
       username: {{ template "gitlab.psql.username" . }}
-      password: "<%= File.read("/etc/gitlab/postgres/psql-password") %>"
+      password: "<%= File.read("/etc/gitlab/postgres/psql-password").strip.dump[1..-2] %>"
       host: {{ template "gitlab.psql.host" . }}
       port: {{ template "gitlab.psql.port" . }}
+      prepared_statements: {{ template "gitlab.psql.preparedStatements" . }}
       # load_balancing:
       #   hosts:
       #     - host1.example.com
@@ -26,6 +27,9 @@ data:
     production:
       # Redis (single instance)
       url: {{ template "gitlab.redis.url" . }}
+{{- if .Values.global.redis.sentinels }}
+{{ include "gitlab.redis.sentinels" . | indent 6 }}
+{{- end }}
       id:
   gitlab.yml.erb: |
     production: &base

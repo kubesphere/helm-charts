@@ -10,10 +10,10 @@ cluster this chart is deployed onto.
 
 ## Design Choices
 
-The Gitaly container used in this chart also contains the gitlab-shell code-base in
+The Gitaly container used in this chart also contains the GitLab Shell codebase in
 order to perform the actions on the Git repos that have not yet been ported into Gitaly.
-The Gitaly container includes a copy of the gitlab-shell container within it, and
-as a result we also need to configure gitlab-shell within this chart.
+The Gitaly container includes a copy of the GitLab Shell container within it, and
+as a result we also need to configure GitLab Shell within this chart.
 
 ## Configuration
 
@@ -25,36 +25,49 @@ and [chart settings](#chart-settings).
 The table below contains all the possible charts configurations that can be supplied to
 the `helm install` command using the `--set` flags.
 
-| Parameter                      | Default         | Description                              |
-| ------------------------------ | --------------- | ---------------------------------------- |
-| `annotations`                  |                 | Pod annotations                          |
-| `enabled`                      | `true`          | Gitaly enable flag                       |
-| `external[].hostname`          | `- ""`          | hostname of external node                |
-| `external[].name`              | `- ""`          | name of external node storage            |
-| `external[].port`              | `- ""`          | port of external node                    |
-| `extraContainers`              |                 | List of extra containers to include      |
-| `extraInitContainers`          |                 | List of extra init containers to include |
-| `extraVolumeMounts`            |                 | List of extra volumes mountes to do      |
-| `extraVolumes`                 |                 | List of extra volumes to create          |
-| `image.pullPolicy`             | `Always`        | Gitaly image pull policy                 |
-| `image.pullSecrets`            |                 | Secrets for the image repository         |
-| `image.repository`             | `registry.com/gitlab-org/build/cng/gitaly` |Gitaly image repository |
-| `image.tag`                    | `latest`        | Gitaly image tag                         |
-| `init.image`                   | `busybox`       | initContainer image                      |
-| `init.tag`                     | `latest`        | initContainer image tag                  |
-| `internal.names[]`             | `- default`     | Ordered names of statfulset storages     |
-| `service.externalPort`         | `8075`          | Gitaly service exposed port              |
-| `service.internalPort`         | `8075`          | Gitaly internal port                     |
-| `service.name`                 | `gitaly`        | Gitaly service name                      |
-| `service.type`                 | `ClusterIP`     | Gitaly service type                      |
-| `serviceName`                  | `gitaly`        | Gitaly service name                      |
-| `persistence.accessMode`       | `ReadWriteOnce` | Gitaly persistence access mode           |
-| `persistence.enabled`          | `true`          | Gitaly enable persistence flag           |
-| `persistence.matchExpressions` |                 | Label-expression matches to bind         |
-| `persistence.matchLabels`      |                 | Label-value matches to bind              |
-| `persistence.size`             | `50Gi`          | Gitaly persistence volume size           |
-| `persistence.storageClass`     |                 | storageClassName for provisioning        |
-| `persistence.subPath`          |                 | Gitaly persistence volume mount path     |
+| Parameter                       | Default                                    | Description                                                                                                                                                          |
+| ------------------------------  | ------------------------------------------ | ----------------------------------------                                                                                                                             |
+| `annotations`                   |                                            | Pod annotations                                                                                                                                                      |
+| `enabled`                       | `true`                                     | Gitaly enable flag                                                                                                                                                   |
+| `external[].hostname`           | `- ""`                                     | hostname of external node                                                                                                                                            |
+| `external[].name`               | `- ""`                                     | name of external node storage                                                                                                                                        |
+| `external[].port`               | `- ""`                                     | port of external node                                                                                                                                                |
+| `extraContainers`               |                                            | List of extra containers to include                                                                                                                                  |
+| `extraInitContainers`           |                                            | List of extra init containers to include                                                                                                                             |
+| `extraVolumeMounts`             |                                            | List of extra volumes mountes to do                                                                                                                                  |
+| `extraVolumes`                  |                                            | List of extra volumes to create                                                                                                                                      |
+| `image.pullPolicy`              | `Always`                                   | Gitaly image pull policy                                                                                                                                             |
+| `image.pullSecrets`             |                                            | Secrets for the image repository                                                                                                                                     |
+| `image.repository`              | `registry.com/gitlab-org/build/cng/gitaly` | Gitaly image repository                                                                                                                                              |
+| `image.tag`                     | `latest`                                   | Gitaly image tag                                                                                                                                                     |
+| `init.image`                    | `busybox`                                  | initContainer image                                                                                                                                                  |
+| `init.tag`                      | `latest`                                   | initContainer image tag                                                                                                                                              |
+| `internal.names[]`              | `- default`                                | Ordered names of statfulset storages                                                                                                                                 |
+| `service.externalPort`          | `8075`                                     | Gitaly service exposed port                                                                                                                                          |
+| `service.internalPort`          | `8075`                                     | Gitaly internal port                                                                                                                                                 |
+| `service.name`                  | `gitaly`                                   | Gitaly service name                                                                                                                                                  |
+| `service.type`                  | `ClusterIP`                                | Gitaly service type                                                                                                                                                  |
+| `serviceName`                   | `gitaly`                                   | Gitaly service name                                                                                                                                                  |
+| `tolerations`                   | `[]`                                       | Toleration labels for pod assignment                                                                                                                                 |
+| `persistence.accessMode`        | `ReadWriteOnce`                            | Gitaly persistence access mode                                                                                                                                       |
+| `persistence.enabled`           | `true`                                     | Gitaly enable persistence flag                                                                                                                                       |
+| `persistence.matchExpressions`  |                                            | Label-expression matches to bind                                                                                                                                     |
+| `persistence.matchLabels`       |                                            | Label-value matches to bind                                                                                                                                          |
+| `persistence.size`              | `50Gi`                                     | Gitaly persistence volume size                                                                                                                                       |
+| `persistence.storageClass`      |                                            | storageClassName for provisioning                                                                                                                                    |
+| `persistence.subPath`           |                                            | Gitaly persistence volume mount path                                                                                                                                 |
+| `logging.level`                 |                                            | Log level                                                                                                                                                            |
+| `logging.format`                | `json`                                     | Log format                                                                                                                                                           |
+| `logging.sentryDsn`             |                                            | Sentry DSN URL - Exceptions from Go server                                                                                                                           |
+| `logging.rubySentryDsn`         |                                            | Sentry DSN URL - Exceptions from gitaly-ruby                                                                                                                         |
+| `logging.sentryEnvironment`     |                                            | Sentry environment to be used for logging                                                                                                                            |
+| `ruby.maxRss`                   |                                            | Gitaly-Ruby resident set size (RSS) that triggers a memory restart (bytes)                                                                                           |
+| `ruby.gracefulRestartTimeout`   |                                            | Graceful period before a force restart after exceeding Max RSS                                                                                                       |
+| `ruby.restartDelay`             |                                            | Time that Gitaly-Ruby memory must remain high before a restart (seconds)                                                                                             |
+| `ruby.numWorkers`               |                                            | Number of Gitaly-Ruby worker processes                                                                                                                               |
+| `shell.concurrency[]`           |                                            | Concurrency of each RPC endpoint Specified using keys `rpc` and `maxPerRepo`                                                                                         |
+| `git.catFileCacheSize`          |                                            | Cache size used by git cat-file process                                                                                                                              |
+| `prometheus.grpcLatencyBuckets` |                                            | Buckets corresponding to histogram latencies on GRPC method calls to be recorded by Gitaly. A string form of the array, like "[1.0, 1.5, 2.0]", is required as input |
 
 ## Chart configuration examples
 
@@ -67,7 +80,7 @@ found in the [Kubernetes documentation](https://kubernetes.io/docs/concepts/cont
 
 Below is an example use of `pullSecrets`
 
-```YAML
+```yaml
 image:
   repository: my.gitaly.repository
   tag: latest
@@ -77,16 +90,34 @@ image:
   - name: my-secondary-secret-name
 ```
 
+### tolerations
+
+`tolerations` allow you schedule pods on tainted worker nodes
+
+Below is an example use of `tolerations`:
+
+```yaml
+tolerations:
+- key: "node_label"
+  operator: "Equal"
+  value: "true"
+  effect: "NoSchedule"
+- key: "node_label"
+  operator: "Equal"
+  value: "true"
+  effect: "NoExecute"
+```
+
 ### annotations
 
 `annotations` allows you to add annotations to the gitaly pods.
 
 Below is an example use of `annotations`:
 
-```YAML
+```yaml
 annotations:
   kubernetes.io/example-annotation: annotation-value
-``` 
+```
 
 ## External Services
 
@@ -95,7 +126,7 @@ as the attached Unicorn service.
 
 ### Redis
 
-```YAML
+```yaml
 redis:
   host: redis.example.com
   serviceName: redis
@@ -112,7 +143,7 @@ NOTE: **Note:** Credentials will be sourced from `global.redis.password` values.
 
 ### Unicorn
 
-```YAML
+```yaml
 unicorn:
   host: unicorn.example.com
   serviceName: unicorn
@@ -147,7 +178,7 @@ NOTE: **Note:** The persistence settings for gitaly are used in a volumeClaimTem
   that are meant to reference a single specific volume (ie volumeName). If you want
   to reference a specific volume, you need to manually create the PersistentVolumeClaim.
 
-```
+```yaml
 persistence:
   enabled: true
   storageClass: standard

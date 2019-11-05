@@ -18,6 +18,7 @@ module Gitlab
         sleep interval
         retries -= 1
         retry if retries > 0
+        raise
       end
     end
 
@@ -36,32 +37,30 @@ module Gitlab
       false
     end
 
-    def sign_in(retries:6, interval: 5)
-      begin
-        visit '/users/sign_in'
+    def sign_in
+      visit '/users/sign_in'
 
-        # Give time for the app to fully load
-        wait(max: 500) do
-          has_css?('.login-page') || has_css?('.qa-user-avatar')
-        end
-
-        # Return if already signed in
-        return if has_selector?('.qa-user-avatar')
-        # Operate specifically within the user login form, avoiding registation form
-        within('div#login-pane') do
-          fill_in 'Username or email', with: 'root'
-          fill_in 'Password', with: ENV['GITLAB_PASSWORD']
-        end
-        click_button 'Sign in'
-        # Check the login was a success (200, at `/`)
-        page.driver.status_code.should eql 200
-        expect(page).to have_current_path('/', ignore_query: true)
-
-      rescue
-        sleep interval
-        retries -= 1
-        retry if retries > 0
+      # Give time for the app to fully load
+      wait(max: 600, time: 3) do
+        has_css?('.login-page') || has_css?('.qa-user-avatar')
       end
+
+      # Return if already signed in
+      return if has_selector?('.qa-user-avatar')
+      # Operate specifically within the user login form, avoiding registation form
+      within('div#login-pane') do
+        fill_in 'Username or email', with: 'root'
+        fill_in 'Password', with: ENV['GITLAB_PASSWORD']
+      end
+      click_button 'Sign in'
+
+      # Check the login was a success
+      wait(reload: false) do
+        has_current_path?('/', ignore_query: true) && has_css?('.qa-user-avatar')
+      end
+
+      expect(page).to have_current_path('/', ignore_query: true)
+      expect(page).to have_selector('.qa-user-avatar')
     end
 
     def enforce_root_password(password)
@@ -83,7 +82,7 @@ module Gitlab
     end
 
     def restore_from_backup
-      backup = ENV['BACKUP_TIMESTAMP'] || '0_11.6.0-pre'
+      backup = ENV['BACKUP_TIMESTAMP'] || '0_11.11.3'
       cmd = full_command("backup-utility --restore -t #{backup}")
       stdout, status = Open3.capture2e(cmd)
 
@@ -91,7 +90,7 @@ module Gitlab
     end
 
     def backup_instance
-      cmd = full_command("backup-utility --backup -t test-backup")
+      cmd = full_command("backup-utility -t test-backup")
       stdout, status = Open3.capture2e(cmd)
 
       return [stdout, status]
@@ -104,9 +103,20 @@ module Gitlab
       return [stdout, status]
     end
 
+    def restart_unicorn
+      filters = 'app=unicorn'
+
+      if ENV['RELEASE_NAME']
+        filters="#{filters},release=#{ENV['RELEASE_NAME']}"
+      end
+
+      stdout, status = Open3.capture2e("kubectl delete pods -l #{filters} --wait=true")
+      return [stdout, status]
+    end
+
     def set_runner_token
       rails_dir = ENV['RAILS_DIR'] || '/srv/gitlab'
-      cmd = full_command("#{rails_dir}/bin/rails runner \"settings = ApplicationSetting.current_without_cache; settings.set_runners_registration_token('#{runner_registration_token}'); settings.save!; ApplicationSetting.expire \"")
+      cmd = full_command("#{rails_dir}/bin/rails runner \"settings = ApplicationSetting.current_without_cache; settings.set_runners_registration_token('#{runner_registration_token}'); settings.save!\"")
 
       stdout, status = Open3.capture2e(cmd)
       return [stdout, status]
@@ -126,7 +136,7 @@ module Gitlab
         filters="#{filters},release=#{ENV['RELEASE_NAME']}"
       end
 
-      @pod ||= `kubectl get pod -l #{filters} -o jsonpath="{.items[0].metadata.name}"`
+      @pod ||= `kubectl get pod -l #{filters} --field-selector=status.phase=Running -o jsonpath="{.items[0].metadata.name}"`
     end
 
     def runner_registration_token
@@ -159,7 +169,7 @@ module Gitlab
 
     def ensure_backups_on_object_storage
       storage_url = 'https://storage.googleapis.com/gitlab-charts-ci/test-backups'
-      backup_file_names = ['11.6.0-pre_gitlab_backup.tar']
+      backup_file_names = ['11.11.3_gitlab_backup.tar']
       backup_file_names.each do |file_name|
         file = open("#{storage_url}/#{file_name}").read
         object_storage.put_object(

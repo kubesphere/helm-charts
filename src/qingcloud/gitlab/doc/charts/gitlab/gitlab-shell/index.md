@@ -23,28 +23,32 @@ with `global.shell.port`, and defaults to `22`.
 
 ## Installation command line options
 
-| Parameter                | Default        | Description                              | 
-| ------------------------ | -------------- | ---------------------------------------- | 
-| `annotations`            |                | Pod annotations                          | 
-| `enabled`                | `true`         | Shell enable flag                        | 
-| `extraContainers`        |                | List of extra containers to include      | 
-| `extraInitContainers`    |                | List of extra init containers to include | 
-| `extraVolumeMounts`      |                | List of extra volumes mountes to do      | 
-| `extraVolumes`           |                | List of extra volumes to create          | 
-| `hpa.targetAverageValue` | `100m`         | Set the autoscaling target value         | 
-| `image.pullPolicy`       | `Always`       | Shell image pull policy                  | 
-| `image.pullSecrets`      |                | Secrets for the image repository         | 
-| `image.repository`       | `registry.com/gitlab-org/build/cng/gitlab-shell` | Shell image repository | 
-| `image.tag`              | `latest`       | Shell image tag                          | 
-| `init.image`             | `busybox`      | initContainer image                      | 
-| `init.tag`               | `latest`       | initContainer image tag                  | 
-| `redis.serviceName`      | `redis`        | Redis service name                       | 
-| `replicaCount`           | `1`            | Shell replicas                           | 
-| `service.externalPort`   | `22`           | Shell exposed port                       | 
-| `service.internalPort`   | `22`           | Shell internal port                      | 
-| `service.name`           | `gitlab-shell` | Shell service name                       | 
-| `service.type`           | `ClusterIP`    | Shell service type                       | 
-| `unicorn.serviceName`    | `unicorn`      | Unicorn service name                     | 
+| Parameter                | Default        | Description                              |
+| ------------------------ | -------------- | ---------------------------------------- |
+| `annotations`            |                | Pod annotations                          |
+| `enabled`                | `true`         | Shell enable flag                        |
+| `extraContainers`        |                | List of extra containers to include      |
+| `extraInitContainers`    |                | List of extra init containers to include |
+| `extraVolumeMounts`      |                | List of extra volumes mounts to do       |
+| `extraVolumes`           |                | List of extra volumes to create          |
+| `hpa.targetAverageValue` | `100m`         | Set the autoscaling target value         |
+| `image.pullPolicy`       | `Always`       | Shell image pull policy                  |
+| `image.pullSecrets`      |                | Secrets for the image repository         |
+| `image.repository`       | `registry.com/gitlab-org/build/cng/gitlab-shell` | Shell image repository |
+| `image.tag`              | `latest`       | Shell image tag                          |
+| `init.image`             | `busybox`      | initContainer image                      |
+| `init.tag`               | `latest`       | initContainer image tag                  |
+| `redis.serviceName`      | `redis`        | Redis service name                       |
+| `replicaCount`           | `1`            | Shell replicas                           |
+| `service.externalPort`   | `22`           | Shell exposed port                       |
+| `service.internalPort`   | `22`           | Shell internal port                      |
+| `service.name`           | `gitlab-shell` | Shell service name                       |
+| `service.type`           | `ClusterIP`    | Shell service type                       |
+| `service.loadBalancerIP` |                | IP address to assign to LoadBalancer (if supported) |
+| `service.loadBalancerSourceRanges` |      | List of IP CIDRs allowed access to LoadBalancer (if supported)  |
+| `service.type`           | `ClusterIP`    | Shell service type                       |
+| `tolerations`            | `[]`           | Toleration labels for pod assignment     |
+| `unicorn.serviceName`    | `unicorn`      | Unicorn service name                     |
 
 ## Chart configuration examples
 
@@ -57,7 +61,7 @@ found in [the Kubernetes documentation](https://kubernetes.io/docs/concepts/cont
 
 Below is an example use of `pullSecrets`:
 
-```YAML
+```yaml
 image:
   repository: my.shell.repository
   tag: latest
@@ -67,13 +71,31 @@ image:
   - name: my-secondary-secret-name
 ```
 
+### tolerations
+
+`tolerations` allow you schedule pods on tainted worker nodes
+
+Below is an example use of `tolerations`:
+
+```yaml
+tolerations:
+- key: "node_label"
+  operator: "Equal"
+  value: "true"
+  effect: "NoSchedule"
+- key: "node_label"
+  operator: "Equal"
+  value: "true"
+  effect: "NoExecute"
+```
+
 ### annotations
 
-`annotations` allows you to add annotations to the gitlab-shell pods.
+`annotations` allows you to add annotations to the GitLab Shell pods.
 
 Below is an example use of `annotations`
 
-```YAML
+```yaml
 annotations:
   kubernetes.io/example-annotation: annotation-value
 ```
@@ -85,27 +107,38 @@ as the attached Unicorn service.
 
 ### Redis
 
-```YAML
+```yaml
 redis:
   host: redis.example.com
   serviceName: redis
   port: 6379
+  sentinels:
+    - host: sentinel1.example.com
+      port: 26379
   password:
     secret: gitlab-redis
     key: redis-password
 ```
 
-| Name            | Type    | Default | Description |
-|:----------------|:-------:|:--------|:------------|
-| host            | String  |         | The hostname of the Redis server with the database to use. This can be omitted in lieu of `serviceName`. |
-| password.key    | String  |         | The name of the key in the secret below that contains the password. |
-| password.secret | String  |         | The name of the kubernetes `Secret` to pull from. |
-| port            | Integer | `6379`  | The port on which to connect to the Redis server. |
-| serviceName     | String  | `redis` | The name of the `service` which is operating the Redis database. If this is present, and `host` is not, the chart will template the hostname of the service (and current `.Release.Name`) in place of the `host` value. This is convenient when using Redis as a part of the overall GitLab chart. |
+| Name             | Type    | Default | Description |
+|:-----------------|:-------:|:--------|:------------|
+| host             | String  |         | The hostname of the Redis server with the database to use. This can be omitted in lieu of `serviceName`. If using Redis Sentinels, the `host` attribute needs to be set to the cluster name as specified in the `sentinel.conf`.|
+| password.key     | String  |         | The name of the key in the secret below that contains the password. |
+| password.secret  | String  |         | The name of the Kubernetes `Secret` to pull from. |
+| port             | Integer | `6379`  | The port on which to connect to the Redis server. |
+| serviceName      | String  | `redis` | The name of the `service` which is operating the Redis database. If this is present, and `host` is not, the chart will template the hostname of the service (and current `.Release.Name`) in place of the `host` value. This is convenient when using Redis as a part of the overall GitLab chart. |
+| sentinels.[].host| String  |         | The hostname of Redis Sentinel server for a Redis HA setup. |
+| sentinels.[].port| Integer | `26379` | The port on which to connect to the Redis Sentinel server. |
+
+_Note:_ The current Redis Sentinel support only supports Sentinels that have
+been deployed separately from the GitLab chart. As a result, the Redis
+deployment through the GitLab chart should be disabled with `redis.enabled=false`
+and `redis-ha.enabled=false`. The Secret containing the Redis password
+will need to be manually created before deploying the GitLab chart.
 
 ### Unicorn
 
-```YAML
+```yaml
 unicorn:
   host: unicorn.example.com
   serviceName: unicorn
@@ -132,7 +165,7 @@ secret must start with the key names `ssh_host_` in order to be used by GitLab S
 GitLab Shell uses an Auth Token in its communication with Unicorn. Share the token
 with GitLab Shell and Unicorn using a shared Secret.
 
-```YAML
+```yaml
 authToken:
  secret: gitlab-shell-secret
  key: secret
@@ -141,4 +174,24 @@ authToken:
 | Name             | Type    | Default | Description |
 |:-----------------|:-------:|:--------|:------------|
 | authToken.key    | String  |         | The name of the key in the above secret that contains the authToken. |
-| authToken.secret | String  |         | The name of the kubernetes `Secret` to pull from. |
+| authToken.secret | String  |         | The name of the Kubernetes `Secret` to pull from. |
+
+### LoadBalancer Service
+
+If the `service.type` is set to `LoadBalancer`, you can optionally specify `service.loadBalancerIP` to create
+the `LoadBalancer` with a user-specified IP (if your cloud provider supports it).
+
+You can also optionally specify a list of `service.loadBalancerSourceRanges` to restrict
+the CIDR ranges that can access the `LoadBalancer` (if your cloud provider supports it).
+
+Additional information about the `LoadBalancer` service type can be found in
+[the Kubernetes documentation](https://kubernetes.io/docs/concepts/services-networking/#loadbalancer)
+
+```yaml
+service:
+  type: LoadBalancer
+  loadBalancerIP: 1.2.3.4
+  loadBalancerSourceRanges:
+  - 5.6.7.8/32
+  - 10.0.0.0/8
+```

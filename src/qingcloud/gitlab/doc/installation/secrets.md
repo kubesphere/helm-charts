@@ -3,16 +3,18 @@
 GitLab requires a variety of secrets to operate:
 
 Gitlab Components:
-* Registry authentication certificates
-* SSH Host Keys and Certificates for GitLab Shell
-* Passwords for individual Gitlab services
 
-Optional External Services
-* SMTP server
-* LDAP
-* Omniauth
-* IMAP for incoming emails (via mail_room service)
+- Registry authentication certificates
+- SSH Host Keys and Certificates for GitLab Shell
+- Passwords for individual Gitlab services
 
+Optional External Services:
+
+- SMTP server
+- LDAP
+- Omniauth
+- IMAP for incoming emails (via mail_room service)
+- S/MIME certificate
 
 Any secret not provided manually will be automatically generated with a random value. Automatic generation of HTTPS certificates is provided by Let's Encrypt.
 
@@ -29,21 +31,23 @@ documentation.
 - [Registry authentication certificates](#registry-authentication-certificates)
 - [SSH Host Keys](#ssh-host-keys)
 - Passwords:
-  * [Initial root password](#initial-root-password)
-  * [Redis password](#redis-password)
-  * [GitLab Shell secret](#gitlab-shell-secret)
-  * [Gitaly secret](#gitaly-secret)
-  * [GitLab Rails secret](#gitlab-rails-secret)
-  * [GitLab workhorse secret](#gitlab-workhorse-secret)
-  * [GitLab runner secret](#gitlab-runner-secret)
-  * [Postgres password](#postgresql-password)
-  * [Minio secret](#minio-secret)
-  * [Registry HTTP secret](#registry-http-secret)
+  - [Initial root password](#initial-root-password)
+  - [Redis password](#redis-password)
+  - [GitLab Shell secret](#gitlab-shell-secret)
+  - [Gitaly secret](#gitaly-secret)
+  - [GitLab Rails secret](#gitlab-rails-secret)
+  - [GitLab workhorse secret](#gitlab-workhorse-secret)
+  - [GitLab runner secret](#gitlab-runner-secret)
+  - [Postgres password](#postgresql-password)
+  - [Minio secret](#minio-secret)
+  - [Registry HTTP secret](#registry-http-secret)
+  - [Grafana password](#grafana-password)
 - [External Services](#external-services)
-  * [Unicorn Omniauth](#unicorn-omniauth)
-  * [LDAP Password](#ldap-password)
-  * [SMTP Password](#smtp-password)
-  * [IMAP Password](#imap-password-for-incoming-emails)
+  - [Unicorn Omniauth](#unicorn-omniauth)
+  - [LDAP Password](#ldap-password)
+  - [SMTP Password](#smtp-password)
+  - [IMAP Password](#imap-password-for-incoming-emails)
+  - [S/MIME Certificate](#smime-certificate)
 
 ### Registry authentication certificates
 
@@ -109,6 +113,10 @@ Generate a random 64 character alpha-numeric password for Redis. Replace
 ```
 kubectl create secret generic <name>-redis-secret --from-literal=secret=$(head -c 512 /dev/urandom | LC_CTYPE=C tr -cd 'a-zA-Z0-9' | head -c 64)
 ```
+
+If deploying with an already existing Redis cluster, please use the password
+for accessing the Redis cluster that has been base64 encoded instead of a
+randomly generated one.
 
 ### GitLab Shell secret
 
@@ -190,6 +198,14 @@ the name of the release.
 kubectl create secret generic <name>-postgresql-password --from-literal=postgres-password=$(head -c 512 /dev/urandom | LC_CTYPE=C tr -cd 'a-zA-Z0-9' | head -c 64)
 ```
 
+### Grafana password
+
+If configuring [Grafana integration](../charts/globals.md#configure-grafana-integration), generate a random 64 character alpha-numeric password.
+
+```
+generate_secret_if_needed "gitlab-grafana-initial-password" --from-literal=password=$(gen_random 'a-zA-Z0-9' 64)
+```
+
 ### Registry HTTP secret
 
 Generate a random 64 character alpha-numeric key shared by all registry pods.
@@ -215,7 +231,7 @@ If you need password authentication to connect with your LDAP server, you must s
 kubectl create secret generic ldap-main-password --from-literal=password=yourpasswordhere
 ```
 
-Then use `--set global.appConfig.ldap.servers.main.password.secret=ldap-main-password` to 
+Then use `--set global.appConfig.ldap.servers.main.password.secret=ldap-main-password` to
 inject the password into your configuration.
 
 ### SMTP password
@@ -240,6 +256,25 @@ kubectl create secret generic incoming-email-password --from-literal=password=yo
 
 Then use `--set global.appConfig.incomingEmail.password.secret=incoming-email-password`
 in your helm command along with other required settings as specified [in the docs](command-line-options.md#incoming-email-configuration).
+
+### S/MIME Certificate
+
+Outgoing email messages can be digitally signed using the [S/MIME](https://en.wikipedia.org/wiki/S/MIME) standard.
+The S/MIME certificate needs to be stored in a Kubernetes secret as a
+TLS type secret.
+
+```
+kubectl create secret tls smime-certificate --key=file.key --cert file.crt
+```
+
+If there is an existing secret as a opaque type, then the `global.email.smime.keyName`
+and `global.email.smime.certName` values will need to be adjusted for
+the specific secret.
+
+S/MIME settings can be set through the `values.yaml` file or on the command
+line. Use `--set global.email.smime.enabled=true` to enable S/MIME and
+`--set global.email.smime.secretName=smime-certificate` to specify the
+secret that contains the S/MIME certificate.
 
 ## Next steps
 

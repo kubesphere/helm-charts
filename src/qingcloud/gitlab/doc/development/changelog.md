@@ -28,8 +28,8 @@ valid options are: added, fixed, changed, deprecated, removed, security, other. 
 Community contributors and core team members are encouraged to add their name to
 the `author` field. GitLab team members **should not**.
 
-[changelog.md]: https://gitlab.com/charts/gitlab/blob/master/CHANGELOG.md
-[unreleased]: https://gitlab.com/charts/gitlab/tree/master/changelogs/
+[changelog.md]: https://gitlab.com/gitlab-org/charts/gitlab/blob/master/CHANGELOG.md
+[unreleased]: https://gitlab.com/gitlab-org/charts/gitlab/tree/master/changelogs/
 [YAML]: https://en.wikipedia.org/wiki/YAML
 
 ## What warrants a changelog entry?
@@ -59,7 +59,7 @@ making it both concise and descriptive, err on the side of descriptive.
 The first example provides no context of where the change was made, or why, or
 how it benefits the user.
 
-- **Bad:** Copy [some text] to clipboard.
+- **Bad:** Copy (some text) to clipboard.
 - **Good:** Update the "Copy to clipboard" tooltip to indicate what's being
   copied.
 
@@ -94,8 +94,8 @@ automatically.
 
 Its simplest usage is to provide the value for `title`:
 
-```text
-$ bin/changelog 'Hey DZ, I added a feature to GitLab!'
+```sh
+bin/changelog 'Hey DZ, I added a feature to GitLab!'
 ```
 
 At this point the script would ask you to select the category of the change (mapped to the `type` field in the entry):
@@ -138,7 +138,7 @@ type:
 | [`--type`](#--type-or--t)                   | `-t`      | The category of the change, valid options are: added, fixed, changed, deprecated, removed, security, other |
 | `--help`                                    | `-h`      | Print help message                            |
 
-##### `--amend`
+#### `--amend`
 
 You can pass the **`--amend`** argument to automatically stage the generated
 file and amend it to the previous commit.
@@ -147,7 +147,7 @@ If you use **`--amend`** and don't provide a title, it will automatically use
 the "subject" of the previous commit, which is the first line of the commit
 message:
 
-```text
+```sh
 $ git show --oneline
 ab88683 Added an awesome new feature to GitLab
 
@@ -160,12 +160,12 @@ author:
 type:
 ```
 
-##### `--force` or `-f`
+#### `--force` or `-f`
 
 Use **`--force`** or **`-f`** to overwrite an existing changelog entry if it
 already exists.
 
-```text
+```sh
 $ bin/changelog 'Hey DZ, I added a feature to GitLab!'
 error changelogs/unreleased/feature-hey-dz.yml already exists! Use `--force` to overwrite.
 
@@ -178,12 +178,12 @@ author:
 type:
 ```
 
-##### `--merge-request` or `-m`
+#### `--merge-request` or `-m`
 
 Use the **`--merge-request`** or **`-m`** argument to provide the
 `merge_request` value:
 
-```text
+```sh
 $ bin/changelog 'Hey DZ, I added a feature to GitLab!' -m 1983
 create changelogs/unreleased/feature-hey-dz.yml
 ---
@@ -193,12 +193,12 @@ author:
 type:
 ```
 
-##### `--dry-run` or `-n`
+#### `--dry-run` or `-n`
 
 Use the **`--dry-run`** or **`-n`** argument to prevent actually writing or
 committing anything:
 
-```text
+```sh
 $ bin/changelog --amend --dry-run
 create changelogs/unreleased/feature-hey-dz.yml
 ---
@@ -210,12 +210,12 @@ type:
 $ ls changelogs/unreleased/
 ```
 
-##### `--git-username` or `-u`
+#### `--git-username` or `-u`
 
 Use the **`--git-username`** or **`-u`** argument to automatically fill in the
 `author` value with your configured Git `user.name` value:
 
-```text
+```sh
 $ git config user.name
 Jane Doe
 
@@ -228,11 +228,11 @@ author: Jane Doe
 type:
 ```
 
-##### `--type` or `-t`
+#### `--type` or `-t`
 
 Use the **`--type`** or **`-t`** argument to provide the `type` value:
 
-```text
+```sh
 $ bin/changelog 'Hey DZ, I added a feature to GitLab!' -t added
 create changelogs/unreleased/feature-hey-dz.yml
 ---
@@ -251,4 +251,4 @@ found the workflow to be appealing and familiar.
 
 [Return to Development documentation](index.md)
 
-[gl-codebase]: https://gitlab.com/gitlab-org/gitlab-ce/blob/master/doc/development/changelog.md
+[gl-codebase]: https://gitlab.com/gitlab-org/gitlab-foss/blob/master/doc/development/changelog.md

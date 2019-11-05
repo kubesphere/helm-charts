@@ -1,12 +1,12 @@
 # Using Minio for Object storage
 
-This chart is based on [`stable/minio`](https://github.com/kubernetes/charts/tree/master/stable/minio)
-version [`0.4.3`](https://github.com/kubernetes/charts/tree/aaaf98b5d25c26cc2d483925f7256f2ce06be080/stable/minio),
+This chart is based on [`stable/minio`](https://github.com/helm/charts/tree/master/stable/minio)
+version [`0.4.3`](https://github.com/helm/charts/tree/aaaf98b5d25c26cc2d483925f7256f2ce06be080/stable/minio),
 and inherits most settings from there.
 
 ## Design Choices
 
-Design choices related to the [upstream chart](https://github.com/kubernetes/charts/tree/master/stable/minio)
+Design choices related to the [upstream chart](https://github.com/helm/charts/tree/master/stable/minio)
 can be found in the project's README.
 
 GitLab chose to alter that chart in order to simplify configuration of the secrets,
@@ -35,6 +35,7 @@ minio:
     proxyReadTimeout:
     proxyBodySize:
     proxyBuffering:
+  tolerations:
   persistence: (upstream)
     volumeName:
     matchLabels:
@@ -78,6 +79,7 @@ to the `helm install` command using the `--set` flags:
 | `securityContext.runAsUser`    | `1000`                        | User ID to start the pod with           |
 | `servicePort`                  | `9000`                        | Minio service port                      |
 | `serviceType`                  | `ClusterIP`                   | Minio service type                      |
+| `tolerations`                  | `[]`                          | Toleration labels for pod assignment    |
 
 ## Chart configuration examples
 
@@ -97,6 +99,24 @@ imagePullPolicy: Always
 pullSecrets:
 - name: my-secret-name
 - name: my-secondary-secret-name
+```
+
+### tolerations
+
+`tolerations` allow you schedule pods on tainted worker nodes
+
+Below is an example use of `tolerations`:
+
+```YAML
+tolerations:
+- key: "node_label"
+  operator: "Equal"
+  value: "true"
+  effect: "NoSchedule"
+- key: "node_label"
+  operator: "Equal"
+  value: "true"
+  effect: "NoExecute"
 ```
 
 ## Enable the sub-chart
@@ -138,7 +158,7 @@ The initContainer is passed the following items:
 The initContainer is expected to populate `/minio/config.json` with a completed configuration,
 using `/config/configure` script. When the `minio-config` container has completed
 that task, the `/minio` directory will be passed to the `minio` container, and used
-to provide the `config.json` to the [minio](https://minio.io) server.
+to provide the `config.json` to the [minio](https://min.io) server.
 
 ## Configuring the Ingress
 
@@ -146,7 +166,7 @@ These settings control the minio ingress.
 
 | Name             | Type    | Default | Description |
 |:---------------- |:-------:|:------- |:----------- |
-| `annotations`    | String  |         | This field is an exact match to the standard `annotations` for [Kubernetes Ingress](https://kubernetes.io/docs/concepts/services-networking/ingress). |
+| `annotations`    | String  |         | This field is an exact match to the standard `annotations` for [Kubernetes Ingress](https://kubernetes.io/docs/concepts/services-networking/ingress/). |
 | `enabled`        | Boolean | `false` | Setting that controls whether to create ingress objects for services that support them. When `false` the `global.ingress.enabled` setting is used. |
 | `tls.enabled`    | Boolean | `true`  | When set to `false`, you disable TLS for Minio. This is mainly useful when you cannot use TLS termination at ingress-level, like when you have a TLS-terminating proxy before the ingress controller. |
 | `tls.secretName` | String  |         | The name of the Kubernetes TLS Secret that contains a valid certificate and key for the minio url. When not set, the `global.ingress.tls.secretName` is used instead. |
@@ -154,7 +174,7 @@ These settings control the minio ingress.
 ## Configuring the image
 
 The `image`, `imageTag` and `imagePullPolicy` defaults are
-[documented upstream](https://github.com/kubernetes/charts/tree/master/stable/minio#configuration).
+[documented upstream](https://github.com/helm/charts/tree/master/stable/minio#configuration).
 
 ## Persistence
 
@@ -163,8 +183,8 @@ volume to default location `/export`. You'll need physical storage available in 
 Kubernetes cluster for this to work. If you'd rather use `emptyDir`, disable `PersistentVolumeClaim`
 by: `persistence.enabled: false`.
 
-The behaviors for [`persistence`](https://github.com/kubernetes/charts/tree/master/stable/minio#persistence)
-are [documented upstream](https://github.com/kubernetes/charts/tree/master/stable/minio#configuration).
+The behaviors for [`persistence`](https://github.com/helm/charts/tree/master/stable/minio#persistence)
+are [documented upstream](https://github.com/helm/charts/tree/master/stable/minio#configuration).
 
 GitLab has added a few items:
 
@@ -212,7 +232,7 @@ For in-depth information about security context, please refer to the official
 
 ## Service Type and Port
 
-These are [documented upstream](https://github.com/kubernetes/charts/tree/master/stable/minio#configuration),
+These are [documented upstream](https://github.com/helm/charts/tree/master/stable/minio#configuration),
 and the key summary is:
 
 ```
@@ -228,7 +248,7 @@ The chart does not expect to be of the `type: NodePort`, so **do not** set it as
 
 ## Upstream items
 
-The [upstream documentation](https://github.com/kubernetes/charts/tree/master/stable/minio)
+The [upstream documentation](https://github.com/helm/charts/tree/master/stable/minio)
 for the following also applies completely to this chart:
 
 - `resources`
@@ -236,5 +256,5 @@ for the following also applies completely to this chart:
 - `minioConfig`
 
 Further explanation of the `minioConfig` settings can be found in the
-[minio notify documentation](https://docs.minio.io/docs/minio-bucket-notification-guide).
+[minio notify documentation](https://docs.min.io/docs/minio-bucket-notification-guide).
 This includes details on publishing notifications when Bucket Objects are accessed or changed.

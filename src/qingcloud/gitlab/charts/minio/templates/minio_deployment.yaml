@@ -1,5 +1,5 @@
 {{- if .Values.global.minio.enabled -}}
-apiVersion: apps/v1beta2
+apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ template "minio.fullname" . }}
@@ -26,6 +26,10 @@ spec:
         heritage: "{{ .Release.Service }}"
         component: app
     spec:
+      {{- if .Values.tolerations }}
+      tolerations:
+{{ toYaml .Values.tolerations | indent 8 }}
+      {{- end }}
       securityContext:
         runAsUser: {{ .Values.securityContext.runAsUser }}
         fsGroup: {{ .Values.securityContext.fsGroup }}
