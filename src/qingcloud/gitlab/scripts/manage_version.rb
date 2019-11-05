@@ -24,7 +24,7 @@ class VersionOptionsParser
       # defaults
       options.working_dir = Dir.pwd
       options.include_subcharts = false
-      options.gitlab_repo = "gitlab-org/gitlab-ee"
+      options.gitlab_repo = "gitlab-org/gitlab"
 
       OptionParser.new do |opts|
         opts.banner = "Usage: #{__FILE__} [options] \n\n"
@@ -94,19 +94,22 @@ class ChartFile
   end
 
   def version
-    Version.new(@metadata['version'])
+    Version.new(@metadata['version']) if @metadata['version']
   end
 
   def app_version
-    Version.new(@metadata['appVersion'])
+    Version.new(@metadata['appVersion']) if @metadata['appVersion']
   end
 
-  def update_versions(chart_version = nil, app_version = nil)
-    @metadata['version'] = chart_version.to_s if chart_version
-    @metadata['appVersion'] = app_version.to_s if app_version
+  def update_versions(new_chart_version = nil, new_app_version = nil)
+    orig_metadata = @metadata.dup
+    @metadata['version'] = new_chart_version.to_s if new_chart_version && (version.nil? || new_chart_version > version)
+    @metadata['appVersion'] = new_app_version.to_s if new_app_version && (app_version.nil? || new_app_version > app_version)
 
-    $stdout.puts "Updating #{@filepath}"
-    File.write(@filepath, YAML.dump(@metadata))
+    if orig_metadata != @metadata
+      $stdout.puts "Updating #{@filepath}"
+      File.write(@filepath, YAML.dump(@metadata))
+    end
   end
 end
 
@@ -131,15 +134,15 @@ class VersionUpdater
 
     # Only insert into version_mapping when we have both versions, as releases
     unless @app_version.nil?
-      if chart.version.release? && @app_version.release?
-        version_mapping.insert_version(chart.version, @app_version)
+      if @chart_version.release? && @app_version.release?
+        version_mapping.insert_version(@chart_version, @app_version)
         version_mapping.finalize
       end
     end
 
     if @options.include_subcharts
       @subchart_versions.each do |sub_chart, update_app_version|
-        sub_chart.update_versions(@chart_version, branch == 'master' ? nil : update_app_version) 
+        sub_chart.update_versions(@chart_version, branch == 'master' ? nil : update_app_version)
       end
     end
   end

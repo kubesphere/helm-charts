@@ -3,7 +3,7 @@
 To reduce configuration duplication when installing our wrapper Helm chart, several
 configuration settings are available to be set in the `global` section of `values.yml`.
 These global settings are used across several charts, while all other settings are scoped
-within their chart. See the [Helm documentation on globals](https://docs.helm.sh/developing_charts/#global-values)
+within their chart. See the [Helm documentation on globals](https://helm.sh/docs/developing_charts/#global-values)
 for more information on how the global variables work.
 
 - [Hosts](#configure-host-settings)
@@ -11,6 +11,7 @@ for more information on how the global variables work.
 - [GitLab Version](#gitlab-version)
 - [PostgreSQL](#configure-postgresql-settings)
 - [Redis](#configure-redis-settings)
+- [Grafana](#configure-grafana-integration)
 - [Registry](#configure-registry-settings)
 - [Gitaly](#configure-gitaly-settings)
 - [Minio](#configure-minio-settings)
@@ -80,13 +81,14 @@ global:
 
 The GitLab global host settings for Ingress are located under the `global.ingress` key:
 
-| Name                           | Type    | Default | Description |
-|:------------------------------ |:-------:|:------- |:----------- |
-| `annotations.*annotation-key*` | String  |         | Where `annotation-key` is a string that will be used with the value as an annotation on every ingress. For Example: `global.ingress.annotations."nginx\.ingress\.kubernetes\.io/enable-access-log"=true`. No global annotations are provided by default. |
-| `configureCertmanager`         | Boolean | `true`  | [See below](#globalingressconfigurecertmanager). |
-| `enabled`                      | Boolean | `true`  | Global setting that controls whether to create ingress objects for services that support them. |
-| `tls.enabled`                  | Boolean | `true`  | When set to `false`, this disables TLS in Gitlab. This is useful for cases in which you cannot use TLS termination of ingresses, such as when you have a TLS-terminating proxy before the ingress controller. If you want to disable https completely, this should be set to `false` together with [`global.hosts.https`](#configure-host-settings). |
-| `tls.secretName`               | String  |         | The name of the [Kubernetes TLS Secret](https://kubernetes.io/docs/concepts/services-networking/ingress/#tls) that contains a **wildcard** certificate and key for the domain used in `global.hosts.domain`. |
+| Name                           | Type    | Default        | Description |
+|:------------------------------ |:-------:|:-------        |:----------- |
+| `annotations.*annotation-key*` | String  |                | Where `annotation-key` is a string that will be used with the value as an annotation on every ingress. For Example: `global.ingress.annotations."nginx\.ingress\.kubernetes\.io/enable-access-log"=true`. No global annotations are provided by default. |
+| `configureCertmanager`         | Boolean | `true`         | [See below](#globalingressconfigurecertmanager). |
+| `class`                        | String  | `gitlab-nginx` | Global setting that controls `kubernetes.io/ingress.class` annotation in `Ingress` resources. |
+| `enabled`                      | Boolean | `true`         | Global setting that controls whether to create ingress objects for services that support them. |
+| `tls.enabled`                  | Boolean | `true`         | When set to `false`, this disables TLS in Gitlab. This is useful for cases in which you cannot use TLS termination of ingresses, such as when you have a TLS-terminating proxy before the ingress controller. If you want to disable https completely, this should be set to `false` together with [`global.hosts.https`](#configure-host-settings). |
+| `tls.secretName`               | String  |                | The name of the [Kubernetes TLS Secret](https://kubernetes.io/docs/concepts/services-networking/ingress/#tls) that contains a **wildcard** certificate and key for the domain used in `global.hosts.domain`. |
 
 ### global.ingress.configureCertmanager
 
@@ -126,7 +128,9 @@ more details, see the documentation within the [unicorn chart](gitlab/unicorn/in
 global:
   psql:
     host: db.example.com
+    # serviceName:
     port: 5432
+    preparedStatements: false
     password:
       secret: gitlab-postgres
       key: psql-password
@@ -157,12 +161,33 @@ details on these settings, see the documentation within the [unicorn chart](gitl
 global:
   redis:
     host: redis.example.com
+    # serviceName:
     port: 6379
+    sentinels:
+      - host: sentinel1.example.com
+        port: 26379
+      - host: sentinel2.example.com
+        port: 26379
     password:
       enabled: true
       secret: gitlab-redis
       key: redis-password
 ```
+
+_Note:_ The current Redis Sentinel support only supports Sentinels that have
+been deployed separately from the GitLab chart. As a result, the Redis
+deployment through the GitLab chart should be disabled with `redis.enabled=false`
+and `redis-ha.enabled=false`. The Secret containing the Redis password
+will need to be manually created before deploying the GitLab chart.
+
+## Configure Grafana integration
+
+The GitLab global grafana settings are located under `global.grafana`. At this time, the only setting available is `global.grafana.enabled`.
+
+When set to `true`, the GitLab chart will deploy the [Grafana chart](https://github.com/helm/charts/tree/master/stable/grafana), expose it under `/-/grafana` of the GitLab Ingress, and pre-configure it with a secure random password. The generated password can be found in the Secret named `gitlab-grafana-initial-root-password`.
+
+The GitLab chart connects to the deployed Prometheus instance.
+
 ## Configure Registry settings
 
 The global Registry settings are located under the `global.registry` key. For more
@@ -232,7 +257,7 @@ NOTE: **Note:** Manual scaling of this item is required, by adding or removing e
   will persist, and the data on them can be accessed when the set is scaled up again
   by re-adding a node to the `names` list.
 
-A sample [configuration of multiple internal nodes](https://gitlab.com/charts/gitlab/blob/master/examples/gitaly/values-multiple-internal.yaml)
+A sample [configuration of multiple internal nodes](https://gitlab.com/gitlab-org/charts/gitlab/blob/master/examples/gitaly/values-multiple-internal.yaml)
 can be found in the examples folder.
 
 #### External
@@ -246,7 +271,7 @@ Each item of this list has 3 keys:
 
 NOTE: **Note:** You must have an entry with `name: default`.
 
-A sample [configuration of multiple external nodes](https://gitlab.com/charts/gitlab/blob/master/examples/gitaly/values-multiple-external.yaml)
+A sample [configuration of multiple external nodes](https://gitlab.com/gitlab-org/charts/gitlab/blob/master/examples/gitaly/values-multiple-external.yaml)
 can be found in the examples folder.
 
 #### Mixed
@@ -256,7 +281,7 @@ It is possible to use both internal and external Gitaly nodes, but be aware that
 - There must always be a node named `default`, which Internal provides by default.
 - External nodes will be populated first, then Internal.
 
-A sample [configuration of mixed internal and external nodes](https://gitlab.com/charts/gitlab/blob/master/examples/gitaly/values-multiple-mixed.yaml)
+A sample [configuration of mixed internal and external nodes](https://gitlab.com/gitlab-org/charts/gitlab/blob/master/examples/gitaly/values-multiple-mixed.yaml)
 can be found in the examples folder.
 
 ### authToken
@@ -309,6 +334,7 @@ global:
       wiki: true
       snippets: true
       builds: true
+      containerRegistry: true
     webhookTimeout:
     gravatar:
       plainUrl:
@@ -377,7 +403,7 @@ application are described below:
 | `defaultCanCreateGroup`             | Boolean | `true`  | A flag to decide if users are allowed to create groups. |
 | `usernameChangingEnabled`           | Boolean | `true`  | A flag to decide if users are allowed to change their username. |
 | `issueClosingPattern`               | String  | (empty) | [Pattern to close issues automatically](https://docs.gitlab.com/ee/administration/issue_closing_pattern.html). |
-| `defaultTheme`                      | Integer |         | [Numeric ID of the default theme for the GitLab instance](https://gitlab.com/gitlab-org/gitlab-ce/blob/master/lib/gitlab/themes.rb#L14-25). It takes a number, denoting the id of the theme. |
+| `defaultTheme`                      | Integer |         | [Numeric ID of the default theme for the GitLab instance](https://gitlab.com/gitlab-org/gitlab-foss/blob/master/lib/gitlab/themes.rb#L14-25). It takes a number, denoting the id of the theme. |
 | `defaultProjectsFeatures.*feature*` | Boolean | `true`  | [See below](#defaultProjectsFeatures) |
 | `webHookTimeout`                    | Integer |         | Waiting time in seconds before a [hook is deemed to have failed](https://docs.gitlab.com/ce/user/project/integrations/webhooks.html#receiving-duplicate-or-multiple-web-hook-requests-triggered-by-one-event). |
 
@@ -393,6 +419,7 @@ defaultProjectsFeatures:
   wiki: true
   snippets: true
   builds: true
+  containerRegistry: true
 ```
 
 ### Gravatar/Libravatar settings
@@ -453,10 +480,10 @@ documentation. This matches to [Fog](https://github.com/fog), and is different b
 provider modules.
 
 Examples for [AWS](https://fog.io/storage/#using-amazon-s3-and-fog) and [Google](https://fog.io/storage/#google-cloud-storage)
-providers can be found in [examples/objectstorage](https://gitlab.com/charts/gitlab/tree/master/examples/objectstorage).
+providers can be found in [examples/objectstorage](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/objectstorage).
 
-- [rails.s3.yaml](https://gitlab.com/charts/gitlab/tree/master/examples/objectstorage/rails.s3.yaml)
-- [rails.gcs.yaml](https://gitlab.com/charts/gitlab/tree/master/examples/objectstorage/rails.gcs.yaml)
+- [rails.s3.yaml](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/objectstorage/rails.s3.yaml)
+- [rails.gcs.yaml](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/objectstorage/rails.gcs.yaml)
 
 Once a YAML file containing the contents of the `connection` has been created, use
 this file to create the secret in Kubernetes.
@@ -515,7 +542,7 @@ Example `--set` configuration items, when using the global chart:
 --set global.appConfig.ldap.servers.main.password.key='the-key-containing-the-password'
 ```
 
-NOTE: **Note:** Commas are considered [special characters](https://github.com/kubernetes/helm/blob/master/docs/using_helm.md#the-format-and-limitations-of---set)
+NOTE: **Note:** Commas are considered [special characters](https://https://github.com/helm/helm/blob/master/docs/using_helm.md#the-format-and-limitations-of---set)
   within Helm `--set` items. Be sure to escape commas in values such as `bind_dn`: `--set global.appConfig.ldap.servers.main.bind_dn='cn=administrator\,cn=Users\,dc=domain\,dc=net'`.
 
 #### Using a custom CA or self signed LDAP certificates
@@ -554,6 +581,7 @@ omniauth:
   autoLinkLdapUser: false
   autoLinkSamlUser: false
   externalProviders: []
+  allowBypassTwoFactor: []
   providers: []
   # - secret: gitlab-google-oauth2
   #   key: provider
@@ -561,6 +589,7 @@ omniauth:
 
 | Name                      | Type    | Default     | Description |
 |:------------------------- |:-------:|:----------- |:----------- |
+| `allowBypassTwoFactor`    |         |             | Allows users to login with the specified providers without two factor authentication. Can be set to `true`, `false`, or an array of providers. See [Bypassing two factor authentication](https://docs.gitlab.com/ee/integration/omniauth.html#bypassing-two-factor-authentication). |
 | `allowSingleSignOn`       | Boolean | `false`     | Enable the automatic creation of accounts when signing in with OmniAuth. |
 | `autoLinkLdapUser`        | Boolean | `false`     | Can be used if you have LDAP / ActiveDirectory integration enabled. When enabled, users automatically created through OmniAuth will be linked to their LDAP entry as well. |
 | `autoLinkSamlUser`        | Boolean | `false`     | Can be used if you have SAML integration enabled. When enabled, users automatically created through OmniAuth will be linked to their SAML entry as well. |
@@ -651,7 +680,7 @@ global:
 
 Name of the `configMap` containing a custom manifest file. Defaults to empty.
 
-GitLab ships with a [default manifest file for Pseudonymizer](https://gitlab.com/gitlab-org/gitlab-ee/blob/master/config/pseudonymizer.yml).
+GitLab ships with a [default manifest file for Pseudonymizer](https://gitlab.com/gitlab-org/gitlab/blob/master/config/pseudonymizer.yml).
 Users can provide a custom one as a configMap.
 
 First, create a configMap:
@@ -681,10 +710,10 @@ This property has two sub-keys: `secret` and `key`:
 - `key` is the name of the key in the secret which houses the YAML block. Defaults to `connection`.
 
 Examples for [AWS (s3)](https://fog.io/storage/#using-amazon-s3-and-fog) and [Google (GCS)](https://fog.io/storage/#google-cloud-storage)
-providers can be found in [examples/objectstorage](https://gitlab.com/charts/gitlab/tree/master/examples/objectstorage):
+providers can be found in [examples/objectstorage](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/objectstorage):
 
-- [rails.s3.yaml](https://gitlab.com/charts/gitlab/tree/master/examples/objectstorage/rails.s3.yaml)
-- [rails.gcs.yaml](https://gitlab.com/charts/gitlab/tree/master/examples/objectstorage/rails.gcs.yaml)
+- [rails.s3.yaml](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/objectstorage/rails.s3.yaml)
+- [rails.gcs.yaml](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/objectstorage/rails.gcs.yaml)
 
 Once a YAML file containing the contents of the `connection` has been created, create
 the secret in Kubernetes:
@@ -698,7 +727,7 @@ kubectl create secret generic gitlab-rails-storage \
 
 Sidekiq includes maintenance jobs that can be configured to run on a periodic
 basis using cron style schedules. A few examples are included below. See the
-sample [gitlab.yml](https://gitlab.com/gitlab-org/gitlab-ee/blob/master/config/gitlab.yml.example#L237-302)
+sample [gitlab.yml](https://gitlab.com/gitlab-org/gitlab/blob/master/config/gitlab.yml.example#L346-427)
 for more job examples.
 
 These settings are shared between Sidekiq, Unicorn (for showing tooltips in UI)

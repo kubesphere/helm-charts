@@ -1,8 +1,8 @@
 ---
 apiVersion: v1
 name: gitlab-shell
-version: 1.9.8
-appVersion: 9.1.0
+version: 2.4.5
+appVersion: 10.2.0
 description: sshd for Gitlab
 keywords:
 - gitlab
@@ -11,7 +11,7 @@ keywords:
 home: https://about.gitlab.com/
 icon: https://gitlab.com/gitlab-com/gitlab-artwork/raw/master/logo/logo-square.svg
 sources:
-- https://gitlab.com/charts/gitlab/tree/master/charts/gitlab/charts/gitlab-shell
+- https://gitlab.com/gitlab-org/charts/gitlab/tree/master/charts/gitlab/charts/gitlab-shell
 - https://gitlab.com/gitlab-org/build/CNG/tree/master/gitlab-shell
 maintainers:
 - name: GitLab Inc.

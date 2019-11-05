@@ -12,23 +12,24 @@ data:
   config.yml: |
     version: 0.1
     log:
-      level: warn
-      fields:
-        service: registry
-    # health:
-    #   storagedriver:
-    #     enabled: true
-    #     interval: 10s
-    #     threshold: 3
+      {{ toYaml .Values.log | nindent 6 | trim }}
     http:
+      {{- if .Values.debug }}
       debug:
-        addr: :5001
+        addr: ':{{ .Values.debug.addr.port | int }}'
+        prometheus:
+          enabled: {{ eq true .Values.debug.prometheus.enabled }}
+          path: {{ .Values.debug.prometheus.path }}
+      {{- end }}
+      draintimeout: {{ .Values.draintimeout }}
       headers:
         X-Content-Type-Options: [nosniff]
-    # Filled from chart
-    http:
       addr: :{{ .Values.service.internalPort }}
       secret: "HTTP_SECRET"
+    health:
+      {{- if kindIs "map" .Values.health }}
+      {{ toYaml .Values.health | nindent 6 | trim }}
+      {{- end }}
     auth:
       token:
         realm: {{ template "registry.authEndpoint" . }}/jwt/auth
@@ -44,7 +45,12 @@ data:
         enabled: {{ eq true .Values.compatibility.schema1.enabled }}
       {{- end }}
     {{- end }}
+    validation:
+      disabled: {{ eq true .Values.validation.disabled }}
     storage:
+      maintenance:
+        readonly:
+          enabled: {{ .Values.maintenance.readOnly.enabled }}
       {{- if .Values.storage }}
       {{- else if .Values.global.minio.enabled }}
       s3:
@@ -60,6 +66,10 @@ data:
         blobdescriptor: 'inmemory'
       delete:
         enabled: true
+      {{- if not .Values.minio.redirect }}
+      redirect:
+        disable: true
+      {{- end }}
       {{- else }}
 {{ include (print $.Template.BasePath "/_storage_default.yaml") . | indent 6}}
       {{- end }}

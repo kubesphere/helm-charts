@@ -30,12 +30,32 @@ init:
     requests:
       cpu: 50m
 
+## Support for tolerations for pod scheduling
+tolerations: []
+
 global:
   # imagePullPolicy: IfNotPresent
   redis:
     password: {}
   gitaly:
     authToken: {}
+
+logging:
+  format: "json"
+  # level:
+  # sentryDsn:
+  # rubySentryDsn:
+  # sentryEnvironment:
+git: {}
+  # catFileCacheSize:
+ruby: {}
+  # maxRss:
+  # gracefulRestartTimeout:
+  # restartDelay:
+  # numWorkers:
+prometheus: {}
+  # grpcLatencyBuckets: "[1.0, 1.5, 2.0, 2.5]"
+
 unicorn: {}
   # host: '0.0.0.0'
   # serviceName: 'unicorn'
@@ -43,6 +63,11 @@ unicorn: {}
 redis: {}
 shell:
   authToken: {}
+  concurrency: []
+    # - rpc: "/gitaly.SmartHTTPService/PostUploadPack"
+    #   maxPerRepo: 20
+    # - rpc: "/gitaly.SSHService/SSHUploadPack"
+    #   maxPerRepo: 20
 
 ## Enable prometheus metrics and set the port to scrape the
 ## container on.
@@ -71,9 +96,6 @@ persistence:
   ## This is especially handy for volume plugins that don't natively support sub mounting (like glusterfs).
   ##
   subPath: ""
-
-  ## if volumeName is set, use this existing PersistentVolume
-  # volumeName:
 
   ## Only bind to a volume with the following exactly matched labels with values.
   ## ref: https://kubernetes.io/docs/concepts/storage/persistent-volumes/#selector

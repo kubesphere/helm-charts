@@ -2,27 +2,21 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 image:
-  repository: registry.gitlab.com/charts/components/gitlab-operator
+  repository: registry.gitlab.com/gitlab-org/charts/components/gitlab-operator
   pullSecrets: []
   # pullPolicy: IfNotPresent
   # tag: latest
 
 # Which version of the operator to deploy
-version: 0.5
+version: 0.7
 
 init:
   resources:
     requests:
       cpu: 50m
 
-install:
-  # Install the operator as well
-  enabled: true
-  image:
-    repository: gcr.io/google_containers/hyperkube
-    tag: v1.9.0
-    pullSecrets: []
-    #pullPolicy: IfNotPresent
+## Support for tolerations for pod scheduling
+tolerations: []
 
 resources:
   # limits:

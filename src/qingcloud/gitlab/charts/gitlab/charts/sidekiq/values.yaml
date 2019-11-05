@@ -14,6 +14,9 @@ init:
     requests:
       cpu: 50m
 
+# Tolerations for pod scheduling
+tolerations: []
+
 enabled: true
 
 annotations: {}
@@ -54,6 +57,7 @@ global:
     # port: '5432'
     # database: 'gitlabhq_production'
     # username: 'gitlab'
+    # preparedStatements: false
     # password:
     #   secret: gitlab-postgres
     #   key: psql-password
@@ -122,6 +126,7 @@ global:
       autoLinkLdapUser: false
       autoLinkSamlUser: false
       externalProviders: []
+      allowBypassTwoFactor: []
       providers: []
       # - secret: gitlab-google-oauth2
       #   key: provider

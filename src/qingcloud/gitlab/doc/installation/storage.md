@@ -4,10 +4,10 @@
 
 The following applications within the GitLab chart require persistent storage to maintain state.
 
- - [gitaly](../charts/gitlab/gitaly/index.md) (persists the git repositories)
- - [postgres](https://github.com/kubernetes/charts/tree/master/stable/postgresql) (persists the gitlab database data)
- - [redis](../charts/redis/index.md) (persists gitlab job data)
- - [minio](../charts/minio/index.md) (persists the object storage data)
+- [gitaly](../charts/gitlab/gitaly/index.md) (persists the git repositories)
+- [postgres](https://github.com/helm/charts/tree/master/stable/postgresql) (persists the gitlab database data)
+- [redis](../charts/redis/index.md) (persists gitlab job data)
+- [minio](../charts/minio/index.md) (persists the object storage data)
 
 The administrator may choose to provision this storage using [dynamic][] or [static][] volume provisioning.
 
@@ -29,8 +29,8 @@ instead of [static volume provisioning][static] when it is available.
 
 The default storage class should:
 
-* Use fast SSD storage when available
-* Set `reclaimPolicy` to `Retain`
+- Use fast SSD storage when available
+- Set `reclaimPolicy` to `Retain`
 
 > Uninstalling GitLab without the `reclaimPolicy` set to `Retain` allows automated jobs to completely delete the volume, disk and data.
 > Some platforms set the default `reclaimPolicy` to `Delete`. The `gitaly` persistent volume claims do not follow this rule because
@@ -41,8 +41,8 @@ The default storage class should:
 The following `YAML` configurations provide the bare minimum required to create a custom storage class for GitLab. Replace
 `CUSTOM_STORAGE_CLASS_NAME` with a value appropriate for the target installation environment.
 
-* [Example Storage Class for GKE on Google Cloud](https://gitlab.com/charts/gitlab/blob/master/examples/storage/gke_storage_class.yml)
-* [Example Storage Class for EKS on Amazon Web Services](https://gitlab.com/charts/gitlab/blob/master/examples/storage/eks_storage_class.yml)
+- [Example Storage Class for GKE on Google Cloud](https://gitlab.com/gitlab-org/charts/gitlab/blob/master/examples/storage/gke_storage_class.yml)
+- [Example Storage Class for EKS on Amazon Web Services](https://gitlab.com/gitlab-org/charts/gitlab/blob/master/examples/storage/eks_storage_class.yml)
 
 > Some users report that Amazon EKS exhibits behavior where the creation of nodes are not always
 > in the same zone as the pods. Setting the ***zone*** parameter above will mitigate any risk.
@@ -56,10 +56,10 @@ kubectl patch storageclass CUSTOM_STORAGE_CLASS_NAME -p '{"metadata": {"annotati
 ```
 
 Alternatively, the custom storage class and other options may be provided per service to helm during installation. View
-the provided [example configuration file](https://gitlab.com/charts/gitlab/blob/master/examples/storage/helm_options.yml) and modify for your environment.
+the provided [example configuration file](https://gitlab.com/gitlab-org/charts/gitlab/blob/master/examples/storage/helm_options.yml) and modify for your environment.
 
 ```sh
-$ helm install -upgrade gitlab gitlab/gitlab -f HELM_OPTIONS_YAML_FILE
+helm install -upgrade gitlab gitlab/gitlab -f HELM_OPTIONS_YAML_FILE
 ```
 
 Follow the links below for further reading and additional persistence options:
@@ -82,13 +82,13 @@ will need to create the [Persistent Volume][pv] manually.
 1. [Create a persistent disk in the cluster.](https://kubernetes.io/docs/concepts/storage/volumes/#creating-a-pd)
 
 ```sh
-$ gcloud compute disks create --size=50GB --zone=*GKE_ZONE* *DISK_VOLUME_NAME*
+gcloud compute disks create --size=50GB --zone=*GKE_ZONE* *DISK_VOLUME_NAME*
 ```
 
-1. Create the Persistent Volume after modifying the [example `YAML` configuration](https://gitlab.com/charts/gitlab/blob/master/examples/storage/gke_pv_example.yml).
+1. Create the Persistent Volume after modifying the [example `YAML` configuration](https://gitlab.com/gitlab-org/charts/gitlab/blob/master/examples/storage/gke_pv_example.yml).
 
 ```sh
-$ kubectl create -f *PV_YAML_FILE*
+kubectl create -f *PV_YAML_FILE*
 ```
 
 ### Using Amazon EKS
@@ -96,13 +96,13 @@ $ kubectl create -f *PV_YAML_FILE*
 1. [Create a persistent disk in the cluster.](https://kubernetes.io/docs/concepts/storage/volumes/#creating-an-ebs-volume)
 
 ```sh
-$ aws ec2 create-volume --availability-zone=*AWS_ZONE* --size=10 --volume-type=gp2
+aws ec2 create-volume --availability-zone=*AWS_ZONE* --size=10 --volume-type=gp2
 ```
 
-1. Create the Persistent Volume after modifying the [example `YAML` configuration](https://gitlab.com/charts/gitlab/blob/master/examples/storage/eks_pv_example.yml).
+1. Create the Persistent Volume after modifying the [example `YAML` configuration](https://gitlab.com/gitlab-org/charts/gitlab/blob/master/examples/storage/eks_pv_example.yml).
 
 ```sh
-$ kubectl create -f *PV_YAML_FILE*
+kubectl create -f *PV_YAML_FILE*
 ```
 
 ### Manually creating PersistentVolumeClaims
@@ -128,26 +128,26 @@ The GitLab Cloud Native Chart determines the `statefulset-name` using:
 
 The correct name for the ***gitaly*** PersistentVolumeClaim is: ***repo-data-gitlab-gitaly-0***.
 
-Modify the [example YAML configuration](https://gitlab.com/charts/gitlab/blob/master/examples/storage/gitaly_persistent_volume_claim.yml) for your environment and reference it when invoking `helm`.
+Modify the [example YAML configuration](https://gitlab.com/gitlab-org/charts/gitlab/blob/master/examples/storage/gitaly_persistent_volume_claim.yml) for your environment and reference it when invoking `helm`.
 
 > The other services that do not use a [StatefulSet][] allow administrators to provide the `volumeName`
 > to the config. This chart will still take care of creating the [volume claim][pvc] and attempt to bind
 > to the manually created volume. Check the chart documentation for each included application.
 >
-> For most cases, just modify the [example yaml config](https://gitlab.com/charts/gitlab/blob/master/examples/storage/use_manual_volumes.yml) keeping only those services which
+> For most cases, just modify the [example yaml config](https://gitlab.com/gitlab-org/charts/gitlab/blob/master/examples/storage/use_manual_volumes.yml) keeping only those services which
 > will use the manually created disk volumes.
 
 ## Making changes to storage after installation
 
 After the initial installation, storage changes like migrating to new volumes,
-or changing disk sizes, require editing the Kubernetes objects outside of the the
+or changing disk sizes, require editing the Kubernetes objects outside of the
 Helm upgrade command.
 
 See the [managing persistent volumes documentation](../advanced/persistent-volumes/index.md).
 
 ## Optional volumes
 
-* For larger installations, you may need to add persistent storage to the task-runner pod to get backups/restores working. See our [troubleshooting documentation](../backup-restore/#pod-eviction-issues) for a guide on how to do this.
+For larger installations, you may need to add persistent storage to the task-runner pod to get backups/restores working. See our [troubleshooting documentation](../backup-restore/#pod-eviction-issues) for a guide on how to do this.
 
 [pv]: https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistent-volumes
 [pvc]: https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistentvolumeclaims

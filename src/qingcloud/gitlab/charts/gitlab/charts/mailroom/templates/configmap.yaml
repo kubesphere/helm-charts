@@ -16,21 +16,38 @@ data:
         :ssl: {{ .ssl }}
         :start_tls: {{ .startTls }}
         :email: {{ .user }}
-        :password: "<%= File.read("/etc/gitlab/mailroom/password") %>"
+        :password: "<%= File.read("/etc/gitlab/mailroom/password").strip.dump[1..-2] %>"
         :idle_timeout: {{ .idleTimeout }}
         :name: {{ .mailbox }}
         :delete_after_delivery: true
         :delivery_method: sidekiq
         {{- end }}
         :delivery_options:
-          :redis_url: {{ template "gitlab.redis.scheme" . }}://:<%= File.read("/etc/gitlab/redis/password") %>@{{ template "gitlab.redis.host" . }}:{{ template "gitlab.redis.port" . }}
+          :redis_url: {{ template "gitlab.redis.url" . }}
           :namespace: resque:gitlab
           :queue: email_receiver
           :worker: EmailReceiverWorker
+          {{- if .Values.global.redis.sentinels }}
+          :sentinels:
+            {{- range $i, $entry := .Values.global.redis.sentinels }}
+            -
+              :host: {{ $entry.host }}
+              :port: {{ $entry.port}}
+            {{- end }}
+          {{- end }}
         :arbitration_method: redis
         :arbitration_options:
           :redis_url: {{ template "gitlab.redis.url" . }}
           :namespace: mail_room:gitlab
+          {{- if .Values.global.redis.sentinels }}
+          :sentinels:
+            {{- range $i, $entry := .Values.global.redis.sentinels }}
+            -
+              :host: {{ $entry.host }}
+              :port: {{ $entry.port}}
+            {{- end }}
+          {{- end }}
+
   configure: |
     {{- include "gitlab.scripts.configure.secrets" (dict "required" "mailroom" "optional" "redis") | nindent 4 }}
 # Leave this here - This line denotes end of block to the parser.

@@ -9,7 +9,7 @@ and `defaultbackend` from the [Google Container Registry](https://gcr.io/google_
 
 ## Configuring NGINX
 
-See [nginx chart documentation](https://gitlab.com/charts/gitlab/blob/master/charts/nginx/index.md)
+See [nginx chart documentation](https://gitlab.com/gitlab-org/charts/gitlab/blob/master/charts/nginx/index.md)
 for configuration details.
 
 ### Global Settings
@@ -17,7 +17,7 @@ for configuration details.
 We share some common global settings among our charts. See the [Globals Documentation](../globals.md)
 for common configuration options, such as GitLab and Registry hostnames.
 
-## Configure hosts using the Global Settings.
+## Configure hosts using the Global Settings
 
 The hostnames for the GitLab Server and the Registry Server can be configured using
 our [Global Settings](../globals.md) chart.
