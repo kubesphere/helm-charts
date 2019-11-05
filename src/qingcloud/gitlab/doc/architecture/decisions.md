@@ -1,7 +1,19 @@
 # Design Decisions
 
 This documentation collects reasoning and documentation regard decisions made
-regarding the design of the charts in this repository.
+regarding the design of the Helm charts in this repository.
+
+## Attempt to catch problematic configurations
+
+Due to the complexity of these charts and their level of flexibility, there are some
+overlaps where it is possible to produce a configuration that would lead to an
+unpredictable, or entirely non-functional deployment. In an effort
+to prevent known problematic settings combinations, we have implemented template logic
+designed to detect and warn the user that their configuration will not work.
+
+This replicates the behavior of deprecations, but is specific to ensuring functional configuration.
+
+Introduced in [!757 checkConfig: add methods to test for known errors](https://gitlab.com/charts/gitlab/merge_requests/757)
 
 ## Breaking changes via deprecation
 
@@ -12,7 +24,7 @@ from properties to secrets (in observance of our preference).
 
 As a means of preventing a user from accidentally deploying an updated version of these
 charts which includes a breaking change against a configuration that would not function, we
-have chosen to implement [deprecation][] notifications. These are designed to detect
+have chosen to implement [deprecation](../development/index.md#handling-configuration-deprecations) notifications. These are designed to detect
 properties have have been relocated, altered, replaced, or removed entirely, then inform
 the user of what changes need to be made to the configuration. This may include informing
 the user to see documentation on how to replace a property with a secret. These notifications
@@ -20,18 +32,16 @@ will cause the helm `install` or `upgrade` commands to stop with a parse error, 
 
 All deprecations must be addressed in order for a successful deployment to occur. We believe
 the user would prefer to be informed of a breaking change over experiencing unexpected
-behavior complete failure that requires debugging.
+behavior or complete failure that requires debugging.
 
 Introduced in [!396 Deprecations: implement buffered list of deprecations](https://gitlab.com/charts/gitlab/merge_requests/396)
-
-[deprecation]: ../development/index.md#handling-configuration-deprecation
 
 ## Preference of Secrets in initContainer over Environment
 
 Much of the container ecosystem has, or expects, the capability to be configured
 through environment variables. This [configuration practice](https://12factor.net/config)
 stems from the concept of [The Twelve-Factor App](https://12factor.net). This
-greatly simplifies configuration across multiple deployment environemnts, there
+greatly simplifies configuration across multiple deployment environments, but there
 remains a security concern with passing connection secrets such as passwords and
 private keys via the container's environment.
 
@@ -49,6 +59,7 @@ This concern is why we've decided to prefer the population of sensitive informat
 via [initContainers][].
 
 Related issues:
+
 - [#90](https://gitlab.com/charts/gitlab/issues/90)
 - [#114](https://gitlab.com/charts/gitlab/issues/114)
 
@@ -65,6 +76,7 @@ properties facilitated by the global chart.
 This decision simplifies both the use and maintenance of the repository as a whole.
 
 Related issue:
+
 - [#352](https://gitlab.com/charts/gitlab/issues/352)
 
 ## Template partials for `gitlab/*` should be global whenever possible
@@ -75,13 +87,16 @@ GitLab sub-chart `templates/_helpers.tpl` whenever possible. Templates from
 the maintenance impact of these forks.
 
 The benefits of this are straight-forward:
+
 - Increased DRY behavior, leading to easier maintenance. There should be no reason
 to have duplicates of the same function across multiple sub-charts when a single
 entry will suffice.
 - Reduction of template naming conflicts. All [partials throughout a chart are compiled together][helm-dev-doc],
 and thus we can treat them like the global behavior they are.
 
+
 Related issue:
+
 - [#352](https://gitlab.com/charts/gitlab/issues/352)
 
 [helm-dev-doc]: https://docs.helm.sh/chart_template_guide/#declaring-and-using-templates-with-define-and-template

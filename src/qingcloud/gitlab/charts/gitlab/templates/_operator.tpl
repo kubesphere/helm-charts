@@ -26,6 +26,19 @@ latest
 {{- end -}}
 
 {{/*
+Returns true if and only if the version of the operator container is greater
+than 0.4.
+*/}}
+{{- define "gitlab.operator.namespaced" -}}
+{{-   $version := (include "gitlab.operator.parseVersion" .Values.version) -}}
+{{-   if and (regexMatch "^v\\d+\\.\\d+$" $version) (le ($version | trimPrefix "v" | float64) 0.4) -}}
+{{- /* this is the false condition */ -}}
+{{-   else -}}
+true
+{{-   end -}}
+{{- end -}}
+
+{{/*
 Returns the operator crd name which should be in the format of spec.names.plural + '.' + groupname
 */}}
 
@@ -39,5 +52,9 @@ Returns the operator group name. A subgroup with the release name is chosen
 */}}
 
 {{- define "gitlab.operator.groupName" -}}
-{{ printf "%s.gitlab.com" .Release.Name }}
+{{- if .Values.crdPrefix -}}
+{{ printf "%s.gitlab.com" .Values.crdPrefix }}
+{{- else -}}
+gitlab.com
+{{- end -}}
 {{- end -}}
