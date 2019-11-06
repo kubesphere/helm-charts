@@ -154,6 +154,7 @@ mirror() {
   cd mirror
   curl -L $original/index.yaml -o index.yaml
   sed -i "s#$original#$mirrored#g" index.yaml
+  git add index.yaml
 
   pushUpdates
 }
