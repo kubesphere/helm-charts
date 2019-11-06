@@ -7,7 +7,7 @@ metadata:
 {{ include "harbor.labels" . | indent 4 }}
     component: nginx
 spec:
-  replicas: 1
+  replicas: {{ .Values.nginx.replicas }}
   selector:
     matchLabels:
 {{ include "harbor.matchLabels" . | indent 6 }}
@@ -30,20 +30,34 @@ spec:
 {{ toYaml .Values.nginx.podAnnotations | indent 8 }}
 {{- end }}
     spec:
+      securityContext:
+        fsGroup: 10000
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
       - name: nginx
         image: "{{ .Values.nginx.image.repository }}:{{ .Values.nginx.image.tag }}"
         imagePullPolicy: "{{ .Values.imagePullPolicy }}"
+        {{- $_ := set . "scheme" "HTTP" -}}
+        {{- $_ := set . "port" "8080" -}}
+        {{- if .Values.expose.tls.enabled }}
+          {{- $_ := set . "scheme" "HTTPS" -}}
+          {{- $_ := set . "port" "8443" -}}
+        {{- end }}
         livenessProbe:
           httpGet:
+            scheme: {{ .scheme }}
             path: /
-            port: 80
-          initialDelaySeconds: 1
+            port: {{ .port }}
+          initialDelaySeconds: 300
           periodSeconds: 10
         readinessProbe:
           httpGet:
+            scheme: {{ .scheme }}
             path: /
-            port: 80
+            port: {{ .port }}
           initialDelaySeconds: 1
           periodSeconds: 10
 {{- if .Values.nginx.resources }}
@@ -51,8 +65,8 @@ spec:
 {{ toYaml .Values.nginx.resources | indent 10 }}
 {{- end }}
         ports:
-        - containerPort: 80
-        - containerPort: 443
+        - containerPort: 8080
+        - containerPort: 8443
         - containerPort: 4443
         volumeMounts:
         - name: config
