@@ -18,11 +18,15 @@ spec:
 {{ include "harbor.labels" . | indent 8 }}
         component: clair
       annotations:
-        checksum/configmap: {{ include (print $.Template.BasePath "/clair/clair-cm.yaml") . | sha256sum }}
+        checksum/secret: {{ include (print $.Template.BasePath "/clair/clair-secret.yaml") . | sha256sum }}
 {{- if .Values.clair.podAnnotations }}
 {{ toYaml .Values.clair.podAnnotations | indent 8 }}
 {{- end }}
     spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
       - name: clair
         image: {{ .Values.clair.image.repository }}:{{ .Values.clair.image.tag }}
@@ -31,7 +35,7 @@ spec:
           httpGet:
             path: /health
             port: 6061
-          initialDelaySeconds: 30
+          initialDelaySeconds: 300
           periodSeconds: 10
         readinessProbe:
           httpGet:
@@ -41,16 +45,14 @@ spec:
           periodSeconds: 10
         args: ["-log-level", "{{ .Values.logLevel }}"]
         env:
-        {{- if .Values.clair.httpProxy }}
+        {{- if has "clair" .Values.proxy.components }}
         - name: HTTP_PROXY
-          value: {{ .Values.clair.httpProxy }}
-        {{- end }}
-        {{- if .Values.clair.httpsProxy }}
+          value: "{{ .Values.proxy.httpProxy }}"
         - name: HTTPS_PROXY
-          value: {{ .Values.clair.httpsProxy }}
-        {{- end }}
+          value: "{{ .Values.proxy.httpsProxy }}"
         - name: NO_PROXY
-          value: "{{ template "harbor.registry" . }},{{ template "harbor.core" . }}"
+          value: "{{ template "harbor.noProxy" . }}"
+        {{- end }}
 {{- if .Values.clair.resources }}
         resources:
 {{ toYaml .Values.clair.resources | indent 10 }}
@@ -58,16 +60,13 @@ spec:
         ports:
         - containerPort: 6060
         volumeMounts:
-        - name: clair-config
+        - name: config
           mountPath: /etc/clair/config.yaml
           subPath: config.yaml
       volumes:
-      - name: clair-config
-        configMap:
-          name: "{{ template "harbor.clair" . }}"
-          items:
-            - key: config.yaml
-              path: config.yaml
+      - name: config
+        secret:
+          secretName: "{{ template "harbor.clair" . }}"
     {{- with .Values.clair.nodeSelector }}
       nodeSelector:
 {{ toYaml . | indent 8 }}
