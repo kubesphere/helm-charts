@@ -10,6 +10,22 @@ entries:
     urls:
     - https://charts.kubesphere.io/experimental/biz-engine-0.1.0.tgz
     version: 0.1.0
+  mongodb:
+  - apiVersion: v1
+    appVersion: 4.2.1
+    created: 2019-11-06T08:16:09.408425813Z
+    description: A MongoDB Helm chart for Kubernetes
+    digest: 6480b7ba552d3d7add286e8bbe6e9fd9c480b79f3a743aeca517d71480cdbd90
+    icon: https://upload.wikimedia.org/wikipedia/en/thumb/4/45/MongoDB-Logo.svg/250px-MongoDB-Logo.svg.png
+    maintainers:
+    - email: kubesphere@yunify.com
+      name: KubeSphere
+    name: mongodb
+    sources:
+    - https://github.com/kubesphere/helm-charts/tree/master/src/experimental/mongodb
+    urls:
+    - https://charts.kubesphere.io/experimental/mongodb-0.1.0.tgz
+    version: 0.1.0
   redis:
   - apiVersion: v1
     appVersion: 5.0.5
@@ -20,4 +36,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/experimental/redis-0.1.0.tgz
     version: 0.1.0
-generated: 2019-09-26T09:34:08.449435331Z
+generated: 2019-11-06T08:16:09.407826886Z
