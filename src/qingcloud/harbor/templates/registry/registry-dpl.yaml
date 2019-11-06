@@ -25,6 +25,10 @@ spec:
 {{ toYaml .Values.registry.podAnnotations | indent 8 }}
 {{- end }}
     spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
       - name: registry
         image: {{ .Values.registry.registry.image.repository }}:{{ .Values.registry.registry.image.tag }}
@@ -33,7 +37,7 @@ spec:
           httpGet:
             path: /
             port: 5000
-          initialDelaySeconds: 1
+          initialDelaySeconds: 300
           periodSeconds: 10
         readinessProbe:
           httpGet:
@@ -67,6 +71,18 @@ spec:
           mountPath: /etc/registry/gcs-key.json
           subPath: gcs-key.json
         {{- end }}
+        {{- if .Values.persistence.imageChartStorage.caBundleSecretName }}
+        - name: storage-service-ca
+          mountPath: /harbor_cust_cert/custom-ca-bundle.crt
+          subPath: ca.crt
+        {{- end }}
+        {{- if .Values.registry.middleware.enabled }}
+        {{- if eq .Values.registry.middleware.type "cloudFront" }}
+        - name: cloudfront-key
+          mountPath: /etc/registry/pk.pem
+          subPath: pk.pem
+        {{- end }}
+        {{- end }}
       - name: registryctl
         image: {{ .Values.registry.controller.image.repository }}:{{ .Values.registry.controller.image.tag }}
         imagePullPolicy: {{ .Values.imagePullPolicy }}
@@ -74,7 +90,7 @@ spec:
           httpGet:
             path: /api/health
             port: 8080
-          initialDelaySeconds: 1
+          initialDelaySeconds: 300
           periodSeconds: 10
         readinessProbe:
           httpGet:
@@ -113,6 +129,16 @@ spec:
         - name: registry-config
           mountPath: /etc/registryctl/config.yml
           subPath: ctl-config.yml
+        {{- if .Values.persistence.imageChartStorage.caBundleSecretName }}
+        - name: storage-service-ca
+          mountPath: /harbor_cust_cert/custom-ca-bundle.crt
+          subPath: ca.crt
+        {{- end }}
+        {{- if and .Values.persistence.enabled (eq .Values.persistence.imageChartStorage.type "gcs") }}
+        - name: gcs-key
+          mountPath: /etc/registry/gcs-key.json
+          subPath: gcs-key.json
+        {{- end }}
       volumes:
       - name: registry-root-certificate
         secret:
@@ -138,6 +164,21 @@ spec:
           items:
             - key: GCS_KEY_DATA
               path: gcs-key.json
+      {{- end }}
+      {{- if .Values.persistence.imageChartStorage.caBundleSecretName }}
+      - name: storage-service-ca
+        secret:
+          secretName: {{ .Values.persistence.imageChartStorage.caBundleSecretName }}
+      {{- end }}
+      {{- if .Values.registry.middleware.enabled }}
+      {{- if eq .Values.registry.middleware.type "cloudFront" }}
+      - name: cloudfront-key
+        secret:
+          secretName: {{ .Values.registry.middleware.cloudFront.privateKeySecret }}
+          items:
+            - key: CLOUDFRONT_KEY_DATA
+              path: pk.pem
+      {{- end }}
       {{- end }}
     {{- with .Values.registry.nodeSelector }}
       nodeSelector:
