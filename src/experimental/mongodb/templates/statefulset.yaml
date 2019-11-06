@@ -1,0 +1,87 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "mongodb.fullname" . }}
+  labels:
+    {{- include "mongodb.labels" . | nindent 8 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "mongodb.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  volumeClaimTemplates:
+  - metadata:
+      name: db-data
+      labels:
+        {{- include "mongodb.labels" . | nindent 8 }}
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: {{ .Values.persistence.size | quote }}
+  template:
+    metadata:
+      labels:
+        {{- include "mongodb.labels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+      - name: configs
+        configMap:
+          name: {{ template "mongodb.fullname" . }}
+      - name: mongo-conf
+        emptyDir: {}
+      initContainers:
+      - name: init-config
+        volumeMounts:
+        - name: configs
+          mountPath: /tmp/conf
+        - name: mongo-conf
+          mountPath: /etc/mongo
+        image: "{{ .Values.image.init.repository }}:{{ .Values.image.init.tag }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        command:
+        - sh
+        - -c
+        - |
+          cp /tmp/conf/default.conf /etc/mongo/mongod.conf
+          yq m -ei /etc/mongo/mongod.conf /tmp/conf/user.conf
+      containers:
+        - name: {{ .Chart.Name }}
+          volumeMounts:
+          - name: db-data
+            mountPath: /data/db
+          - name: mongo-conf
+            mountPath: /etc/mongo
+          image: "{{ .Values.image.mongo.repository }}:{{ .Values.image.mongo.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          env:
+          - name: MONGO_INITDB_ROOT_USERNAME
+            value: {{ .Values.rootUsername | required "" }}
+          - name: MONGO_INITDB_ROOT_PASSWORD
+            value: {{ .Values.rootPassword | required "" }}
+          args:
+          - -f
+          - /etc/mongo/mongod.conf
+          ports:
+          - name: mongodb
+            containerPort: 27017
+            protocol: TCP
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
