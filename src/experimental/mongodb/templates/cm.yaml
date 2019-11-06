@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "mongodb.fullname" . }}
+  labels:
+    {{- include "mongodb.labels" . | nindent 4 }}
+data:
+  default.conf: |+
+    storage:
+      dbPath: /data/db
+    net:
+      bindIp: 0.0.0.0
+      port: 27017
+    security:
+      authorization: enabled
+  user.conf: |+
+    {{- with .Values.extraConfigurations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}

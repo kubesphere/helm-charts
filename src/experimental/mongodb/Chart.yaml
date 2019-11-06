@@ -1,0 +1,11 @@
+apiVersion: v1
+name: mongodb
+version: 0.1.0
+appVersion: 4.2.1
+description: A MongoDB Helm chart for Kubernetes
+icon: https://upload.wikimedia.org/wikipedia/en/thumb/4/45/MongoDB-Logo.svg/250px-MongoDB-Logo.svg.png
+sources:
+- https://github.com/kubesphere/helm-charts/tree/master/src/experimental/mongodb
+maintainers:
+- name: KubeSphere
+  email: kubesphere@yunify.com
