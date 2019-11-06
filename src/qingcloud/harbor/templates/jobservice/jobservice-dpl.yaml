@@ -24,6 +24,12 @@ spec:
 {{ toYaml .Values.jobservice.podAnnotations | indent 8 }}
 {{- end }}
     spec:
+      securityContext:
+        fsGroup: 10000
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       containers:
       - name: jobservice
         image: {{ .Values.jobservice.image.repository }}:{{ .Values.jobservice.image.tag }}
@@ -32,7 +38,7 @@ spec:
           httpGet:
             path: /api/v1/stats
             port: 8080
-          initialDelaySeconds: 20
+          initialDelaySeconds: 300
           periodSeconds: 10
         readinessProbe:
           httpGet:
@@ -61,6 +67,14 @@ spec:
             value: "http://{{ template "harbor.registry" . }}:8080"
           - name: LOG_LEVEL
             value: debug
+          {{- if has "jobservice" .Values.proxy.components }}
+          - name: HTTP_PROXY
+            value: "{{ .Values.proxy.httpProxy }}"
+          - name: HTTPS_PROXY
+            value: "{{ .Values.proxy.httpsProxy }}"
+          - name: NO_PROXY
+            value: "{{ template "harbor.noProxy" . }}"
+          {{- end }}
         ports:
         - containerPort: 8080
         volumeMounts:
