@@ -26,6 +26,22 @@ entries:
     urls:
     - https://charts.kubesphere.io/experimental/mongodb-0.1.0.tgz
     version: 0.1.0
+  rabbitmq:
+  - apiVersion: v1
+    appVersion: 3.8.1
+    created: 2019-11-07T08:17:47.336870702Z
+    description: A RabbitMQ Helm chart for Kubernetes
+    digest: ebfbda1e7014596d4ccd85d595d06334a191194fc02598776542b8bdc5df0b83
+    icon: https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/RabbitMQ_logo.svg/120px-RabbitMQ_logo.svg.png
+    maintainers:
+    - email: kubesphere@yunify.com
+      name: KubeSphere
+    name: rabbitmq
+    sources:
+    - https://github.com/kubesphere/helm-charts/tree/master/src/experimental/rabbitmq
+    urls:
+    - https://charts.kubesphere.io/experimental/rabbitmq-0.1.0.tgz
+    version: 0.1.0
   redis:
   - apiVersion: v1
     appVersion: 5.0.5
@@ -36,4 +52,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/experimental/redis-0.1.0.tgz
     version: 0.1.0
-generated: 2019-11-06T08:16:09.407826886Z
+generated: 2019-11-07T08:17:47.336346212Z
