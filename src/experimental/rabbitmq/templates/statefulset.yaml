@@ -1,0 +1,65 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "rabbitmq.fullname" . }}
+  labels:
+    {{- include "rabbitmq.labels" . | nindent 8 }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "rabbitmq.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  volumeClaimTemplates:
+  - metadata:
+      name: data
+      labels:
+        {{- include "rabbitmq.labels" . | nindent 8 }}
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      resources:
+        requests:
+          storage: {{ .Values.persistence.size | quote }}
+  template:
+    metadata:
+      labels:
+        {{- include "rabbitmq.labels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+      - name: conf
+        configMap:
+          name: {{ template "rabbitmq.fullname" . }}
+      containers:
+        - name: {{ .Chart.Name }}
+          volumeMounts:
+          - name: data
+            mountPath: /var/lib/rabbitmq/mnesia
+          - name: conf
+            mountPath: /etc/rabbitmq
+          image: "{{ .Values.image.rabbitmq.repository }}:{{ .Values.image.rabbitmq.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+          - name: amqp
+            containerPort: 5672
+            protocol: TCP
+          - name: management
+            containerPort: 15672
+            protocol: TCP
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}

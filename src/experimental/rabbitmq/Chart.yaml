@@ -1,0 +1,11 @@
+apiVersion: v1
+name: rabbitmq
+version: 0.1.0
+appVersion: 3.8.1
+description: A RabbitMQ Helm chart for Kubernetes
+icon: https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/RabbitMQ_logo.svg/120px-RabbitMQ_logo.svg.png
+sources:
+- https://github.com/kubesphere/helm-charts/tree/master/src/experimental/rabbitmq
+maintainers:
+- name: KubeSphere
+  email: kubesphere@yunify.com

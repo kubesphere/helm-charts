@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "rabbitmq.fullname" . }}
+  labels:
+    {{- include "rabbitmq.labels" . | nindent 4 }}
+data:
+  enabled_plugins: |
+    [
+      rabbitmq_management
+      {{- with .Values.extraPlugins }}
+      {{- ", " }}
+      {{- . | join ", " }}
+      {{- end }}
+    ].
+  rabbitmq.conf: |
+    loopback_users.guest = false
+    default_user = {{ .Values.defaultUsername }}
+    default_pass = {{ .Values.defaultPassword }}
+    {{- with .Values.extraConfigurations }}
+    {{- . | nindent 4 }}
+    {{- end }}
+  {{- with .Values.advancedConfigurations }}
+  advanced.config: |
+    {{- . | nindent 4 }}
+  {{- end }}
