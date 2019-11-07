@@ -26,6 +26,16 @@ entries:
     urls:
     - https://charts.kubesphere.io/experimental/mongodb-0.1.0.tgz
     version: 0.1.0
+  postgresql:
+  - apiVersion: v1
+    appVersion: "12.0"
+    created: 2019-11-07T12:09:48.901050607Z
+    description: A PostgreSQL Helm chart for Kubernetes
+    digest: 5aa9f8e554d32a376c5f07c497399020f6812ea5e41e8375cd83216a68c75743
+    name: postgresql
+    urls:
+    - https://charts.kubesphere.io/experimental/postgresql-0.1.0.tgz
+    version: 0.1.0
   rabbitmq:
   - apiVersion: v1
     appVersion: 3.8.1
@@ -52,4 +62,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/experimental/redis-0.1.0.tgz
     version: 0.1.0
-generated: 2019-11-07T08:17:47.336346212Z
+generated: 2019-11-07T12:09:48.900482053Z
