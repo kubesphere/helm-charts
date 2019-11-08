@@ -13,6 +13,21 @@ entries:
   mongodb:
   - apiVersion: v1
     appVersion: 4.2.1
+    created: 2019-11-08T00:31:09.043056883Z
+    description: A MongoDB Helm chart for Kubernetes
+    digest: 6fd7f69eeec692b65d64358ecd57ccd8a08aff76edda164925f7da84dcbb3a6b
+    icon: https://upload.wikimedia.org/wikipedia/en/thumb/4/45/MongoDB-Logo.svg/250px-MongoDB-Logo.svg.png
+    maintainers:
+    - email: kubesphere@yunify.com
+      name: KubeSphere
+    name: mongodb
+    sources:
+    - https://github.com/kubesphere/helm-charts/tree/master/src/experimental/mongodb
+    urls:
+    - https://charts.kubesphere.io/experimental/mongodb-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v1
+    appVersion: 4.2.1
     created: 2019-11-06T08:16:09.408425813Z
     description: A MongoDB Helm chart for Kubernetes
     digest: 6480b7ba552d3d7add286e8bbe6e9fd9c480b79f3a743aeca517d71480cdbd90
@@ -39,6 +54,21 @@ entries:
   rabbitmq:
   - apiVersion: v1
     appVersion: 3.8.1
+    created: 2019-11-08T00:31:09.043385244Z
+    description: A RabbitMQ Helm chart for Kubernetes
+    digest: 080a253db6b2731ab868028a4d0b6f225ab6b9524b5a1a2b589d1100b6bef1c5
+    icon: https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/RabbitMQ_logo.svg/120px-RabbitMQ_logo.svg.png
+    maintainers:
+    - email: kubesphere@yunify.com
+      name: KubeSphere
+    name: rabbitmq
+    sources:
+    - https://github.com/kubesphere/helm-charts/tree/master/src/experimental/rabbitmq
+    urls:
+    - https://charts.kubesphere.io/experimental/rabbitmq-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v1
+    appVersion: 3.8.1
     created: 2019-11-07T08:17:47.336870702Z
     description: A RabbitMQ Helm chart for Kubernetes
     digest: ebfbda1e7014596d4ccd85d595d06334a191194fc02598776542b8bdc5df0b83
@@ -55,6 +85,15 @@ entries:
   redis:
   - apiVersion: v1
     appVersion: 5.0.5
+    created: 2019-11-08T00:31:09.043676189Z
+    description: A Redis Helm chart for Kubernetes
+    digest: ca698438772d0eae9e6f0d20fb96f0b692c88421fa2bea6563b3f1ba5eda037f
+    name: redis
+    urls:
+    - https://charts.kubesphere.io/experimental/redis-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v1
+    appVersion: 5.0.5
     created: 2019-09-26T09:34:08.450096078Z
     description: A Redis Helm chart for Kubernetes
     digest: c80ecbbf303ebbacde4a152031286c580fc8c68030fdcc46e847140d8d8edc6d
@@ -62,4 +101,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/experimental/redis-0.1.0.tgz
     version: 0.1.0
-generated: 2019-11-07T12:09:48.900482053Z
+generated: 2019-11-08T00:31:09.042481757Z
