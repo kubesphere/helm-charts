@@ -8,7 +8,7 @@ nameOverride: ""
 fullnameOverride: ""
 
 persistence:
-  size: 1G
+  size: 1Gi
 
 config: |-
   # redis.conf
