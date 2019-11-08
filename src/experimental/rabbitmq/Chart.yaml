@@ -1,6 +1,6 @@
 apiVersion: v1
 name: rabbitmq
-version: 0.1.0
+version: 0.1.1
 appVersion: 3.8.1
 description: A RabbitMQ Helm chart for Kubernetes
 icon: https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/RabbitMQ_logo.svg/120px-RabbitMQ_logo.svg.png
