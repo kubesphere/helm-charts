@@ -1,8 +1,8 @@
 apiVersion: v1
 name: mongodb
-version: 0.1.1
+version: 0.1.2
 appVersion: 4.2.1
-description: A MongoDB Helm chart for Kubernetes
+description: MongoDB is a general purpose, document-based, distributed database built for modern application developers and for the cloud era.
 icon: https://upload.wikimedia.org/wikipedia/en/thumb/4/45/MongoDB-Logo.svg/250px-MongoDB-Logo.svg.png
 sources:
 - https://github.com/kubesphere/helm-charts/tree/master/src/experimental/mongodb
