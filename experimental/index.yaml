@@ -13,6 +13,22 @@ entries:
   mongodb:
   - apiVersion: v1
     appVersion: 4.2.1
+    created: 2019-11-09T15:33:37.379623149Z
+    description: MongoDB is a general purpose, document-based, distributed database
+      built for modern application developers and for the cloud era.
+    digest: 7bdc6df479802cabe356a5bbe8900136f065a1fcae82684fe3fa3f50466eb0e2
+    icon: https://upload.wikimedia.org/wikipedia/en/thumb/4/45/MongoDB-Logo.svg/250px-MongoDB-Logo.svg.png
+    maintainers:
+    - email: kubesphere@yunify.com
+      name: KubeSphere
+    name: mongodb
+    sources:
+    - https://github.com/kubesphere/helm-charts/tree/master/src/experimental/mongodb
+    urls:
+    - https://charts.kubesphere.io/experimental/mongodb-0.1.2.tgz
+    version: 0.1.2
+  - apiVersion: v1
+    appVersion: 4.2.1
     created: 2019-11-08T00:31:09.043056883Z
     description: A MongoDB Helm chart for Kubernetes
     digest: 6fd7f69eeec692b65d64358ecd57ccd8a08aff76edda164925f7da84dcbb3a6b
@@ -44,6 +60,23 @@ entries:
   postgresql:
   - apiVersion: v1
     appVersion: "12.0"
+    created: 2019-11-09T15:33:37.380000687Z
+    description: PostgreSQL is a powerful, open source object-relational database
+      system with over 30 years of active development that has earned it a strong
+      reputation for reliability, feature robustness, and performance.
+    digest: dbec16487835074b71dc3dda65ea01647890b940924437308d15348dc20e693a
+    icon: https://wiki.postgresql.org/images/a/a4/PostgreSQL_logo.3colors.svg
+    maintainers:
+    - email: kubesphere@yunify.com
+      name: KubeSphere
+    name: postgresql
+    sources:
+    - https://github.com/kubesphere/helm-charts/tree/master/src/experimental/postgresql
+    urls:
+    - https://charts.kubesphere.io/experimental/postgresql-0.1.1.tgz
+    version: 0.1.1
+  - apiVersion: v1
+    appVersion: "12.0"
     created: 2019-11-07T12:09:48.901050607Z
     description: A PostgreSQL Helm chart for Kubernetes
     digest: 5aa9f8e554d32a376c5f07c497399020f6812ea5e41e8375cd83216a68c75743
@@ -52,6 +85,22 @@ entries:
     - https://charts.kubesphere.io/experimental/postgresql-0.1.0.tgz
     version: 0.1.0
   rabbitmq:
+  - apiVersion: v1
+    appVersion: 3.8.1
+    created: 2019-11-09T15:33:37.380307814Z
+    description: RabbitMQ is the most widely deployed open source message broker.
+      It supports multiple messaging protocols.
+    digest: 000d59747dc8bd73091a20506bfd37e8d3abcb21cbaed201e36fd0989d91d2b7
+    icon: https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/RabbitMQ_logo.svg/120px-RabbitMQ_logo.svg.png
+    maintainers:
+    - email: kubesphere@yunify.com
+      name: KubeSphere
+    name: rabbitmq
+    sources:
+    - https://github.com/kubesphere/helm-charts/tree/master/src/experimental/rabbitmq
+    urls:
+    - https://charts.kubesphere.io/experimental/rabbitmq-0.1.2.tgz
+    version: 0.1.2
   - apiVersion: v1
     appVersion: 3.8.1
     created: 2019-11-08T00:31:09.043385244Z
@@ -85,6 +134,22 @@ entries:
   redis:
   - apiVersion: v1
     appVersion: 5.0.5
+    created: 2019-11-09T15:33:37.380635247Z
+    description: Redis is an open source (BSD licensed), in-memory data structure
+      store, used as a database, cache and message broker.
+    digest: add9560193258e22cabfb7682a9335298ab60285bc0baf2a9326a76c0c81db08
+    icon: https://upload.wikimedia.org/wikipedia/en/6/6b/Redis_Logo.svg
+    maintainers:
+    - email: kubesphere@yunify.com
+      name: KubeSphere
+    name: redis
+    sources:
+    - https://github.com/kubesphere/helm-charts/tree/master/src/experimental/redis
+    urls:
+    - https://charts.kubesphere.io/experimental/redis-0.1.2.tgz
+    version: 0.1.2
+  - apiVersion: v1
+    appVersion: 5.0.5
     created: 2019-11-08T00:31:09.043676189Z
     description: A Redis Helm chart for Kubernetes
     digest: ca698438772d0eae9e6f0d20fb96f0b692c88421fa2bea6563b3f1ba5eda037f
@@ -101,4 +166,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/experimental/redis-0.1.0.tgz
     version: 0.1.0
-generated: 2019-11-08T00:31:09.042481757Z
+generated: 2019-11-09T15:33:37.379073184Z
