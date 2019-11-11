@@ -1,5 +1,11 @@
 > Forked from [https://github.com/helm/charts](https://github.com/helm/charts/tree/master/stable/tomcat).
 
+Changes to the official chart:
+
+- Use Tomcat 8.5 instead of Tomcat 7.0
+- Use ClusterIP instead of LoadBalancer
+- Use Alpine image to reduce volume usage
+
 # Tomcat
 
 [Tomcat](http://tomcat.apache.org) is is an open source implementation of the Java Servlet, JavaServer Pages, Java Expression Language and Java WebSocket technologies.
