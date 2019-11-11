@@ -226,6 +226,22 @@ entries:
     version: 1.0.0
   nginx:
   - apiVersion: v1
+    appVersion: 1.17.5
+    created: 2019-11-11T00:57:00.257459926Z
+    description: nginx is an HTTP and reverse proxy server, a mail proxy server, and
+      a generic TCP/UDP proxy server, originally written by Igor Sysoev.
+    digest: 4bdacb48c4493fc9aa1e07f025dbd1f1253a6166f1af66491b9b01ae7085b028
+    icon: https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Nginx_logo.svg/500px-Nginx_logo.svg.png
+    maintainers:
+    - email: kubesphere@yunify.com
+      name: KubeSphere
+    name: nginx
+    sources:
+    - https://github.com/kubesphere/helm-charts/tree/master/src/qingcloud/nginx
+    urls:
+    - https://charts.kubesphere.io/qingcloud/nginx-1.2.0.tgz
+    version: 1.2.0
+  - apiVersion: v1
     appVersion: 1.16.0
     created: 2019-11-09T15:33:37.69386015Z
     description: nginx is an HTTP and reverse proxy server, a mail proxy server, and
@@ -287,4 +303,19 @@ entries:
     urls:
     - https://charts.kubesphere.io/qingcloud/tomcat-0.4.0.tgz
     version: 0.4.0
-generated: 2019-11-09T15:33:37.693041189Z
+  - apiVersion: v1
+    appVersion: 8.5.41
+    created: 2019-11-11T00:57:00.257796843Z
+    description: Deploy a basic tomcat application server with sidecar as web archive
+      container
+    digest: 5886976f884827ce8cc2eacd16fe944df49d9de6113594ec7f20ce5706971916
+    home: https://github.com/yahavb
+    icon: http://tomcat.apache.org/res/images/tomcat.png
+    maintainers:
+    - email: ybiran@ananware.systems
+      name: yahavb
+    name: tomcat
+    urls:
+    - https://charts.kubesphere.io/qingcloud/tomcat-0.4.0-r1.tgz
+    version: 0.4.0-r1
+generated: 2019-11-11T00:57:00.256644477Z
