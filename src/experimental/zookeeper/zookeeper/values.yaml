@@ -2,7 +2,7 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-replicaCount: 1
+replicaCount: 3
 
 image:
   registry: https://index.docker.io/v1/
@@ -10,8 +10,8 @@ image:
   tag: v1
   pullPolicy: IfNotPresent
   # 抓取私有仓库镜像时使用用户名和密码必须添加双引号，否则会导致验证失败
-  username: "name"
-  password: "pwd"
+  username: ""
+  password: ""
 
 nameOverride: ""
 fullnameOverride: ""

@@ -3,9 +3,9 @@ kind: StatefulSet
 metadata:
   name: {{ include "zookeeper.fullname" . }}
   labels:
-    app.kubernetes.io/name: {{ include "zookeeper.name" . }}
+    # app.kubernetes.io/name: {{ include "zookeeper.name" . }}
     helm.sh/chart: {{ include "zookeeper.chart" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
+    # app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/managed-by: {{ .Release.Service }}
 spec:
   replicas: {{ .Values.replicaCount }}
@@ -13,12 +13,19 @@ spec:
     matchLabels:
       app.kubernetes.io/name: {{ include "zookeeper.name" . }}
       app.kubernetes.io/instance: {{ .Release.Name }}
+      app.name: "zookeeper"
   template:
     metadata:
       labels:
         app.kubernetes.io/name: {{ include "zookeeper.name" . }}
         app.kubernetes.io/instance: {{ .Release.Name }}
+        app.name: "zookeeper"
     spec:
+      metadata:
+        labels:
+          app.kubernetes.io/name: {{ include "zookeeper.name" . }}
+          app.kubernetes.io/instance: {{ .Release.Name }}
+          app.name: "zookeeper"
       volumes:
         - name: configs
           configMap:
@@ -51,7 +58,7 @@ spec:
             - /bin/bash
             - -c
             - |
-              zkServer.sh start /tmp/conf/zookeeper/zoo.cfg
+              zkServer.sh start-foreground /tmp/conf/zookeeper/zoo.cfg
 
           resources:
             {{- toYaml .Values.resources | nindent 12 }}

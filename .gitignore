@@ -2,3 +2,4 @@
 /helm
 
 .Ds_Store
+.helmignore
