@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "zookeeper.fullname" . }}
+  labels:
+    app.kubernetes.io/name: {{ include "zookeeper.name" . }}
+    helm.sh/chart: {{ include "zookeeper.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: {{ include "zookeeper.name" . }}
+      app.kubernetes.io/instance: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: {{ include "zookeeper.name" . }}
+        app.kubernetes.io/instance: {{ .Release.Name }}
+    spec:
+      volumes:
+        - name: configs
+          configMap:
+            name: {{ template "zookeeper.fullname" . }}
+        - name: data
+          path: /data/zookeeper
+      imagePullSecrets:
+        - name: {{ include "zookeeper.fullname" . }}-secret
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          volumeMounts:
+            - name: configs
+              mountPath: /tmp/conf/zookeeper
+            - name: data
+              mountPath: /data/apps/zookeeper
+          ports:
+            - name: zk-c-tport
+              containerPort: 2181
+              protocol: TCP
+            - name: zk-f-tport
+              containerPort: 2888
+              protocol: TCP
+            - name: zk-e-tport
+              containerPort: 3888
+              protocol: TCP
+
+          command:
+            - /bin/bash
+            - -c
+            - |
+              zkServer.sh start /tmp/conf/zookeeper/zoo.cfg
+
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+    {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}

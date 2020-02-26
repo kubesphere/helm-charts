@@ -1,0 +1,29 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "zookeeper.fullname" . }}-headless
+  labels:
+    app.kubernetes.io/name: {{ include "zookeeper.name" . }}
+    helm.sh/chart: {{ include "zookeeper.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.clientPort }}
+      targetPort: zk-c-tport
+      protocol: TCP
+      name: zk-c-port
+    - port: {{ .Values.service.followPort }}
+      targetPort: zk-f-tport
+      protocol: TCP
+      name: zk-f-port
+    - port: {{ .Values.service.electionPort }}
+      targetPort: zk-e-tport
+      protocol: TCP
+      name: zk-e-port
+
+  clusterIP: None
+  selector:
+    app.kubernetes.io/name: {{ include "zookeeper.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
