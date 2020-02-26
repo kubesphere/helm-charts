@@ -120,7 +120,7 @@ injectGithubToken() {
 
 pushUpdates() {
   ensureVars GITHUB_USER GITHUB_TOKEN
-  git commit -m "Update" --author="KubeSphere CI Bot <ks-ci-bot@users.noreply.github.com>"
+  git commit -S -m "Update" --author="KubeSphere CI Bot <ks-ci-bot@users.noreply.github.com>"
   injectGithubToken
   echo "Pushing updates to GitHub ..."
   git push origin HEAD:gh-pages
