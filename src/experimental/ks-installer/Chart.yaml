@@ -1,0 +1,11 @@
+apiVersion: v1
+description: kubesphere installer 
+name: ks-installer
+version: 2.1.1
+keywords:
+  - kubesphere
+  - installer
+home: https://kubesphere.com.cn/
+maintainers:
+  - name: chinazj
+    email: 22426347572qq.com
