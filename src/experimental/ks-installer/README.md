@@ -1,4 +1,4 @@
-# Redis
+# Ks-installer
 
 ## Installing
 
