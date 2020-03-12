@@ -37,15 +37,13 @@ oap:
   nodeAffinity: {}
   nodeSelector: {}
   tolerations: []
-  resources: {}
-    # limits:
-    #   cpu: 8
-    #   memory: 8Gi
-    # requests:
-    #   cpu: 8
-    #   memory: 4Gi
-  # podAnnotations:
-  #   example: oap-foo
+  resources:
+    limits:
+      cpu: "2"
+      memory: "3072Mi"
+    requests:
+      cpu: "25m"
+      memory: "2048Mi"
   envoy:
     als:
       enabled: false
@@ -143,7 +141,7 @@ elasticsearch:
     resources:
       limits:
         cpu: "1"
-        memory: "2048Mi"
+        memory: "1024Mi"
       requests:
         cpu: "25m"
         memory: "512Mi"
@@ -201,7 +199,7 @@ elasticsearch:
     resources:
       limits:
         cpu: "1"
-        memory: "2048Mi"
+        memory: "1024Mi"
       requests:
         cpu: "25m"
         memory: "512Mi"
