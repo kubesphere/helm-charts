@@ -3,21 +3,21 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: {{ .Chart.Name }}
-  namespace: {{ .Values.namespace}}
+  namespace: {{ .Values.namespace }}
   labels:
-    app: {{ .Values.deployment.name}}
+    app: {{ .Values.deployment.name }}
 spec:
-  replicas: {{ .Values.replicaCount}}
+  replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: {{ .Values.deployment.name}}
+      app: {{ .Values.deployment.name }}
   template:
     metadata:
       labels:
-        app: {{ .Values.deployment.name}}
+        app: {{ .Values.deployment.name }}
     spec:
       serviceAccountName: {{ .Chart.Name }}
       containers:
       - name: installer
-        image: {{ .Values.image.repository}}:{{ .Values.image.tag}}
-        imagePullPolicy: {{ .Values.image.pullPolicy}}
+        image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
