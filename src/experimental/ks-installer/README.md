@@ -20,7 +20,7 @@ helm delete my-release
 
 The command removes all the Kubernetes components associated with the chart and deletes the release.
 
-## Configuration
+## Ks-installer Configuration
 
 The following table lists the configurable parameters of the ks-installer chart and their default values.
 
@@ -32,8 +32,10 @@ Parameter | Description | Default
 
 ## KubeSphere Configuration
 
-You can set the configuration of kubespher in `templates/configmap.yaml`
+You can set the configuration of kubespher in `values.yaml`
 
+Parameter | Description | Default
+--- | --- | ---
 <table border=0 cellpadding=0 cellspacing=0 width=1288 style='border-collapse:
  collapse;table-layout:fixed;width:966pt'>
  <col width=202 style='mso-width-source:userset;mso-width-alt:7196;width:152pt'>
