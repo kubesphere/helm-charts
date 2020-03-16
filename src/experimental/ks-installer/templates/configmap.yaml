@@ -4,7 +4,7 @@ data:
   ks-config.yaml: |
     ---
     persistence:
-      storageClass: {{ .Values.persistence.storageClass}}
+      storageClass: "{{ .Values.persistence.storageClass}}"
     etcd:
       monitoring: {{ .Values.etcd.monitoring }}
       endpointIps: {{ .Values.etcd.endpointIps }}
@@ -36,7 +36,7 @@ data:
       elasticsearchDataVolumeSize: {{ .Values.logging.elasticsearchDataVolumeSize }}
       logMaxAge: {{ .Values.logging.logMaxAge }}
       elkPrefix: {{ .Values.logging.elkPrefix }}
-      containersLogMountedPath: {{ .Values.logging.containersLogMountedPath }}
+      containersLogMountedPath: "{{ .Values.logging.containersLogMountedPath }}"
       kibana:
         enabled: {{ .Values.logging.kibana.enabled }}
     openpitrix:
