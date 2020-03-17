@@ -61,4 +61,4 @@ data:
 kind: ConfigMap
 metadata:
   name: {{ .Chart.Name }}
-  namespace: {{ .Values.namespace }}
+  namespace: kubesphere-system

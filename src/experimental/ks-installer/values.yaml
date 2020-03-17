@@ -2,7 +2,6 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
-namespace: kubesphere-system
 
 image:
   repository: kubesphere/ks-installer
