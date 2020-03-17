@@ -15,7 +15,7 @@ The command deploys the kubesphere installer chart on the Kubernetes cluster in 
 To uninstall/delete the `my-release` deployment:
 
 ```console
-helm delete my-release
+helm delete --purge my-release
 ```
 
 The command removes all the Kubernetes components associated with the chart and deletes the release.
@@ -38,7 +38,7 @@ Parameter | Description | Default
 --- | --- | ---
 `persistence.storageClass` | Installer will use the default StorageClass, you can also designate another StorageClass| `""`
 `etcd.monitoring `| Whether to enable etcd monitoring|`False`
-`etcd.endpointIps`|etcd address（for etcd cluster, see an example value like `192.168.0.7,192.168.0.8,192.168.0.9`）|`192.168.0.7,192.168.0.8,192.168.0.9`
+`etcd.endpointIps`|etcd address（for etcd cluster,see an example value like `192.168.0.7,192.168.0.8,192.168.0.9`）|`192.168.0.7,192.168.0.8,192.168.0.9`
 `etcd.port`|etcd port (Default port: 2379, you can appoint any other port) | `2379`
 `etcd.tlsEnable`|Whether to enable etcd TLS certificate authentication.（True / False）| `True`
 `common.mysqlVolumeSize`|MySQL volume size (cannot be modified after set)|`20Gi`

@@ -5,16 +5,16 @@ metadata:
   name: {{ .Chart.Name }}
   namespace: {{ .Values.namespace }}
   labels:
-    app: {{ .Values.deployment.name }}
+    app: ks-install
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: {{ .Values.deployment.name }}
+      app: ks-install
   template:
     metadata:
       labels:
-        app: {{ .Values.deployment.name }}
+        app: ks-install
     spec:
       serviceAccountName: {{ .Chart.Name }}
       containers:
