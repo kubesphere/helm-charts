@@ -1,0 +1,47 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "mailhog.fullname" . }}
+  {{- with .Values.service.annotations }}
+  annotations:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  labels:
+    app.kubernetes.io/name: {{ include "mailhog.name" . }}
+    helm.sh/chart: {{ include "mailhog.chart" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
+    app.kubernetes.io/managed-by: {{ .Release.Service }}
+spec:
+  type: "{{ .Values.service.type }}"
+  {{- with .Values.service.clusterIP }}
+  clusterIP: "{{ . }}"
+  {{- end }}
+  {{- with .Values.service.externalIPs }}
+  externalIPs:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  {{- with .Values.service.loadBalancerIP }}
+  loadBalancerIP: "{{ . }}"
+  {{- end }}
+  {{- with .Values.service.loadBalancerSourceRanges }}
+  loadBalancerSourceRanges:
+    {{- toYaml . | nindent 4 }}
+  {{- end }}
+  ports:
+    - name: http
+      port: {{ .Values.service.port.http }}
+      protocol: TCP
+      targetPort: http
+      {{- if (and (eq .Values.service.type "NodePort") (not (empty .Values.service.nodePort.http))) }}
+      nodePort: {{ .Values.service.nodePort.http }}
+      {{- end }}
+    - name: smtp
+      port: {{ .Values.service.port.smtp }}
+      protocol: TCP
+      targetPort: smtp
+      {{- if (and (eq .Values.service.type "NodePort") (not (empty .Values.service.nodePort.smtp))) }}
+      nodePort: {{ .Values.service.nodePort.smtp }}
+      {{- end }}
+  selector:
+    app.kubernetes.io/name: {{ include "mailhog.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
