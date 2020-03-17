@@ -16,7 +16,7 @@ helm() {
   ./helm $@
 }
 
-helmVersion=v2.12.3
+helmVersion=v2.14.3
 prepareHelm() {
   local helmUrl=https://storage.googleapis.com/kubernetes-helm/helm-$helmVersion-linux-amd64.tar.gz
   echo "Downloading Helm Client from '$helmUrl' ..."
@@ -45,6 +45,12 @@ addDependencyRepos() {
         echo $knownRepos | grep -q $depRepo || helm repo add ${depRepo//[.:\/]/-} $depRepo
       done
     fi
+  done
+}
+
+updateDependencies() {
+  for chartDir in $@; do
+    helm dependency update $chartDir
   done
 }
 
@@ -85,11 +91,14 @@ updateRepo() {
     return 0
   fi
 
-  echo Linting charts [$updatedCharts] ...
-  helm lint $updatedCharts
-
   echo Adding dependency repos for [$updatedCharts] ...
   addDependencyRepos $updatedCharts
+  
+  echo Updating dependencies for [$updateCharts] ...
+  updateDependencies $updatedCharts
+
+  echo Linting charts [$updatedCharts] ...
+  helm lint $updatedCharts
 
   echo Packaging charts [$updatedCharts] ...
   helm package $updatedCharts --destination $repoDir -u
