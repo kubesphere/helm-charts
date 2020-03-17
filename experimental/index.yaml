@@ -3,7 +3,7 @@ entries:
   biz-engine:
   - apiVersion: v1
     appVersion: "1.0"
-    created: 2019-04-23T06:44:12.718079673Z
+    created: "2019-04-23T06:44:12.718079673Z"
     description: A Helm chart for Kubernetes
     digest: 33f4d335520d635643f921bc9a354342f11287b7e1660981d75f61910c49d6db
     name: biz-engine
@@ -13,7 +13,7 @@ entries:
   mongodb:
   - apiVersion: v1
     appVersion: 4.2.1
-    created: 2019-11-09T15:33:37.379623149Z
+    created: "2019-11-09T15:33:37.379623149Z"
     description: MongoDB is a general purpose, document-based, distributed database
       built for modern application developers and for the cloud era.
     digest: 7bdc6df479802cabe356a5bbe8900136f065a1fcae82684fe3fa3f50466eb0e2
@@ -29,7 +29,7 @@ entries:
     version: 0.1.2
   - apiVersion: v1
     appVersion: 4.2.1
-    created: 2019-11-08T00:31:09.043056883Z
+    created: "2019-11-08T00:31:09.043056883Z"
     description: A MongoDB Helm chart for Kubernetes
     digest: 6fd7f69eeec692b65d64358ecd57ccd8a08aff76edda164925f7da84dcbb3a6b
     icon: https://upload.wikimedia.org/wikipedia/en/thumb/4/45/MongoDB-Logo.svg/250px-MongoDB-Logo.svg.png
@@ -44,7 +44,7 @@ entries:
     version: 0.1.1
   - apiVersion: v1
     appVersion: 4.2.1
-    created: 2019-11-06T08:16:09.408425813Z
+    created: "2019-11-06T08:16:09.408425813Z"
     description: A MongoDB Helm chart for Kubernetes
     digest: 6480b7ba552d3d7add286e8bbe6e9fd9c480b79f3a743aeca517d71480cdbd90
     icon: https://upload.wikimedia.org/wikipedia/en/thumb/4/45/MongoDB-Logo.svg/250px-MongoDB-Logo.svg.png
@@ -60,7 +60,7 @@ entries:
   postgresql:
   - apiVersion: v1
     appVersion: "12.0"
-    created: 2019-11-09T15:33:37.380000687Z
+    created: "2019-11-09T15:33:37.380000687Z"
     description: PostgreSQL is a powerful, open source object-relational database
       system with over 30 years of active development that has earned it a strong
       reputation for reliability, feature robustness, and performance.
@@ -77,7 +77,7 @@ entries:
     version: 0.1.1
   - apiVersion: v1
     appVersion: "12.0"
-    created: 2019-11-07T12:09:48.901050607Z
+    created: "2019-11-07T12:09:48.901050607Z"
     description: A PostgreSQL Helm chart for Kubernetes
     digest: 5aa9f8e554d32a376c5f07c497399020f6812ea5e41e8375cd83216a68c75743
     name: postgresql
@@ -87,7 +87,7 @@ entries:
   rabbitmq:
   - apiVersion: v1
     appVersion: 3.8.1
-    created: 2019-11-09T15:33:37.380307814Z
+    created: "2019-11-09T15:33:37.380307814Z"
     description: RabbitMQ is the most widely deployed open source message broker.
       It supports multiple messaging protocols.
     digest: 000d59747dc8bd73091a20506bfd37e8d3abcb21cbaed201e36fd0989d91d2b7
@@ -103,7 +103,7 @@ entries:
     version: 0.1.2
   - apiVersion: v1
     appVersion: 3.8.1
-    created: 2019-11-08T00:31:09.043385244Z
+    created: "2019-11-08T00:31:09.043385244Z"
     description: A RabbitMQ Helm chart for Kubernetes
     digest: 080a253db6b2731ab868028a4d0b6f225ab6b9524b5a1a2b589d1100b6bef1c5
     icon: https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/RabbitMQ_logo.svg/120px-RabbitMQ_logo.svg.png
@@ -118,7 +118,7 @@ entries:
     version: 0.1.1
   - apiVersion: v1
     appVersion: 3.8.1
-    created: 2019-11-07T08:17:47.336870702Z
+    created: "2019-11-07T08:17:47.336870702Z"
     description: A RabbitMQ Helm chart for Kubernetes
     digest: ebfbda1e7014596d4ccd85d595d06334a191194fc02598776542b8bdc5df0b83
     icon: https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/RabbitMQ_logo.svg/120px-RabbitMQ_logo.svg.png
@@ -134,7 +134,7 @@ entries:
   redis:
   - apiVersion: v1
     appVersion: 5.0.5
-    created: 2019-11-09T15:33:37.380635247Z
+    created: "2019-11-09T15:33:37.380635247Z"
     description: Redis is an open source (BSD licensed), in-memory data structure
       store, used as a database, cache and message broker.
     digest: add9560193258e22cabfb7682a9335298ab60285bc0baf2a9326a76c0c81db08
@@ -150,7 +150,7 @@ entries:
     version: 0.1.2
   - apiVersion: v1
     appVersion: 5.0.5
-    created: 2019-11-08T00:31:09.043676189Z
+    created: "2019-11-08T00:31:09.043676189Z"
     description: A Redis Helm chart for Kubernetes
     digest: ca698438772d0eae9e6f0d20fb96f0b692c88421fa2bea6563b3f1ba5eda037f
     name: redis
@@ -159,11 +159,30 @@ entries:
     version: 0.1.1
   - apiVersion: v1
     appVersion: 5.0.5
-    created: 2019-09-26T09:34:08.450096078Z
+    created: "2019-09-26T09:34:08.450096078Z"
     description: A Redis Helm chart for Kubernetes
     digest: c80ecbbf303ebbacde4a152031286c580fc8c68030fdcc46e847140d8d8edc6d
     name: redis
     urls:
     - https://charts.kubesphere.io/experimental/redis-0.1.0.tgz
     version: 0.1.0
-generated: 2019-11-09T15:33:37.379073184Z
+  skywalking:
+  - apiVersion: v1
+    appVersion: 6.5.0
+    created: "2020-03-17T05:08:29.853533347Z"
+    description: Apache SkyWalking APM System
+    digest: 38b68d6b1096a84c07b058cee7bab08187c291a4f1b6aaa6214abd2db26642f7
+    home: https://skywalking.apache.org
+    icon: https://raw.githubusercontent.com/apache/skywalking-kubernetes/master/logo/sw-logo-for-chart.jpg
+    maintainers:
+    - email: hanahmily@gmail.com
+      name: hanahmily
+    - email: innerpeace.zhai@gmail.com
+      name: innerpeacez
+    name: skywalking
+    sources:
+    - https://github.com/apache/skywalking-kubernetes
+    urls:
+    - https://charts.kubesphere.io/experimental/skywalking-0.6.0.tgz
+    version: 0.6.0
+generated: "2020-03-17T05:08:29.850265278Z"
