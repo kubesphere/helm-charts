@@ -1,0 +1,13 @@
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: {{ .Chart.Name }}
+subjects:
+- kind: ServiceAccount
+  name: {{ .Chart.Name }}
+  namespace: kubesphere-system
+roleRef:
+  kind: ClusterRole
+  name: {{ .Chart.Name }}
+  apiGroup: rbac.authorization.k8s.io
