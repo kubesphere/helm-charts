@@ -10,6 +10,25 @@ entries:
     urls:
     - https://charts.kubesphere.io/experimental/biz-engine-0.1.0.tgz
     version: 0.1.0
+  ks-installer:
+  - apiVersion: v1
+    appVersion: 2.1.1
+    created: "2020-03-18T06:51:22.85017651Z"
+    description: The helm chart of KubeSphere, supports installing KubeSphere on existing
+      Kubernetes.
+    digest: c417dafb486dbe80102b3d4b59d5c89e338be54d0a7321c159039547ca8f129b
+    home: https://kubesphere.com.cn/
+    icon: https://kubesphere.io/static/logo.16097928.svg
+    keywords:
+    - kubesphere
+    - installer
+    maintainers:
+    - email: kubesphere@yunify.com
+      name: KubeSphere
+    name: ks-installer
+    urls:
+    - https://charts.kubesphere.io/experimental/ks-installer-0.1.0.tgz
+    version: 0.1.0
   mongodb:
   - apiVersion: v1
     appVersion: 4.2.1
@@ -185,4 +204,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/experimental/skywalking-0.6.0.tgz
     version: 0.6.0
-generated: "2020-03-17T05:08:29.850265278Z"
+generated: "2020-03-18T06:51:22.848985705Z"
