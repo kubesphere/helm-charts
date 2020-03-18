@@ -1,0 +1,23 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Chart.Name }}
+  namespace: kubesphere-system
+  labels:
+    app: ks-install
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: ks-install
+  template:
+    metadata:
+      labels:
+        app: ks-install
+    spec:
+      serviceAccountName: {{ .Chart.Name }}
+      containers:
+      - name: installer
+        image: {{ .Values.image.repository }}:{{ .Values.image.tag }}
+        imagePullPolicy: {{ .Values.image.pullPolicy }}

@@ -1,0 +1,13 @@
+appVersion: 2.1.1
+apiVersion: v1
+description: The helm chart of KubeSphere, supports installing KubeSphere on existing Kubernetes.
+icon: https://kubesphere.io/static/logo.16097928.svg
+name: ks-installer
+version: 0.1.0
+keywords:
+  - kubesphere
+  - installer
+home: https://kubesphere.com.cn/
+maintainers:
+  - name: KubeSphere
+    email: kubesphere@yunify.com
