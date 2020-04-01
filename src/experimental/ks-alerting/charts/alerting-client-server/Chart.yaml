@@ -1,0 +1,13 @@
+name: alerting-client
+version: 2.1.0
+description: A Helm chart for alerting-client-server
+keywords:
+  - alertingClient
+  - kubesphere
+home: https://kubesphere.com.cn/
+sources:
+  - https://github.com/kubesphere/kubesphere
+home: https://kubesphere.com.cn/
+maintainers:
+  - name: KubeSphere
+    email: kubesphere@yunify.com
