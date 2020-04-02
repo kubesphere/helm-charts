@@ -1,9 +1,9 @@
-name: alerting-manager
+name: alerting-client
 version: 2.1.0
 description: A Helm chart for alerting-client-server
 keywords:
-  - alertingManager
-  - kubesphere
+  - alertingClient
+  - KubeSphere
 home: https://kubesphere.com.cn/
 sources:
   - https://github.com/kubesphere/kubesphere
