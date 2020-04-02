@@ -9,9 +9,9 @@ spec:
   ports:
   - name: alerting-manager-grpc
     protocol: TCP
-    port: "{{ .Value.alertingManager.portB }}"
+    port: "{{ .Values.alertingManager.portB }}"
     targetPort: "{{ .Values.alertingManager.targetPortB }}"
   - name: alerting-manager-http
     protocol: TCP
-    port: "{{ .Value.alertingManager.portA }}"
+    port: "{{ .Values.alertingManager.portA }}"
     targetPort: "{{ .Values.alertingManager.targetPortA }}"
