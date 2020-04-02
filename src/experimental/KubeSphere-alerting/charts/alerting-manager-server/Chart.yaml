@@ -4,9 +4,8 @@ description: A Helm chart for alerting-client-server
 keywords:
   - alertingManager
   - KubeSphere
-home: https://kubesphere.com.cn/
 sources:
-  - https://github.com/kubesphere/kubesphere
+  - https://github.com/kubesphere/alert
 home: https://kubesphere.com.cn/
 maintainers:
   - name: KubeSphere

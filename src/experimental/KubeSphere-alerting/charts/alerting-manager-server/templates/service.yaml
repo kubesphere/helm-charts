@@ -15,3 +15,4 @@ spec:
     protocol: TCP
     port: "{{ .Values.alertingManager.portA }}"
     targetPort: "{{ .Values.alertingManager.targetPortA }}"
+  type: "{{ .Values.alertingManager.type }}"

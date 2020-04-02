@@ -11,3 +11,4 @@ spec:
     protocol: TCP
     port: "{{ .Values.alertingClient.port }}"
     targetPort: "{{ .Values.alertingClient.targetPort }}"
+  type: "{{ .Values.alertingClient.type }}"
