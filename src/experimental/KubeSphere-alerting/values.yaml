@@ -32,10 +32,12 @@ redisHost: redis.kubesphere-system.svc
 redisPort: 6379
 redisEndpoint: "{{ redisHost }}:{{ redisPort }}"
 
+
 alertingClient:
   containerPort: 9200
   port: 9200
   targetPort: 9200
+  type: ClusterIP
 
 alertingManager:
   containerPortA: 9200
@@ -44,6 +46,7 @@ alertingManager:
   containerPortB: 9201
   portB: 9201
   targetPortB: 9201 
+  type: ClusterIP
 
 resources:
   request:
