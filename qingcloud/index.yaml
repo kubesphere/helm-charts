@@ -3,7 +3,7 @@ entries:
   gitlab:
   - apiVersion: v1
     appVersion: 12.4.1
-    created: 2019-11-05T09:03:33.117447268Z
+    created: "2019-11-05T09:03:33.117447268Z"
     description: Web-based Git-repository manager with wiki and issue-tracking features.
     digest: 312e800c7df5f35fb506c649136974188e542b38b4c224b9043447d489a29da7
     home: https://about.gitlab.com/
@@ -21,7 +21,7 @@ entries:
     version: 2.4.5
   - apiVersion: v1
     appVersion: 11.11.8
-    created: 2019-11-05T07:31:36.413033062Z
+    created: "2019-11-05T07:31:36.413033062Z"
     description: Web-based Git-repository manager with wiki and issue-tracking features.
     digest: 049489d82c878f6a2908b16d5c0f41c19b9af798f56ab92adf002cdbb3a6f6b1
     home: https://about.gitlab.com/
@@ -39,7 +39,7 @@ entries:
     version: 1.9.8
   - apiVersion: v1
     appVersion: 11.8.1
-    created: 2019-03-07T12:50:39.713338604Z
+    created: "2019-03-07T12:50:39.713338604Z"
     description: Web-based Git-repository manager with wiki and issue-tracking features.
     digest: 87cc48ebcc2db174879439a71078b46cd8d8075e960a88673c690ea71ef449e4
     home: https://about.gitlab.com/
@@ -57,7 +57,7 @@ entries:
     version: 1.6.1
   harbor:
   - appVersion: 1.9.1
-    created: 2019-11-06T11:17:18.56346108Z
+    created: "2019-11-06T11:17:18.56346108Z"
     description: An open source trusted cloud native registry that stores, signs,
       and scans content
     digest: 527a108c1be483be9cacf4b64bc90181cbbccdf248d96ac5007a69f191b3fe1e
@@ -81,7 +81,7 @@ entries:
     - https://charts.kubesphere.io/qingcloud/harbor-1.2.1.tgz
     version: 1.2.1
   - appVersion: 1.8.3
-    created: 2019-09-27T01:49:44.206807244Z
+    created: "2019-09-27T01:49:44.206807244Z"
     description: An open source trusted cloud native registry that stores, signs,
       and scans content
     digest: 7363d53ae7098f361cd967a6a5958dedcabb7d44716983e2f4f01d22c3938d1d
@@ -105,7 +105,7 @@ entries:
     - https://charts.kubesphere.io/qingcloud/harbor-1.1.3.tgz
     version: 1.1.3
   - appVersion: 1.8.2
-    created: 2019-09-27T01:46:44.234941904Z
+    created: "2019-09-27T01:46:44.234941904Z"
     description: An open source trusted cloud native registry that stores, signs,
       and scans content
     digest: c76eb863e0f6e63bcfd8938a305b4d5356a3cfc2ccffa195840b3b7a735e4f56
@@ -129,7 +129,7 @@ entries:
     - https://charts.kubesphere.io/qingcloud/harbor-1.1.2.tgz
     version: 1.1.2
   - appVersion: 1.8.1
-    created: 2019-08-08T08:53:29.315727241Z
+    created: "2019-08-08T08:53:29.315727241Z"
     description: An open source trusted cloud native registry that stores, signs,
       and scans content
     digest: 9238368e9782f606de3e29db77598776bb2fa3a9e1b1521cc9255cd9cc51981d
@@ -153,7 +153,7 @@ entries:
     - https://charts.kubesphere.io/qingcloud/harbor-1.1.1.tgz
     version: 1.1.1
   - appVersion: 1.8.0
-    created: 2019-08-08T08:43:54.007556364Z
+    created: "2019-08-08T08:43:54.007556364Z"
     description: An open source trusted cloud native registry that stores, signs,
       and scans content
     digest: 037fdac37493be9628437a37e78ea97ebceacb2a3341297b58c943158e630434
@@ -177,7 +177,7 @@ entries:
     - https://charts.kubesphere.io/qingcloud/harbor-1.1.0.tgz
     version: 1.1.0
   - appVersion: 1.7.5
-    created: 2019-04-19T02:12:20.310255564Z
+    created: "2019-04-19T02:12:20.310255564Z"
     description: An open source trusted cloud native registry that stores, signs,
       and scans content
     digest: a9a01e9b136e4e5966211e73e744cdf9079d21388c757c258b47c78072e3e990
@@ -201,7 +201,7 @@ entries:
     - https://charts.kubesphere.io/qingcloud/harbor-1.0.1.tgz
     version: 1.0.1
   - appVersion: 1.7.0
-    created: 2019-02-13T13:24:16.09200433+08:00
+    created: "2019-02-13T13:24:16.09200433+08:00"
     description: An open source trusted cloud native registry that stores, signs,
       and scans content
     digest: f34e1ddae9b8d50c488dfe75be4b385d5177d4ec7cde4383ba2dc83c18f37ae5
@@ -224,10 +224,30 @@ entries:
     urls:
     - https://charts.kubesphere.io/qingcloud/harbor-1.0.0.tgz
     version: 1.0.0
+  nfs-client-provisioner:
+  - apiVersion: v1
+    appVersion: 3.1.0
+    created: "2020-04-29T08:53:49.14468121Z"
+    description: nfs-client is an automatic provisioner that used your *already configured*
+      NFS server, automatically creating Persistent Volumes.
+    digest: 4da15a31942ac1d26cd5c741551a4905042d0e9d028ab2777db1562bcfff55d5
+    home: https://github.com/kubernetes-incubator/external-storage/tree/master/nfs-client
+    keywords:
+    - nfs
+    - storage
+    maintainers:
+    - email: bart@verwilst.be
+      name: verwilst
+    name: nfs-client-provisioner
+    sources:
+    - https://github.com/kubernetes-incubator/external-storage/tree/master/nfs-client
+    urls:
+    - https://charts.kubesphere.io/qingcloud/nfs-client-provisioner-1.2.8.tgz
+    version: 1.2.8
   nginx:
   - apiVersion: v1
     appVersion: 1.17.5
-    created: 2019-11-11T00:57:00.257459926Z
+    created: "2019-11-11T00:57:00.257459926Z"
     description: nginx is an HTTP and reverse proxy server, a mail proxy server, and
       a generic TCP/UDP proxy server, originally written by Igor Sysoev.
     digest: 4bdacb48c4493fc9aa1e07f025dbd1f1253a6166f1af66491b9b01ae7085b028
@@ -243,7 +263,7 @@ entries:
     version: 1.2.0
   - apiVersion: v1
     appVersion: 1.16.0
-    created: 2019-11-09T15:33:37.69386015Z
+    created: "2019-11-09T15:33:37.69386015Z"
     description: nginx is an HTTP and reverse proxy server, a mail proxy server, and
       a generic TCP/UDP proxy server, originally written by Igor Sysoev.
     digest: d0a7c6b0c6af3ff90f70754bda4c7c472058468b4d24f8695a8c494fdec50f12
@@ -259,7 +279,7 @@ entries:
     version: 1.1.1
   - apiVersion: v1
     appVersion: 1.16.0
-    created: 2019-09-26T09:34:08.794605798Z
+    created: "2019-09-26T09:34:08.794605798Z"
     description: Nginx chart for Kubernetes
     digest: 10d944e15aede314a0017602ca43d135e390337cef0a2220551e7dbd0cb364c3
     icon: https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Nginx_logo.svg/500px-Nginx_logo.svg.png
@@ -274,7 +294,7 @@ entries:
     version: 1.1.0
   - apiVersion: v1
     appVersion: 1.16.0
-    created: 2019-08-12T07:03:44.011990452Z
+    created: "2019-08-12T07:03:44.011990452Z"
     description: Nginx chart for Kubernetes
     digest: 86d7962f7510f58313b103f3788b4e712ff07bc10f5f0e1f62a823823597b421
     icon: https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Nginx_logo.svg/500px-Nginx_logo.svg.png
@@ -290,7 +310,7 @@ entries:
   tomcat:
   - apiVersion: v1
     appVersion: "7.0"
-    created: 2019-10-29T06:25:04.338252102Z
+    created: "2019-10-29T06:25:04.338252102Z"
     description: Deploy a basic tomcat application server with sidecar as web archive
       container
     digest: 0c5cd7256aa1536cba2e70890a0ef2ff5b07b74216253aca89c8e303370cb2ae
@@ -305,7 +325,7 @@ entries:
     version: 0.4.0
   - apiVersion: v1
     appVersion: 8.5.41
-    created: 2019-11-11T00:57:00.257796843Z
+    created: "2019-11-11T00:57:00.257796843Z"
     description: Deploy a basic tomcat application server with sidecar as web archive
       container
     digest: 5886976f884827ce8cc2eacd16fe944df49d9de6113594ec7f20ce5706971916
@@ -318,4 +338,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/qingcloud/tomcat-0.4.0-r1.tgz
     version: 0.4.0-r1
-generated: 2019-11-11T00:57:00.256644477Z
+generated: "2020-04-29T08:53:49.143323676Z"
