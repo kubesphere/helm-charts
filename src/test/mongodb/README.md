@@ -3,7 +3,7 @@
 ## TL;DR;
 
 ```console
-helm install experimental/mongodb
+helm install ks-test/mongodb
 ```
 
 ## Installing
@@ -11,7 +11,7 @@ helm install experimental/mongodb
 To install the chart with the release name `my-release`:
 
 ```console
-helm install --name my-release experimental/mongodb
+helm install --name my-release ks-test/mongodb
 ```
 
 The command deploys the standalone MongoDB chart on the Kubernetes cluster in the default configuration. The configuration section lists the parameters that can be configured during installation.

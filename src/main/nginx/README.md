@@ -3,7 +3,7 @@
 ## TL;DR;
 
 ```console
-helm install qingcloud/nginx
+helm install ks-main/nginx
 ```
 
 ## Installing
@@ -11,7 +11,7 @@ helm install qingcloud/nginx
 To install the chart with the release name `my-release`:
 
 ```console
-helm install --name my-release qingcloud/nginx
+helm install --name my-release ks-main/nginx
 ```
 
 The command deploys the nginx chart on the Kubernetes cluster in the default configuration. The configuration section lists the parameters that can be configured during installation.

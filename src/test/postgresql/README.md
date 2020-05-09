@@ -3,9 +3,9 @@
 ## TL;DR;
 
 ```console
-helm repo add experimental https://charts.kubesphere.io/experimental
+helm repo add ks-test https://charts.kubesphere.io/test
 helm repo update
-helm install experimental/postgresql
+helm install ks-test/postgresql
 ```
 
 ## Installing
@@ -13,7 +13,7 @@ helm install experimental/postgresql
 To install the chart with the release name `my-release`:
 
 ```console
-helm install --name my-release experimental/postgresql
+helm install --name my-release ks-test/postgresql
 ```
 
 The command deploys the PostgreSQL chart on the Kubernetes cluster in the default configuration. The configuration section lists the parameters that can be configured during installation.

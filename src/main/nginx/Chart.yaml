@@ -7,5 +7,5 @@ maintainers:
   name: KubeSphere
 name: nginx
 sources:
-- https://github.com/kubesphere/helm-charts/tree/master/src/qingcloud/nginx
-version: 1.2.0
+- https://github.com/kubesphere/helm-charts/tree/master/src/main/nginx
+version: 1.2.1
