@@ -5,8 +5,8 @@ metadata:
   labels:
     app.kubernetes.io/name: {{ include "nginx.name" . }}
     helm.sh/chart: {{ include "nginx.chart" . }}
-    app.kubernetes.io/instance: {{ .Release.Name }}
-    app.kubernetes.io/managed-by: {{ .Release.Service }}
+    # app.kubernetes.io/instance: {{ .Release.Name }}
+    # app.kubernetes.io/managed-by: {{ .Release.Service }}
   annotations:
     "helm.sh/hook": test-success
 spec:
