@@ -5,7 +5,7 @@
 Find the repository you want to use under `src/` directory and enter below command:
 
 ```shell
-helm repo add qingcloud https://charts.kubesphere.io/qingcloud
+helm repo add ks-main https://charts.kubesphere.io/main
 ```
 
 ## How to contribute
@@ -16,7 +16,7 @@ Just place your charts under the repo, e.g.
 
 ```shell
 src/
-├── qingcloud/
+├── main/
 │   └── example-chart/
 │       ├── Chart.yaml
 │       ├── values.yaml
@@ -30,7 +30,7 @@ Just create a directory under `src/` for the new repo, and place your charts und
 
 ```shell
 src/
-├── qingcloud/
+├── main/
 │   └── ...
 ├── example-repo/
 │   └── example-chart/
