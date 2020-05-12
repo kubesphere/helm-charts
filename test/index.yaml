@@ -1,0 +1,120 @@
+apiVersion: v1
+entries:
+  biz-engine:
+  - apiVersion: v1
+    appVersion: "1.0"
+    created: "2020-05-12T00:56:38.713269742Z"
+    description: A Helm chart for Kubernetes
+    digest: d03260b7dc2e852832fd79ea96413efa1949ee85837da4f01ea32901417f574e
+    name: biz-engine
+    urls:
+    - https://charts.kubesphere.io/test/biz-engine-0.1.0.tgz
+    version: 0.1.0
+  ks-installer:
+  - apiVersion: v1
+    appVersion: 2.1.1
+    created: "2020-05-12T00:56:38.713959597Z"
+    description: The helm chart of KubeSphere, supports installing KubeSphere on existing
+      Kubernetes.
+    digest: 4a13d00b090aab00dc5b6ef3f1ce0a0809399359aecec9e4b58639e32e26f42a
+    home: https://kubesphere.com.cn/
+    icon: https://kubesphere.io/static/logo.16097928.svg
+    keywords:
+    - kubesphere
+    - installer
+    maintainers:
+    - email: kubesphere@yunify.com
+      name: KubeSphere
+    name: ks-installer
+    urls:
+    - https://charts.kubesphere.io/test/ks-installer-0.1.0.tgz
+    version: 0.1.0
+  mongodb:
+  - apiVersion: v1
+    appVersion: 4.2.1
+    created: "2020-05-12T00:56:38.714536544Z"
+    description: MongoDB is a general purpose, document-based, distributed database
+      built for modern application developers and for the cloud era.
+    digest: 43a947122341a0b1609bcedc93d146d83419d0c4f736cab3ef6e97983eac0e76
+    icon: https://upload.wikimedia.org/wikipedia/en/thumb/4/45/MongoDB-Logo.svg/250px-MongoDB-Logo.svg.png
+    maintainers:
+    - email: kubesphere@yunify.com
+      name: KubeSphere
+    name: mongodb
+    sources:
+    - https://github.com/kubesphere/helm-charts/tree/master/src/test/mongodb
+    urls:
+    - https://charts.kubesphere.io/test/mongodb-0.1.3.tgz
+    version: 0.1.3
+  postgresql:
+  - apiVersion: v1
+    appVersion: "12.0"
+    created: "2020-05-12T00:56:38.71512554Z"
+    description: PostgreSQL is a powerful, open source object-relational database
+      system with over 30 years of active development that has earned it a strong
+      reputation for reliability, feature robustness, and performance.
+    digest: 407af3fe1037ae315a7074576b218c1c2c5f822670988f395cb574d110197e3e
+    icon: https://wiki.postgresql.org/images/a/a4/PostgreSQL_logo.3colors.svg
+    maintainers:
+    - email: kubesphere@yunify.com
+      name: KubeSphere
+    name: postgresql
+    sources:
+    - https://github.com/kubesphere/helm-charts/tree/master/src/test/postgresql
+    urls:
+    - https://charts.kubesphere.io/test/postgresql-0.1.2.tgz
+    version: 0.1.2
+  rabbitmq:
+  - apiVersion: v1
+    appVersion: 3.8.1
+    created: "2020-05-12T00:56:38.715636734Z"
+    description: RabbitMQ is the most widely deployed open source message broker.
+      It supports multiple messaging protocols.
+    digest: 696b1852d710382fb14f036efc9b61a025fb8aac8ffdfeea4a6044222ab86708
+    icon: https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/RabbitMQ_logo.svg/120px-RabbitMQ_logo.svg.png
+    maintainers:
+    - email: kubesphere@yunify.com
+      name: KubeSphere
+    name: rabbitmq
+    sources:
+    - https://github.com/kubesphere/helm-charts/tree/master/src/test/rabbitmq
+    urls:
+    - https://charts.kubesphere.io/test/rabbitmq-0.1.3.tgz
+    version: 0.1.3
+  redis:
+  - apiVersion: v1
+    appVersion: 5.0.5
+    created: "2020-05-12T00:56:38.716330068Z"
+    description: Redis is an open source (BSD licensed), in-memory data structure
+      store, used as a database, cache and message broker.
+    digest: d9eeb2ac079dac41ae1953964ea740c9438e06101aacc3133ece05800ac4721c
+    icon: https://upload.wikimedia.org/wikipedia/en/6/6b/Redis_Logo.svg
+    maintainers:
+    - email: kubesphere@yunify.com
+      name: KubeSphere
+    name: redis
+    sources:
+    - https://github.com/kubesphere/helm-charts/tree/master/src/test/redis
+    urls:
+    - https://charts.kubesphere.io/test/redis-0.1.3.tgz
+    version: 0.1.3
+  skywalking:
+  - apiVersion: v1
+    appVersion: 6.5.0
+    created: "2020-05-12T00:56:38.71811333Z"
+    description: Apache SkyWalking APM System
+    digest: 16a62a63e5d6a3137b2c8e0a15732288a17f2998bdc0af64e02e626bccfc6ea2
+    home: https://skywalking.apache.org
+    icon: https://raw.githubusercontent.com/apache/skywalking-kubernetes/master/logo/sw-logo-for-chart.jpg
+    maintainers:
+    - email: hanahmily@gmail.com
+      name: hanahmily
+    - email: innerpeace.zhai@gmail.com
+      name: innerpeacez
+    name: skywalking
+    sources:
+    - https://github.com/apache/skywalking-kubernetes
+    urls:
+    - https://charts.kubesphere.io/test/skywalking-0.6.0.tgz
+    version: 0.6.0
+generated: "2020-05-12T00:56:38.712070169Z"
