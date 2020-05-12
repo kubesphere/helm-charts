@@ -1,0 +1,100 @@
+apiVersion: v1
+entries:
+  gitlab:
+  - apiVersion: v1
+    appVersion: 12.4.1
+    created: "2020-05-12T00:56:27.266233113Z"
+    description: Web-based Git-repository manager with wiki and issue-tracking features.
+    digest: 2b48596bc1122cf279a40ca8200c74d13cb7e6d3fed9c7ed3509b2b7d712ee68
+    home: https://about.gitlab.com/
+    icon: https://gitlab.com/gitlab-com/gitlab-artwork/raw/master/logo/logo-square.png
+    keywords:
+    - gitlab
+    maintainers:
+    - email: support@gitlab.com
+      name: GitLab Inc.
+    name: gitlab
+    sources:
+    - https://gitlab.com/gitlab-org/charts/gitlab
+    urls:
+    - https://charts.kubesphere.io/main/gitlab-2.4.5.tgz
+    version: 2.4.5
+  harbor:
+  - appVersion: 1.9.1
+    created: "2020-05-12T00:56:27.26956401Z"
+    description: An open source trusted cloud native registry that stores, signs,
+      and scans content
+    digest: d4abdb2cfd2b72267b6cab652c320cd59ac2b9b5b6575aca2669c5da47c57fc2
+    engine: gotpl
+    home: https://goharbor.io
+    icon: https://raw.githubusercontent.com/goharbor/harbor/master/docs/img/harbor_logo.png
+    keywords:
+    - docker
+    - registry
+    - harbor
+    maintainers:
+    - email: huh@vmware.com
+      name: Jesse Hu
+    - email: username.taken@gmail.com
+      name: paulczar
+    name: harbor
+    sources:
+    - https://github.com/goharbor/harbor
+    - https://github.com/goharbor/harbor-helm
+    urls:
+    - https://charts.kubesphere.io/main/harbor-1.2.1.tgz
+    version: 1.2.1
+  nfs-client-provisioner:
+  - apiVersion: v1
+    appVersion: 3.1.0
+    created: "2020-05-12T00:56:27.270356843Z"
+    description: nfs-client is an automatic provisioner that used your *already configured*
+      NFS server, automatically creating Persistent Volumes.
+    digest: 45bd6d7e26c6613f7419676bd415ea0ffd05618fee615a7d932ad4078624e337
+    home: https://github.com/kubernetes-incubator/external-storage/tree/master/nfs-client
+    keywords:
+    - nfs
+    - storage
+    maintainers:
+    - email: bart@verwilst.be
+      name: verwilst
+    name: nfs-client-provisioner
+    sources:
+    - https://github.com/kubernetes-incubator/external-storage/tree/master/nfs-client
+    urls:
+    - https://charts.kubesphere.io/main/nfs-client-provisioner-1.2.8.tgz
+    version: 1.2.8
+  nginx:
+  - apiVersion: v1
+    appVersion: 1.17.5
+    created: "2020-05-12T00:56:27.271355959Z"
+    description: nginx is an HTTP and reverse proxy server, a mail proxy server, and
+      a generic TCP/UDP proxy server, originally written by Igor Sysoev.
+    digest: 391b551706b33e68efb30532b1dc090922494eabf0e864d1afc1c38d172f68de
+    icon: https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Nginx_logo.svg/500px-Nginx_logo.svg.png
+    maintainers:
+    - email: kubesphere@yunify.com
+      name: KubeSphere
+    name: nginx
+    sources:
+    - https://github.com/kubesphere/helm-charts/tree/master/src/main/nginx
+    urls:
+    - https://charts.kubesphere.io/main/nginx-1.2.1.tgz
+    version: 1.2.1
+  tomcat:
+  - apiVersion: v1
+    appVersion: 8.5.41
+    created: "2020-05-12T00:56:27.271662814Z"
+    description: Deploy a basic tomcat application server with sidecar as web archive
+      container
+    digest: d6331d24894103af91a94284c36451001c41b3b61c72fc4f75d55f8099079ca0
+    home: https://github.com/yahavb
+    icon: http://tomcat.apache.org/res/images/tomcat.png
+    maintainers:
+    - email: ybiran@ananware.systems
+      name: yahavb
+    name: tomcat
+    urls:
+    - https://charts.kubesphere.io/main/tomcat-0.4.0-r1.tgz
+    version: 0.4.0-r1
+generated: "2020-05-12T00:56:27.254608126Z"
