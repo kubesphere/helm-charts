@@ -1,11 +1,9 @@
-# Experimental Charts
-
-This Helm repository is expected to be only used for experimental/verification purpose.
+# QingCloud Charts
 
 ## Install
 
 ```shell
-helm repo add test https://charts.kubesphere.io/experimental
+helm repo add ks-main https://charts.kubesphere.io/main
 ```
 
 ## Contribute
@@ -14,7 +12,7 @@ Place your charts under this directory, one chart per separate directory, e.g.
 
 ```shell
 src/
-├── experimental/
+├── main/
 │   ├── example-chart/
 │   │   ├── Chart.yaml
 │   │   ├── values.yaml
@@ -26,3 +24,4 @@ src/
 │       ├── templates/
 │       └── ...
 ```
+

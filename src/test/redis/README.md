@@ -3,7 +3,7 @@
 ## TL;DR;
 
 ```console
-helm install experimental/redis
+helm install ks-test/redis
 ```
 
 ## Installing
@@ -11,7 +11,7 @@ helm install experimental/redis
 To install the chart with the release name `my-release`:
 
 ```console
-helm install --name my-release experimental/redis
+helm install --name my-release ks-test/redis
 ```
 
 The command deploys the standalone Redis chart on the Kubernetes cluster in the default configuration. The configuration section lists the parameters that can be configured during installation.
