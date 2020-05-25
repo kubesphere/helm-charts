@@ -1,5 +1,63 @@
 apiVersion: v1
 entries:
+  aws-ebs-csi-driver:
+  - apiVersion: v1
+    appVersion: 0.5.0
+    created: "2020-05-25T03:59:12.169163108Z"
+    description: A Helm chart for AWS EBS CSI Driver
+    digest: 016b59f95ecedd3987db762c1a9a3d1ccc6850e586e3db777dcdfa17f5fa4621
+    home: https://github.com/kubernetes-sigs/aws-ebs-csi-driver
+    keywords:
+    - aws
+    - ebs
+    - csi
+    kubeVersion: '>=1.13.0-0'
+    maintainers:
+    - email: chengpan@amazon.com
+      name: leakingtapan
+    name: aws-ebs-csi-driver
+    sources:
+    - https://github.com/kubernetes-sigs/aws-ebs-csi-driver
+    urls:
+    - https://charts.kubesphere.io/test/aws-ebs-csi-driver-0.3.0.tgz
+    version: 0.3.0
+  aws-efs-csi-driver:
+  - apiVersion: v1
+    appVersion: 0.3.0
+    created: "2020-05-25T03:59:12.169717253Z"
+    description: A Helm chart for AWS EFS CSI Driver
+    digest: 2e70a204ace10b864b367a25ba8ed4caf0ddf4e72890740f5395320ed0a9b064
+    home: https://github.com/kubernetes-sigs/aws-efs-csi-driver
+    keywords:
+    - aws
+    - efs
+    - csi
+    kubeVersion: '>=1.14.0-0'
+    maintainers:
+    - name: leakingtapan
+    name: aws-efs-csi-driver
+    sources:
+    - https://github.com/kubernetes-sigs/aws-efs-csi-driver
+    urls:
+    - https://charts.kubesphere.io/test/aws-efs-csi-driver-0.1.0.tgz
+    version: 0.1.0
+  aws-fsx-csi-driver:
+  - apiVersion: v2
+    appVersion: 0.1.0
+    created: "2020-05-25T03:59:12.170293727Z"
+    description: The Amazon FSx for Lustre Container Storage Interface (CSI) Driver
+      implements CSI specification for container orchestrators (CO) to manage lifecycle
+      of Amazon FSx for Lustre filesystems.
+    digest: 913834da704d63310a4a30187e8eea7d1bd69b3f53040c9bcd5b739a6130fcd1
+    keywords:
+    - aws-fsx-csi-driver
+    - aws
+    - fsx
+    - network file system
+    name: aws-fsx-csi-driver
+    urls:
+    - https://charts.kubesphere.io/test/aws-fsx-csi-driver-0.1.0.tgz
+    version: 0.1.0
   biz-engine:
   - apiVersion: v1
     appVersion: "1.0"
@@ -117,4 +175,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/test/skywalking-0.6.0.tgz
     version: 0.6.0
-generated: "2020-05-12T00:56:38.712070169Z"
+generated: "2020-05-25T03:59:12.167753514Z"
