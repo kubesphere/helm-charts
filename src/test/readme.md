@@ -1,4 +1,4 @@
-# Experimental Charts
+# Test Charts
 
 This Helm repository is expected to be only used for experimental/verification purpose.
 

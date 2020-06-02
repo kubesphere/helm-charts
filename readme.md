@@ -5,7 +5,7 @@
 Find the repository you want to use under `src/` directory and enter below command:
 
 ```shell
-helm repo add ks-main https://charts.kubesphere.io/main
+helm repo add main https://charts.kubesphere.io/main
 ```
 
 ## How to contribute

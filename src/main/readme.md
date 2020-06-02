@@ -1,9 +1,9 @@
-# QingCloud Charts
+# KubeSphere Charts
 
 ## Install
 
 ```shell
-helm repo add ks-main https://charts.kubesphere.io/main
+helm repo add main https://charts.kubesphere.io/main
 ```
 
 ## Contribute
