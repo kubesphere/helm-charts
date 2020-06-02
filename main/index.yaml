@@ -20,6 +20,33 @@ entries:
     - https://charts.kubesphere.io/main/gitlab-2.4.5.tgz
     version: 2.4.5
   harbor:
+  - apiVersion: v1
+    appVersion: 2.0.0
+    created: "2020-06-02T13:03:55.684778759Z"
+    description: An open source trusted cloud native registry that stores, signs,
+      and scans content
+    digest: 107472dac1f522af4793526396dafa0e169b77c3fdcc631989855dac9a3cd219
+    engine: gotpl
+    home: https://goharbor.io
+    icon: https://raw.githubusercontent.com/goharbor/harbor/master/docs/img/harbor_logo.png
+    keywords:
+    - docker
+    - registry
+    - harbor
+    maintainers:
+    - email: yinw@vmware.com
+      name: Wenkai Yin
+    - email: hweiwei@vmware.com
+      name: Weiwei He
+    - email: dengq@vmware.com
+      name: Qian Deng
+    name: harbor
+    sources:
+    - https://github.com/goharbor/harbor
+    - https://github.com/goharbor/harbor-helm
+    urls:
+    - https://charts.kubesphere.io/main/harbor-1.4.0.tgz
+    version: 1.4.0
   - appVersion: 1.9.1
     created: "2020-05-12T00:56:27.26956401Z"
     description: An open source trusted cloud native registry that stores, signs,
@@ -97,4 +124,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/main/tomcat-0.4.0-r1.tgz
     version: 0.4.0-r1
-generated: "2020-05-12T00:56:27.254608126Z"
+generated: "2020-06-02T13:03:55.680243378Z"
