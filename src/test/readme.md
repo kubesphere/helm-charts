@@ -5,7 +5,7 @@ This Helm repository is expected to be only used for experimental/verification p
 ## Install
 
 ```shell
-helm repo add ks-test https://charts.kubesphere.io/test
+helm repo add test https://charts.kubesphere.io/test
 ```
 
 ## Contribute
