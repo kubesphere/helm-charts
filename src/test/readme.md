@@ -1,11 +1,11 @@
-# Experimental Charts
+# Test Charts
 
 This Helm repository is expected to be only used for experimental/verification purpose.
 
 ## Install
 
 ```shell
-helm repo add ks-test https://charts.kubesphere.io/test
+helm repo add test https://charts.kubesphere.io/test
 ```
 
 ## Contribute
