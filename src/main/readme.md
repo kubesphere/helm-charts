@@ -1,4 +1,4 @@
-# KubeSphere Charts
+# Main Charts
 
 ## Install
 
