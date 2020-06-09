@@ -16,7 +16,7 @@ apiVersion: v2
 appVersion: 1.2.0
 name: csi-neonsan
 description: A Helm chart for NeonSAN CSI Driver
-version: 1.2.0-rc1
+version: 1.2.0-rc2
 kubeVersion: ">=1.14.0-0"
 home: https://github.com/yunify/qingstor-csi
 sources:
