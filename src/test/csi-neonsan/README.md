@@ -1,9 +1,9 @@
-# Redis
+# csi-neonsan 
 
 ## TL;DR;
 
 ```console
-helm install ks-test/csi-neonsan
+helm install test/csi-neonsan
 ```
 
 ## Installing
@@ -11,7 +11,8 @@ helm install ks-test/csi-neonsan
 To install the chart with the release name `csi-neonsan`:
 
 ```console
-helm install ks-test/csi-neonsan --name-template csi-neonsan --namespace kube-system
+helm repo add test https://charts.kubesphere.io/test
+helm install test/csi-neonsan --name-template csi-neonsan --namespace kube-system
 ```
 
 The command deploys the csi-neonsan chart on the Kubernetes cluster in the default configuration. The configuration section lists the parameters that can be configured during installation.
