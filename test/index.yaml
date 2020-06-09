@@ -71,6 +71,25 @@ entries:
   csi-neonsan:
   - apiVersion: v2
     appVersion: 1.2.0
+    created: "2020-06-09T02:57:43.368683162Z"
+    description: A Helm chart for NeonSAN CSI Driver
+    digest: 587b9d2333816dbf10901cfa1a766ca1ec7fc22d4b3ff9649878dad3e1969c8f
+    home: https://github.com/yunify/qingstor-csi
+    icon: https://s3.qingcloud.com/files/2020/01/qing-stor-neon-san.png
+    keywords:
+    - neonsan
+    - csi
+    kubeVersion: '>=1.14.0-0'
+    maintainers:
+    - name: min-zh
+    name: csi-neonsan
+    sources:
+    - https://github.com/yunify/qingstor-csi
+    urls:
+    - https://charts.kubesphere.io/test/csi-neonsan-1.2.0-rc2.tgz
+    version: 1.2.0-rc2
+  - apiVersion: v2
+    appVersion: 1.2.0
     created: "2020-05-25T07:35:40.856854734Z"
     description: A Helm chart for NeonSAN CSI Driver
     digest: 54c78d2bfbad1df9bf020f9c163e83cdf803314ec9b4b68d02b696d0188cc086
@@ -195,4 +214,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/test/skywalking-0.6.0.tgz
     version: 0.6.0
-generated: "2020-05-25T07:35:40.855558537Z"
+generated: "2020-06-09T02:57:43.367327722Z"
