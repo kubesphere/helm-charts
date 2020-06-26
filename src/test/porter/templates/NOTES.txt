@@ -1,0 +1,53 @@
+1. You can test the porter in layer2 mode:
+
+$ cat << EOF > layer2.yaml
+apiVersion: network.kubesphere.io/v1alpha1
+kind: Eip
+metadata:
+    name: eip-sample-pool
+spec:
+    # Modify ip address
+    address: 192.168.3.100
+    protocol: layer2
+    disable: false
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: nginx-deployment
+  labels:
+    app: nginx
+spec:
+  selector:
+    matchLabels:
+      app: nginx
+  template:
+    metadata:
+      labels:
+        app: nginx
+    spec:
+      containers:
+      - name: nginx
+        image: nginx
+        ports:
+        - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+  annotations:
+    lb.kubesphere.io/v1alpha1: porter
+    protocol.porter.kubesphere.io/v1alpha1: layer2
+  name: nginx-service
+spec:
+  selector:
+    app: nginx
+  type:  LoadBalancer 
+  ports:
+    - name: http
+      port: 8088
+      targetPort: 80
+EOF
+$ kubectl apply -f layer2.yaml
+
+2. curl 192.168.3.100:8088
