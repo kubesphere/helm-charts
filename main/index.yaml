@@ -135,6 +135,21 @@ entries:
   tomcat:
   - apiVersion: v1
     appVersion: 8.5.41
+    created: "2020-06-29T13:19:55.382399249Z"
+    description: Deploy a basic tomcat application server with sidecar as web archive
+      container
+    digest: ad55d9b71c7eee0025aa75ab07efaceb70f0ab2b5b06c45426df188ed25e65d5
+    home: https://github.com/yahavb
+    icon: http://tomcat.apache.org/res/images/tomcat.png
+    maintainers:
+    - email: ybiran@ananware.systems
+      name: yahavb
+    name: tomcat
+    urls:
+    - https://charts.kubesphere.io/main/tomcat-0.4.1+1.tgz
+    version: 0.4.1+1
+  - apiVersion: v1
+    appVersion: 8.5.41
     created: "2020-05-12T00:56:27.271662814Z"
     description: Deploy a basic tomcat application server with sidecar as web archive
       container
@@ -148,4 +163,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/main/tomcat-0.4.0-r1.tgz
     version: 0.4.0-r1
-generated: "2020-06-08T10:41:41.067756366Z"
+generated: "2020-06-29T13:19:55.381209723Z"
