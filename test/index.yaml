@@ -129,6 +129,22 @@ entries:
   mongodb:
   - apiVersion: v1
     appVersion: 4.2.1
+    created: "2020-06-29T09:49:32.396682624Z"
+    description: MongoDB is a general purpose, document-based, distributed database
+      built for modern application developers and for the cloud era.
+    digest: 44d4eaf4227e1eb7d21eed149973524b94bced57e92471b77f5fd4b4d8efb7b5
+    icon: https://upload.wikimedia.org/wikipedia/en/thumb/4/45/MongoDB-Logo.svg/250px-MongoDB-Logo.svg.png
+    maintainers:
+    - email: kubesphere@yunify.com
+      name: KubeSphere
+    name: mongodb
+    sources:
+    - https://github.com/kubesphere/helm-charts/tree/master/src/test/mongodb
+    urls:
+    - https://charts.kubesphere.io/test/mongodb-0.2.0.tgz
+    version: 0.2.0
+  - apiVersion: v1
+    appVersion: 4.2.1
     created: "2020-05-12T00:56:38.714536544Z"
     description: MongoDB is a general purpose, document-based, distributed database
       built for modern application developers and for the cloud era.
@@ -144,6 +160,23 @@ entries:
     - https://charts.kubesphere.io/test/mongodb-0.1.3.tgz
     version: 0.1.3
   postgresql:
+  - apiVersion: v1
+    appVersion: "12.0"
+    created: "2020-06-29T09:49:32.396982207Z"
+    description: PostgreSQL is a powerful, open source object-relational database
+      system with over 30 years of active development that has earned it a strong
+      reputation for reliability, feature robustness, and performance.
+    digest: 3a4c1f720432211c452150aa8271362ac8ed1cf35af9a619c3bc2b25dd6c4b8f
+    icon: https://wiki.postgresql.org/images/a/a4/PostgreSQL_logo.3colors.svg
+    maintainers:
+    - email: kubesphere@yunify.com
+      name: KubeSphere
+    name: postgresql
+    sources:
+    - https://github.com/kubesphere/helm-charts/tree/master/src/test/postgresql
+    urls:
+    - https://charts.kubesphere.io/test/postgresql-0.2.0.tgz
+    version: 0.2.0
   - apiVersion: v1
     appVersion: "12.0"
     created: "2020-05-12T00:56:38.71512554Z"
@@ -164,6 +197,22 @@ entries:
   rabbitmq:
   - apiVersion: v1
     appVersion: 3.8.1
+    created: "2020-06-29T09:49:32.397250221Z"
+    description: RabbitMQ is the most widely deployed open source message broker.
+      It supports multiple messaging protocols.
+    digest: 4071b67521c412812bcccb25211c0ef03216de7d2d024829b03943b6080ab3ca
+    icon: https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/RabbitMQ_logo.svg/120px-RabbitMQ_logo.svg.png
+    maintainers:
+    - email: kubesphere@yunify.com
+      name: KubeSphere
+    name: rabbitmq
+    sources:
+    - https://github.com/kubesphere/helm-charts/tree/master/src/test/rabbitmq
+    urls:
+    - https://charts.kubesphere.io/test/rabbitmq-0.2.0.tgz
+    version: 0.2.0
+  - apiVersion: v1
+    appVersion: 3.8.1
     created: "2020-05-12T00:56:38.715636734Z"
     description: RabbitMQ is the most widely deployed open source message broker.
       It supports multiple messaging protocols.
@@ -179,6 +228,22 @@ entries:
     - https://charts.kubesphere.io/test/rabbitmq-0.1.3.tgz
     version: 0.1.3
   redis:
+  - apiVersion: v1
+    appVersion: 5.0.5
+    created: "2020-06-29T09:49:32.397570248Z"
+    description: Redis is an open source (BSD licensed), in-memory data structure
+      store, used as a database, cache and message broker.
+    digest: ef6de1d4971c783517d4cd2fec435f7d7a141297b4e19aaa531fd3a9a59a8eff
+    icon: https://upload.wikimedia.org/wikipedia/en/6/6b/Redis_Logo.svg
+    maintainers:
+    - email: kubesphere@yunify.com
+      name: KubeSphere
+    name: redis
+    sources:
+    - https://github.com/kubesphere/helm-charts/tree/master/src/test/redis
+    urls:
+    - https://charts.kubesphere.io/test/redis-0.2.0.tgz
+    version: 0.2.0
   - apiVersion: v1
     appVersion: 5.0.5
     created: "2020-05-12T00:56:38.716330068Z"
@@ -214,4 +279,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/test/skywalking-0.6.0.tgz
     version: 0.6.0
-generated: "2020-06-09T02:57:43.367327722Z"
+generated: "2020-06-29T09:49:32.396200714Z"
