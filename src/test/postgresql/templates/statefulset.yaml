@@ -10,6 +10,7 @@ spec:
     matchLabels:
       app.kubernetes.io/name: {{ include "postgresql.name" . }}
       app.kubernetes.io/instance: {{ .Release.Name }}
+  serviceName: {{ include "postgresql.fullname" . }}
   {{- if .Values.persistence.enabled }}
   volumeClaimTemplates:
   - metadata:
