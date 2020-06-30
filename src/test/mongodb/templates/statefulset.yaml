@@ -10,6 +10,7 @@ spec:
     matchLabels:
       app.kubernetes.io/name: {{ include "mongodb.name" . }}
       app.kubernetes.io/instance: {{ .Release.Name }}
+  serviceName: {{ include "mongodb.fullname" . }}
   volumeClaimTemplates:
   - metadata:
       name: db-data
