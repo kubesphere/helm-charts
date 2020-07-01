@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  labels:
+    control-plane: {{ template "agent.name" . }}
+    controller-tools.k8s.io: "1.0"
+  name: {{ template "agent.name" . }}
+  namespace: {{ .Values.namespace }}
+spec:
+  selector:
+    matchLabels:
+    {{- include "agent.matchLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+      {{- include "agent.matchLabels" . | nindent 8 }}
+    spec:
+      hostNetwork: {{ .Values.agent.hostNetwork }}
+      containers:
+      - env:
+        - name: MY_NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: MY_NODE_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
+        image: {{ .Values.agent.image.repository }}:{{ .Values.agent.image.tag }}
+        imagePullPolicy: {{ .Values.agent.image.pullPolicy }}
+        name: {{ template "agent.name" . }}
+        resources:
+{{ toYaml .Values.agent.resources | indent 10 }}
+        securityContext:
+          capabilities:
+            add:
+            - NET_ADMIN 
