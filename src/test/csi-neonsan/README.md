@@ -33,23 +33,21 @@ The following table lists the configurable parameters of the redis chart and the
 
 Parameter | Description | Default
 --- | --- | ---
-`driver.name` | Name of the CSI driver | `neonsan.csi.qingcloud.com`
+`driver.name` | Name of the CSI driver | `neonsan.csi.qingstor.com`
 `driver.repository` | Image of CSI plugin| `csiplugin/csi-neonsan`
 `driver.tag` | Tag of CSI plugin | `v1.2.0-rc1 `
 `driver.pullPolicy` | Image pull policy of CSI plugin | `IfNotPresent`
 `driver.config.path` | Config path of NeonSAN | `/etc/neonsan`
 `driver.config.file` | Config file name of NeonSAN | `qbd.conf`
-`provisioner.repository` | Image of csi-provisioner | `quay.azk8s.cn/k8scsi/csi-provisioner`
+`provisioner.repository` | Image of csi-provisioner | `csiplugin/k8scsi/csi-provisioner`
 `provisioner.tag` | Tag of csi-provisioner | `v1.5.0`
 `provisioner.volumeNamePrefix` | Prefix of volume name created by the driver | `pvc`
-`attacher.repository` | Image of csi-attacher | `quay.azk8s.cn/k8scsi/csi-attacher`
+`attacher.repository` | Image of csi-attacher | `csiplugin/k8scsi/csi-attacher`
 `attacher.tag` | Tag of csi-attacher | `v2.1.1`
-`resizer.repository` | Image of csi-resizer | `quay.azk8s.cn/k8scsi/csi-resizer`
+`resizer.repository` | Image of csi-resizer | `csiplugin/k8scsi/csi-resizer`
 `resizere.tag` | Tag of csi-resizer | `v0.4.0`
-`snapshotter.repository` | Image of csi-snapshotter | `quay.azk8s.cn/k8scsi/csi-snapshotter`
+`snapshotter.repository` | Image of csi-snapshotter | `csiplugin/csi-snapshotter`
 `snapshotter.tag` | Tag of csi-snapshotter | `v2.0.1`
-`registar.repository` | Image of csi-node-driver-registrar| `quay.azk8s.cn/k8scsi/csi-node-driver-registrar`
+`registar.repository` | Image of csi-node-driver-registrar| `csiplugin/csi-node-driver-registrar`
 `registar.tag` | Tag of csi-node-driver-registrar | `v1.2.0`
-`snapshotController.repository` | Image of snapshot-controller | `quay.azk8s.cn/k8scsi/snapshot-controller`
-`snapshotController.tag` | Tag of snapshot-controller | `v2.0.1`
 

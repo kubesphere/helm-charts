@@ -11,20 +11,15 @@
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 #  See the License for the specific language governing permissions and
 #  limitations under the License.
-apiVersion: v2
 
-appVersion: 1.2.0
-name: csi-neonsan
-description: A Helm chart for NeonSAN CSI Driver
-version: 1.2.0
-kubeVersion: ">=1.14.0-0"
-home: https://github.com/yunify/qingstor-csi
-sources:
-  - https://github.com/yunify/qingstor-csi
-keywords:
-  - neonsan
-  - csi
-maintainers:
-  - name: Min Zhang
-    email: arminzhang@yunify.com
-icon: https://s3.qingcloud.com/files/2020/01/qing-stor-neon-san.png
+apiVersion: storage.k8s.io/v1beta1
+kind: CSIDriver
+metadata:
+  name: {{ .Values.driver.name }}
+spec:
+  attachRequired: true
+  podInfoOnMount: false
+{{- if semverCompare ">=1.16" .Capabilities.KubeVersion.GitVersion }}
+  volumeLifecycleModes:
+  - Persistent
+{{- end}}
