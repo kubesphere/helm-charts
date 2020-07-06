@@ -14,17 +14,17 @@
 apiVersion: v2
 
 appVersion: 1.2.0
-name: csi-neonsan
-description: A Helm chart for NeonSAN CSI Driver
+name: csi-qingcloud
+description: A Helm chart for Qingcloud CSI Driver
 version: 1.2.0
 kubeVersion: ">=1.14.0-0"
-home: https://github.com/yunify/qingstor-csi
+home: https://github.com/yunify/qingcloud-csi
 sources:
-  - https://github.com/yunify/qingstor-csi
+  - https://github.com/yunify/qingcloud-csi
 keywords:
-  - neonsan
+  - qingcloud
   - csi
 maintainers:
   - name: Min Zhang
     email: arminzhang@yunify.com
-icon: https://s3.qingcloud.com/files/2020/01/qing-stor-neon-san.png
+icon: https://s3.qingcloud.com/static/assets/images/icons/common/nav_logo_white.svg?v=1510299508
