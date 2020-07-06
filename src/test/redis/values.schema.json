@@ -1,0 +1,31 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "persistence": {
+      "type": "object",
+      "title": "Data Persistence",
+      "form": true,
+      "properties": {
+        "size": {
+          "type": "string",
+          "title": "Persistent Volume Size",
+          "form": true,
+          "render": "slider",
+          "sliderMin": 1,
+          "sliderMax": 100,
+          "sliderUnit": "Gi"
+        }
+      }
+    },
+    "password": {
+      "type": "string",
+      "title": "Password",
+      "form": true,
+      "regex": "^([a-zA-Z0-9_!@#$%^&*()./;]{6,}|)$"
+    }
+  },
+  "required": [
+    "persistence"
+  ]
+}
