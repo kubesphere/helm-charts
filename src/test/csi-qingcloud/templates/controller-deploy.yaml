@@ -1,0 +1,176 @@
+#  Copyright (C) 2018 Yunify, Inc.
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this work except in compliance with the License.
+#  You may obtain a copy of the License in the LICENSE file, or at:
+#
+#  http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: csi-qingcloud-controller
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: csi-qingcloud
+    role: controller
+    owner: yunify
+    ver: {{ .Values.driver.tag }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: csi-qingcloud
+      role: controller
+      owner: yunify
+      ver: {{ .Values.driver.tag }}
+  template:
+    metadata:
+      labels:
+        app: csi-qingcloud
+        role: controller
+        owner: yunify
+        ver: {{ .Values.driver.tag }}
+    spec:
+      serviceAccount: csi-qingcloud-controller
+      containers:
+      - name: csi-provisioner
+        image: "{{ .Values.provisioner.repository }}:{{ .Values.provisioner.tag }}"
+        resources:
+          limits:
+            memory: "80Mi"
+            cpu: "80m"
+          requests:
+            memory: "80Mi"
+            cpu: "80m"
+        args:
+        - "--csi-address=$(ADDRESS)"
+        - "--enable-leader-election"
+        - "--feature-gates=Topology=true"
+        - "--leader-election-type=leases"
+        - "--retry-interval-max=5m"
+        - "--retry-interval-start=5s"
+        - "--timeout=90s"
+        - "--worker-threads=5"
+        - "--volume-name-prefix={{ .Values.provisioner.volumeNamePrefix }}"
+        - "--v=5"
+        env:
+        - name: ADDRESS
+          value: /csi/csi.sock
+        imagePullPolicy: "IfNotPresent"
+        volumeMounts:
+        - name: socket-dir
+          mountPath: /csi
+      - name: csi-attacher
+        image: "{{ .Values.attacher.repository }}:{{ .Values.attacher.tag }}"
+        resources:
+          limits:
+            memory: "80Mi"
+            cpu: "80m"
+          requests:
+            memory: "80Mi"
+            cpu: "80m"
+        args:
+        - "--csi-address=$(ADDRESS)"
+        - "--leader-election"
+        - "--retry-interval-max=5m"
+        - "--retry-interval-start=5s"
+        - "--timeout=90s"
+        - "--worker-threads=5"
+        - "--v=5"
+        env:
+        - name: ADDRESS
+          value: /csi/csi.sock
+        - name: MY_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
+        imagePullPolicy: "IfNotPresent"
+        volumeMounts:
+        - name: socket-dir
+          mountPath: /csi
+{{- if semverCompare ">=1.17" .Capabilities.KubeVersion.GitVersion }}
+      - name: csi-snapshotter
+        image: "{{ .Values.snapshotter.repository }}:{{ .Values.snapshotter.tag }}"
+        resources:
+          limits:
+            memory: "20Mi"
+            cpu: "20m"
+          requests:
+            memory: "20Mi"
+            cpu: "20m"
+        args:
+          - "--csi-address=$(ADDRESS)"
+          - "--leader-election=false"
+          - "--v=5"
+        env:
+          - name: ADDRESS
+            value: /csi/csi.sock
+        imagePullPolicy: "IfNotPresent"
+        volumeMounts:
+          - name: socket-dir
+            mountPath: /csi
+{{- end }}
+{{- if semverCompare ">=1.15" .Capabilities.KubeVersion.GitVersion }}
+      - name: csi-resizer
+        image: "{{ .Values.resizer.repository }}:{{ .Values.resizer.tag }}"
+        resources:
+          limits:
+            memory: "20Mi"
+            cpu: "20m"
+          requests:
+            memory: "20Mi"
+            cpu: "20m"
+        args:
+          - "--csi-address=$(ADDRESS)"
+          - "--leader-election"
+          - "--v=5"
+        env:
+          - name: ADDRESS
+            value: /csi/csi.sock
+        imagePullPolicy: "IfNotPresent"
+        volumeMounts:
+          - name: socket-dir
+            mountPath: /csi
+{{- end }}
+      - name: csi-qingcloud
+        image: "{{ .Values.driver.repository }}:{{ .Values.driver.tag }}"
+        resources:
+          limits:
+            memory: "50Mi"
+            cpu: "50m"
+          requests:
+            memory: "50Mi"
+            cpu: "50m"
+        args :
+          - "--config=/etc/config/config.yaml"
+          - "--drivername={{ .Values.driver.name }}"
+          - "--endpoint=$(CSI_ENDPOINT)"
+          - "--maxvolume={{ .Values.driver.maxVolume }}"
+          - "--nodeid=$(NODE_ID)"
+          - "--v=5"
+        env:
+        - name: NODE_ID
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        - name: CSI_ENDPOINT
+          value: unix://csi/csi.sock
+        imagePullPolicy: {{ .Values.driver.pullPolicy }}
+        volumeMounts:
+        - name: socket-dir
+          mountPath: /csi
+        - name: server-config
+          mountPath: /etc/config
+      volumes:
+      - name: socket-dir
+        emptyDir:
+      - name: server-config
+        configMap:
+          name: csi-qingcloud
