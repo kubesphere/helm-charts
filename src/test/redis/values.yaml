@@ -14,7 +14,7 @@ config: |-
   # redis.conf
   appendonly yes
 
-password:
+password: ""
 
 service:
   type: ClusterIP
