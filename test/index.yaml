@@ -352,4 +352,25 @@ entries:
     urls:
     - https://charts.kubesphere.io/test/skywalking-0.6.0.tgz
     version: 0.6.0
-generated: "2020-07-06T13:06:05.237856782Z"
+  snapshot-controller:
+  - apiVersion: v2
+    appVersion: 2.1.1
+    created: "2020-07-07T13:36:53.991745574Z"
+    description: A Helm chart for snapshot-controller
+    digest: 2a11978841f9974323bd41367b1e758274927db8d146eaa531b5aa385af535c9
+    home: https://github.com/kubernetes-csi/external-snapshotter
+    keywords:
+    - snapshot
+    - controller
+    - csi
+    kubeVersion: '>=1.17.0-0'
+    maintainers:
+    - email: arminzhang@yunify.com
+      name: Min Zhang
+    name: snapshot-controller
+    sources:
+    - https://github.com/kubesphere/helm-charts
+    urls:
+    - https://charts.kubesphere.io/test/snapshot-controller-0.1.0.tgz
+    version: 0.1.0
+generated: "2020-07-07T13:36:53.991244626Z"
