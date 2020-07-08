@@ -1,0 +1,38 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "persistence": {
+      "type": "object",
+      "title": "Data Persistence",
+      "form": true,
+      "properties": {
+        "size": {
+          "type": "string",
+          "title": "Persistent Volume Size",
+          "form": true,
+          "render": "slider",
+          "sliderMin": 1,
+          "sliderUnit": "Gi"
+        }
+      }
+    },
+    "rootUsername": {
+      "type": "string",
+      "title": "Root Username",
+      "form": true,
+      "regex": "^((?!root)\\w)+$"
+    },
+    "rootPassword": {
+      "type": "string",
+      "title": "Root Password",
+      "form": true,
+      "regex": "(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{8,32}"
+    }
+  },
+  "required": [
+    "persistence",
+    "rootUsername",
+    "rootPassword"
+  ]
+}
