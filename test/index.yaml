@@ -170,6 +170,22 @@ entries:
   mongodb:
   - apiVersion: v1
     appVersion: 4.2.1
+    created: "2020-07-09T02:22:10.693767578Z"
+    description: MongoDB is a general purpose, document-based, distributed database
+      built for modern application developers and for the cloud era.
+    digest: 6c4bc577bf53940d16b7360ca3d698c547f95bbd51c74daace0d4a2ae77200d5
+    icon: https://upload.wikimedia.org/wikipedia/en/thumb/4/45/MongoDB-Logo.svg/250px-MongoDB-Logo.svg.png
+    maintainers:
+    - email: kubesphere@yunify.com
+      name: KubeSphere
+    name: mongodb
+    sources:
+    - https://github.com/kubesphere/helm-charts/tree/master/src/test/mongodb
+    urls:
+    - https://charts.kubesphere.io/test/mongodb-0.3.0.tgz
+    version: 0.3.0
+  - apiVersion: v1
+    appVersion: 4.2.1
     created: "2020-06-29T13:19:55.856314199Z"
     description: MongoDB is a general purpose, document-based, distributed database
       built for modern application developers and for the cloud era.
@@ -219,6 +235,23 @@ entries:
   postgresql:
   - apiVersion: v1
     appVersion: "12.0"
+    created: "2020-07-09T02:22:10.694691508Z"
+    description: PostgreSQL is a powerful, open source object-relational database
+      system with over 30 years of active development that has earned it a strong
+      reputation for reliability, feature robustness, and performance.
+    digest: c5b34f2ec4a7d06ff910816aa1ba0fcde826bda874123a6241f844b08b29936b
+    icon: https://wiki.postgresql.org/images/a/a4/PostgreSQL_logo.3colors.svg
+    maintainers:
+    - email: kubesphere@yunify.com
+      name: KubeSphere
+    name: postgresql
+    sources:
+    - https://github.com/kubesphere/helm-charts/tree/master/src/test/postgresql
+    urls:
+    - https://charts.kubesphere.io/test/postgresql-0.3.0.tgz
+    version: 0.3.0
+  - apiVersion: v1
+    appVersion: "12.0"
     created: "2020-06-29T13:19:55.857004457Z"
     description: PostgreSQL is a powerful, open source object-relational database
       system with over 30 years of active development that has earned it a strong
@@ -252,6 +285,22 @@ entries:
     - https://charts.kubesphere.io/test/postgresql-0.1.2.tgz
     version: 0.1.2
   rabbitmq:
+  - apiVersion: v1
+    appVersion: 3.8.1
+    created: "2020-07-09T02:22:10.695282077Z"
+    description: RabbitMQ is the most widely deployed open source message broker.
+      It supports multiple messaging protocols.
+    digest: 012914f569a9c92acb77844fd8746150a5aec03a20093fbd49f137948833ec1b
+    icon: https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/RabbitMQ_logo.svg/120px-RabbitMQ_logo.svg.png
+    maintainers:
+    - email: kubesphere@yunify.com
+      name: KubeSphere
+    name: rabbitmq
+    sources:
+    - https://github.com/kubesphere/helm-charts/tree/master/src/test/rabbitmq
+    urls:
+    - https://charts.kubesphere.io/test/rabbitmq-0.3.0.tgz
+    version: 0.3.0
   - apiVersion: v1
     appVersion: 3.8.1
     created: "2020-06-29T13:19:55.857540651Z"
@@ -373,4 +422,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/test/snapshot-controller-0.1.0.tgz
     version: 0.1.0
-generated: "2020-07-07T13:36:53.991244626Z"
+generated: "2020-07-09T02:22:10.693297044Z"
