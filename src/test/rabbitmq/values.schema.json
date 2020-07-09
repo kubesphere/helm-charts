@@ -1,0 +1,64 @@
+{
+  "$schema": "https://json-schema.org/draft-07/schema#",
+  "type": "object",
+  "properties": {
+    "persistence": {
+      "type": "object",
+      "title": "Data Persistence",
+      "form": true,
+      "properties": {
+        "enabled": {
+          "type": "boolean",
+          "title": "Enabled",
+          "form": true
+        },
+        "size": {
+          "type": "string",
+          "title": "Persistent Volume Size",
+          "form": true,
+          "render": "slider",
+          "sliderMin": 1,
+          "sliderUnit": "Gi"
+        }
+      }
+    },
+    "extraPlugins": {
+      "type": "array",
+      "title": "Extra Plugins to Enable",
+      "form": true,
+      "items": {
+        "type": "string"
+      }
+    },
+    "extraConfigurations": {
+      "type": "string",
+      "title": "Extra Configurations",
+      "form": true,
+      "render": "textArea"
+    },
+    "advancedConfigurations": {
+      "type": "string",
+      "title": "Advanced Configurations",
+      "form": true,
+      "render": "textArea"
+    },
+    "defaultUsername": {
+      "type": "string",
+      "title": "Root Username",
+      "form": true,
+      "regex": "^\\w{1,32}$"
+    },
+    "defaultPassword": {
+      "type": "string",
+      "title": "Root Password",
+      "description": "Must contains at least one digit, one lowercase letter, and one uppercase letter",
+      "form": true,
+      "regex": "^(?=.*\\d)(?=.*[a-z])(?=.*[A-Z]).{8,32}$"
+    }
+  },
+  "required": [
+    "persistence",
+    "defaultUsername",
+    "defaultPassword"
+  ]
+}
