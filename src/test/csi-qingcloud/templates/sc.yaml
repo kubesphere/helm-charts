@@ -17,6 +17,8 @@ apiVersion: storage.k8s.io/v1
 kind: StorageClass
 metadata:
   name: {{ .Values.sc.name }}
+  annotations:
+    storageclass.kubesphere.io/supported-access-modes: '["ReadWriteOnce"]'
 provisioner: {{ .Values.driver.name }}
 parameters:
   type: "{{ .Values.sc.type }}"
@@ -25,5 +27,7 @@ parameters:
   {{- if .Values.sc.tags}}
   tags: {{ .Values.sc.tags }}
   {{- end}}
-reclaimPolicy: Delete
+reclaimPolicy: {{ .Values.sc.reclaimPolicy }}
+allowVolumeExpansion: {{ .Values.sc.allowVolumeExpansion }}
+volumeBindingMode: {{ .Values.sc.volumeBindingMode }}
 {{- end}}
