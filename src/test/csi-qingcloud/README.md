@@ -64,4 +64,6 @@ Parameter | Description | Default
 `sc.type` | Type parameter of storage class | `0`
 `sc.tags` | Tag parameter of storage class | ``
 `sc.fsType` | FsType parameter of storage class | `ext4`
-
+`sc.reclaimPolicy` | ReclaimPolicy parameter of storage class | `Delete`
+`sc.allowVolumeExpansion` | AllowVolumeExpansion parameter of storage class | `true`
+`sc.volumeBindingMode` | VolumeBindingMode parameter of storage class | `Immediate`

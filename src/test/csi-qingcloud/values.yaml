@@ -55,4 +55,7 @@ sc:
   replica: 2
   tags:
   fsType: ext4
+  reclaimPolicy: Delete
+  allowVolumeExpansion: true
+  volumeBindingMode: Immediate
 
