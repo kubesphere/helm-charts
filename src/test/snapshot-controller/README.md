@@ -1,4 +1,4 @@
-# csi-neonsan 
+# snapshot-controller 
 
 ## TL;DR;
 
