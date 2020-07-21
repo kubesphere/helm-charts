@@ -108,6 +108,9 @@ spec:
               value: unix://csi/csi.sock
           imagePullPolicy: "IfNotPresent"
           volumeMounts:
+            - mountPath: {{ .Values.driver.kubeletDir }}
+              mountPropagation: Bidirectional
+              name: kubelet-dir
             - name: socket-dir
               mountPath: /csi
             - name: dev-dir
@@ -119,6 +122,9 @@ spec:
             - name: server-config
               mountPath: /etc/config
       volumes:
+        - name: kubelet-dir
+          hostPath:
+            path: {{ .Values.driver.kubeletDir }}
         - name: socket-dir
           hostPath:
             path: "/var/lib/kubelet/plugins/{{ .Values.driver.name }}/"
