@@ -130,6 +130,26 @@ entries:
   csi-qingcloud:
   - apiVersion: v2
     appVersion: 1.2.0
+    created: "2020-07-21T12:15:52.049603391Z"
+    description: A Helm chart for Qingcloud CSI Driver
+    digest: 22c714d3ff9443afdeac8ed8e797d9b27685c94a9b312e7064c5191cb41788a3
+    home: https://github.com/yunify/qingcloud-csi
+    icon: https://s3.qingcloud.com/static/assets/images/icons/common/nav_logo_white.svg?v=1510299508
+    keywords:
+    - qingcloud
+    - csi
+    kubeVersion: '>=1.14.0-0'
+    maintainers:
+    - email: arminzhang@yunify.com
+      name: Min Zhang
+    name: csi-qingcloud
+    sources:
+    - https://github.com/yunify/qingcloud-csi
+    urls:
+    - https://charts.kubesphere.io/test/csi-qingcloud-1.2.2.tgz
+    version: 1.2.2
+  - apiVersion: v2
+    appVersion: 1.2.0
     created: "2020-07-15T00:08:52.149056823Z"
     description: A Helm chart for Qingcloud CSI Driver
     digest: 9f637e537ee0c59cd913f050180d64b712d33826d14bcd52ef0c081d579faa5f
@@ -442,4 +462,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/test/snapshot-controller-0.1.0.tgz
     version: 0.1.0
-generated: "2020-07-15T00:08:52.147748093Z"
+generated: "2020-07-21T12:15:52.048274746Z"
