@@ -27,6 +27,7 @@
 Dangerfile
 Gemfile
 Gemfile.lock
+gems/
 ci/
 doc/
 examples/

@@ -1,6 +1,6 @@
 image:
-  repository: registry
-  tag: '2.7.1'
+  repository: registry.gitlab.com/gitlab-org/build/cng/gitlab-container-registry
+  tag: 'v2.9.1-gitlab'
   pullPolicy: 'IfNotPresent'
   pullSecrets: []
 
@@ -101,9 +101,10 @@ global:
 
 ## Control the InitContainer behaviors.
 init:
-  image: "busybox"
-  tag: "latest"
-  pullPolicy: "IfNotPresent"
+  image:
+    # repository:
+    # tag:
+    pullPolicy: "IfNotPresent"
   resources:
     requests:
       cpu: 50m
@@ -115,6 +116,13 @@ init:
     fi
     # Place the `http.secret` value from the kubernetes secret
     sed -i -e 's@HTTP_SECRET@'"$(cat /config/httpSecret)"'@' /registry/config.yml
+    # Populate sensitive registry notification secrets in the config file
+    if [ -d /config/notifications ]; then
+      for i in /config/notifications/*; do
+        filename=$(basename $i);
+        sed -i -e 's@'"${filename}"'@'"$(cat $i)"'@' /registry/config.yml;
+      done
+    fi
     # Insert any provided `storage` block from kubernetes secret
     if [ -d /config/storage ]; then
       # Copy contents of storage secret(s)
@@ -162,6 +170,12 @@ authAutoRedirect: false
 
 maxUnavailable: 1
 
+# updateStrategy is utilized to configure the desired upgrade approach and
+# configuration for the deployment.  See the Kubernetes documentation
+# related to this subject.
+# https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy
+updateStrategy: {}
+
 # if minReplicas is >1, shared storage MUST be used.
 hpa:
   minReplicas: 2
@@ -204,9 +218,17 @@ debug:
 # receiving a SIGTERM signal
 draintimeout: '0'
 
+# Enable the registry to return relative URLs in Location headers
+relativeurls: false
+
 # https://docs.docker.com/registry/configuration/#health
 health:
   storagedriver:
     enabled: false
     interval: 10s
     threshold: 3
+
+## Allow to overwrite under which User and Group we're running.
+securityContext:
+  runAsUser: 1000
+  fsGroup: 1000

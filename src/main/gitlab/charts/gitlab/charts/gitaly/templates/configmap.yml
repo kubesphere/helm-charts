@@ -1,20 +1,20 @@
-{{- if .Values.enabled -}}
+{{- if .Values.global.gitaly.enabled -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: {{ template "fullname" . }}
   namespace: {{ $.Release.Namespace }}
   labels:
-{{ include "gitlab.standardLabels" . | indent 4 }}
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
 data:
   configure: |
     set -e
     mkdir -p /init-secrets/gitaly /init-secrets/shell
     cp -v -r -L /init-config/.gitlab_shell_secret  /init-secrets/shell/.gitlab_shell_secret
     cp -v -r -L /init-config/gitaly_token  /init-secrets/gitaly/gitaly_token
-    {{- if .Values.global.redis.password.enabled }}
-    mkdir -p /init-secrets/redis
-    cp -v -r -L /init-config/redis_password  /init-secrets/redis/redis_password
+    {{- if $.Values.global.gitaly.tls.enabled }}
+    cp -v -L /init-config/gitaly.crt /init-secrets/gitaly/gitaly.crt
+    cp -v -L /init-config/gitaly.key /init-secrets/gitaly/gitaly.key
     {{- end }}
   config.toml.erb: |
     # The directory where Gitaly's executables are stored
@@ -23,9 +23,22 @@ data:
     # listen on a TCP socket. This is insecure (no authentication)
     listen_addr = "0.0.0.0:{{ .Values.service.internalPort }}"
 
+    # Directory where internal sockets reside
+    internal_socket_dir = "/home/git"
+
+    {{- if $.Values.global.gitaly.tls.enabled }}
+    tls_listen_addr = "0.0.0.0:{{ .Values.service.tls.internalPort }}"
+    {{- end }}
+
     # If metrics collection is enabled, inform gitaly about that
     {{- if .Values.metrics.enabled }}
     prometheus_listen_addr = "localhost:{{ .Values.metrics.metricsPort }}"
+    {{- end }}
+
+    {{- if $.Values.global.gitaly.tls.enabled }}
+    [tls]
+    certificate_path = '/etc/gitlab-secrets/gitaly/gitaly.crt'
+    key_path = '/etc/gitlab-secrets/gitaly/gitaly.key'
     {{- end }}
 
     <% @storages = [ {{- range (coalesce .Values.internal.names .Values.global.gitaly.internal.names) }} {{ . | quote }}, {{- end }} ] %>
@@ -52,6 +65,7 @@ data:
     {{- if .rubySentryDsn }}
     ruby_sentry_dsn = "{{ .rubySentryDsn }}"
     {{- end }}
+    dir = "/var/log/gitaly"
     {{- if .sentryEnvironment }}
     sentry_environment = "{{ .sentryEnvironment }}"
     {{- end }}
@@ -95,6 +109,24 @@ data:
     # The directory where gitlab-shell is installed
     dir = "/srv/gitlab-shell"
 
+    [gitlab]
+    # location of shared secret for GitLab Shell / API interaction
+    secret_file = "/etc/gitlab-secrets/shell/.gitlab_shell_secret"
+    # URL of API
+    url = "http://{{ template "gitlab.workhorse.host" . }}:{{ template "gitlab.workhorse.port" . }}/"
+
+    [gitlab.http-settings]
+    # read_timeout = 300
+    # user = someone
+    # password = somepass
+    # ca_file = /etc/ssl/cert.pem
+    # ca_path = /etc/pki/tls/certs
+    self_signed_cert = false
+
+    [hooks]
+    # directory containing custom hooks
+    custom_hooks_dir = "/home/git/custom_hooks"
+
     {{- if .Values.shell.concurrency }}
     {{- range .Values.shell.concurrency }}
     {{- if and .rpc .maxPerRepo }}
@@ -104,42 +136,5 @@ data:
     {{- end }}
     {{- end }}
     {{- end }}
-
-  shell-config.yml.erb: |
-    # GitLab user. git by default
-    user: git
-
-    # Url to gitlab instance. Used for api calls. Should end with a slash.
-    gitlab_url: "http://{{ template "gitlab.unicorn.host" . }}:{{ default 8080 .Values.unicorn.port }}/"
-
-    secret_file: /etc/gitlab-secrets/shell/.gitlab_shell_secret
-
-    http_settings:
-      self_signed_cert: false
-
-    # File used as authorized_keys for gitlab user
-    auth_file: "/home/git/.ssh/authorized_keys"
-
-    # Redis settings used for pushing commit notices to gitlab
-    redis:
-      host: {{ template "gitlab.redis.host" . }}
-      port: {{ template "gitlab.redis.port" . }}
-      {{- if .Values.global.redis.password.enabled }}
-      pass: "<%= File.read("/etc/gitlab-secrets/redis/redis_password").strip.dump[1..-2] %>"
-      {{- end }}
-      database: nil
-      namespace: resque:gitlab
-
-    # Log file.
-    # Default is gitlab-shell.log in the root directory.
-    log_file: "/var/log/gitaly/gitlab-shell.log"
-
-    # Log level. INFO by default
-    log_level: INFO
-
-    # Audit usernames.
-    # Set to true to see real usernames in the logs instead of key ids, which is easier to follow, but
-    # incurs an extra API call on every gitlab-shell command.
-    audit_usernames: false
 # Leave this here - This line denotes end of block to the parser.
 {{- end }}

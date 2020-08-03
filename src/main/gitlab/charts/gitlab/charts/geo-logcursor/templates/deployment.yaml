@@ -1,0 +1,200 @@
+{{- if include "geo-logcursor.enabled" $  }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "fullname" . }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
+  annotations:
+    {{- include "gitlab.deploymentAnnotations" . | nindent 4 }}
+spec:
+  {{- if .Values.global.operator.enabled }}
+  paused: true
+  {{- end }}
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: {{ template "name" . }}
+      release: {{ .Release.Name }}
+  template:
+    metadata:
+      labels:
+        app: {{ template "name" . }}
+        release: {{ .Release.Name }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yml") . | sha256sum }}
+        cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
+      {{- range $key, $value := .Values.annotations }}
+        {{ $key }}: {{ $value | quote }}
+      {{- end }}
+    spec:
+      securityContext:
+        runAsUser: {{ .Values.securityContext.runAsUser }}
+        fsGroup: {{ .Values.securityContext.fsGroup }}
+      {{- if eq (default .Values.global.antiAffinity .Values.antiAffinity) "hard" }}
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - topologyKey: "kubernetes.io/hostname"
+              labelSelector:
+                matchLabels:
+                  app: {{ template "name" . }}
+                  release: {{ .Release.Name }}
+      {{- else if eq (default .Values.global.antiAffinity .Values.antiAffinity) "soft" }}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            podAffinityTerm:
+              topologyKey: kubernetes.io/hostname
+              labelSelector:
+                matchLabels:
+                  app: {{ template "name" . }}
+                  release: {{ .Release.Name }}
+      {{- end }}
+      {{- if or .Values.serviceAccount.enabled .Values.global.serviceAccount.enabled }}
+      serviceAccountName: {{ include "gitlab.serviceAccount.name" . }}
+      {{- end }}
+      initContainers:
+        {{- include "gitlab.extraInitContainers" . | nindent 8 }}
+        {{- include "gitlab.certificates.initContainer" . | nindent 8 }}
+        - name: configure
+          command: ['sh']
+          args: [ '-c', 'sh -x /config-logcursor/configure']
+          image: {{ include "gitlab.busybox.image" (dict "local" .Values.init "global" $.Values.global.busybox) | quote }}
+          env:
+          {{- include "gitlab.extraEnv" . | nindent 10 }}
+          volumeMounts:
+          {{- include "gitlab.extraVolumeMounts" . | nindent 10 }}
+          {{- include "gitlab.psql.ssl.volumeMount" . | nindent 10 }}
+          - name: logcursor-config
+            mountPath: /config-logcursor
+            readOnly: true
+          - name: init-logcursor-secrets
+            mountPath: /init-config
+            readOnly: true
+          - name: logcursor-secrets
+            mountPath: /init-secrets
+            readOnly: false
+          resources:
+            {{- toYaml .Values.init.resources | nindent 12 }}
+        - name: dependencies
+          image: "{{ coalesce .Values.image.repository (include "image.repository" .) }}:{{ coalesce .Values.image.tag (include "gitlab.versionTag" . ) }}"
+          {{ template "gitlab.imagePullPolicy" . }}
+          args:
+            - /scripts/wait-for-deps
+          env:
+{{- if .Values.global.operator.enabled }}
+            - name: BYPASS_SCHEMA_VERSION
+              value: 'true'
+{{- end }}
+            - name: GITALY_FEATURE_DEFAULT_ON
+              value: "1"
+            - name: CONFIG_TEMPLATE_DIRECTORY
+              value: '/var/opt/gitlab/templates'
+            - name: CONFIG_DIRECTORY
+              value: '/srv/gitlab/config'
+            - name: DB_SCHEMA_TARGET
+              value: 'geo'
+            {{- include "gitlab.extraEnv" . | nindent 12 }}
+          volumeMounts:
+            {{- include "gitlab.extraVolumeMounts" . | nindent 12 }}
+            - name: logcursor-config
+              mountPath: '/var/opt/gitlab/templates'
+            - name: logcursor-secrets
+              mountPath: '/etc/gitlab'
+              readOnly: true
+            - name: logcursor-secrets
+              mountPath: /srv/gitlab/config/secrets.yml
+              subPath: rails-secrets/secrets.yml
+              readOnly: true
+          resources:
+            {{- toYaml .Values.init.resources | nindent 12 }}
+{{- include "pullsecrets" .Values.image | indent 6 }}
+      containers:
+        {{- include "gitlab.extraContainers" . | nindent 8 }}
+        - name: {{ .Chart.Name }}
+          image: "{{ coalesce .Values.image.repository (include "image.repository" .) }}:{{ coalesce .Values.image.tag (include "gitlab.versionTag" . ) }}"
+          {{ template "gitlab.imagePullPolicy" . }}
+          env:
+            - name: GITALY_FEATURE_DEFAULT_ON
+              value: "1"
+            - name: CONFIG_TEMPLATE_DIRECTORY
+              value: '/var/opt/gitlab/templates'
+            - name: CONFIG_DIRECTORY
+              value: '/srv/gitlab/config'
+            {{- include "gitlab.extraEnv" . | nindent 12 }}
+          volumeMounts:
+            - name: logcursor-config
+              mountPath: '/var/opt/gitlab/templates'
+            - name: logcursor-secrets
+              mountPath: '/etc/gitlab'
+              readOnly: true
+            - name: logcursor-secrets
+              mountPath: /srv/gitlab/config/secrets.yml
+              subPath: rails-secrets/secrets.yml
+            - name: logcursor-config
+              mountPath: '/srv/gitlab/INSTALLATION_TYPE'
+              subPath: installation_type
+            {{- include "gitlab.certificates.volumeMount" . | nindent 12 }}
+            {{- include "gitlab.extraVolumeMounts" . | nindent 12 }}
+          livenessProbe:
+            exec:
+              command:
+              - /scripts/healthcheck
+            initialDelaySeconds: {{ .Values.deployment.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.deployment.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.deployment.livenessProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.deployment.livenessProbe.successThreshold }}
+            failureThreshold: {{ .Values.deployment.livenessProbe.failureThreshold }}
+          readinessProbe:
+            exec:
+              command:
+              - /scripts/healthcheck
+            initialDelaySeconds: {{ .Values.deployment.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.deployment.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.deployment.readinessProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.deployment.readinessProbe.successThreshold }}
+            failureThreshold: {{ .Values.deployment.readinessProbe.failureThreshold }}
+          lifecycle:
+            preStop:
+              exec:
+                command: ["/bin/bash", "-c", "pkill -SIGQUIT -f 'geo_log_cursor'"]
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+      volumes:
+      {{- include "gitlab.extraVolumes" . | nindent 6 }}
+      {{- include "gitlab.psql.ssl.volume" . | nindent 6 }}
+      - name: logcursor-config
+        configMap:
+          name: {{ template "fullname" . }}
+      - name: init-logcursor-secrets
+        projected:
+          defaultMode: 0400
+          sources:
+          - secret:
+              name: {{ template "gitlab.rails-secrets.secret" . }}
+              items:
+                - key: secrets.yml
+                  path: rails-secrets/secrets.yml
+          {{- include "gitlab.redis.secrets" . | nindent 10 }}
+          - secret:
+              name: {{ template "gitlab.psql.password.secret" . }}
+              items:
+                - key: {{ template "gitlab.psql.password.key" . }}
+                  path: postgres/psql-password
+          - secret:
+              name: {{ template "gitlab.geo.psql.password.secret" . }}
+              items:
+                - key: {{ template "gitlab.geo.psql.password.key" . }}
+                  path: postgres/geo-psql-password
+      - name: logcursor-secrets
+        emptyDir:
+          medium: "Memory"
+      {{- include "gitlab.certificates.volumes" . | nindent 6 }}
+    {{- if .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml .Values.nodeSelector | nindent 8 }}
+    {{- end }}
+{{- end }}

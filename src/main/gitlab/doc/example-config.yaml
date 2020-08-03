@@ -18,18 +18,15 @@ nginx:
   serviceAccount:
     autoGenerate: true
 
-# Registry chart Provides services to Unicorn chart(s) and external clients
+# Registry chart Provides services to Webservice chart(s) and external clients
 registry:
   enabled: true
   minio:
     enabled: true
+
 # Redis chart provides Redis services to multiple charts
 redis:
-  enabled: true
-
-# If stateful, highly available Redis is required enable redis-ha and disable redis above
-redis-ha:
-  enabled: false
+  install: true
 
 # Minio chart provides Minio servics for Object Storage
 minio:
@@ -39,8 +36,8 @@ minio:
 
 # GitLab sub-chart
 gitlab:
-    # Unicorn (and workhorse) chart
-    unicorn:
+    # Webservice (and workhorse) chart
+    webservice:
       enabled: true
       psql:
     # Sidekiq chart, with split queues (see gitlab-org/charts/gitlab/charts/sidekiq/values.yaml)

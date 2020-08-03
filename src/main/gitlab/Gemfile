@@ -8,3 +8,5 @@ gem 'selenium-webdriver'
 gem 'capybara-screenshot'
 gem 'docker-api'
 gem 'rake'
+gem 'hash-deep-merge'
+

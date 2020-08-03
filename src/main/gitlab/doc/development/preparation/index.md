@@ -1,3 +1,9 @@
+---
+stage: Enablement
+group: Distribution
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # Pre-install preparations
 
 This document covers our weekly demos preparation steps but can also be useful
@@ -9,7 +15,7 @@ and should perform the setup the day prior to the demo itself:
 
 - [GKE setup](#gke-setup)
 - [External resources](#external-resources)
-- [Omniauth for Google OAuth2](#omniauth-for-google-oauth2)
+- [OmniAuth for Google OAuth2](#omniauth-for-google-oauth2)
 
 ## GKE setup
 
@@ -20,20 +26,20 @@ need to be done in this project.
 1. You will need to have the [`gcloud`](https://cloud.google.com/sdk/gcloud/) tool
    installed on your system:
 
-    ```sh
-    mkdir gcloud-build && cd gcloud-build;
-    wget https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-189.0.0-linux-x86_64.tar.gz;
-    tar -xzf google-cloud-sdk-189.0.0-linux-x86_64.tar.gz
-    ./google-cloud-sdk/install.sh
-    source google-cloud-sdk/path.bash.inc && echo "source google-cloud-sdk/path.bash.inc" >> $HOME/.profile
-    ```
+   ```shell
+   mkdir gcloud-build && cd gcloud-build;
+   wget https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-189.0.0-linux-x86_64.tar.gz;
+   tar -xzf google-cloud-sdk-189.0.0-linux-x86_64.tar.gz
+   ./google-cloud-sdk/install.sh
+   source google-cloud-sdk/path.bash.inc && echo "source google-cloud-sdk/path.bash.inc" >> $HOME/.profile
+   ```
 
 1. Run `gcloud` and interactively go through its authentication and
    initialization:
 
-    ```sh
-    ./google-cloud-sdk/bin/gcloud init
-    ```
+   ```shell
+   ./google-cloud-sdk/bin/gcloud init
+   ```
 
 ### Domain name
 
@@ -44,9 +50,9 @@ existing one.
 
 We usually use `cloud-native-win` or `k8s-ftw`.
 
-## Kube monkey
+## ChaosKube
 
-Follow our [kube monkey](../kube-monkey/index.md) guide for running kube monkey,
+Follow our [chaoskube](../chaoskube/index.md) guide for running ChaosKube,
 this is usually done after the demo.
 
 ## Git LFS
@@ -58,16 +64,16 @@ use `git lfs`:
 1. Next, have a non-text file on hand to add to your test repository via LFS.
    A good example is [the GitLab logo](https://gitlab.com/gitlab-com/gitlab-artwork/raw/master/logo/logo.png):
 
-    ```sh
-    git clone URL
-    cd project
-    curl -JLO https://gitlab.com/gitlab-com/gitlab-artwork/raw/master/logo/logo.png
-    git lfs track "*.png"
-    git add .gitattributes
-    git add logo.png
-    git commit -m "Add logo via LFS"
-    git push origin master
-    ```
+   ```shell
+   git clone URL
+   cd project
+   curl -JLO https://gitlab.com/gitlab-com/gitlab-artwork/raw/master/logo/logo.png
+   git lfs track "*.png"
+   git add .gitattributes
+   git add logo.png
+   git commit -m "Add logo via LFS"
+   git push origin master
+   ```
 
 ## External resources
 
@@ -91,7 +97,7 @@ properties section of the global chart.
 ### Redis
 
 Preparation of chart-external Redis services (as a pet or SaaS), can
-be found in [advanced/external-redis](../../advanced/external-redis/index.md).
+be found in [`advanced/external-redis`](../../advanced/external-redis/index.md).
 This can be done as documented there. Once that is configured, the chart should
 be configured with the external service by making use of the `globals.redis`
 properties section of the global chart.
@@ -99,15 +105,15 @@ properties section of the global chart.
 ### Gitaly
 
 Preparation of chart-external Gitaly services can
-be found in [advanced/external-gitaly](../../advanced/external-gitaly/index.md).
+be found in [`advanced/external-gitaly`](../../advanced/external-gitaly/index.md).
 This can be done as documented there. Once that is configured, the chart should
 be configured with the external service by making use of the `globals.gitaly`
 properties section of the global chart.
 
-## Omniauth for Google OAuth2
+## OmniAuth for Google OAuth2
 
 Configuring a deployment with the capability to integrate with GKE requires
-the use of Omniauth. You will need to ensure that a set of
+the use of OmniAuth. You will need to ensure that a set of
 **OAuth Client ID** credentials have been created for the hostname of the GitLab
 endpoint in your cluster.
 

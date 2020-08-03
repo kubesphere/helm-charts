@@ -1,16 +1,22 @@
+---
+stage: Enablement
+group: Distribution
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # Using the GitLab-Shell chart
 
 The `gitlab-shell` sub-chart provides an SSH server configured for Git SSH access to GitLab.
 
 ## Requirements
 
-This chart depends on access to Redis and Unicorn services, either as part of the
-complete GitLab chart or provided as external services reachable from the Kubernetes
+This chart depends on access to the Workhorse services, either as part of the
+complete GitLab chart or provided as an external service reachable from the Kubernetes
 cluster this chart is deployed onto.
 
 ## Design Choices
 
-In order to easily support SSH replicas, and avoid using shared storage for the ssh
+In order to easily support SSH replicas, and avoid using shared storage for the SSH
 authorized keys, we are using the SSH [AuthorizedKeysCommand](https://man.openbsd.org/sshd_config#AuthorizedKeysCommand)
 to authenticate against GitLab's authorized keys endpoint. As a result, we don't persist
 or update the AuthorizedKeys file within these pods.
@@ -19,38 +25,70 @@ or update the AuthorizedKeys file within these pods.
 
 The `gitlab-shell` chart is configured in two parts: [external services](#external-services),
 and [chart settings](#chart-settings). The port exposed through Ingress is configured
-with `global.shell.port`, and defaults to `22`.
+with `global.shell.port`, and defaults to `22`. The Service's external port is also
+controlled by `global.shell.port`.
 
 ## Installation command line options
 
 | Parameter                | Default        | Description                              |
 | ------------------------ | -------------- | ---------------------------------------- |
 | `annotations`            |                | Pod annotations                          |
+| `config.loginGraceTime`  | `120`          | Specifies amount of time athat the server will disconnect after if the user has not successfully logged in |
+| `config.maxStartups.full`  | `100`     | SSHd refuse probability will increase linearly and all unauthenticated connection attempts would be refused when unauthenticated connections number will reach specified number |
+| `config.maxStartups.rate`  | `30`      | SSHd will refuse connections with specified probability when there would be too many unauthenticated connections (optional) |
+| `config.maxStartups.start` | `10`      | SSHd will refuse connection attempts with some probability if there are currently more than the specified number of unauthenticated connections (optional) |
+| `deployment.livenessProbe.initialDelaySeconds` | 10 | Delay before liveness probe is initiated |
+| `deployment.livenessProbe.periodSeconds`  | 10 | How often to perform the liveness probe |
+| `deployment.livenessProbe.timeoutSeconds` | 3 | When the liveness probe times out |
+| `deployment.livenessProbe.successThreshold` | 1 | Minimum consecutive successes for the liveness probe to be considered successful after having failed |
+| `deployment.livenessProbe.failureThreshold` | 3 | Minimum consecutive failures for the liveness probe to be considered failed after having succeeded |
 | `enabled`                | `true`         | Shell enable flag                        |
 | `extraContainers`        |                | List of extra containers to include      |
 | `extraInitContainers`    |                | List of extra init containers to include |
 | `extraVolumeMounts`      |                | List of extra volumes mounts to do       |
 | `extraVolumes`           |                | List of extra volumes to create          |
+| `extraEnv`               |                | List of extra environment variables to expose |
 | `hpa.targetAverageValue` | `100m`         | Set the autoscaling target value         |
 | `image.pullPolicy`       | `Always`       | Shell image pull policy                  |
 | `image.pullSecrets`      |                | Secrets for the image repository         |
 | `image.repository`       | `registry.com/gitlab-org/build/cng/gitlab-shell` | Shell image repository |
 | `image.tag`              | `latest`       | Shell image tag                          |
-| `init.image`             | `busybox`      | initContainer image                      |
-| `init.tag`               | `latest`       | initContainer image tag                  |
-| `redis.serviceName`      | `redis`        | Redis service name                       |
+| `init.image.repository`  |                | initContainer image                      |
+| `init.image.tag`         |                | initContainer image tag                  |
 | `replicaCount`           | `1`            | Shell replicas                           |
-| `service.externalPort`   | `22`           | Shell exposed port                       |
-| `service.internalPort`   | `22`           | Shell internal port                      |
+| `service.externalTrafficPolicy` | `Cluster` | Shell service external traffic policy (Cluster or Local)  |
+| `service.internalPort`   | `2222`         | Shell internal port                      |
+| `service.nodePort`       |                | Sets shell nodePort if set               |
 | `service.name`           | `gitlab-shell` | Shell service name                       |
 | `service.type`           | `ClusterIP`    | Shell service type                       |
 | `service.loadBalancerIP` |                | IP address to assign to LoadBalancer (if supported) |
 | `service.loadBalancerSourceRanges` |      | List of IP CIDRs allowed access to LoadBalancer (if supported)  |
-| `service.type`           | `ClusterIP`    | Shell service type                       |
+| `securityContext.fsGroup` | `1000`      |Group ID under which the pod should be started |
+| `securityContext.runAsUser` | `1000`      |User ID under which the pod should be started  |
 | `tolerations`            | `[]`           | Toleration labels for pod assignment     |
-| `unicorn.serviceName`    | `unicorn`      | Unicorn service name                     |
+| `workhorse.serviceName`    | `webservice`      | Workhorse service name (by default, Workhorse is a part of the webservice Pods / Service)                   |
 
 ## Chart configuration examples
+
+### extraEnv
+
+`extraEnv` allows you to expose additional environment variables in all containers in the pods.
+
+Below is an example use of `extraEnv`:
+
+```yaml
+extraEnv:
+  SOME_KEY: some_value
+  SOME_OTHER_KEY: some_other_value
+```
+
+When the container is started, you can confirm that the enviornment variables are exposed:
+
+```shell
+env | grep SOME
+SOME_KEY=some_value
+SOME_OTHER_KEY=some_other_value
+```
 
 ### image.pullSecrets
 
@@ -102,54 +140,22 @@ annotations:
 
 ## External Services
 
-This chart should be attached the Unicorn service, and should also use the same Redis
-as the attached Unicorn service.
+This chart should be attached the Workhorse service.
 
-### Redis
-
-```yaml
-redis:
-  host: redis.example.com
-  serviceName: redis
-  port: 6379
-  sentinels:
-    - host: sentinel1.example.com
-      port: 26379
-  password:
-    secret: gitlab-redis
-    key: redis-password
-```
-
-| Name             | Type    | Default | Description |
-|:-----------------|:-------:|:--------|:------------|
-| host             | String  |         | The hostname of the Redis server with the database to use. This can be omitted in lieu of `serviceName`. If using Redis Sentinels, the `host` attribute needs to be set to the cluster name as specified in the `sentinel.conf`.|
-| password.key     | String  |         | The name of the key in the secret below that contains the password. |
-| password.secret  | String  |         | The name of the Kubernetes `Secret` to pull from. |
-| port             | Integer | `6379`  | The port on which to connect to the Redis server. |
-| serviceName      | String  | `redis` | The name of the `service` which is operating the Redis database. If this is present, and `host` is not, the chart will template the hostname of the service (and current `.Release.Name`) in place of the `host` value. This is convenient when using Redis as a part of the overall GitLab chart. |
-| sentinels.[].host| String  |         | The hostname of Redis Sentinel server for a Redis HA setup. |
-| sentinels.[].port| Integer | `26379` | The port on which to connect to the Redis Sentinel server. |
-
-_Note:_ The current Redis Sentinel support only supports Sentinels that have
-been deployed separately from the GitLab chart. As a result, the Redis
-deployment through the GitLab chart should be disabled with `redis.enabled=false`
-and `redis-ha.enabled=false`. The Secret containing the Redis password
-will need to be manually created before deploying the GitLab chart.
-
-### Unicorn
+### Workhorse
 
 ```yaml
-unicorn:
-  host: unicorn.example.com
-  serviceName: unicorn
-  port: 8080
+workhorse:
+  host: workhorse.example.com
+  serviceName: webservice
+  port: 8181
 ```
 
-| Name        | Type    | Default   | Description |
-|:------------|:-------:|:----------|:------------|
-| host        | String  |           | The hostname of the Unicorn server. This can be omitted in lieu of `serviceName`. |
-| port        | Integer | `8080`    | The port on which to connect to the Unicorn server.|
-| serviceName | String  | `unicorn` | The name of the `service` which is operating the Unicorn server. If this is present, and `host` is not, the chart will template the hostname of the service (and current `.Release.Name`) in place of the `host` value. This is convenient when using Unicorn as a part of the overall GitLab chart. |
+| Name          | Type    | Default   | Description |
+|:--------------|:-------:|:----------|:------------|
+| `host`        | String  |           | The hostname of the Workhorse server. This can be omitted in lieu of `serviceName`. |
+| `port`        | Integer | `8181`    | The port on which to connect to the Workhorse server.|
+| `serviceName` | String  | `webservice` | The name of the `service` which is operating the Workhorse server. By default, Workhorse is a part of the webservice Pods / Service. If this is present, and `host` is not, the chart will template the hostname of the service (and current `.Release.Name`) in place of the `host` value. This is convenient when using Workhorse as a part of the overall GitLab chart. |
 
 ## Chart Settings
 
@@ -162,8 +168,8 @@ secret must start with the key names `ssh_host_` in order to be used by GitLab S
 
 ### authToken
 
-GitLab Shell uses an Auth Token in its communication with Unicorn. Share the token
-with GitLab Shell and Unicorn using a shared Secret.
+GitLab Shell uses an Auth Token in its communication with Workhorse. Share the token
+with GitLab Shell and Workhorse using a shared Secret.
 
 ```yaml
 authToken:
@@ -171,10 +177,10 @@ authToken:
  key: secret
 ```
 
-| Name             | Type    | Default | Description |
-|:-----------------|:-------:|:--------|:------------|
-| authToken.key    | String  |         | The name of the key in the above secret that contains the authToken. |
-| authToken.secret | String  |         | The name of the Kubernetes `Secret` to pull from. |
+| Name               | Type    | Default | Description |
+|:-------------------|:-------:|:--------|:------------|
+| `authToken.key`    | String  |         | The name of the key in the above secret that contains the auth token. |
+| `authToken.secret` | String  |         | The name of the Kubernetes `Secret` to pull from. |
 
 ### LoadBalancer Service
 

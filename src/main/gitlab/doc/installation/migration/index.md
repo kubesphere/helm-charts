@@ -1,9 +1,17 @@
+---
+stage: Enablement
+group: Distribution
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # Migrating from Omnibus-GitLab package based installation
 
 ## Prerequisites
 
 - Deployment using Omnibus GitLab package needs to be running. Run `gitlab-ctl status`
   and confirm no services report a `down` state.
+
+- It is good practice to verify the integrity of Git repositories prior to migration. See the [integrity check Rake task](https://docs.gitlab.com/ee/administration/raketasks/check.html) documentation for how to perform this task.
 
 - `/etc/gitlab/gitlab-secrets.json` file from package based installation.
 
@@ -13,10 +21,15 @@
 - Object storage service which the Helm chart based deployment is configured to
   use. For production use, we recommend you use an [external object storage](../../advanced/external-object-storage/index.md)
   and have the login credentials to access it ready. If you are using the built-in
-  Minio service, [read the docs](minio.md) on how to grab the login credentials
+  MinIO service, [read the docs](minio.md) on how to grab the login credentials
   from it.
 
 ## Migration Steps
+
+CAUTION: **CAUTION:**
+JUnit test report artifact (`junit.xml.gz`) migration
+[is not supported](https://gitlab.com/gitlab-org/gitlab/-/issues/27698)
+by the `gitlab:artifacts:migrate` script below.
 
 1. Migrate existing files (uploads, artifacts, lfs objects) from package based
    installation to object storage.
@@ -31,30 +44,29 @@
 
    1. Run reconfigure to apply the changes
 
-      ```sh
+      ```shell
       sudo gitlab-ctl reconfigure
       ```
 
    1. Migrate existing artifacts to object storage
 
-      ```sh
+      ```shell
       sudo gitlab-rake gitlab:artifacts:migrate
-      sudo gitlab-rake gitlab:traces:migrate
       ```
 
    1. Migrate existing LFS objects to object storage
 
-      ```sh
+      ```shell
       sudo gitlab-rake gitlab:lfs:migrate
       ```
 
    1. Migrate existing uploads to object storage
 
-      ```sh
+      ```shell
       sudo gitlab-rake gitlab:uploads:migrate:all
       ```
 
-      Docs: <https://docs.gitlab.com/ee/administration/raketasks/uploads/migrate.html#migrate-to-object-storage>
+      See [documentation](https://docs.gitlab.com/ee/administration/raketasks/uploads/migrate.html#migrate-to-object-storage).
 
    1. Visit the Omnibus GitLab package-based GitLab instance and make sure the
       uploads are available. For example check if user, group and project
@@ -68,7 +80,7 @@
       - lfs: `/var/opt/gitlab/gitlab-rails/shared/lfs-objects`
       - artifacts: `/var/opt/gitlab/gitlab-rails/shared/artifacts`
 
-      ```sh
+      ```shell
       sudo mv /var/opt/gitlab/gitlab-rails/uploads{,.bak}
       sudo mv /var/opt/gitlab/gitlab-rails/shared/lfs-objects{,.bak}
       sudo mv /var/opt/gitlab/gitlab-rails/shared/artifacts{,.bak}
@@ -77,13 +89,13 @@
    1. Run reconfigure to recreate empty directories in place, so backup task
       won't fail.
 
-      ```sh
+      ```shell
       sudo gitlab-ctl reconfigure
       ```
 
 1. [Create backup tarball](https://docs.gitlab.com/ee/raketasks/backup_restore.html#creating-a-backup-of-the-gitlab-system)
 
-   ```sh
+   ```shell
    sudo gitlab-rake gitlab:backup:create
    ```
 
@@ -91,14 +103,12 @@
    [explicitly changed](https://docs.gitlab.com/omnibus/settings/backups.html#manually-manage-backup-directory)
    in `gitlab.rb`.
 
-1. [Restore backup tarball to Helm chart based deployment](../../backup-restore/restore.md)
-
-1. Follow [official documentation](../../backup-restore/restore.md#restoring-the-secrets)
-   on how to restore the secrets from package based installation.
+1. Follow [official documentation](../../backup-restore/restore.md)
+   on how to restore from package based installation to the Helm chart, starting with the secrets.
 
 1. Restart all pods to make sure changes are applied
 
-   ```sh
+   ```shell
    kubectl delete pods -lrelease=<helm release name>
    ```
 

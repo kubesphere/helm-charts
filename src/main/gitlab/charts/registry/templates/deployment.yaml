@@ -5,15 +5,18 @@ metadata:
   name: {{ template "fullname" . }}
   namespace: {{ $.Release.Namespace }}
   labels:
-{{ include "gitlab.standardLabels" . | indent 4 }}
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
   annotations:
-    {{ include "gitlab.deploymentAnnotations" . | nindent 4 | trim }}
+    {{- include "gitlab.deploymentAnnotations" . | nindent 4 }}
 spec:
   replicas: {{ .Values.hpa.minReplicas }}
   selector:
     matchLabels:
       app: {{ template "name" . }}
       release: {{ .Release.Name }}
+{{- if .Values.updateStrategy }}
+  strategy: {{ toYaml .Values.updateStrategy | nindent 4 }}
+{{- end }}
   template:
     metadata:
       labels:
@@ -28,14 +31,14 @@ spec:
     spec:
       {{- if .Values.tolerations }}
       tolerations:
-{{ toYaml .Values.tolerations | indent 8 }}
+        {{- toYaml .Values.tolerations | nindent 8 }}
       {{- end }}
       securityContext:
-        runAsUser: 1000
-        fsGroup: 1000
+        runAsUser: {{ .Values.securityContext.runAsUser }}
+        fsGroup: {{ .Values.securityContext.fsGroup }}
       {{- if .Values.nodeSelector }}
       nodeSelector:
-{{ toYaml .Values.nodeSelector | indent 8 }}
+        {{- toYaml .Values.nodeSelector | nindent 8 }}
       {{- end }}
       {{- if eq (default .Values.global.antiAffinity .Values.antiAffinity) "hard" }}
       affinity:
@@ -59,10 +62,10 @@ spec:
                   release: {{ .Release.Name }}
       {{- end }}
       initContainers:
-{{ include "gitlab.certificates.initContainer" . | indent 8 }}
+        {{- include "gitlab.certificates.initContainer" . | nindent 8 }}
         - name: configure
-          image: {{ .Values.init.image }}:{{ .Values.init.tag}}
-          imagePullPolicy: {{ .Values.init.pullPolicy }}
+          image: {{ include "gitlab.busybox.image" (dict "local" .Values.init "global" $.Values.global.busybox) | quote }}
+          imagePullPolicy: {{ .Values.init.image.pullPolicy }}
           command: ["sh", "/config/configure"]
           volumeMounts:
             - name: registry-secrets
@@ -70,8 +73,8 @@ spec:
             - name: registry-server-config
               mountPath: /registry
           resources:
-{{ toYaml .Values.init.resources | indent 12 }}
-{{- include "pullsecrets" .Values.image | indent 6}}
+            {{- toYaml .Values.init.resources | nindent 12 }}
+      {{- include "pullsecrets" .Values.image | indent 6 }}
       containers:
         - name: registry
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
@@ -80,7 +83,7 @@ spec:
           - name: registry-server-config
             mountPath: /etc/docker/registry/
             readOnly: true
-{{ include "gitlab.certificates.volumeMount" . | indent 10 }}
+          {{- include "gitlab.certificates.volumeMount" . | nindent 10 }}
 {{- if .Values.deployment.livenessProbe.enabled }}
           livenessProbe:
             httpGet:
@@ -106,7 +109,7 @@ spec:
             failureThreshold: {{ .Values.deployment.readinessProbe.failureThreshold }}
 {{- end }}
           resources:
-{{ toYaml .Values.resources | indent 12 }}
+            {{- toYaml .Values.resources | nindent 12 }}
       terminationGracePeriodSeconds: {{ .Values.deployment.terminationGracePeriodSeconds }}
       volumes:
       - name: registry-server-config
@@ -142,5 +145,6 @@ spec:
                   path: storage/{{ .Values.storage.extraKey }}
                 {{- end }}
           {{- end }}
-{{ include "gitlab.certificates.volumes" . | indent 6 }}
+          {{- include "registry.notifications.secrets" $ | nindent 10 }}
+      {{- include "gitlab.certificates.volumes" . | nindent 6 }}
 {{- end -}}

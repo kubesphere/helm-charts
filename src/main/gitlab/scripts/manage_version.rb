@@ -13,7 +13,8 @@ Options = Struct.new(
   :app_version,
   :chart_version,
   :include_subcharts,
-  :dry_run
+  :dry_run,
+  :auto_deploy
 )
 
 class VersionOptionsParser
@@ -25,6 +26,7 @@ class VersionOptionsParser
       options.working_dir = Dir.pwd
       options.include_subcharts = false
       options.gitlab_repo = "gitlab-org/gitlab"
+      options.auto_deploy = false
 
       OptionParser.new do |opts|
         opts.banner = "Usage: #{__FILE__} [options] \n\n"
@@ -53,21 +55,27 @@ class VersionOptionsParser
           options.dry_run = value
         end
 
+        opts.on('-A', '--auto-deploy', "Manage auto-deploy versions") do |value|
+          options.auto_deploy = value
+        end
+
         opts.on('-h', '--help', 'Print help message') do
           $stdout.puts opts
           exit
         end
-      end.parse!
+      end.parse!(argv)
 
       unless (options.app_version && options.app_version.valid?) || (options.chart_version && options.chart_version.valid?)
-        $stderr.puts "Must specify a valid --app-version or --chart-version in the syntax 'x.x.x' eg: 11.0.0"
-        exit 1
+        raise "Must specify a valid --app-version or --chart-version in the syntax 'x.x.x' eg: 11.0.0"
       end
 
-      unless Dir.exist?(options.working_dir)
-        $stderr.puts "Must provide a valid working directory"
-        exit 1
+      if options.auto_deploy
+        raise "Must not specify --chart-version when --auto-deploy is set" if options.chart_version
+
+        raise "Must specify a valid --app-version with build metadata eg: 12.9.202002191723+d42c6afcade" unless options.app_version.build_metadata?
       end
+
+      raise "Must provide a valid working directory" unless Dir.exist?(options.working_dir)
 
       options
     end
@@ -104,7 +112,7 @@ class ChartFile
   def update_versions(new_chart_version = nil, new_app_version = nil)
     orig_metadata = @metadata.dup
     @metadata['version'] = new_chart_version.to_s if new_chart_version && (version.nil? || new_chart_version > version)
-    @metadata['appVersion'] = new_app_version.to_s if new_app_version && (app_version.nil? || new_app_version > app_version)
+    @metadata['appVersion'] = new_app_version.to_s if new_app_version
 
     if orig_metadata != @metadata
       $stdout.puts "Updating #{@filepath}"
@@ -118,6 +126,8 @@ class VersionUpdater
     @chart_version = options.chart_version
     @app_version = options.app_version
     @options = options
+
+    @chart_version = @app_version if @options.auto_deploy
 
     populate_chart_version
 
@@ -164,9 +174,10 @@ class VersionUpdater
   end
 
   def populate_subchart_versions
+    version_fetcher = VersionFetcher.new(@app_version, @options.gitlab_repo, auto_deploy: @options.auto_deploy)
+
     @subchart_versions = subcharts.map do |sub_chart|
-      version_fetcher = VersionFetcher.new(@app_version, @options.gitlab_repo)
-      [ sub_chart, version_fetcher.fetch(sub_chart.name) ]
+      [sub_chart, version_fetcher.fetch(sub_chart.name)]
     end
   end
 
@@ -224,7 +235,12 @@ end
 
 # Only auto-run when called as a script, and not included as a lib
 if $0 == __FILE__
-  options = VersionOptionsParser.parse(ARGV)
-  VersionUpdater.new(options)
-  $stdout.puts "Complete"
+  begin
+    options = VersionOptionsParser.parse(ARGV)
+    VersionUpdater.new(options)
+    $stdout.puts "Complete"
+  rescue RuntimeError => ex
+    $stderr.puts ex.message
+    exit 1
+  end
 end

@@ -15,6 +15,27 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
+{{/*
+Run "fullname" as if it was in another chart. This is an imperfect emulation, but close.
+
+This is especially useful when you reference "fullname" services/pods which may or may not be easy to reconstruct.
+
+Call:
+
+```
+{{- include "gitlab.other.fullname" ( dict "context" . "chartName" "name-of-other-chart" ) -}}
+```
+*/}}
+{{- define "gitlab.other.fullname" -}}
+{{- $Chart := dict "Name" .chartName -}}
+{{- $Release := .context.Release -}}
+{{- $localNameOverride :=  (pluck "nameOverride" (pluck .chartName .context.Values | first) | first) -}}
+{{- $globalNameOverride :=  (pluck "nameOverride" (pluck .chartName .context.Values.global | first) | first) -}}
+{{- $nameOverride :=  coalesce $localNameOverride $globalNameOverride -}}
+{{- $Values := dict "nameOverride" $nameOverride "global" .context.Values.global -}}
+{{- include "fullname" (dict "Chart" $Chart "Release" $Release "Values" $Values) -}}
+{{- end -}}
+
 {{/* ######### Hostname templates */}}
 
 {{/*
@@ -128,13 +149,25 @@ This overrides the upstream postegresql chart so that we can deterministically
 use the name of the service the upstream chart creates
 */}}
 {{- define "gitlab.psql.host" -}}
-{{- if .Values.global.psql.host -}}
-{{- .Values.global.psql.host | quote -}}
-{{- else if .Values.global.psql.serviceName -}}
-{{- .Values.global.psql.serviceName | quote -}}
-{{- else -}}
-{{- printf "%s-%s" .Release.Name "postgresql" -}}
+{{- $local := pluck "psql" $.Values | first -}}
+{{- coalesce (pluck "host" $local .Values.global.psql | first) (pluck "serviceName" $local .Values.global.psql | first) (printf "%s-%s" $.Release.Name "postgresql") -}}
 {{- end -}}
+
+{{/*
+Return the configmap for initializing the PostgreSQL database. This is used to enable the
+necessary postgres extensions for Gitlab to work
+This overrides the upstream postegresql chart so that we can deterministically
+use the name of the initdb scripts ConfigMap the upstream chart creates
+*/}}
+{{- define "gitlab.psql.initdbscripts" -}}
+{{- printf "%s-%s-%s" .Release.Name "postgresql" "init-db" -}}
+{{- end -}}
+
+{{/*
+Alias of gitlab.psql.initdbscripts
+*/}}
+{{- define "postgresql.initdbScriptsCM" -}}
+{{- template "gitlab.psql.initdbscripts" . -}}
 {{- end -}}
 
 {{/*
@@ -148,7 +181,8 @@ Alias of gitlab.psql.host
 Return the db database name
 */}}
 {{- define "gitlab.psql.database" -}}
-{{- coalesce .Values.global.psql.database "gitlabhq_production" -}}
+{{- $local := pluck "psql" $.Values | first -}}
+{{- coalesce (pluck "database" $local .Values.global.psql | first) "gitlabhq_production" -}}
 {{- end -}}
 
 {{/*
@@ -157,16 +191,18 @@ If the postgresql username is provided, it will use that, otherwise it will fall
 to "gitlab" default
 */}}
 {{- define "gitlab.psql.username" -}}
-{{- coalesce .Values.global.psql.username "gitlab" -}}
+{{- $local := pluck "psql" $.Values | first -}}
+{{- coalesce (pluck "username" $local .Values.global.psql | first) "gitlab" -}}
 {{- end -}}
 
 {{/*
 Return the db port
-If the postgresql port is provided, it will use that, otherwise it will fallback
+If the postgresql port is provided in subchart values or global values, it will use that, otherwise it will fallback
 to 5432 default
 */}}
 {{- define "gitlab.psql.port" -}}
-{{- coalesce .Values.global.psql.port 5432 -}}
+{{- $local := pluck "psql" $.Values | first -}}
+{{- default 5432 (pluck "port" $local $.Values.global.psql | first ) | int -}}
 {{- end -}}
 
 {{/*
@@ -175,7 +211,9 @@ Defaults to a release-based name and falls back to .Values.global.psql.secretNam
   when using an external PostgreSQL
 */}}
 {{- define "gitlab.psql.password.secret" -}}
-{{- default (printf "%s-%s" .Release.Name "postgresql-password") .Values.global.psql.password.secret | quote -}}
+{{- $local := pluck "psql" $.Values | first -}}
+{{- $localPass := pluck "password" $local | first -}}
+{{- default (printf "%s-%s" .Release.Name "postgresql-password") (pluck "secret" $localPass $.Values.global.psql.password | first ) | quote -}}
 {{- end -}}
 
 {{/*
@@ -187,11 +225,21 @@ Alias of gitlab.psql.password.secret to override upstream postgresql chart namin
 
 {{/*
 Return the name of the key in a secret that contains the postgres password
-Uses `postgres-password` to match upstream postgresql chart when not using an
+Uses `postgresql-password` to match upstream postgresql chart when not using an
   external postegresql
 */}}
 {{- define "gitlab.psql.password.key" -}}
-{{- default "postgres-password" .Values.global.psql.password.key | quote -}}
+{{- $local := pluck "psql" $.Values | first -}}
+{{- $localPass := pluck "password" $local | first -}}
+{{- default "postgresql-password" (pluck "key" $localPass $.Values.global.psql.password | first ) | quote -}}
+{{- end -}}
+
+{{/*
+Return if pool should be used by PostgreSQL.
+Defaults to 1
+*/}}
+{{- define "gitlab.psql.pool" -}}
+{{- default 1 (pluck "pool" .Values.psql .Values.global.psql | first) | int -}}
 {{- end -}}
 
 {{/*
@@ -199,7 +247,8 @@ Return if prepared statements should be used by PostgreSQL.
 Defaults to false
 */}}
 {{- define "gitlab.psql.preparedStatements" -}}
-{{- eq true (default false .Values.global.psql.preparedStatements) -}}
+{{- $local := pluck "psql" $.Values | first -}}
+{{- eq true (default false (pluck "preparedStatements" $local .Values.global.psql | first)) -}}
 {{- end -}}
 
 {{/* ######### ingress templates */}}
@@ -232,7 +281,7 @@ Handles merging a set of service annotations
 */}}
 {{- define "gitlab.serviceAnnotations" -}}
 {{- $allAnnotations := merge (default (dict) (default (dict) .Values.service).annotations) .Values.global.service.annotations -}}
-{{- if $allAnnotations -}}
+{{- if $allAnnotations }}
 {{- toYaml $allAnnotations -}}
 {{- end -}}
 {{- end -}}
@@ -268,10 +317,10 @@ We're explicitly checking for an actual value being present, not the existance o
 */}}
 {{- define "gitlab.ingress.tls.configured" -}}
 {{/* Pull the value, if it exists */}}
-{{- $global   := pluck "secretName" (default (dict)  $.Values.global.ingress.tls) | first -}}
-{{- $unicorn  := pluck "secretName" $.Values.gitlab.unicorn.ingress.tls | first -}}
-{{- $registry := pluck "secretName" $.Values.registry.ingress.tls | first -}}
-{{- $minio    := pluck "secretName" $.Values.minio.ingress.tls | first -}}
+{{- $global      := pluck "secretName" (default (dict)  $.Values.global.ingress.tls) | first -}}
+{{- $webservice  := pluck "secretName" $.Values.gitlab.webservice.ingress.tls | first -}}
+{{- $registry    := pluck "secretName" $.Values.registry.ingress.tls | first -}}
+{{- $minio       := pluck "secretName" $.Values.minio.ingress.tls | first -}}
 {{/* Set each item to configured value, or !enabled
      This works because `false` is the same as empty, so we'll use the value when `enabled: true`
      - default "" (not true) => ''
@@ -280,11 +329,11 @@ We're explicitly checking for an actual value being present, not the existance o
      - default "valid" (not false) => 'true'
      Now, disabled sub-charts won't block this template from working properly.
 */}}
-{{- $unicorn :=  default $unicorn (not $.Values.gitlab.unicorn.enabled) -}}
-{{- $registry :=  default $registry (not $.Values.registry.enabled) -}}
-{{- $minio :=  default $minio (not $.Values.global.minio.enabled) -}}
+{{- $webservice  :=  default $webservice (not $.Values.gitlab.webservice.enabled) -}}
+{{- $registry    :=  default $registry (not $.Values.registry.enabled) -}}
+{{- $minio       :=  default $minio (not $.Values.global.minio.enabled) -}}
 {{/* Check that all enabled items have been configured */}}
-{{- if or $global (and $unicorn (and $registry $minio)) -}}
+{{- if or $global (and $webservice (and $registry $minio)) -}}
 true
 {{- end -}}
 {{- end -}}
@@ -330,4 +379,41 @@ Constructs kubectl image name.
 */}}
 {{- define "gitlab.kubectl.image" -}}
 {{- printf "%s:%s" .Values.global.kubectl.image.repository .Values.global.kubectl.image.tag -}}
+{{- end -}}
+
+{{/*
+Constructs busybox image name.
+*/}}
+{{- define "gitlab.busybox.image" -}}
+{{/*
+    # Earlier, init.image and init.tag were used to configure initContainer
+    # image details. We deprecated them in favor of init.image.repository and
+    # init.image.tag. However, deprecation checking happens after template
+    # rendering is done. So, we have to handle the case of `init.image` being a
+    # string to avoid the process being broken at rendering stage itself. It
+    # doesn't matter what we print there because once rendering is done
+    # deprecation check will kick-in and abort the process. That value will not
+    # be used.
+*/}}
+{{- if kindIs "map" .local.image }}
+{{- $image := default .global.image.repository .local.image.repository }}
+{{- $tag := default .global.image.tag .local.image.tag }}
+{{- printf "%s:%s" $image $tag -}}
+{{- else }}
+{{- printf "DEPRECATED:DEPRECATED" -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Override upstream redis chart naming
+*/}}
+{{- define "redis.secretName" -}}
+{{ template "gitlab.redis.password.secret" . }}
+{{- end -}}
+
+{{/*
+Override upstream redis secret key name
+*/}}
+{{- define "redis.secretPasswordKey" -}}
+{{ template "gitlab.redis.password.key" . }}
 {{- end -}}

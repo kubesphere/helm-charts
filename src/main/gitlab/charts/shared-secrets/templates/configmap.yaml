@@ -5,7 +5,7 @@ metadata:
   name: {{ template "fullname" . }}
   namespace: {{ .Release.Namespace }}
   labels:
-{{ include "gitlab.standardLabels" . | indent 4 }}
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
 {{- if not .Values.global.operator.enabled }}
   annotations:
     "helm.sh/hook": pre-install,pre-upgrade
@@ -14,7 +14,7 @@ metadata:
 {{- end }}
 data:
   generate-secrets: |
-{{ include (print $.Template.BasePath "/_generate_secrets.sh") . | indent 4 }}
+    {{- include (print $.Template.BasePath "/_generate_secrets.sh") . | nindent 4 }}
 ---
 {{ if .Values.global.operator.enabled -}}
 apiVersion: v1
@@ -23,17 +23,17 @@ metadata:
   name: {{ .Release.Name }}-shared-secrets-jobspec
   namespace: {{ .Release.Namespace }}
   labels:
-{{ include "gitlab.standardLabels" . | indent 4 }}
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
 data:
   template: |-
-{{ include (print $.Template.BasePath "/_jobspec.yaml") . | indent 4 }}
+    {{- include (print $.Template.BasePath "/_jobspec.yaml") . | nindent 4 }}
   role: |-
-{{ include (print $.Template.BasePath "/_rbac-role.yaml") . | indent 4}}
+    {{- include (print $.Template.BasePath "/_rbac-role.yaml") . | nindent 4 }}
   serviceAccount: |-
-{{ include (print $.Template.BasePath "/_rbac-serviceaccount.yaml") . | indent 4 }}
+    {{- include (print $.Template.BasePath "/_rbac-serviceaccount.yaml") . | nindent 4 }}
   roleBinding: |-
-{{ include (print $.Template.BasePath "/_rbac-rolebinding.yaml") . | indent 4 }}
+    {{- include (print $.Template.BasePath "/_rbac-rolebinding.yaml") . | nindent 4 }}
   selfSignedCertTemplate: |-
-{{ include (print $.Template.BasePath "/_self-signed-cert-job.yml") . | indent 4 }}
+    {{- include (print $.Template.BasePath "/_self-signed-cert-job.yml") . | nindent 4 }}
 {{- end -}}
 {{- end -}}

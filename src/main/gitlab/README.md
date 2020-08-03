@@ -23,6 +23,19 @@ Some of the key benefits of this chart and [corresponding containers](https://gi
 See the [repository documentation](doc/index.md) for how to install GitLab and
 other information on charts, tools, and advanced configuration.
 
+For easy of reading, you can find this documentation rendered on
+[docs.gitlab.com/charts](https://docs.gitlab.com/charts).
+
+### Configuration Properties
+
+We're often asked to put a table of all possible properties directly into this README.
+These charts are _massive_ in scale, and as such the number of properties exceeds
+the amount of context we're comfortable placing here. Please see our (nearly)
+[comprehensive list of properties and defaults](doc/installation/command-line-options.md).
+
+**Note:** We _strongly recommend_ following our complete documentation, as opposed to
+jumping directly into the settings list.
+
 ## Architecture and goals
 
 See [architecture documentation](doc/architecture/index.md) for an overview

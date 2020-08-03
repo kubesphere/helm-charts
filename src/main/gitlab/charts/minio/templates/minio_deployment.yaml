@@ -5,7 +5,9 @@ metadata:
   name: {{ template "minio.fullname" . }}
   namespace: {{ $.Release.Namespace }}
   labels:
-{{ include "gitlab.standardLabels" . | indent 4 }}
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
+  annotations:
+    {{- include "gitlab.deploymentAnnotations" . | nindent 4 }}
 spec:
   strategy:
     type: Recreate
@@ -25,6 +27,13 @@ spec:
         release: "{{ .Release.Name }}"
         heritage: "{{ .Release.Service }}"
         component: app
+{{- if .Values.podLabels }}
+{{ toYaml .Values.podLabels | indent 8 }}
+{{- end }}
+      annotations:
+{{- if .Values.podAnnotations }}
+{{ toYaml .Values.podAnnotations | trimSuffix "\n" | indent 8 }}
+{{- end }}
     spec:
       {{- if .Values.tolerations }}
       tolerations:
@@ -63,8 +72,8 @@ spec:
             medium: "Memory"
       initContainers:
         - name: configure
-          image: {{ .Values.init.image }}:{{ .Values.init.tag}}
-          imagePullPolicy: {{ .Values.init.pullPolicy }}
+          image: {{ include "gitlab.busybox.image" (dict "local" .Values.init "global" $.Values.global.busybox) | quote }}
+          imagePullPolicy: {{ .Values.init.image.pullPolicy }}
           command: ["sh", "/config/configure"]
           volumeMounts:
             - name: minio-configuration

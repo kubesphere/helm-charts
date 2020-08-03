@@ -4,9 +4,18 @@
 
 global:
   gitaly:
+    enabled: true
     internal:
       names: ["default"]
     external: []
+    authToken: {}
+  # serviceName:
+  # imagePullPolicy: IfNotPresent
+  redis:
+    password: {}
+
+gitaly: {}
+# serviceName:
 
 internal: {}
 image:
@@ -19,13 +28,15 @@ service:
   type: ClusterIP
   externalPort: 8075
   internalPort: 8075
-enabled: true
-serviceName: gitaly
+  tls:
+    externalPort: 8076
+    internalPort: 8076
 annotations: {}
 
 init:
-  image: busybox
-  tag: latest
+  image: {}
+    # repository:
+    # tag:
   resources:
     requests:
       cpu: 50m
@@ -33,12 +44,8 @@ init:
 ## Support for tolerations for pod scheduling
 tolerations: []
 
-global:
-  # imagePullPolicy: IfNotPresent
-  redis:
-    password: {}
-  gitaly:
-    authToken: {}
+## The Gitaly StatefulSet's priorityClassName
+# priorityClassName:
 
 logging:
   format: "json"
@@ -56,11 +63,12 @@ ruby: {}
 prometheus: {}
   # grpcLatencyBuckets: "[1.0, 1.5, 2.0, 2.5]"
 
-unicorn: {}
+workhorse:
+  # by default, Workhorse is a part of the Webservice Pods / Service
+  serviceName: webservice
   # host: '0.0.0.0'
-  # serviceName: 'unicorn'
-  # port: 8080
-redis: {}
+  # serviceName: 'webservice'
+  # port: 8181
 shell:
   authToken: {}
   concurrency: []
@@ -104,6 +112,7 @@ persistence:
   ## Only bind to a volume with the following exppression matched labels.
   ## ref: https://kubernetes.io/docs/concepts/storage/persistent-volumes/#selector
   matchExpressions: []
+  annotations: {}
 
 resources:
   # We usually recommend not to specify default resources and to leave this as a conscious
@@ -124,3 +133,11 @@ maxUnavailable: 1
 securityContext:
   runAsUser: 1000
   fsGroup: 1000
+
+## Enable deployment to use a serviceAccount
+serviceAccount:
+  enabled: false
+  create: false
+  annotations: {}
+  ## Name to be used for serviceAccount, otherwise defaults to chart fullname
+  # name: 

@@ -1,17 +1,17 @@
-{{- if .Values.enabled -}}
+{{- if .Values.global.gitaly.enabled -}}
 apiVersion: v1
 kind: Service
 metadata:
-  name: {{ template "fullname" . }}
+  name: {{ include "gitlab.gitaly.serviceName" . }}
   namespace: {{ $.Release.Namespace }}
   labels:
-{{ include "gitlab.standardLabels" . | indent 4 }}
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
   annotations:
   {{- if .Values.metrics.enabled }}
     prometheus.io/scrape: "true"
     prometheus.io/port: "{{ .Values.metrics.metricsPort }}"
   {{- end }}
-{{ include "gitlab.serviceAnnotations" . | indent 4 }}
+    {{- include "gitlab.serviceAnnotations" . | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
   clusterIP: "None"
@@ -22,6 +22,11 @@ spec:
    {{- if .Values.metrics.enabled }}
     - port: {{ .Values.metrics.metricsPort }}
       name: {{ .Values.service.name }}-metrics
+   {{- end }}
+   {{- if $.Values.global.gitaly.tls.enabled }}
+    - port: {{ .Values.service.tls.externalPort }}
+      name: {{ .Values.service.name }}-tls
+      targetPort: {{ .Values.service.tls.internalPort }}
    {{- end }}
   selector:
     app: {{ template "name" . }}

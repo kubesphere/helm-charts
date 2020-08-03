@@ -37,7 +37,7 @@ nginx-ingress:
     minAvailable: 1
     replicaCount: 1
 gitlab:
-  unicorn:
+  webservice:
     minReplicas: 1
     maxReplicas: 1
   sidekiq:

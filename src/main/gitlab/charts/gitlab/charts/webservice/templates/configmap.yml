@@ -1,0 +1,144 @@
+{{- if .Values.enabled -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "fullname" . }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
+data:
+  installation_type: |
+    gitlab-helm-chart
+  database.yml.erb: |
+    {{- include "gitlab.database.yml" . | nindent 4 }}
+  {{- if include "gitlab.geo.secondary" . }}
+  database_geo.yml.erb: |
+    {{- include "gitlab.geo.database.yml" . | nindent 4 }}
+  {{- end }}
+  smtp_settings.rb: |
+    {{- include "gitlab.smtp_settings" . | nindent 4 }}
+  {{- include "gitlab.rails.redis.resque" . | nindent 2 }}
+  {{- include "gitlab.rails.redis.cache" . | nindent 2 }}
+  {{- include "gitlab.rails.redis.sharedState" . | nindent 2 }}
+  {{- include "gitlab.rails.redis.queues" . | nindent 2 }}
+  {{- include "gitlab.rails.redis.cable" . | nindent 2 }}
+  gitlab.yml.erb: |
+    production: &base
+      gitlab:
+        host: {{ template "gitlab.gitlab.hostname" . }}
+        https: {{ hasPrefix "https://" (include "gitlab.gitlab.url" .) }}
+        {{- with .Values.global.hosts.ssh }}
+        ssh_host: {{ . | quote }}
+        {{- end }}
+        {{- with .Values.global.appConfig }}
+        max_request_duration_seconds: {{ default (include "gitlab.appConfig.maxRequestDurationSeconds" $) .maxRequestDurationSeconds }}
+        impersonation_enabled: {{ .enableImpersonation }}
+        usage_ping_enabled: {{ eq .enableUsagePing true }}
+        seat_link_enabled: {{ eq .enableSeatLink true }}
+        default_can_create_group: {{ eq .defaultCanCreateGroup true }}
+        username_changing_enabled: {{ eq .usernameChangingEnabled true }}
+        issue_closing_pattern: {{ .issueClosingPattern | quote }}
+        default_theme: {{ .defaultTheme }}
+        {{- include "gitlab.appConfig.defaultProjectsFeatures.configuration" $ | nindent 8 }}
+        webhook_timeout: {{ .webhookTimeout }}
+        {{- end }}
+        trusted_proxies:
+        {{- if .Values.trusted_proxies }}
+          {{- toYaml .Values.trusted_proxies | nindent 10 }}
+        {{- end }}
+        time_zone: {{ .Values.global.time_zone | quote }}
+        {{- include "gitlab.outgoing_email_settings" . | indent 8 }}
+      {{- with .Values.global.appConfig }}
+      {{- if eq .incomingEmail.enabled true }}
+      {{- include "gitlab.appConfig.incoming_email" . | nindent 6 }}
+      {{- end }}
+      {{- if eq .serviceDeskEmail.enabled true }}
+      {{- include "gitlab.appConfig.service_desk_email" . | nindent 6 }}
+      {{- end }}
+      {{- include "gitlab.appConfig.cronJobs" . | nindent 6 }}
+      gravatar:
+        plain_url: {{ .gravatar.plainUrl }}
+        ssl_url: {{ .gravatar.sslUrl }}
+      {{- include "gitlab.appConfig.extra" . | nindent 6 }}
+      {{- end }}
+      {{- include "gitlab.appConfig.artifacts.configuration" (dict "config" $.Values.global.appConfig.artifacts "context" $) | nindent 6 }}
+      {{- include "gitlab.appConfig.lfs.configuration" (dict "config" $.Values.global.appConfig.lfs "context" $) | nindent 6 }}
+      {{- include "gitlab.appConfig.uploads.configuration" (dict "config" $.Values.global.appConfig.uploads "context" $) | nindent 6 }}
+      {{- include "gitlab.appConfig.packages.configuration" (dict "config" $.Values.global.appConfig.packages "context" $) | nindent 6 }}
+      {{- include "gitlab.appConfig.external_diffs.configuration" (dict "config" $.Values.global.appConfig.externalDiffs "context" $) | nindent 6 }}
+      {{- include "gitlab.appConfig.terraformState.configuration" (dict "config" $.Values.global.appConfig.terraformState "context" $) | nindent 6 }}
+      {{- include "gitlab.geo.config" $ | nindent 6 }}
+      {{- include "gitlab.appConfig.sentry.configuration" $ | nindent 6 }}
+      pages:
+        enabled: false
+      mattermost:
+        enabled: false
+      gitlab_ci:
+      {{- include "gitlab.appConfig.ldap.configuration" $ | nindent 6 }}
+      {{- include "gitlab.appConfig.omniauth.configuration" $ | nindent 6 }}
+      kerberos:
+        enabled: false
+      shared:
+      {{- include "gitlab.appConfig.gitaly" . | nindent 6 }}
+      {{- include "gitlab.appConfig.repositories" . | nindent 6 }}
+      backup:
+        path: "tmp/backups"   # Relative paths are relative to Rails.root (default: tmp/backups/)
+      {{- include "gitlab.appConfig.shell" . | nindent 6 }}
+        {{- include "gitlab.appConfig.shell.ssh_port" . | nindent 8 }}
+        {{- include "gitlab.appConfig.shell.secret_file" . | nindent 8 }}
+      workhorse:
+        secret_file: /etc/gitlab/gitlab-workhorse/secret
+      git:
+        bin_path: /usr/bin/git
+      webpack:
+      monitoring:
+        ip_whitelist:
+          {{- if kindIs "slice" .Values.monitoring.ipWhitelist }}
+          {{ toYaml .Values.monitoring.ipWhitelist | nindent 10 | trim }}
+          {{- end }}
+        web_exporter:
+          enabled: {{ eq .Values.monitoring.exporter.enabled true }}
+          address: 0.0.0.0
+          port: {{ .Values.monitoring.exporter.port }}
+        sidekiq_exporter:
+      shutdown:
+        blackout_seconds: {{ .Values.shutdown.blackoutSeconds }}
+      {{- include "gitlab.appConfig.rackAttack" . | nindent 6 }}
+      ## Registry Integration
+      {{- include "gitlab.appConfig.registry.configuration" $ | nindent 6 }}
+  configure: |
+    {{- include "gitlab.scripts.configure.secrets" (dict) | nindent 4 -}}
+    {{- include "gitlab.psql.ssl.initScript" . | nindent 4 }}
+    {{- include "gitlab.geo.psql.ssl.initScript" . | nindent 4 }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{.Release.Name }}-workhorse-config
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
+data:
+  installation_type: |
+    gitlab-helm-chart
+  workhorse-config.toml.erb: |
+    [redis]
+    {{- if not .Values.global.redis.sentinels }}
+    URL = "{{ template "gitlab.redis.scheme" . }}://{{ template "gitlab.redis.host" . }}:{{ template "gitlab.redis.port" . }}"
+    {{- else }}
+    SentinelMaster = "{{ template "gitlab.redis.host" . }}"
+    Sentinel = [ {{ template "gitlab.redis.workhorse.sentinel-list" . }} ]
+    {{- end }}
+    {{- if .Values.global.redis.password.enabled }}
+    Password = "<%= File.read("/etc/gitlab/redis/redis-password").strip.dump[1..-2] %>"
+    {{- end }}
+  configure: |
+      set -e
+      mkdir -p /init-secrets-workhorse/gitlab-workhorse
+      cp -v -r -L /init-config/gitlab-workhorse/secret /init-secrets-workhorse/gitlab-workhorse/secret
+      {{- if .Values.global.redis.password.enabled }}
+      mkdir -p /init-secrets-workhorse/redis
+      cp -v -r -L /init-config/redis/redis-password /init-secrets-workhorse/redis/
+      {{- end }}
+# Leave this here - This line denotes end of block to the parser.
+{{- end }}

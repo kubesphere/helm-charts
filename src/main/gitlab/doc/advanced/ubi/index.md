@@ -1,3 +1,9 @@
+---
+stage: Enablement
+group: Distribution
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # GitLab with UBI-based images
 
 GitLab offers [Red Hat UBI](https://www.redhat.com/en/blog/introducing-red-hat-universal-base-image)
@@ -12,13 +18,13 @@ disable the internal services, and use external deployments or services.
 The services that must be disabled and provided externally are:
 
 - PostgreSQL
-- Minio (Object Store)
+- MinIO (Object Store)
 - Redis
 
 The services must be disabled are:
 
 - CertManager (Let's Encrypt integration)
-- Nginx Ingress
+- NGINX Ingress
 - Prometheus
 - Grafana
 - GitLab Runner
