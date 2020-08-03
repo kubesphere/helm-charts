@@ -31,8 +31,11 @@ spec:
             {{- toYaml .Values.tolerations | nindent 12 }}
           {{- end }}
           securityContext:
-            runAsUser: 1000
-            fsGroup: 1000
+            runAsUser: {{ .Values.securityContext.runAsUser }}
+            fsGroup: {{ .Values.securityContext.fsGroup }}
+          {{- if or .Values.serviceAccount.enabled .Values.global.serviceAccount.enabled }}
+          serviceAccountName: {{ include "gitlab.serviceAccount.name" . }}
+          {{- end }}
           initContainers:
             {{- include "gitlab.extraInitContainers" . | nindent 12 }}
             {{- include "gitlab.certificates.initContainer" . | nindent 12 }}

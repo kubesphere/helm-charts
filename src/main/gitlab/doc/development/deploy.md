@@ -1,8 +1,14 @@
+---
+stage: Enablement
+group: Distribution
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # Deploy Development Branch
 
 Clone the repository, and checkout the branch you want to deploy:
 
-```sh
+```shell
 git clone git@gitlab.com:gitlab-org/charts/gitlab.git
 git checkout <BRANCH_NAME>
 ```
@@ -23,11 +29,7 @@ Git repo location to the Helm command.
 
 From within your Git checkout of the repo, run the following Helm commands to install:
 
-```sh
-helm repo add stable https://kubernetes-charts.storage.googleapis.com
-helm repo add gitlab https://charts.gitlab.io/
-helm repo add jetstack https://charts.jetstack.io
-helm repo update
+```shell
 helm dependency update
 helm upgrade --install gitlab . \
   --timeout 600s \
@@ -36,10 +38,6 @@ helm upgrade --install gitlab . \
   --set global.hosts.externalIP=10.10.10.10 \
   --set certmanager-issuer.email=me@example.com
 ```
-
-NOTE: **Note**:
-If using Helm v2, the stable repository is installed by Helm automatically.
-There are no adverse effects if it is added again.
 
 NOTE: **Note**:
 If using Helm v2, please see notes about the `--timeout` option

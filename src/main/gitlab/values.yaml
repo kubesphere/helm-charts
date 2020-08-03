@@ -30,9 +30,6 @@ global:
   ## doc/installation/deployment.md#deploy-the-community-edition
   edition: ce
 
-  ## doc/charts/globals.md#gitlab-version
-  # gitlabVersion: master
-
   enterpriseImages:
     migrations:
       repository: mirrorgitlabcontainers/gitlab-task-runner-ee
@@ -40,10 +37,10 @@ global:
       repository: mirrorgitlabcontainers/gitlab-sidekiq-ee
     task-runner:
       repository: mirrorgitlabcontainers/gitlab-task-runner-ee
-    unicorn:
+    webservice:
       repository: mirrorgitlabcontainers/gitlab-webservice-ee
-      workhorse:
-        repository: mirrorgitlabcontainers/gitlab-workhorse-ee
+    workhorse:
+      repository: mirrorgitlabcontainers/gitlab-workhorse-ee
     geo-logcursor:
       repository: mirrorgitlabcontainers/gitlab-geo-logcursor
   communityImages:
@@ -53,10 +50,13 @@ global:
       repository: mirrorgitlabcontainers/gitlab-sidekiq-ce
     task-runner:
       repository: mirrorgitlabcontainers/gitlab-task-runner-ce
-    unicorn:
+    webservice:
       repository: mirrorgitlabcontainers/gitlab-webservice-ce
-      workhorse:
-        repository: mirrorgitlabcontainers/gitlab-workhorse-ce
+    workhorse:
+      repository: mirrorgitlabcontainers/gitlab-workhorse-ce
+
+  ## doc/charts/globals.md#gitlab-version
+  # gitlabVersion: master
 
   ## doc/charts/globals.md#application-resource
   application:
@@ -66,7 +66,7 @@ global:
   ## doc/charts/globals.md#configure-host-settings
   hosts:
     domain: example.com
-    # hostSuffix:
+    hostSuffix:
     https: false
     externalIP:
     ssh: ~
@@ -110,7 +110,7 @@ global:
     # port: 123
     # username: gitlab
     # database: gitlabhq_production
-    # pool: 10
+    # pool: 1
     # preparedStatements: false
 
   ## doc/charts/globals.md#configure-redis-settings
@@ -305,6 +305,25 @@ global:
       mailbox: inbox
       idleTimeout: 60
 
+    ## doc/charts/globals.md#service-desk-email-settings
+    ## doc/installation/deployment.md#service-desk-email
+    serviceDeskEmail:
+      enabled: false
+      address: ""
+      host: "imap.gmail.com"
+      port: 993
+      ssl: true
+      startTls: false
+      user: ""
+      password:
+        secret: ""
+        key: password
+      expungeDeleted: false
+      logger:
+        logPath: "/dev/stdout"
+      mailbox: inbox
+      idleTimeout: 60
+
     ## doc/charts/globals.md#ldap
     ldap:
       # prevent the use of LDAP for sign-in via web.
@@ -337,6 +356,12 @@ global:
       providers: []
       # - secret: gitlab-google-oauth2
       #   key: provider
+    ## doc/charts/globals.md#configure-appconfig-settings
+    sentry:
+      enabled: false
+      dsn:
+      clientside_dsn:
+      environment:
 
   ## End of global.appConfig
 
@@ -390,6 +415,22 @@ global:
     httpSecret: {}
       # secret:
       # key:
+    # https://docs.docker.com/registry/notifications/#configuration
+    notifications: {}
+      # endpoints:
+      #   - name: FooListener
+      #     url: https://foolistener.com/event
+      #     timeout: 500ms
+      #     threshold: 10
+      #     backoff: 1s
+      #     headers:
+      #       FooBar: ['1', '2']
+      #       Authorization:
+      #         secret: gitlab-registry-authorization-header
+      #       SpecificPassword:
+      #         secret: gitlab-registry-specific-password
+      #         key: password
+      # events: {}
 
   ## GitLab Runner
   ## Secret created according to doc/installation/secrets.md#gitlab-runner-secret
@@ -445,8 +486,8 @@ global:
     # secret:
     # key:
 
-  ## doc/charts/globals.md#configure-unicorn
-  unicorn:
+  ## doc/charts/globals.md#configure-webservice
+  webservice:
     workerTimeout: 60
 
   ## doc/charts/globals.md#custom-certificate-authorities
@@ -473,6 +514,26 @@ global:
     image:
       repository: busybox
       tag: 1.31.1
+
+  ## docs/charts/globals.md#service-accounts
+  serviceAccount:
+    enabled: false
+    create: true
+    annotations: {}
+    ## Name to be used for serviceAccount, otherwise defaults to chart fullname
+    # name:
+
+  ## docs/charts/globals/tracing.md#tracing
+  tracing:
+    connection:
+      string: ""
+    urlTemplate: ""
+
+  ## docs/charts/globals.md
+  extraEnv: {}
+   # SOME_KEY: some_value
+   # SOME_OTHER_KEY: some_other_value
+
 ## End of global
 
 upgradeCheck:
@@ -491,9 +552,9 @@ upgradeCheck:
 
 ## Settings to for the Let's Encrypt ACME Issuer
 # certmanager-issuer:
-  ## The email address to register certificates requested from Let's Encrypt.
-  ## Required if using Let's Encrypt.
-  # email: email@example.com
+#   # The email address to register certificates requested from Let's Encrypt.
+#   # Required if using Let's Encrypt.
+#   email: email@example.com
 
 ## Installation & configuration of jetstack/cert-manager
 ## See requirements.yaml for current version
@@ -524,7 +585,7 @@ nginx-ingress:
       hsts-include-subdomains: "false"
       server-name-hash-bucket-size: "256"
       enable-vts-status: "true"
-      use-http2: "false"
+      use-http2: "true"
       ssl-ciphers: "ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA:ECDHE-RSA-AES128-SHA:AES256-GCM-SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:!aNULL:!eNULL:!EXPORT:!DES:!MD5:!PSK:!RC4"
       ssl-protocols: "TLSv1.3 TLSv1.2"
       server-tokens: "false"
@@ -606,25 +667,32 @@ postgresql:
   install: true
   postgresqlDatabase: gitlabhq_production
   image:
-    tag: 10.9.0
+    tag: 11.7.0
   usePasswordFile: true
   existingSecret: 'bogus'
   initdbScriptsConfigMap: 'bogus'
+  master:
+    extraVolumeMounts:
+      - name: custom-init-scripts
+        mountPath: /docker-entrypoint-preinitdb.d/init_revision.sh
+        subPath: init_revision.sh
+    podAnnotations:
+      postgresql.gitlab/init-revision: "1"
   metrics:
     enabled: false
     ## Optionally define additional custom metrics
     ## ref: https://github.com/wrouesnel/postgres_exporter#adding-new-metrics-via-a-config-file
-  volumePermissions:
-    image:
-      pullPolicy: IfNotPresent
 
 ## Installation & configuration charts/registry
 ## doc/architecture/decisions.md#registry
 ## doc/charts/registry/
 registry:
-#   enabled: false
+  enabled: true
   image:
     repository: mirrorgitlabcontainers/gitlab-container-registry
+  hpa:
+    minReplicas: 1
+
 
 ## Automatic shared secret generation
 ## doc/installation/secrets.md
@@ -633,10 +701,6 @@ shared-secrets:
   enabled: true
   rbac:
     create: true
-  selfsign:
-    image:
-      repository: mirrorgitlabcontainers/cfssl-self-sign
-      tag: 1.2
 
 ## Installation & configuration of gitlab/gitlab-runner
 ## See requirements.yaml for current version
@@ -705,11 +769,15 @@ gitlab:
   ## doc/charts/gitlab/task-runner
   task-runner:
     replicas: 1
+    antiAffinityLabels:
+      matchLabels:
+        app: 'gitaly'
 ## doc/charts/gitlab/migrations
 #   migrations:
 #     enabled: false
-## doc/charts/gitlab/unicorn
-#   unicorn:
+## doc/charts/gitlab/webservice
+  webservice:
+    minReplicas: 1
 #     enabled: false
 ## doc/charts/gitlab/sidekiq
 #   sidekiq:
@@ -718,29 +786,13 @@ gitlab:
   gitaly:
     image:
       repository: mirrorgitlabcontainers/gitaly
-      tag: v12.10.13
 ## doc/charts/gitlab/gitlab-shell
   gitlab-shell:
-#     enabled: false
     image:
       repository: mirrorgitlabcontainers/gitlab-shell
-      tag: v12.2.0
+    minReplicas: 1
+#     enabled: false
 ## doc/charts/gitlab/gitlab-grafana
 #   gitlab-grafana:
-  mailroom:
-    image:
-      repository: mirrorgitlabcontainers/gitlab-mailroom
-  operator:
-    image:
-      repository: mirrorgitlabcontainers/gitlab-operator
-      tag: v0.8
-    install:
-      image:
-        repository: mirrorgooglecontainers/hyperkube-amd64
   gitlab-exporter:
     enabled: false
-    image:
-      repository: mirrorgitlabcontainers/gitlab-exporter
-
-minio:
-  imagePullPolicy: IfNotPresent

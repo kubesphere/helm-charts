@@ -1,6 +1,6 @@
 image:
   repository: registry.gitlab.com/gitlab-org/build/cng/gitlab-container-registry
-  tag: 'v2.9.0-gitlab'
+  tag: 'v2.9.1-gitlab'
   pullPolicy: 'IfNotPresent'
   pullSecrets: []
 
@@ -116,6 +116,13 @@ init:
     fi
     # Place the `http.secret` value from the kubernetes secret
     sed -i -e 's@HTTP_SECRET@'"$(cat /config/httpSecret)"'@' /registry/config.yml
+    # Populate sensitive registry notification secrets in the config file
+    if [ -d /config/notifications ]; then
+      for i in /config/notifications/*; do
+        filename=$(basename $i);
+        sed -i -e 's@'"${filename}"'@'"$(cat $i)"'@' /registry/config.yml;
+      done
+    fi
     # Insert any provided `storage` block from kubernetes secret
     if [ -d /config/storage ]; then
       # Copy contents of storage secret(s)
@@ -163,6 +170,12 @@ authAutoRedirect: false
 
 maxUnavailable: 1
 
+# updateStrategy is utilized to configure the desired upgrade approach and
+# configuration for the deployment.  See the Kubernetes documentation
+# related to this subject.
+# https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy
+updateStrategy: {}
+
 # if minReplicas is >1, shared storage MUST be used.
 hpa:
   minReplicas: 2
@@ -181,16 +194,6 @@ minio:
 compatibility:
   schema1:
     enabled: false
-
-# https://docs.docker.com/registry/notifications/#configuration
-notifications: {}
-  # endpoints:
-  #   - name: FooListener
-  #     url: https://foolistener.com/event
-  #     timeout: 500ms
-  #     threshold: 10
-  #     backoff: 1s
-  # events: {}
 
 # Enable the registry to accept windows based docker images
 # See https://github.com/docker/distribution/issues/2795
@@ -224,3 +227,8 @@ health:
     enabled: false
     interval: 10s
     threshold: 3
+
+## Allow to overwrite under which User and Group we're running.
+securityContext:
+  runAsUser: 1000
+  fsGroup: 1000

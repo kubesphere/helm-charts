@@ -1,3 +1,9 @@
+---
+stage: Enablement
+group: Distribution
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # Azure MinIO Gateway
 
 [MinIO](https://min.io/) is an object storage server that exposes S3-compatible APIs and it has a gateway feature that allows proxying requests to Azure Blob Storage. To setup our gateway, we will make use of Azure's Web App on Linux.
@@ -51,7 +57,7 @@ az appservice plan create \
     --location "WestUS"
 ```
 
-Create a Web app configured with the [`minio/minio`](https://hub.docker.com/r/minio/minio) docker container, the name you specify will be used in the URL of the web app:
+Create a Web app configured with the [`minio/minio`](https://hub.docker.com/r/minio/minio) Docker container, the name you specify will be used in the URL of the web app:
 
 ```shell
 az webapp create \
@@ -80,7 +86,7 @@ az webapp config set \
 
 ## Conclusion
 
-You can proceed to use this gateway with any client with s3-compability. Your webapp url will be the `s3 endpoint`, storage account name will be your `accesskey` and storage account key will be your `secretkey`.
+You can proceed to use this gateway with any client with s3-compability. Your webapp URL will be the `s3 endpoint`, storage account name will be your `accesskey`, and storage account key will be your `secretkey`.
 
 ## Reference
 

@@ -60,6 +60,10 @@ spec:
       port: {{ include "gitlab.shell.port" $ | int }}
       protocol: TCP
       targetPort: gitlab-shell
+      {{- $nodePort := coalesce (index .Values.controller.service.nodePorts "gitlab-shell") .Values.global.shell.port }}
+      {{- if (and (eq .Values.controller.service.type "NodePort") (not (empty $nodePort))) }}
+      nodePort: {{ $nodePort }}
+      {{- end }}
   {{- range $key, $value := .Values.tcp }}
     - name: "{{ $key }}-tcp"
       port: {{ $key }}

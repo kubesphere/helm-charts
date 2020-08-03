@@ -1,3 +1,9 @@
+---
+stage: Enablement
+group: Distribution
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # checkConfig template
 
 The purpose of this template is to provide a means to prevent users from deploying the Helm chart, or updates to it, in what would be a broken state due to known problematic configurations.
@@ -24,7 +30,7 @@ The developer should be careful not to assume that a key, or parent key will exi
 
 All messages should have the following format:
 
-```text
+```plaintext
 
 chart:
     message
@@ -37,7 +43,7 @@ chart:
 
 Example message:
 
-```text
+```plaintext
 
 redis: both providers
     It appears that `redis.enabled` and `redis-ha.enabled` are both true. This will lead to undefined behavior. Please enable only one.
@@ -45,6 +51,6 @@ redis: both providers
 
 ## Activating new checks
 
-Once a template has been defined, and logic placed within it for the detection of affected properties, activating this new template is simple. Simple add a line beneath `add templates here` in the [`gitlab.checkConfig` template][checkConfig], according to the format presented.
+Once a template has been defined, and logic placed within it for the detection of affected properties, activating this new template is simple. Simple add a line beneath `add templates here` in the [`gitlab.checkConfig` template](https://gitlab.com/gitlab-org/charts/gitlab/blob/master/templates/_checkConfig.tpl), according to the format presented.
 
-[checkConfig]: https://gitlab.com/gitlab-org/charts/gitlab/blob/master/templates/_checkConfig.tpl
+Corresponding tests live in [`spec/integration/check_config_spec.rb`](https://gitlab.com/gitlab-org/charts/gitlab/blob/master/spec/integration/check_config_spec.rb).

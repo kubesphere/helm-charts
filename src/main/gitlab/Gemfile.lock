@@ -36,6 +36,7 @@ GEM
       multi_json
     excon (0.62.0)
     ffi (1.9.25)
+    hash-deep-merge (0.1.1)
     jmespath (1.4.0)
     launchy (2.4.3)
       addressable (~> 2.3)
@@ -79,10 +80,11 @@ DEPENDENCIES
   capybara
   capybara-screenshot
   docker-api
+  hash-deep-merge
   rake
   rspec
   rspec-retry
   selenium-webdriver
 
 BUNDLED WITH
-   1.17.1
+   1.17.2

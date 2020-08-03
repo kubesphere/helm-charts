@@ -142,6 +142,9 @@ data:
     # Enable the use of Git protcol v2
     AcceptEnv GIT_PROTOCOL
     
+    # Hard disable all forwarding
+    DisableForwarding yes
+    
     # Specifies the maximum number of concurrent unauthenticated connections to the SSH daemon.
     # See `man sshd_config(5)`
     {{ if and .Values.config.maxStartups.start .Values.config.maxStartups.rate }}

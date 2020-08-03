@@ -1,3 +1,9 @@
+---
+stage: Enablement
+group: Distribution
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # Required tools
 
 Before deploying GitLab to your Kubernetes cluster, there are some tools you
@@ -5,7 +11,7 @@ must have installed locally.
 
 ## kubectl
 
-kubectl is the tool that talks to the Kubernetes API. kubectl 1.12 or higher is
+kubectl is the tool that talks to the Kubernetes API. kubectl 1.13 or higher is
 required and it needs to be compatible with your cluster
 ([+/- 1 minor release from your cluster](https://kubernetes.io/docs/tasks/tools/install-kubectl/#before-you-begin)).
 
@@ -23,7 +29,7 @@ is also fully supported.
 
 NOTE: **Note**:
 We are not using Helm v3 for testing in CI. If you find issues
-specific to Helm v3, please create an issue in our [issue tracker](https://gitlab.com/gitlab-org/charts/gitlab/issues)
+specific to Helm v3, please create an issue in our [issue tracker](https://gitlab.com/gitlab-org/charts/gitlab/-/issues)
 and start the issue title with the keyword `[Helm3]`.
 
 NOTE: **Note**:
@@ -107,7 +113,7 @@ list page.
 
 Alternatively, use the command below, filling in your cluster's information:
 
-```sh
+```shell
 gcloud container clusters get-credentials <cluster-name> --zone <zone> --project <project-id>
 ```
 
@@ -128,7 +134,7 @@ cluster, use `kubectl config set-cluster minikube` to set the active cluster.
 
 For GKE, you need to grab the admin credentials:
 
-```sh
+```shell
 gcloud container clusters describe <cluster-name> --zone <zone> --project <project-id> --format='value(masterAuth.password)'
 ```
 
@@ -138,7 +144,7 @@ with `kubectl` and create the role.
 We will also create an admin user for this cluster. Use a name you prefer but
 for this example we will include the cluster's name in it:
 
-```sh
+```shell
 CLUSTER_NAME=name-of-cluster
 kubectl config set-credentials $CLUSTER_NAME-admin-user --username=admin --password=xxxxxxxxxxxxxx
 kubectl --user=$CLUSTER_NAME-admin-user create -f https://gitlab.com/gitlab-org/charts/gitlab/raw/master/doc/installation/examples/rbac-config.yaml
@@ -148,7 +154,7 @@ kubectl --user=$CLUSTER_NAME-admin-user create -f https://gitlab.com/gitlab-org/
 
 For other clusters like Amazon EKS, you can directly upload the RBAC configuration:
 
-```sh
+```shell
 kubectl create -f https://gitlab.com/gitlab-org/charts/gitlab/raw/master/doc/installation/examples/rbac-config.yaml
 ```
 
@@ -158,14 +164,14 @@ If Helm v3 is being used, there no longer is an `init` sub command and the
 command is ready to be used once it is installed. Otherwise if Helm v2 is
 being used, then Helm needs to deploy Tiller with a service account:
 
-```sh
+```shell
 helm init --service-account tiller
 ```
 
 If your cluster previously had Helm/Tiller installed, run the following command
 to ensure that the deployed version of Tiller matches the local Helm version:
 
-```sh
+```shell
 helm init --upgrade --service-account tiller
 ```
 
@@ -207,7 +213,7 @@ the chart.
 To use the script, skip this entire section about initializing Helm. Instead,
 make sure you have Docker installed locally and run:
 
-```sh
+```shell
 bin/localtiller-helm --client-only
 ```
 

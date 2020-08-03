@@ -1,3 +1,9 @@
+---
+stage: Enablement
+group: Distribution
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # Migrating from Omnibus-GitLab package based installation
 
 ## Prerequisites
@@ -22,7 +28,7 @@
 
 CAUTION: **CAUTION:**
 JUnit test report artifact (`junit.xml.gz`) migration
-[is not supported](https://gitlab.com/gitlab-org/gitlab/issues/27698)
+[is not supported](https://gitlab.com/gitlab-org/gitlab/-/issues/27698)
 by the `gitlab:artifacts:migrate` script below.
 
 1. Migrate existing files (uploads, artifacts, lfs objects) from package based
@@ -38,29 +44,29 @@ by the `gitlab:artifacts:migrate` script below.
 
    1. Run reconfigure to apply the changes
 
-      ```sh
+      ```shell
       sudo gitlab-ctl reconfigure
       ```
 
    1. Migrate existing artifacts to object storage
 
-      ```sh
+      ```shell
       sudo gitlab-rake gitlab:artifacts:migrate
       ```
 
    1. Migrate existing LFS objects to object storage
 
-      ```sh
+      ```shell
       sudo gitlab-rake gitlab:lfs:migrate
       ```
 
    1. Migrate existing uploads to object storage
 
-      ```sh
+      ```shell
       sudo gitlab-rake gitlab:uploads:migrate:all
       ```
 
-      Docs: <https://docs.gitlab.com/ee/administration/raketasks/uploads/migrate.html#migrate-to-object-storage>
+      See [documentation](https://docs.gitlab.com/ee/administration/raketasks/uploads/migrate.html#migrate-to-object-storage).
 
    1. Visit the Omnibus GitLab package-based GitLab instance and make sure the
       uploads are available. For example check if user, group and project
@@ -74,7 +80,7 @@ by the `gitlab:artifacts:migrate` script below.
       - lfs: `/var/opt/gitlab/gitlab-rails/shared/lfs-objects`
       - artifacts: `/var/opt/gitlab/gitlab-rails/shared/artifacts`
 
-      ```sh
+      ```shell
       sudo mv /var/opt/gitlab/gitlab-rails/uploads{,.bak}
       sudo mv /var/opt/gitlab/gitlab-rails/shared/lfs-objects{,.bak}
       sudo mv /var/opt/gitlab/gitlab-rails/shared/artifacts{,.bak}
@@ -83,13 +89,13 @@ by the `gitlab:artifacts:migrate` script below.
    1. Run reconfigure to recreate empty directories in place, so backup task
       won't fail.
 
-      ```sh
+      ```shell
       sudo gitlab-ctl reconfigure
       ```
 
 1. [Create backup tarball](https://docs.gitlab.com/ee/raketasks/backup_restore.html#creating-a-backup-of-the-gitlab-system)
 
-   ```sh
+   ```shell
    sudo gitlab-rake gitlab:backup:create
    ```
 
@@ -102,7 +108,7 @@ by the `gitlab:artifacts:migrate` script below.
 
 1. Restart all pods to make sure changes are applied
 
-   ```sh
+   ```shell
    kubectl delete pods -lrelease=<helm release name>
    ```
 

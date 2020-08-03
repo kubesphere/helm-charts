@@ -1,3 +1,9 @@
+---
+stage: Enablement
+group: Distribution
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # Developing for Kubernetes with Minikube
 
 This guide is meant to serve as a cross-plaform resource for setting up a local
@@ -175,17 +181,12 @@ When using the recommended 3 CPU and 8 GB of RAM, use
 as a base.
 
 ```shell
-helm repo add stable https://kubernetes-charts.storage.googleapis.com
 helm repo add gitlab https://charts.gitlab.io/
 helm repo update
 helm upgrade --install gitlab gitlab/gitlab \
   --timeout 600s \
   -f https://gitlab.com/gitlab-org/charts/gitlab/raw/master/examples/values-minikube.yaml
 ```
-
-NOTE: **Note**:
-If using Helm v2, the stable repository is installed by Helm automatically.
-There are no adverse effects if it is added again.
 
 NOTE: **Note**:
 If using Helm v2, please see notes about the `--timeout` option
@@ -198,17 +199,12 @@ and disable unneeded services. See [`values-minikube-minimum.yaml`](https://gitl
 as a reasonable base.
 
 ```shell
-helm repo add stable https://kubernetes-charts.storage.googleapis.com
 helm repo add gitlab https://charts.gitlab.io/
 helm repo update
 helm upgrade --install gitlab gitlab/gitlab \
   --timeout 600s \
   -f https://gitlab.com/gitlab-org/charts/gitlab/raw/master/examples/values-minikube-minimum.yaml
 ```
-
-NOTE: **Note**:
-If using Helm v2, the stable repository is installed by Helm automatically.
-There are no adverse effects if it is added again.
 
 NOTE: **Note**:
 If using Helm v2, please see notes about the `--timeout` option
@@ -233,7 +229,7 @@ If this is not available to you, then you may need to make alterations to your
 
 Example `/etc/hosts` file addition:
 
-```text
+```plaintext
 192.168.99.100 gitlab.some.domain registry.some.domain minio.some.domain
 ```
 

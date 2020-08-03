@@ -38,6 +38,7 @@ variables:
   POSTGRES_ENABLED: "false"
   POSTGRES_DB: $CI_ENVIRONMENT_SLUG
   GIT_CLONE_PATH: $CI_BUILDS_DIR/gitlab
+  TILLER_HISTORY_MAX: 20
 
 stages:
   - prepare
@@ -49,6 +50,9 @@ stages:
   - qa
   - package
   - cleanup
+
+.auto_deploy_items:
+  - &com_auto_deploy_branch_ref /^[0-9]+-[0-9]+-auto-deploy-[0-9]+$/@gitlab-org/charts/gitlab
 
 tag_auto_deploy:
   stage: package
@@ -97,6 +101,7 @@ lint_package:
       - tags
       - triggers
       - /(^docs[\/-].+|.+-docs$)/
+      - *com_auto_deploy_branch_ref
 
 .kubeval:
   stage: package
@@ -113,6 +118,7 @@ lint_package:
       - tags
       - triggers
       - /(^docs[\/-].+|.+-docs$)/
+      - *com_auto_deploy_branch_ref
 
 "Validate 1.12.9":
   extends: .kubeval
@@ -159,6 +165,7 @@ lint_package:
       - master
       - triggers
       - /(^docs[\/-].+|.+-docs$)/
+      - *com_auto_deploy_branch_ref
 
 review_gke:
   variables:
@@ -203,6 +210,7 @@ review_eks:
       - master
       - triggers
       - /(^docs[\/-].+|.+-docs$)/
+      - *com_auto_deploy_branch_ref
 
 stop_review_gke:
   extends: .stop_review_template
@@ -347,7 +355,9 @@ review_helm_test:
     <<: *deps_pipeline
     refs:
       - master
+      - triggers
       - /(^docs[\/-].+|.+-docs$)/
+      - *com_auto_deploy_branch_ref
 
 production_helm_test:
   stage: qa
@@ -390,7 +400,9 @@ debug_review:
     <<: *deps_pipeline
     refs:
       - master
+      - triggers
       - /(^docs[\/-].+|.+-docs$)/
+      - *com_auto_deploy_branch_ref
 
 danger-review:
   image: registry.gitlab.com/gitlab-org/gitlab-build-images:danger
@@ -404,6 +416,8 @@ danger-review:
     refs:
       - master
       - tags
+      - triggers
+      - *com_auto_deploy_branch_ref
   script:
     - git version
     - danger --fail-on-errors=true
@@ -427,7 +441,12 @@ check_docs_lint:
     - bundle exec nanoc check internal_links
     # Check the internal anchor links
     - bundle exec nanoc check internal_anchors
-  <<: *except_deps_update
+  except:
+    variables:
+      - $DEPS_PIPELINE
+      - $TRIGGER_JOB
+    refs:
+      - *com_auto_deploy_branch_ref
 
 .review-docs:
   image: ruby:2.6-alpine
@@ -448,6 +467,7 @@ check_docs_lint:
   when: manual
   except:
     - triggers
+    - *com_auto_deploy_branch_ref
 
 # Trigger a docs build in gitlab-docs
 # Useful to preview the docs changes live
@@ -602,7 +622,7 @@ review-docs-cleanup:
       --set global.ingress.configureCertmanager=false \
       --set certmanager.install=false \
       --set prometheus.install=$PROMETHEUS_INSTALL \
-      --set gitlab.unicorn.maxReplicas=3 \
+      --set gitlab.webservice.maxReplicas=3 \
       --set gitlab.sidekiq.maxReplicas=2 \
       --set gitlab.task-runner.enabled=true \
       --set gitlab.gitlab-shell.maxReplicas=3 \
@@ -716,7 +736,7 @@ review-docs-cleanup:
 
   function install_tiller() {
     echo "Checking Tiller..."
-    helm init --upgrade --service-account tiller
+    helm init --upgrade --service-account tiller --history-max=${TILLER_HISTORY_MAX}
     kubectl rollout status -n "$TILLER_NAMESPACE" -w "deployment/tiller-deploy"
     if ! helm version --debug; then
       echo "Failed to init Tiller."
@@ -803,7 +823,7 @@ review-docs-cleanup:
     RELEASE_NAME: $CI_ENVIRONMENT_SLUG
     S3_CONFIG_PATH: /etc/gitlab/minio
   script:
-    - if [[ -n "${VARIABLES_FILE}" ]]; then source "${VARIABLES_FILE}"; ./scripts/ci_feature_spec_setup; fi
+    - if [[ -n "${VARIABLES_FILE}" ]]; then source "${VARIABLES_FILE}"; ./scripts/ci_feature_spec_setup; else ./scripts/ci_integration_spec_setup; fi
     - bundle install -j $(nproc) --without non_test --path gems
     - bundle exec rspec -c -f d spec -t "${RSPEC_TAGS}"
   after_script:
@@ -838,6 +858,7 @@ review_specs_gke:
     refs:
       - master
       - /(^docs[\/-].+|.+-docs$)/
+      - *com_auto_deploy_branch_ref
 
 review_specs_eks:
   extends: .specs
@@ -858,12 +879,16 @@ review_specs_eks:
     refs:
       - master
       - /(^docs[\/-].+|.+-docs$)/
+      - *com_auto_deploy_branch_ref
 
 specs_without_cluster:
   extends: .specs
   variables:
     RSPEC_TAGS: ~type:feature
   needs: []
+  except:
+    refs:
+      - /(^docs[\/-].+|.+-docs$)/
 
 .production_specs:
   extends: .specs
@@ -878,6 +903,9 @@ production_specs_without_cluster:
   extends: .production_specs
   variables:
     RSPEC_TAGS: ~type:feature
+  except:
+    refs:
+      - /(^docs[\/-].+|.+-docs$)/
 
 production_specs_gke:
   extends: .production_specs
@@ -974,6 +1002,7 @@ release_package:
     refs:
       - master
       - /(^docs[\/-].+|.+-docs$)/
+      - *com_auto_deploy_branch_ref
 
 .qa_production:
   extends: .qa

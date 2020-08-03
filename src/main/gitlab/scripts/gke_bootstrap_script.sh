@@ -30,12 +30,9 @@ source $SCRIPT_PATH/common.sh;
 
 function bootstrap(){
   set -e
-  validate_required_tools;
+  validate_tools helm gcloud kubectl;
 
-  set +e
-  helm version --short --client | grep -q '^v3\.[0-9]\{1,\}'
-  IS_HELM_3=$?
-  set -e
+  IS_HELM_3=$(check_helm_3)
 
   # Use the default cluster version for the specified zone if not provided
   if [ -z "${CLUSTER_VERSION}" ]; then
@@ -96,11 +93,7 @@ function bootstrap(){
   helm repo update
 
   if ! ${USE_STATIC_IP}; then
-    if [ $IS_HELM_3 -eq 0 ]; then
-      name_flag=''
-    else
-      name_flag='--name'
-    fi
+    name_flag=$(set_helm_name_flag)
 
     helm install $name_flag dns --namespace kube-system stable/external-dns \
       --version '^2.1.2' \
@@ -114,7 +107,7 @@ function bootstrap(){
 
 #Deletes everything created during bootstrap
 function cleanup_gke_resources(){
-  validate_required_tools;
+  validate_tools gcloud;
 
   gcloud container clusters delete -q $CLUSTER_NAME --zone $ZONE --project $PROJECT;
   echo "Deleted $CLUSTER_NAME cluster successfully";
@@ -137,9 +130,6 @@ case $1 in
     ;;
   down)
     cleanup_gke_resources;
-    ;;
-  chaos)
-    $SCRIPT_PATH/kube-monkey.sh;
     ;;
   *)
     echo "Unknown command $1";

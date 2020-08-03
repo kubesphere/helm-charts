@@ -1,3 +1,9 @@
+---
+stage: Enablement
+group: Distribution
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # GitLab Operator
 
 GitLab Operator is an implementation of the [Operator pattern](https://coreos.com/blog/introducing-operators.html)
@@ -17,7 +23,7 @@ The Operator makes use of [Kubernetes Custom Resource Definitions (CRD)](https:/
 Since Helm handles the installation, we need to ensure that the GitLab CRD is in place prior to attempting to use it.
 In order to do this, we have to install the CRD with a separate command:
 
-```bash
+```shell
 GITLAB_CHART_VERSION=v3.0.0
 kubectl apply -f https://gitlab.com/gitlab-org/charts/gitlab/raw/${GITLAB_CHART_VERSION}/support/crd.yaml
 ```
@@ -33,7 +39,7 @@ resources.
 Once the GitLab CRD is in place, you can install GitLab with the following command, where `...` must be replaced by
 the rest of the values you would like to set:
 
-```bash
+```shell
 helm upgrade --install <release-name> . --set global.operator.enabled=true ...
 ```
 

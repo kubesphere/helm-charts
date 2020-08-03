@@ -4,7 +4,7 @@ NOTICE: The automatic generation of secrets has been disabled.
 The user should ensure all necessary secrets are created according to documentation, or the deployment will fail to operate correctly.
 {{- end }}
 {{/* If using self-signed auto-generated certificates, and a service needing them is enabled */}}
-{{- if or .Values.gitlab.unicorn.enabled (or .Values.registry.enabled .Values.global.minio.enabled) }}
+{{- if or .Values.gitlab.webservice.enabled (or .Values.registry.enabled .Values.global.minio.enabled) }}
 {{-   if not (or .Values.global.ingress.configureCertmanager (include "gitlab.ingress.tls.configured" .)) }}
 WARNING: Automatic TLS certificate generation with cert-manager is disabled and no TLS certificates were provided. Self-signed certificates were generated.
 
@@ -16,8 +16,8 @@ If you do not wish to use self-signed certificates, please set the following pro
   - global.ingress.tls.secretName
   OR
   - global.ingress.tls.enabled (set to `true`)
-{{- if $.Values.gitlab.unicorn.enabled }}
-  - gitlab.unicorn.ingress.tls.secretName
+{{- if $.Values.gitlab.webservice.enabled }}
+  - gitlab.webservice.ingress.tls.secretName
 {{- end }}
 {{- if $.Values.registry.enabled }}
   - registry.ingress.tls.secretName

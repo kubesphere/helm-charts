@@ -1,3 +1,9 @@
+---
+stage: Enablement
+group: Distribution
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # TLS options
 
 This chart is capable of doing TLS termination using the NGINX Ingress Controller. You have the choice of how to
@@ -8,7 +14,7 @@ acquire the TLS certificates for your deployment. Extensive details can be found
 Let’s Encrypt is a free, automated, and open Certificate Authority. Certificates can be automatically requested
 using various tools. This chart comes ready to integrate with a popular choice [cert-manager](https://github.com/jetstack/cert-manager).
 
-*If you are already using cert-manager*, you can use `global.ingress.annotations` to configure [appropriate annotations][cm-annotations] for your cert-manager deployment.
+*If you are already using cert-manager*, you can use `global.ingress.annotations` to configure [appropriate annotations](https://cert-manager.io/docs/usage/ingress/#supported-annotations) for your cert-manager deployment.
 
 *If you don't already have cert-manager installed in your cluster*, you can install and configure it as a dependency of this chart.
 
@@ -17,7 +23,7 @@ using various tools. This chart comes ready to integrate with a popular choice [
 ```shell
 helm repo update
 helm dep update
-helm install gitlab gitlab/gitlab
+helm install gitlab gitlab/gitlab \
   --set certmanager-issuer.email=you@example.com
 ```
 
@@ -30,7 +36,7 @@ provided by default.
 It is possible to make use of an external `cert-manager` but provide an Issuer as a part of this chart.
 
 ```shell
-helm install gitlab gitlab/gitlab
+helm install gitlab gitlab/gitlab \
   --set certmanager.install=false \
   --set certmanager-issuer.email=you@example.com \
   --set global.ingress.annotations."kubernetes\.io/tls-acme"=true
@@ -41,15 +47,15 @@ helm install gitlab gitlab/gitlab
 To make use of an external `cert-manager` and `Issuer` resource you must provide several items, so that self-signed certificates
 are not activated.
 
-1. Annotations to activate the external `cert-manager` (see [documentation][cm-annotations] for further details)
+1. Annotations to activate the external `cert-manager` (see [documentation](https://cert-manager.io/docs/usage/ingress/#supported-annotations) for further details)
 1. Names of TLS secrets for each service (this deactivates [self-signed behaviors](#option-4-use-auto-generated-self-signed-wildcard-certificate))
 
 ```shell
-helm install gitlab gitlab/gitlab
+helm install gitlab gitlab/gitlab \
   --set certmanager.install=false \
   --set global.ingress.configureCertmanager=false \
   --set global.ingress.annotations."kubernetes\.io/tls-acme"=true \
-  --set gitlab.unicorn.ingress.tls.secretName=RELEASE-gitlab-tls \
+  --set gitlab.webservice.ingress.tls.secretName=RELEASE-gitlab-tls \
   --set registry.ingress.tls.secretName=RELEASE-registry-tls \
   --set minio.ingress.tls.secretName=RELEASE-minio-tls
 ```
@@ -65,7 +71,7 @@ kubectl create secret tls <tls-secret-name> --cert=<path/to-full-chain.crt> --ke
 Include the option to
 
 ```shell
-helm install gitlab gitlab/gitlab
+helm install gitlab gitlab/gitlab \
   --set certmanager.install=false \
   --set global.ingress.configureCertmanager=false \
   --set global.ingress.tls.secretName=<tls-secret-name>
@@ -76,11 +82,11 @@ helm install gitlab gitlab/gitlab
 Add your full chain certificates to the cluster as secrets, and then pass those secret names to each Ingress.
 
 ```shell
-helm install gitlab gitlab/gitlab
+helm install gitlab gitlab/gitlab \
   --set certmanager.install=false \
   --set global.ingress.configureCertmanager=false \
   --set global.ingress.tls.enabled=true \
-  --set gitlab.unicorn.ingress.tls.secretName=RELEASE-gitlab-tls \
+  --set gitlab.webservice.ingress.tls.secretName=RELEASE-gitlab-tls \
   --set registry.ingress.tls.secretName=RELEASE-registry-tls \
   --set minio.ingress.tls.secretName=RELEASE-minio-tls
 ```
@@ -88,14 +94,14 @@ helm install gitlab gitlab/gitlab
 ## Option 4: Use auto-generated self-signed wildcard certificate
 
 These charts also provide the capability to provide a auto-generated self-signed wildcard certificate.
-This can be useful in environments where Let's Encrypt is not an option, but security via SSL is stil
+This can be useful in environments where Let's Encrypt is not an option, but security via SSL is still
 desired. This functionality is provided by the [shared-secrets](../charts/shared-secrets/index.md) chart.
 
 > **Note**: The `gitlab-runner` chart does not function properly with self-signed certificates. We recommend
 disabling it, as shown below.
 
 ```shell
-helm install gitlab gitlab/gitlab
+helm install gitlab gitlab/gitlab \
   --set certmanager.install=false \
   --set global.ingress.configureCertmanager=false \
   --set gitlab-runner.install=false
@@ -105,5 +111,3 @@ The `shared-secrets` chart will then produce a CA certificate and wildcard certi
 accessible services. The secrets containing these will be `RELEASE-wildcard-tls` and `RELEASE-wildcard-tls-ca`.
 The `RELEASE-wildcard-tls-ca` contains the public CA certificate that can be distributed to users and systems that
 will access the deployed GitLab instance.
-
-[cm-annotations]: https://cert-manager.io/docs/usage/ingress/#supported-annotations

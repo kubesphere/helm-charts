@@ -19,7 +19,7 @@ init:
 tolerations: []
 
 enabled: true
-cluster: false
+cluster: true
 experimentalQueueSelector: false
 
 annotations: {}
@@ -94,7 +94,7 @@ global:
     # port: '5432'
     # database: 'gitlabhq_production'
     # username: 'gitlab'
-    # pool: 10
+    # pool: 1
     # preparedStatements: false
     # password:
     #   secret: gitlab-postgres
@@ -111,12 +111,15 @@ global:
       names: ["default"]
     external: []
     authToken: {}
-  unicorn: {}
+  webservice: {}
   minio:
     enabled:
     credentials: {}
   appConfig:
     incomingEmail:
+      enabled: false
+      address:
+    serviceDeskEmail:
       enabled: false
       address:
     lfs:
@@ -177,6 +180,12 @@ global:
       configMap:
       bucket:
       connection: {}
+    sentry:
+      enabled: false
+      dsn:
+      clientside_dsn:
+      environment:
+
 gitaly:
   # host: '0.0.0.0'
   # port: 8075
@@ -198,6 +207,14 @@ registry:
   tokenIssuer: gitlab-issuer
 extra: {}
 
+## Additional environment variables to set
+## Note that these will be applied to every
+##   container in the pod.
+extraEnv: {}
+# extraEnv:
+#   SOMEKEY: SOMEVALUE
+#   SOMEKEY2: SOMEVALUE2
+
 rack_attack:
   git_basic_auth:
     enabled: false
@@ -213,6 +230,13 @@ trusted_proxies: []
 minReplicas: 1
 maxReplicas: 10
 concurrency: 25
+
+# updateStrategy is utilized to configure the desired upgrade approach and
+# configuration for the deployment.  See the Kubernetes documentation
+# related to this subject.
+# https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy
+updateStrategy: {}
+
 hpa:
   targetAverageValue: 350m
 timeout: 5
@@ -231,4 +255,27 @@ pods:
     # concurrency: 25
     # minReplicas: 1
     # maxReplicas: 10
-    queues:
+    # updateStrategy: {}
+    # queues: ''
+    # extraVolumes
+    # extraVolumeMounts
+    # priorityClassName: ""
+    # hpa:
+    #   targetAverageValue:
+
+## Allow to overwrite under which User and Group we're running.
+securityContext:
+  runAsUser: 1000
+  fsGroup: 1000
+
+## Enable deployment to use a serviceAccount
+serviceAccount:
+  enabled: false
+  create: false
+  annotations: {}
+  ## Name to be used for serviceAccount, otherwise defaults to chart fullname
+  # name: 
+  
+## Allow configuring pods' priorityClassName. This is used to control pod priority in case of eviction:
+#  https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/
+priorityClassName: ""

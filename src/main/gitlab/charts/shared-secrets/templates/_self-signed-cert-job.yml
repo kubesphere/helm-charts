@@ -75,6 +75,16 @@ spec:
 {{- end }}
           kubectl --namespace=$namespace label --overwrite \
             secret ${certname}-ca {{ include "gitlab.standardLabels" . | replace ": " "=" | replace "\r\n" " " | replace "\n" " " }}
+          # create certificate chain for GitLab Runner
+          cat /output/ca.pem /output/wildcard.pem > /tmp/{{ template "gitlab.gitlab.hostname" $ }}.crt
+          kubectl create secret generic ${certname}-chain \
+            --from-file=/tmp/{{ template "gitlab.gitlab.hostname" $ }}.crt || true
+{{- if not .Values.global.application.create }}
+          kubectl --namespace=$namespace label \
+            secret ${certname}-chain  $(echo '{{ include "gitlab.application.labels" . | replace ": " "=" | replace "\r\n" " " | replace "\n" " " }}' | sed -E 's/=[^ ]*/-/g')
+{{- end }}
+          kubectl --namespace=$namespace label --overwrite \
+            secret ${certname}-chain {{ include "gitlab.standardLabels" . | replace ": " "=" | replace "\r\n" " " | replace "\n" " " }}
         volumeMounts:
         - name: certs-path
           mountPath: /output

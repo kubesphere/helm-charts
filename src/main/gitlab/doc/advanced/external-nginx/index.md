@@ -1,3 +1,9 @@
+---
+stage: Enablement
+group: Distribution
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # External NGINX Ingress Controller
 
 This chart configures `Ingress` resources for use with the official
@@ -9,7 +15,7 @@ this guide will help.
 ## TCP services in the external Ingress Controller
 
 The GitLab Shell component requires TCP traffic to pass through on
-port 22 (by default; this can be changed). Ingress does not directly support TCP services, so some additonal configuration is necessary. Your NGINX Ingress Controller may have been [deployed directly](https://github.com/kubernetes/ingress-nginx/blob/master/docs/deploy/index.md) (i.e. with a Kubernetes spec file) or through the [official Helm chart](https://github.com/helm/charts/tree/master/stable/nginx-ingress). The configuration of the TCP pass through will differ depending on the deployment approach.
+port 22 (by default; this can be changed). Ingress does not directly support TCP services, so some additional configuration is necessary. Your NGINX Ingress Controller may have been [deployed directly](https://github.com/kubernetes/ingress-nginx/blob/master/docs/deploy/index.md) (i.e. with a Kubernetes spec file) or through the [official Helm chart](https://github.com/helm/charts/tree/master/stable/nginx-ingress). The configuration of the TCP pass through will differ depending on the deployment approach.
 
 ### Direct deployment
 
@@ -44,7 +50,7 @@ port 22 in addition to 80 and 443.
 
 If you have installed or will install the NGINX Ingress Controller via it's [Helm chart](https://github.com/helm/charts/tree/master/stable/nginx-ingress), then you will need to add a value to the chart via the command line:
 
-```bash
+```shell
 --set tcp.22="gitlab/mygitlab-gitlab-shell:22"
 ```
 
@@ -64,18 +70,18 @@ will service a particular `Ingress` (see [docs](https://github.com/kubernetes/in
 You can configure the Ingress class to use with this chart using the
 `global.ingress.class` setting. Make sure to set this in your Helm options.
 
-```bash
+```shell
 --set global.ingress.class=myingressclass
 ```
 
 While not necessarily required, if you're using an external Ingress Controller, you will likely want to
 disable the Ingress Controller that is deployed by default with this chart:
 
-```bash
+```shell
 --set nginx-ingress.enabled=false
 ```
 
-## Custom certifcate management
+## Custom certificate management
 
 The full scope of your TLS options are documented [elsewhere](https://gitlab.com/gitlab-org/charts/gitlab/blob/master/doc/installation/tls.md).
 
@@ -84,7 +90,7 @@ or managing your certificates in some other custom manner. The full documentatio
 however for the purposes of this discussion, here are the two values that would need to be set to disable the cert-manager chart and tell
 the GitLab component charts to NOT look for the built in certificate resources:
 
-```bash
+```shell
 --set certmanager.install=false
 --set global.ingress.configureCertmanager=false
 ```

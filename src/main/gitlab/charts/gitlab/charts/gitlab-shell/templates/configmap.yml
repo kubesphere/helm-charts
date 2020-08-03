@@ -38,5 +38,9 @@ data:
     # Set to true to see real usernames in the logs instead of key ids, which is easier to follow, but
     # incurs an extra API call on every gitlab-shell command.
     audit_usernames: false
+    
+    {{ if .Values.global.tracing.connection.string }}
+    gitlab_tracing: {{ .Values.global.tracing.connection.string }}
+    {{ end }}
 # Leave this here - This line denotes end of block to the parser.
 {{- end }}

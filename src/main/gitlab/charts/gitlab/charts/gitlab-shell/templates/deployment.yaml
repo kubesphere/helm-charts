@@ -6,6 +6,8 @@ metadata:
   namespace: {{ $.Release.Namespace }}
   labels:
     {{- include "gitlab.standardLabels" . | nindent 4 }}
+  annotations:
+    {{- include "gitlab.deploymentAnnotations" . | nindent 4 }}
 spec:
   selector:
     matchLabels:
@@ -34,6 +36,8 @@ spec:
         - name: configure
           command: ['sh', '/config/configure']
           image: {{ include "gitlab.busybox.image" (dict "local" .Values.init "global" $.Values.global.busybox) | quote }}
+          env:
+          {{- include "gitlab.extraEnv" . | nindent 10 }}
           volumeMounts:
           {{- include "gitlab.extraVolumeMounts" . | nindent 10 }}
           - name: shell-config
@@ -48,8 +52,8 @@ spec:
           resources:
             {{- toYaml .Values.init.resources | nindent 12 }}
       securityContext:
-        runAsUser: 1000
-        fsGroup: 1000
+        runAsUser: {{ .Values.securityContext.runAsUser }}
+        fsGroup: {{ .Values.securityContext.fsGroup }}
 {{- include "pullsecrets" .Values.image | indent 6 }}
       {{- if eq (default .Values.global.antiAffinity .Values.antiAffinity) "hard" }}
       affinity:
@@ -72,6 +76,9 @@ spec:
                   app: {{ template "name" . }}
                   release: {{ .Release.Name }}
       {{- end }}
+      {{- if or .Values.serviceAccount.enabled .Values.global.serviceAccount.enabled }}
+      serviceAccountName: {{ include "gitlab.serviceAccount.name" . }}
+      {{- end }}
       containers:
         {{- include "gitlab.extraContainers" . | nindent 8 }}
         - name: {{ .Chart.Name }}
@@ -89,6 +96,7 @@ spec:
               value: '/srv/gitlab-shell'
             - name: KEYS_DIRECTORY
               value: '/etc/gitlab-secrets/ssh'
+            {{- include "gitlab.extraEnv" . | nindent 12 }}
           volumeMounts:
             - name: shell-config
               mountPath: '/etc/gitlab-shell'

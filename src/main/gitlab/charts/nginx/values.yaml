@@ -198,6 +198,7 @@ controller:
     nodePorts:
       http: ""
       https: ""
+      gitlab-shell: ""
 
   extraContainers: []
   ## Additional containers to be added to the controller pod.

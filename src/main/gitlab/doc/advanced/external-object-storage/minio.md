@@ -1,3 +1,9 @@
+---
+stage: Enablement
+group: Distribution
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # MinIO
 
 [MinIO](https://min.io/) is an object storage server that exposes S3-compatible APIs.
@@ -12,7 +18,7 @@ in this [example configuration file](https://gitlab.com/gitlab-org/charts/gitlab
 
 Using the [MinIO client](https://docs.min.io/docs/minio-client-complete-guide), create the necessary buckets before use:
 
-```sh
+```shell
 mc mb gitlab-registry-storage
 mc mb gitlab-lfs-storage
 mc mb gitlab-artifacts-storage

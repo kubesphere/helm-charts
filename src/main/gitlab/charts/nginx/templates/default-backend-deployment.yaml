@@ -6,8 +6,10 @@ metadata:
   name: {{ template "nginx-ingress.defaultBackend.fullname" . }}
   namespace: {{ $.Release.Namespace }}
   labels:
-{{ include "gitlab.standardLabels" . | indent 4 }}
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
     component: "{{ .Values.defaultBackend.name }}"
+  annotations:
+    {{- include "gitlab.deploymentAnnotations" . | nindent 4 }}
 spec:
   replicas: {{ .Values.defaultBackend.replicaCount }}
   revisionHistoryLimit: {{ .Values.revisionHistoryLimit }}

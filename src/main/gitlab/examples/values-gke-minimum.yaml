@@ -41,7 +41,7 @@ global:
       enabled: false
 # Reduce replica counts, reducing CPU & memory requirements
 gitlab:
-  unicorn:
+  webservice:
     minReplicas: 1
     resources:
       limits:

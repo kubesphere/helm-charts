@@ -1,3 +1,9 @@
+---
+stage: Enablement
+group: Distribution
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # Pre-install preparations
 
 This document covers our weekly demos preparation steps but can also be useful
@@ -20,20 +26,20 @@ need to be done in this project.
 1. You will need to have the [`gcloud`](https://cloud.google.com/sdk/gcloud/) tool
    installed on your system:
 
-    ```sh
-    mkdir gcloud-build && cd gcloud-build;
-    wget https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-189.0.0-linux-x86_64.tar.gz;
-    tar -xzf google-cloud-sdk-189.0.0-linux-x86_64.tar.gz
-    ./google-cloud-sdk/install.sh
-    source google-cloud-sdk/path.bash.inc && echo "source google-cloud-sdk/path.bash.inc" >> $HOME/.profile
-    ```
+   ```shell
+   mkdir gcloud-build && cd gcloud-build;
+   wget https://dl.google.com/dl/cloudsdk/channels/rapid/downloads/google-cloud-sdk-189.0.0-linux-x86_64.tar.gz;
+   tar -xzf google-cloud-sdk-189.0.0-linux-x86_64.tar.gz
+   ./google-cloud-sdk/install.sh
+   source google-cloud-sdk/path.bash.inc && echo "source google-cloud-sdk/path.bash.inc" >> $HOME/.profile
+   ```
 
 1. Run `gcloud` and interactively go through its authentication and
    initialization:
 
-    ```sh
-    ./google-cloud-sdk/bin/gcloud init
-    ```
+   ```shell
+   ./google-cloud-sdk/bin/gcloud init
+   ```
 
 ### Domain name
 
@@ -44,9 +50,9 @@ existing one.
 
 We usually use `cloud-native-win` or `k8s-ftw`.
 
-## Kube monkey
+## ChaosKube
 
-Follow our [kube monkey](../kube-monkey/index.md) guide for running kube monkey,
+Follow our [chaoskube](../chaoskube/index.md) guide for running ChaosKube,
 this is usually done after the demo.
 
 ## Git LFS
@@ -58,16 +64,16 @@ use `git lfs`:
 1. Next, have a non-text file on hand to add to your test repository via LFS.
    A good example is [the GitLab logo](https://gitlab.com/gitlab-com/gitlab-artwork/raw/master/logo/logo.png):
 
-    ```sh
-    git clone URL
-    cd project
-    curl -JLO https://gitlab.com/gitlab-com/gitlab-artwork/raw/master/logo/logo.png
-    git lfs track "*.png"
-    git add .gitattributes
-    git add logo.png
-    git commit -m "Add logo via LFS"
-    git push origin master
-    ```
+   ```shell
+   git clone URL
+   cd project
+   curl -JLO https://gitlab.com/gitlab-com/gitlab-artwork/raw/master/logo/logo.png
+   git lfs track "*.png"
+   git add .gitattributes
+   git add logo.png
+   git commit -m "Add logo via LFS"
+   git push origin master
+   ```
 
 ## External resources
 

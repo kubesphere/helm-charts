@@ -8,17 +8,7 @@ metadata:
     {{- include "gitlab.standardLabels" . | nindent 4 }}
 data:
   database.yml.erb: |
-    production:
-      adapter: postgresql
-      encoding: unicode
-      database: {{ template "gitlab.psql.database" . }}
-      username: {{ template "gitlab.psql.username" . }}
-      password: "<%= File.read("/etc/gitlab/postgres/psql-password").strip.dump[1..-2] %>"
-      host: {{ include "gitlab.psql.host" . | quote }}
-      port: {{ template "gitlab.psql.port" . }}
-      pool: {{ template "gitlab.psql.pool" . }}
-      prepared_statements: {{ template "gitlab.psql.preparedStatements" . }}
-      {{- include "gitlab.psql.ssl.config" . | nindent 6 }}
+    {{- include "gitlab.database.yml" . | nindent 4 }}
   {{- if include "gitlab.geo.secondary" . }}
   database_geo.yml.erb: |
     {{- include "gitlab.geo.database.yml" . | nindent 4 }}

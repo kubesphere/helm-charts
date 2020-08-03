@@ -1,3 +1,9 @@
+---
+stage: Enablement
+group: Distribution
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # Deprecations template
 
 The purpose of this template is to provide a means to prevent users from deploying the Helm chart, or updates to it, in what would be a broken state due to changes in how the chart is configured.
@@ -24,7 +30,7 @@ The developer should be careful not to assume that a key, or parent key will exi
 
 All messages should have the following format:
 
-```text
+```plaintext
 
 chart:
     message
@@ -36,7 +42,7 @@ chart:
 
 Example message:
 
-```text
+```plaintext
 
 gitlab.unicorn:
     Chart-local configuration of Minio features has been moved to global. Please remove `gitlab.unicorn.minio.enabled` from your properties, and set `global.minio.enabled` instead.

@@ -3,3 +3,4 @@ charts/*.tgz
 .DS_Store
 tags
 requirements.lock
+.markdownlintrc

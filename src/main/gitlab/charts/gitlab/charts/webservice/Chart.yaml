@@ -1,0 +1,20 @@
+---
+apiVersion: v1
+name: webservice
+version: 4.2.2
+appVersion: 13.2.2
+description: HTTP server for Gitlab
+keywords:
+- gitlab
+- webservice
+- unicorn
+- puma
+home: https://about.gitlab.com/
+icon: https://gitlab.com/gitlab-com/gitlab-artwork/raw/master/logo/logo-square.svg
+sources:
+- https://gitlab.com/gitlab-org/charts/gitlab/tree/master/charts/gitlab/charts/webservice
+- https://gitlab.com/gitlab-org/build/CNG/tree/master/gitlab-unicorn
+- https://gitlab.com/gitlab-org/build/CNG/tree/master/gitlab-puma
+maintainers:
+- name: GitLab Inc.
+  email: support@gitlab.com

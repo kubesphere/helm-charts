@@ -51,7 +51,7 @@ Return the password section of the Redis URI, if needed.
 */}}
 {{- define "gitlab.redis.url.password" -}}
 {{- include "gitlab.redis.configMerge" . -}}
-{{- if .redisMergedConfig.password.enabled -}}:<%= URI.escape(File.read("/etc/gitlab/redis/{{ printf "%s-password" (default "redis" .redisConfigName) }}").strip) %>@{{- end -}}
+{{- if .redisMergedConfig.password.enabled -}}:<%= ERB::Util::url_encode(File.read("/etc/gitlab/redis/{{ printf "%s-password" (default "redis" .redisConfigName) }}").strip) %>@{{- end -}}
 {{- end -}}
 
 {{/*

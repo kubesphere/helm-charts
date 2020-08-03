@@ -244,10 +244,6 @@
           "title": "List of external IPs",
           "type": "array"
         },
-        "externalPort": {
-          "title": "Service external port",
-          "type": "number"
-        },
         "externalTrafficPolicy": {
           "title": "Service external traffic policy",
           "type": "string"

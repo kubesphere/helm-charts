@@ -6,6 +6,8 @@ metadata:
   namespace: {{ $.Release.Namespace }}
   labels:
     {{- include "gitlab.standardLabels" . | nindent 4 }}
+  annotations:
+    {{- include "gitlab.deploymentAnnotations" . | nindent 4 }}
 spec:
   {{- if .Values.global.operator.enabled }}
   paused: true
@@ -28,8 +30,8 @@ spec:
       {{- end }}
     spec:
       securityContext:
-        runAsUser: 1000
-        fsGroup: 1000
+        runAsUser: {{ .Values.securityContext.runAsUser }}
+        fsGroup: {{ .Values.securityContext.fsGroup }}
       {{- if eq (default .Values.global.antiAffinity .Values.antiAffinity) "hard" }}
       affinity:
         podAntiAffinity:
@@ -51,6 +53,9 @@ spec:
                   app: {{ template "name" . }}
                   release: {{ .Release.Name }}
       {{- end }}
+      {{- if or .Values.serviceAccount.enabled .Values.global.serviceAccount.enabled }}
+      serviceAccountName: {{ include "gitlab.serviceAccount.name" . }}
+      {{- end }}
       initContainers:
         {{- include "gitlab.extraInitContainers" . | nindent 8 }}
         {{- include "gitlab.certificates.initContainer" . | nindent 8 }}
@@ -58,6 +63,8 @@ spec:
           command: ['sh']
           args: [ '-c', 'sh -x /config-logcursor/configure']
           image: {{ include "gitlab.busybox.image" (dict "local" .Values.init "global" $.Values.global.busybox) | quote }}
+          env:
+          {{- include "gitlab.extraEnv" . | nindent 10 }}
           volumeMounts:
           {{- include "gitlab.extraVolumeMounts" . | nindent 10 }}
           {{- include "gitlab.psql.ssl.volumeMount" . | nindent 10 }}
@@ -90,6 +97,7 @@ spec:
               value: '/srv/gitlab/config'
             - name: DB_SCHEMA_TARGET
               value: 'geo'
+            {{- include "gitlab.extraEnv" . | nindent 12 }}
           volumeMounts:
             {{- include "gitlab.extraVolumeMounts" . | nindent 12 }}
             - name: logcursor-config
@@ -116,6 +124,7 @@ spec:
               value: '/var/opt/gitlab/templates'
             - name: CONFIG_DIRECTORY
               value: '/srv/gitlab/config'
+            {{- include "gitlab.extraEnv" . | nindent 12 }}
           volumeMounts:
             - name: logcursor-config
               mountPath: '/var/opt/gitlab/templates'

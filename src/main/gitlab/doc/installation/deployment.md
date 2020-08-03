@@ -1,3 +1,9 @@
+---
+stage: Enablement
+group: Distribution
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # Deployment Guide
 
 Before running `helm install`, you need to make some decisions about how you will run GitLab.
@@ -82,8 +88,8 @@ purposes only.
 
 > **NOTE: This configuration is not recommended for use in production.**
 >
-> - The container runs as root
-> - A single, non-resilient Deployment is used
+> - A single StatefulSet is provided by [bitnami/PostgreSQL](https://hub.helm.sh/charts/bitnami/postgresql) by default.
+> - As of 4.0.0 of these charts, replication is available internally, but _not enabled by default_. Such functionality has not been load tested by GitLab.
 
 You can read more about setting up your production-ready database in the [advanced database docs](../advanced/external-db/index.md).
 
@@ -101,40 +107,34 @@ use it as shown below.
 
 ### Redis
 
-By default we use an single, non-replicated Redis instance. If desired, a
-highly available Redis can be deployed instead. To install an HA Redis
-cluster one needs to set `redis.cluster.enabled=true` when the GitLab
-chart is installed.
+All Redis configuration settings have been moved and consolidated on the
+[charts/globals.md](../charts/globals.md#configure-redis-settings) page.
 
-You can bring an external Redis instance by setting `redis.install=false`, and
-following our [advanced documentation](../advanced/external-redis/index.md) for
-configuration.
+> **NOTE: This configuration is not recommended for use in production.**
+>
+> - A single StatefulSet is provided by [bitnami/Redis](https://hub.helm.sh/charts/bitnami/redis) by default.
+> - As of 4.0.0 of these charts, replication is available internally, but _not enabled by default_. Such functionality has not been load tested by GitLab.
 
-The installation of an HA Redis cluster from the GitLab chart does not
-support using sentinels. If sentinel support is desired, a Redis cluster
-needs to be created separately from the GitLab chart install. This can be
-done inside or outside the Kubernetes cluster. Sentinel settings can be
-found in the [Unicorn chart](../charts/gitlab/unicorn/index.md#redis).
-
-An issue to track the [supporting of sentinels in a GitLab deployed
-Redis cluster](https://gitlab.com/gitlab-org/charts/gitlab/issues/1810) has
-been created for tracking purposes.
+You can read more about setting up a production-ready Redis instance in the [advanced Redis docs](../advanced/external-redis/index.md).
 
 ### MinIO
 
 By default this chart provides an in-cluster MinIO deployment to provide an object storage API.
-This configuration should not be used in production.
+
+> **NOTE: This configuration is not recommended for use in production.**
+>
+> - A singleton, non-resilient Deployment is provided by our [MinIO fork](../charts/minio/index.md).
 
 You can read more about setting up your production-ready object storage in the [external object storage](../advanced/external-object-storage/index.md)
 
 ### Prometheus
 
-We use the [upstream Prometheus chart][prometheus-configuration],
+We use the [upstream Prometheus chart](https://github.com/helm/charts/tree/master/stable/prometheus#configuration),
 and do not override values from our own defaults.
 We do, however, default disable `alertmanager`, `nodeExporter`, and
 `pushgateway`.
 
-Refer to the [Prometheus chart documentation][prometheus-configuration] for the
+Refer to the [Prometheus chart documentation](https://github.com/helm/charts/tree/master/stable/prometheus#configuration) for the
 exhaustive list of configuration options and ensure they are sub-keys to
 `prometheus`, as we use this as requirement chart.
 
@@ -157,8 +157,6 @@ prometheus:
       enabled: true
       size: 8Gi
 ```
-
-[prometheus-configuration]: https://github.com/helm/charts/tree/master/stable/prometheus#configuration
 
 ### Outgoing email
 
@@ -184,6 +182,16 @@ described in the [secrets guide](secrets.md#imap-password-for-incoming-emails).
 To use reply-by-email feature, where users can reply to notification emails to
 comment on issues and MRs, you need to configure both outgoing email and
 incoming email settings.
+
+### Service desk email
+
+By default service desk email is disabled. To enable it, provide details of your
+IMAP server and access credentials using the `global.appConfig.serviceDeskEmail`
+settings. You can find details for these settings in the [command line options](command-line-options.md#service-desk-email-configuration).
+You will also have to create a Kubernetes secret containing IMAP password as
+described in the [secrets guide](secrets.md#imap-password-for-service-desk-emails).
+
+NOTE: **Note** Service desk email _requires_ that [Incoming email](#incoming-email) be configured.
 
 ### Deploy the Community Edition
 
@@ -293,6 +301,3 @@ if you used the command above).
 ```shell
 kubectl get secret <name>-gitlab-initial-root-password -ojsonpath='{.data.password}' | base64 --decode ; echo
 ```
-
-[secret-gl-certs]: secrets.md#gitlab-certificates
-[secret-reg-certs]: secrets.md#registry-certificates

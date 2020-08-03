@@ -1,3 +1,9 @@
+---
+stage: Enablement
+group: Distribution
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # Using MinIO for Object storage
 
 This chart is based on [`stable/minio`](https://github.com/helm/charts/tree/master/stable/minio)
@@ -173,7 +179,7 @@ These settings control the MinIO Ingress.
 | `annotations`    | String  |         | This field is an exact match to the standard `annotations` for [Kubernetes Ingress](https://kubernetes.io/docs/concepts/services-networking/ingress/). |
 | `enabled`        | Boolean | `false` | Setting that controls whether to create Ingress objects for services that support them. When `false` the `global.ingress.enabled` setting is used. |
 | `tls.enabled`    | Boolean | `true`  | When set to `false`, you disable TLS for MinIO. This is mainly useful when you cannot use TLS termination at Ingress-level, like when you have a TLS-terminating proxy before the Ingress Controller. |
-| `tls.secretName` | String  |         | The name of the Kubernetes TLS Secret that contains a valid certificate and key for the MinIO url. When not set, the `global.ingress.tls.secretName` is used instead. |
+| `tls.secretName` | String  |         | The name of the Kubernetes TLS Secret that contains a valid certificate and key for the MinIO URL. When not set, the `global.ingress.tls.secretName` is used instead. |
 
 ## Configuring the image
 

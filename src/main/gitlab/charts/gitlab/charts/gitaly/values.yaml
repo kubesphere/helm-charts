@@ -64,10 +64,10 @@ prometheus: {}
   # grpcLatencyBuckets: "[1.0, 1.5, 2.0, 2.5]"
 
 workhorse:
-  # by default, Workhorse is a part of the Unicorn Pods / Service
-  serviceName: unicorn
+  # by default, Workhorse is a part of the Webservice Pods / Service
+  serviceName: webservice
   # host: '0.0.0.0'
-  # serviceName: 'unicorn'
+  # serviceName: 'webservice'
   # port: 8181
 shell:
   authToken: {}
@@ -112,6 +112,7 @@ persistence:
   ## Only bind to a volume with the following exppression matched labels.
   ## ref: https://kubernetes.io/docs/concepts/storage/persistent-volumes/#selector
   matchExpressions: []
+  annotations: {}
 
 resources:
   # We usually recommend not to specify default resources and to leave this as a conscious
@@ -132,3 +133,11 @@ maxUnavailable: 1
 securityContext:
   runAsUser: 1000
   fsGroup: 1000
+
+## Enable deployment to use a serviceAccount
+serviceAccount:
+  enabled: false
+  create: false
+  annotations: {}
+  ## Name to be used for serviceAccount, otherwise defaults to chart fullname
+  # name: 

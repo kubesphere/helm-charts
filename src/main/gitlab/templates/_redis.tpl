@@ -8,15 +8,16 @@ Build a dict of redis configuration
 */}}
 {{- define "gitlab.redis.configMerge" -}}
 {{- $_ := set $ "redisConfigName" (default "" $.redisConfigName) -}}
-{{/*  # prevent repeat operations
-      # -- check if redisConfigName is the current populated content in .redisMergedConfig */}}
-{{-   if or (not $.redisMergedConfig) (ne $.redisConfigName (default "" (index (default (dict) $.redisMergedConfig) "redisConfigName") )) -}}
-{{/*    # reset, preventing pollution. stashing the .redisConfigName used to make this */}}
-{{-     $_ := set . "redisMergedConfig" (dict "redisConfigName" $.redisConfigName) -}}
+{{-     $_ := unset $ "redisMergedConfig" -}}
+{{-     $_ := set $ "redisMergedConfig" (dict "redisConfigName" $.redisConfigName) -}}
 {{-     range $want := list "host" "port" "password" "scheme" -}}
 {{-       $_ := set $.redisMergedConfig $want (pluck $want (index $.Values.global.redis $.redisConfigName) $.Values.global.redis | first) -}}
 {{-     end -}}
-{{-   end -}}
+{{-     range $key := keys $.Values.global.redis.password -}}
+{{-       if not (hasKey $.redisMergedConfig.password $key) -}}
+{{-         $_ := set $.redisMergedConfig.password $key (index $.Values.global.redis.password $key) -}}
+{{-       end -}}
+{{-     end -}}
 {{- end -}}
 
 {{/*

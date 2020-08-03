@@ -1,14 +1,37 @@
+---
+stage: Enablement
+group: Distribution
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # GitLab version mappings
 
 The table below maps some of the key previous chart versions and GitLab versions.
 
 | Chart version | GitLab version |
 |---------------|----------------|
+| 4.2.2 | 13.2.2 |
+| 4.2.1 | 13.2.1 |
+| 4.2.0 | 13.2.0 |
+| 4.1.4 | 13.1.4 |
+| 4.1.3 | 13.1.3 |
+| 4.1.2 | 13.1.2 |
+| 4.1.1 | 13.1.1 |
+| 4.1.0 | 13.1.0 |
+| 4.0.9 | 13.0.10 |
+| 4.0.8 | 13.0.9 |
+| 4.0.7 | 13.0.8 |
+| 4.0.6 | 13.0.7 |
+| 4.0.5 | 13.0.6 |
+| 4.0.4 | 13.0.5 |
+| 4.0.3 | 13.0.4 |
+| 4.0.2 | 13.0.3 |
+| 4.0.1 | 13.0.1 |
+| 4.0.0 | 13.0.0 |
+| 3.3.13 | 12.10.14 |
 | 3.3.12 | 12.10.13 |
 | 3.3.11 | 12.10.12 |
-| 3.3.10 | 12.10.11 |
 | 3.3.9 | 12.10.10 |
-| 3.3.8 | 12.10.9 |
 | 3.3.7 | 12.10.8 |
 | 3.3.6 | 12.10.7 |
 | 3.3.5 | 12.10.6 |
@@ -17,11 +40,16 @@ The table below maps some of the key previous chart versions and GitLab versions
 | 3.3.2 | 12.10.2 |
 | 3.3.1 | 12.10.1 |
 | 3.3.0 | 12.10.0 |
+| 3.2.9 | 12.9.10 |
+| 3.2.8 | 12.9.9 |
+| 3.2.6 | 12.9.7 |
+| 3.2.5 | 12.9.5 |
 | 3.2.4 | 12.9.4 |
 | 3.2.3 | 12.9.3 |
 | 3.2.2 | 12.9.2 |
 | 3.2.1 | 12.9.1 |
 | 3.2.0 | 12.9.0 |
+| 3.1.8 | 12.8.10 |
 | 3.1.7 | 12.8.9 |
 | 3.1.6 | 12.8.8 |
 | 3.1.5 | 12.8.7 |

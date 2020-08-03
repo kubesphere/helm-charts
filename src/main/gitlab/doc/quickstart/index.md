@@ -1,3 +1,9 @@
+---
+stage: Enablement
+group: Distribution
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # Quick Start Guide
 
 This guide services as a concise but complete documentation on how to install the
@@ -97,10 +103,10 @@ kubectl get ingress -lrelease=gitlab
 This output should look something like the following:
 
 ```plaintext
-NAME            HOSTS                 ADDRESS         PORTS     AGE
-gitlab-minio    minio.domain.tld      35.239.27.235   80, 443   118m
-gitlab-registry registry.domain.tld   35.239.27.235   80, 443   118m
-gitlab-unicorn  gitlab.domain.tld     35.239.27.235   80, 443   118m
+NAME               HOSTS                 ADDRESS         PORTS     AGE
+gitlab-minio       minio.domain.tld      35.239.27.235   80, 443   118m
+gitlab-registry    registry.domain.tld   35.239.27.235   80, 443   118m
+gitlab-webservice  gitlab.domain.tld     35.239.27.235   80, 443   118m
 ```
 
 You'll notice there are 3 entries, and they all have the same IP address.
@@ -123,7 +129,7 @@ Secret. Let's fetch that password from the secret, and decode it:
 kubectl get secret gitlab-gitlab-initial-root-password -ojsonpath='{.data.password}' | base64 --decode ; echo
 ```
 
-Yes, you read that right, thats `gitlab-gitlab-...`.
+Yes, you read that right, that's `gitlab-gitlab-...`.
 
 We can now sign in to GitLab with username `root`, and the password retrieved.
 You can change this password via the user preferences once logged in, we only

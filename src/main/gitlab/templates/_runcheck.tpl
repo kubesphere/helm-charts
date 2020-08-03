@@ -29,8 +29,8 @@ if [ -d "${secrets_dir}" ]; then
     fi
   fi
 fi
-MIN_VERSION=12.6
-CHART_MIN_VERSION=2.6
+MIN_VERSION=13.0
+CHART_MIN_VERSION=4.0
 
 # Only run check for semver releases
 if ! awk 'BEGIN{exit(!(ARGV[1] ~ /^[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}/))}' "$GITLAB_VERSION"; then
@@ -68,10 +68,9 @@ OLD_CHART_MINOR_VERSION=$(echo $OLD_CHART_VERSION_STRING | awk -F "." '{print $1
 if [ ${OLD_MAJOR_VERSION} -lt ${NEW_MAJOR_VERSION} ] || [ ${OLD_CHART_MAJOR_VERSION} -lt ${NEW_CHART_MAJOR_VERSION} ]; then
   if ( ! greater_version $OLD_MINOR_VERSION $MIN_VERSION ) || ( ! greater_version $OLD_CHART_MINOR_VERSION $CHART_MIN_VERSION ); then
     notify "It seems you are upgrading the GitLab Helm Chart from ${OLD_CHART_VERSION_STRING} (GitLab ${OLD_VERSION_STRING}) to ${CHART_VERSION} (GitLab ${GITLAB_VERSION})."
-    notify "It is required to upgrade to the last minor version in a major version series"
-    notify "first before jumping to the next major version."
-    notify "Please follow the upgrade documentation at https://docs.gitlab.com/charts/releases/3_0.html"
-    notify "and upgrade to GitLab Helm Chart version 2.6.0 before upgrading to ${CHART_VERSION}."
+    notify "It is required to upgrade to the latest ${CHART_MIN_VERSION}.x version first before proceeding."
+    notify "Please follow the upgrade documentation at https://docs.gitlab.com/charts/releases/4_0.html"
+    notify "and upgrade to GitLab Helm Chart version ${CHART_MIN_VERSION}.x before upgrading to ${CHART_VERSION}."
     exit 1
   fi
 fi

@@ -149,13 +149,8 @@ This overrides the upstream postegresql chart so that we can deterministically
 use the name of the service the upstream chart creates
 */}}
 {{- define "gitlab.psql.host" -}}
-{{- if .Values.global.psql.host -}}
-{{- .Values.global.psql.host -}}
-{{- else if .Values.global.psql.serviceName -}}
-{{- .Values.global.psql.serviceName -}}
-{{- else -}}
-{{- printf "%s-%s" .Release.Name "postgresql" -}}
-{{- end -}}
+{{- $local := pluck "psql" $.Values | first -}}
+{{- coalesce (pluck "host" $local .Values.global.psql | first) (pluck "serviceName" $local .Values.global.psql | first) (printf "%s-%s" $.Release.Name "postgresql") -}}
 {{- end -}}
 
 {{/*
@@ -186,7 +181,8 @@ Alias of gitlab.psql.host
 Return the db database name
 */}}
 {{- define "gitlab.psql.database" -}}
-{{- coalesce .Values.global.psql.database "gitlabhq_production" -}}
+{{- $local := pluck "psql" $.Values | first -}}
+{{- coalesce (pluck "database" $local .Values.global.psql | first) "gitlabhq_production" -}}
 {{- end -}}
 
 {{/*
@@ -195,7 +191,8 @@ If the postgresql username is provided, it will use that, otherwise it will fall
 to "gitlab" default
 */}}
 {{- define "gitlab.psql.username" -}}
-{{- coalesce .Values.global.psql.username "gitlab" -}}
+{{- $local := pluck "psql" $.Values | first -}}
+{{- coalesce (pluck "username" $local .Values.global.psql | first) "gitlab" -}}
 {{- end -}}
 
 {{/*
@@ -214,7 +211,9 @@ Defaults to a release-based name and falls back to .Values.global.psql.secretNam
   when using an external PostgreSQL
 */}}
 {{- define "gitlab.psql.password.secret" -}}
-{{- default (printf "%s-%s" .Release.Name "postgresql-password") .Values.global.psql.password.secret | quote -}}
+{{- $local := pluck "psql" $.Values | first -}}
+{{- $localPass := pluck "password" $local | first -}}
+{{- default (printf "%s-%s" .Release.Name "postgresql-password") (pluck "secret" $localPass $.Values.global.psql.password | first ) | quote -}}
 {{- end -}}
 
 {{/*
@@ -230,15 +229,17 @@ Uses `postgresql-password` to match upstream postgresql chart when not using an
   external postegresql
 */}}
 {{- define "gitlab.psql.password.key" -}}
-{{- default "postgresql-password" .Values.global.psql.password.key | quote -}}
+{{- $local := pluck "psql" $.Values | first -}}
+{{- $localPass := pluck "password" $local | first -}}
+{{- default "postgresql-password" (pluck "key" $localPass $.Values.global.psql.password | first ) | quote -}}
 {{- end -}}
 
 {{/*
 Return if pool should be used by PostgreSQL.
-Defaults to 10
+Defaults to 1
 */}}
 {{- define "gitlab.psql.pool" -}}
-{{- default 10 .Values.global.psql.pool | int -}}
+{{- default 1 (pluck "pool" .Values.psql .Values.global.psql | first) | int -}}
 {{- end -}}
 
 {{/*
@@ -246,7 +247,8 @@ Return if prepared statements should be used by PostgreSQL.
 Defaults to false
 */}}
 {{- define "gitlab.psql.preparedStatements" -}}
-{{- eq true (default false .Values.global.psql.preparedStatements) -}}
+{{- $local := pluck "psql" $.Values | first -}}
+{{- eq true (default false (pluck "preparedStatements" $local .Values.global.psql | first)) -}}
 {{- end -}}
 
 {{/* ######### ingress templates */}}
@@ -279,7 +281,7 @@ Handles merging a set of service annotations
 */}}
 {{- define "gitlab.serviceAnnotations" -}}
 {{- $allAnnotations := merge (default (dict) (default (dict) .Values.service).annotations) .Values.global.service.annotations -}}
-{{- if $allAnnotations -}}
+{{- if $allAnnotations }}
 {{- toYaml $allAnnotations -}}
 {{- end -}}
 {{- end -}}
@@ -315,10 +317,10 @@ We're explicitly checking for an actual value being present, not the existance o
 */}}
 {{- define "gitlab.ingress.tls.configured" -}}
 {{/* Pull the value, if it exists */}}
-{{- $global   := pluck "secretName" (default (dict)  $.Values.global.ingress.tls) | first -}}
-{{- $unicorn  := pluck "secretName" $.Values.gitlab.unicorn.ingress.tls | first -}}
-{{- $registry := pluck "secretName" $.Values.registry.ingress.tls | first -}}
-{{- $minio    := pluck "secretName" $.Values.minio.ingress.tls | first -}}
+{{- $global      := pluck "secretName" (default (dict)  $.Values.global.ingress.tls) | first -}}
+{{- $webservice  := pluck "secretName" $.Values.gitlab.webservice.ingress.tls | first -}}
+{{- $registry    := pluck "secretName" $.Values.registry.ingress.tls | first -}}
+{{- $minio       := pluck "secretName" $.Values.minio.ingress.tls | first -}}
 {{/* Set each item to configured value, or !enabled
      This works because `false` is the same as empty, so we'll use the value when `enabled: true`
      - default "" (not true) => ''
@@ -327,11 +329,11 @@ We're explicitly checking for an actual value being present, not the existance o
      - default "valid" (not false) => 'true'
      Now, disabled sub-charts won't block this template from working properly.
 */}}
-{{- $unicorn :=  default $unicorn (not $.Values.gitlab.unicorn.enabled) -}}
-{{- $registry :=  default $registry (not $.Values.registry.enabled) -}}
-{{- $minio :=  default $minio (not $.Values.global.minio.enabled) -}}
+{{- $webservice  :=  default $webservice (not $.Values.gitlab.webservice.enabled) -}}
+{{- $registry    :=  default $registry (not $.Values.registry.enabled) -}}
+{{- $minio       :=  default $minio (not $.Values.global.minio.enabled) -}}
 {{/* Check that all enabled items have been configured */}}
-{{- if or $global (and $unicorn (and $registry $minio)) -}}
+{{- if or $global (and $webservice (and $registry $minio)) -}}
 true
 {{- end -}}
 {{- end -}}

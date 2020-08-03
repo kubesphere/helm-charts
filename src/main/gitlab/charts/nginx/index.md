@@ -120,6 +120,7 @@ Parameter | Description | Default
 `controller.service.type` | type of controller service to create | `LoadBalancer`
 `controller.service.nodePorts.http` | If `controller.service.type` is `NodePort` and this is non-empty, it sets the nodePort that maps to the Ingress' port 80 | `""`
 `controller.service.nodePorts.https` | If `controller.service.type` is `NodePort` and this is non-empty, it sets the nodePort that maps to the Ingress' port 443 | `""`
+`controller.service.nodePorts.gitlab-shell` | If `controller.service.type` is `NodePort` and this (or `global.shell.port`, with lower priority) is non-empty, it sets the nodePort that maps to the Ingress' port for GitLab-Shell | `""`
 `controller.livenessProbe.initialDelaySeconds` | Delay before liveness probe is initiated | 10
 `controller.livenessProbe.periodSeconds` | How often to perform the probe | 10
 `controller.livenessProbe.timeoutSeconds` | When the probe times out | 5

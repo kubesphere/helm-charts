@@ -1,3 +1,9 @@
+---
+stage: Enablement
+group: Distribution
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # Releases
 
 ## Chart Versioning
@@ -126,9 +132,9 @@ You can also do it manually, without using the chatops command as follows:
 1. Then run the appropriate Helm release task:
 
    - When you want to release without changing the GitLab app version, call the release task with the new chart version (eg `0.2.1`)
-     - `bundle exec rake helm:tag_chart[0.2.1]`
+     - `bundle exec rake release:helm:tag[0.2.1]`
 
    - When you want to release and change both the chart version and the app version (eg `0.2.1` with GitLab `11.0.1`)
-     - `bundle exec rake helm:tag_chart[0.2.1,11.0.1]`
+     - `bundle exec rake release:helm:tag[0.2.1,11.0.1]`
 
     > You can run the script in dry-run mode which prevents pushes by setting TEST=true in your environment

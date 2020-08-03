@@ -1,3 +1,9 @@
+---
+stage: Enablement
+group: Distribution
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # Development Guide
 
 Our contribution policies can be found in [CONTRIBUTING.md](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/CONTRIBUTING.md)
@@ -11,8 +17,10 @@ Tool name | Benefits | Example use case | Link(s)
 `asdf` | Easily switch between versions of your favorite runtimes and CLI tools. | Switching between Helm 2 and Helm 3 binaries. | [GitHub](https://github.com/asdf-vm/asdf)
 `kubectx` & `kubens` | Manage and switch between Kubernetes contexts and namespaces. | Setting default namespace per selected cluster context. | [GitHub](https://github.com/ahmetb/kubectx)
 `k3s` | Lightweight Kubernetes installation (<40MB). | Quick and reliable local chart testing. | [Homepage](https://k3s.io)
-`k9s` | Greatly reduced typing of `kubectl` commands. | Navigate and manage cluster resources quickly. | [GitHub](https://github.com/derailed/k9s)
+`k9s` | Greatly reduced typing of `kubectl` commands. | Navigate and manage cluster resources quickly in a command line interface. | [GitHub](https://github.com/derailed/k9s)
+`lens` | Highly visual management and navigation of clusters. | Navigate and manage cluster resources quickly in a standalone desktop application. | [Homepage](https://k8slens.dev/)
 `stern` | Easily follow logs from multiple pods. | See logs from a set of GitLab pods together. | [GitHub](https://github.com/wercker/stern)
+`dive` | Explore container layers. | A tool for exploring a container image, layer contents, and discovering ways to shrink the size of your Docker/OCI image. | [GitHub](https://github.com/wagoodman/dive), [GitLab Unfiltered](https://youtu.be/9kdE-ye6vlc)
 
 ## Versioning and Release
 
@@ -33,22 +41,26 @@ deployed cloud native GitLab installation.
 
 [Read more in the GitLab QA chart docs](gitlab-qa/index.md).
 
-## Kube monkey
+## ChaosKube
 
-[kube monkey](https://github.com/asobti/kube-monkey) is an implementation of
-Netflix's [chaos monkey](https://github.com/Netflix/chaosmonkey) for Kubernetes
-clusters. It schedules randomly killing of pods in order to test fault tolerance
-of a highly available system.
-
-[Read more in the kube monkey chart docs](kube-monkey/index.md).
+Read more in the [ChaosKube chart docs](chaoskube/index.md).
 
 ## Developing for Kubernetes with Minikube
 
 Read how to [use Minikube for setting up a local Kubernetes development environment](minikube/index.md).
 
+## Developing for Kubernetes with KinD
+
+Read how to [use KinD for setting up a local Kubernetes development environment](kind/index.md).
+
+## Developing RSpec tests
+
+Read the notes on [creating RSpec tests](rspec.md) to validate the
+functionality of the chart.
+
 ## Naming Conventions
 
-We are using [camelCase](https://en.wikipedia.org/wiki/Camel_case) for our function names, and properties where they are used in values.yaml
+We are using [camelCase](https://en.wikipedia.org/wiki/Camel_case) for our function names, and properties where they are used in `values.yaml`.
 
 Example: `gitlab.assembleHost`
 
@@ -59,7 +71,7 @@ Examples:
 - `gitlab.redis.host`: provides the host name of the Redis server, as a part of the `gitlab` chart.
 - `registry.minio.url`: provides the URL to the MinIO host as part of the `registry` chart.
 
-## Common structure for values.yaml
+## Common structure for `values.yaml`
 
 Many charts need to be provided with the same information, for example we need to provide the Redis and PostgreSQL connection settings to multiple charts. Here we outline our standard naming and structure for those settings.
 
@@ -252,7 +264,7 @@ Let's look at two snippet examples, which easily exmplify the reasoning:
       gravatar:
 ```
 
-Related issue: [#729 Refactoring: Helm templates](https://gitlab.com/gitlab-org/charts/gitlab/issues/729)
+Related issue: [#729 Refactoring: Helm templates](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/729)
 
 ### When to utilize `toYaml` in templates
 
@@ -385,9 +397,7 @@ for our use *should not* be forked into this repository.
 
 If a given chart expects that sensitive communication secrets will be presented
 from within environment, such as passwords or cryptographic keys, [we prefer to
-use initContainers][initContainer-vs-env].
-
-[initContainer-vs-env]: ../architecture/decisions.md#preference-of-secrets-in-initcontainer-over-environment
+use initContainers](../architecture/decisions.md#preference-of-secrets-in-initcontainer-over-environment).
 
 #### Extending functionality
 
@@ -398,17 +408,21 @@ such a way that an upstream may not accept.
 
 There are times in a development where changes in behavior require a functionally breaking change. We try to avoid such changes, but some items can not be handled without such a change.
 
-To handle this, we have implemented the [deprecations template][]. This template is designed to recognize properties that need to be replaced or relocated, and inform the user of the actions they need to take. This template will compile all messages into a list, and then cause the deployment to stop via a `fail` call. This provides a method to inform the user at the same time as preventing the deployment the chart in a broken or unexpected state.
+To handle this, we have implemented the [deprecations template](deprecations.md). This template is designed to recognize properties that need to be replaced or relocated, and inform the user of the actions they need to take. This template will compile all messages into a list, and then cause the deployment to stop via a `fail` call. This provides a method to inform the user at the same time as preventing the deployment the chart in a broken or unexpected state.
 
-See the documentation of the [deprecations template][] for further information on the design, functionality, and how to add new deprecations.
-
-[deprecations template]: deprecations.md
+See the documentation of the [deprecations template](deprecations.md) for further information on the design, functionality, and how to add new deprecations.
 
 ## Attempt to catch problematic configurations
 
-Due to the complexity of these charts and their level of flexibility, there are some overlaps where it is possible to produce a configuration that would lead to an unpredictable, or entirely non-functional deployment. In an effort to prevent known problematic settings combinations, we have implemented template logic designed to detect and warn the user that their configuration will not work
+Due to the complexity of these charts and their level of flexibility, there are some overlaps where it is possible to produce a configuration that would lead to an unpredictable, or entirely non-functional deployment. In an effort to prevent known problematic settings combinations, we have the following two patterns in place:
 
-See the documentation of the [checkConfig template](checkconfig.md) for further information on the design, functionality, and how to add new configuration checks.
+- We use [schema validations](https://helm.sh/docs/topics/charts/#schema-files) for all
+  our sub-charts to ensure the user-specified values meet expectations. See
+  [the documentation](validation.md) to learn more.
+- We implement template logic designed to detect and warn the user that their
+  configuration will not work. See the documentation of the
+  [`checkConfig` template](checkconfig.md) for further information on the design and
+  functionality, and how to add new configuration checks.
 
 ## Verifying registry
 

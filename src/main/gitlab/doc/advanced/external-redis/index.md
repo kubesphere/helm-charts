@@ -1,3 +1,9 @@
+---
+stage: Enablement
+group: Distribution
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # Configure this chart with External Redis
 
 This document intends to provide documentation on how to configure this Helm chart with an external Redis service.
@@ -36,3 +42,21 @@ running, the `global.redis.host` attribute needs to be set to the cluster
 name as specified in the `sentinel.conf`. Sentinel servers can be referenced
 using the `global.redis.sentinels[0].host` and `global.redis.sentinels[0].port`
 values for the `--set` flag. The index is zero based.
+
+## Using multiple Redis instances
+
+GitLab supports splitting several of the resource intensive
+Redis operations across multiple Redis instances. This chart supports distributing
+those persistence classes to other Redis instances: `cache`, `queues`, `shared_state` and `actioncable`.
+
+More detailed information on configuring the chart for using multiple Redis
+instances can be found in the [globals](../../charts/globals.md#multiple-redis-support)
+documentation.
+
+## Specifying secure Redis scheme (SSL)
+
+In order to connect to Redis using SSL, the `rediss` (note the double `s`) scheme parameter is required:
+
+```shell
+  --set global.redis.scheme=rediss
+```

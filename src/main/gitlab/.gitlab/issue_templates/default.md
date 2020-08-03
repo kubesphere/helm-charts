@@ -43,5 +43,5 @@ Support: Please do not raise support issues for GitLab.com on this tracker. See 
 
 ## Relevant logs
 
-(Please provide any relevate log snippets you have collected, using code blocks (```) to format)
+(Please provide any relevant log snippets you have collected, using code blocks (```) to format)
 

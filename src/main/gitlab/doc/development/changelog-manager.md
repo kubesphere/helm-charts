@@ -1,3 +1,9 @@
+---
+stage: Enablement
+group: Distribution
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # Changelog Manager
 
 This tool integrates the [changelog entries](changelog.md) produced as part of this
@@ -13,7 +19,7 @@ managed via Bundler.
 To run this task manually, begin with a clone of this repository. You must have push
 access to the `master` branch.
 
-```sh
+```shell
 git checkout master
 git pull master
 bundle install
@@ -24,4 +30,4 @@ git push
 ## CI Automation
 
 This task will be integrated with CI in the future. It is currently blocked by
-[#344](https://gitlab.com/gitlab-org/charts/gitlab/issues/344)
+[#344](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/344)

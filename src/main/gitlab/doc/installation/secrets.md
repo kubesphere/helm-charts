@@ -1,3 +1,9 @@
+---
+stage: Enablement
+group: Distribution
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # Secrets
 
 GitLab requires a variety of secrets to operate:
@@ -14,6 +20,7 @@ Optional External Services:
 - LDAP
 - OmniAuth
 - IMAP for incoming emails (via mail_room service)
+- IMAP for service desk emails (via mail_room service)
 - S/MIME certificate
 
 Any secret not provided manually will be automatically generated with a random value. Automatic generation of HTTPS certificates is provided by Let's Encrypt.
@@ -29,6 +36,7 @@ documentation.
 
 - [TLS certificates](tls.md)
 - [Registry authentication certificates](#registry-authentication-certificates)
+- [Registry sensitive notification headers](#registry-sensitive-notification-headers)
 - [SSH Host Keys](#ssh-host-keys)
 - Passwords:
   - [Initial root password](#initial-root-password)
@@ -43,10 +51,11 @@ documentation.
   - [Registry HTTP secret](#registry-http-secret)
   - [Grafana password](#grafana-password)
 - [External Services](#external-services)
-  - [Unicorn OmniAuth](#unicorn-omniauth)
+  - [OmniAuth](#omniauth)
   - [LDAP Password](#ldap-password)
   - [SMTP Password](#smtp-password)
-  - [IMAP Password](#imap-password-for-incoming-emails)
+  - [IMAP Password for incoming email](#imap-password-for-incoming-emails)
+  - [IMAP Password for service desk](#imap-password-for-service-desk-emails)
   - [S/MIME Certificate](#smime-certificate)
 
 ### Registry authentication certificates
@@ -73,6 +82,26 @@ kubectl create secret generic <name>-registry-secret --from-file=registry-auth.k
 ```
 
 This secret is referenced by the `global.registry.certificate.secret` setting.
+
+### Registry sensitive notification headers
+
+Check [documentation regarding configuring Registry notifications](../charts/globals.md#configure-registry-settings)
+for more details.
+
+The secret content should be a list of items, even if it contains a single item.
+If the content is just a string, the charts **WILL NOT** convert it to a list as
+needed.
+
+Consider the example where `registry-authorization-header` secret with value
+`RandomFooBar` is created.
+
+```shell
+kubectl create secret generic registry-authorization-header --from-literal="value=[RandomFooBar]"
+```
+
+By default, the key used within the secret is "value". However, users can use a
+different key, but must ensure that it's specified as `key` under the header map
+item.
 
 ### SSH Host Keys
 
@@ -167,6 +196,8 @@ production:
   db_key_base: $(head -c 512 /dev/urandom | LC_CTYPE=C tr -cd 'a-zA-Z0-9' | head -c 128)
   openid_connect_signing_key: |
 $(openssl genrsa 2048 | awk '{print "    " $0}')
+  ci_jwt_signing_key: |
+$(openssl genrsa 2048 | awk '{print "    " $0}')
 EOF
 
 kubectl create secret generic <name>-rails-secret --from-file=secrets.yml
@@ -236,7 +267,7 @@ kubectl create secret generic <name>-registry-httpsecret --from-literal=secret=$
 
 Some charts have further secrets to enable functionality that can not be automatically generated.
 
-### Unicorn OmniAuth
+### OmniAuth
 
 In order to enable the use of [OmniAuth Providers](https://docs.gitlab.com/ee/integration/omniauth.html) with the deployed GitLab, please follow the [instructions in the Globals chart](../charts/globals.md#omniauth)
 
@@ -277,6 +308,20 @@ kubectl create secret generic incoming-email-password --from-literal=password=yo
 
 Then use `--set global.appConfig.incomingEmail.password.secret=incoming-email-password`
 in your Helm command along with other required settings as specified [in the docs](command-line-options.md#incoming-email-configuration).
+
+NOTE: **Note** Use the `Secret` name, not the _actual password_ when configuring the Helm property.
+
+### IMAP password for service desk emails
+
+To let GitLab have access to [service_desk emails](https://docs.gitlab.com/ee/user/project/service_desk.html#using-custom-email-address)
+store the password of the IMAP account in a Kubernetes secret.
+
+```shell
+kubectl create secret generic service-desk-email-password --from-literal=password=yourpasswordhere
+```
+
+Then use `--set global.appConfig.serviceDeskEmail.password.secret=service-desk-email-password`
+in your Helm command along with other required settings as specified [in the docs](command-line-options.md#service-desk-email-configuration).
 
 NOTE: **Note** Use the `Secret` name, not the _actual password_ when configuring the Helm property.
 

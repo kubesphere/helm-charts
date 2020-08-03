@@ -34,6 +34,12 @@ Due to gotpl scoping, we can't make use of `range`, so we have to add action lin
 {{- $messages := append $messages (include "gitlab.checkConfig.geo.secondary.database" .) -}}
 {{- $messages := append $messages (include "gitlab.task-runner.replicas" .) -}}
 {{- $messages := append $messages (include "gitlab.checkConfig.multipleRedis" .) -}}
+{{- $messages := append $messages (include "gitlab.checkConfig.hostWhenNoInstall" .) -}}
+{{- $messages := append $messages (include "gitlab.checkConfig.postgresql.deprecatedVersion" .) -}}
+{{- $messages := append $messages (include "gitlab.checkConfig.database.externalLoadBalancing" .) -}}
+{{- $messages := append $messages (include "gitlab.checkConfig.serviceDesk" .) -}}
+{{- $messages := append $messages (include "gitlab.checkConfig.sentry" .) -}}
+{{- $messages := append $messages (include "gitlab.checkConfig.registry.notifications" .) -}}
 {{- /* prepare output */}}
 {{- $messages := without $messages "" -}}
 {{- $message := join "\n" $messages -}}
@@ -48,8 +54,8 @@ Due to gotpl scoping, we can't make use of `range`, so we have to add action lin
 Ensure a certificate is provided when Gitaly is enabled and is instructed to
 listen over TLS */}}
 {{- define "gitlab.checkConfig.gitaly.tls" -}}
-{{- if and (and $.Values.gitlab.gitaly.enabled $.Values.global.gitaly.tls.enabled) (not $.Values.global.gitaly.tls.secretName) }}
-gitaly: no tls certificate
+{{- if and (and $.Values.global.gitaly.enabled $.Values.global.gitaly.tls.enabled) (not $.Values.global.gitaly.tls.secretName) }}
+gitaly: server enabled with TLS, no TLS certificate provided
     It appears Gitaly is specified to listen over TLS, but no certificate was specified.
 {{- end -}}
 {{- end -}}
@@ -72,12 +78,13 @@ sidekiq: mixed queues
 {{- define "gitlab.checkConfig.sidekiq.queues.cluster" -}}
 {{- if .Values.gitlab.sidekiq.pods -}}
 {{-   range $pod := .Values.gitlab.sidekiq.pods -}}
-{{-     if and ($pod.cluster) (hasKey $pod "queues") (ne (kindOf $pod.queues) "string") }}
+{{-     $cluster := include "gitlab.boolean.local" (dict "global" $.Values.gitlab.sidekiq.cluster "local" $pod.cluster "default" true) }}
+{{-     if and $cluster (hasKey $pod "queues") (ne (kindOf $pod.queues) "string") }}
 sidekiq: cluster
-    The pod definition `{{ $pod.name }}` has `cluster` enabled, but `queues` is not a string.
-{{-     else if and ($pod.cluster) (hasKey $pod "negateQueues") (ne (kindOf $pod.negateQueues) "string") }}
+    The pod definition `{{ $pod.name }}` has `cluster` enabled, but `queues` is not a string. (Note that `cluster` is enabled by default since version 4.0 of the GitLab Sidekiq chart.)
+{{-     else if and $cluster (hasKey $pod "negateQueues") (ne (kindOf $pod.negateQueues) "string") }}
 sidekiq: cluster
-    The pod definition `{{ $pod.name }}` has `cluster` enabled, but `negateQueues` is not a string.
+    The pod definition `{{ $pod.name }}` has `cluster` enabled, but `negateQueues` is not a string. (Note that `cluster` is enabled by default since version 4.0 of the GitLab Sidekiq chart.)
 {{-     end -}}
 {{-   end -}}
 {{- end -}}
@@ -88,7 +95,9 @@ sidekiq: cluster
 {{- define "gitlab.checkConfig.sidekiq.experimentalQueueSelector" -}}
 {{- if .Values.gitlab.sidekiq.pods -}}
 {{-   range $pod := .Values.gitlab.sidekiq.pods -}}
-{{-     if and ($pod.experimentalQueueSelector) (not $pod.cluster) }}
+{{-     $cluster := include "gitlab.boolean.local" (dict "global" $.Values.gitlab.sidekiq.cluster "local" $pod.cluster "default" true) }}
+{{-     $experimentalQueueSelector := include "gitlab.boolean.local" (dict "global" $.Values.gitlab.sidekiq.experimentalQueueSelector "local" $pod.experimentalQueueSelector "default" false) }}
+{{-     if and $experimentalQueueSelector (not $cluster) }}
 sidekiq: experimentalQueueSelector
     The pod definition `{{ $pod.name }}` has `experimentalQueueSelector` enabled, but does not have `cluster` enabled. `experimentalQueueSelector` only works when `cluster` is enabled.
 {{-     end -}}
@@ -137,14 +146,14 @@ geo: no secondary database password provided
 
 {{/*
 Ensure the provided global.appConfig.maxRequestDurationSeconds value is smaller than
-unicorn's worker timeout */}}
+webservice's worker timeout */}}
 {{- define "gitlab.checkConfig.appConfig.maxRequestDurationSeconds" -}}
 {{- $maxDuration := $.Values.global.appConfig.maxRequestDurationSeconds }}
 {{- if $maxDuration }}
-{{- $workerTimeout := $.Values.global.unicorn.workerTimeout }}
+{{- $workerTimeout := $.Values.global.webservice.workerTimeout }}
 {{- if not (lt $maxDuration $workerTimeout) }}
-gitlab: maxRequestDurationSeconds should be smaller than Unicorn's worker timeout
-        The current value of global.appConfig.maxRequestDurationSeconds ({{ $maxDuration }}) is greater than or equal to global.unicorn.workerTimeout ({{ $workerTimeout }}) while it should be a lesser value.
+gitlab: maxRequestDurationSeconds should be smaller than Webservice's worker timeout
+        The current value of global.appConfig.maxRequestDurationSeconds ({{ $maxDuration }}) is greater than or equal to global.webservice.workerTimeout ({{ $workerTimeout }}) while it should be a lesser value.
 {{- end }}
 {{- end }}
 {{- end }}
@@ -189,3 +198,114 @@ redis:
 {{- end -}}
 {{- end -}}
 {{/* END gitlab.checkConfig.multipleRedis */}}
+
+{{/*
+Ensure that `global.redis.host: <hostname>` is present if `redis.install: false` 
+*/}}
+{{- define "gitlab.checkConfig.hostWhenNoInstall" -}}
+{{-   if and (not .Values.redis.install) (not .Values.global.redis.host) }}
+redis:
+  You've disabled the installation of Redis. When using an external Redis, you must populate `global.redis.host`. Please see https://docs.gitlab.com/charts/advanced/external-redis/
+{{-   end -}}
+{{- end -}}
+{{/* END gitlab.checkConfig.hostWhenNoInstall */}}
+
+{{/*
+Ensure that `postgresql.image.tag` is not less than postgres version 11
+*/}}
+{{- define "gitlab.checkConfig.postgresql.deprecatedVersion" -}}
+{{-   $imageTag := .Values.postgresql.image.tag -}}
+{{-   $majorVersion := (split "." (split "-" ($imageTag | toString))._0)._0 | int -}}
+{{-   if or (eq $majorVersion 0) (lt $majorVersion 11) -}}
+postgresql:
+  Image tag is "{{ $imageTag }}".
+{{-     if (eq $majorVersion 0) }}
+  Image tag is malformed. It should begin with the numeric major version.
+{{-     else if (lt $majorVersion 11) }}
+  PostgreSQL 10 and earlier will no longer be supported in GitLab 13. The minimum required version will be PostgreSQL 11.
+{{-     end -}}
+{{-   end -}}
+{{- end -}}
+{{/* END gitlab.checkConfig.postgresql.deprecatedVersion */}}
+
+{{/*
+Ensure that `postgresql.install: false` when `global.psql.load_balancing` defined
+*/}}
+{{- define "gitlab.checkConfig.database.externalLoadBalancing" -}}
+{{- if hasKey .Values.global.psql "load_balancing" -}}
+{{-   with .Values.global.psql.load_balancing -}}
+{{-     if and $.Values.postgresql.install (kindIs "map" .) }}
+postgresql:
+    It appears PostgreSQL is set to install, but database load balancing is also enabled. This configuration is not supported.
+    See https://docs.gitlab.com/charts/charts/globals#configure-postgresql-settings
+{{-     end -}}
+{{-     if not (kindIs "map" .) }}
+postgresql:
+    It appears database load balancing is desired, but the current configuration is not supported.
+    See https://docs.gitlab.com/charts/charts/globals#configure-postgresql-settings
+{{-     end -}}
+{{-     if and (not (hasKey . "discover") ) (not (hasKey . "hosts") ) }}
+postgresql:
+    It appears database load balancing is desired, but the current configuration is not supported.
+    You must specify `load_balancing.hosts` or `load_balancing.discover`.
+    See https://docs.gitlab.com/charts/charts/globals#configure-postgresql-settings
+{{-     end -}}
+{{-     if and (hasKey . "hosts") (not (kindIs "slice" .hosts) ) }}
+postgresql:
+    Database load balancing using `hosts` is configured, but does not appear to be a list.
+    See https://docs.gitlab.com/charts/charts/globals#configure-postgresql-settings
+    Current format: {{ kindOf .hosts }}
+{{-     end -}}
+{{-     if and (hasKey . "discover") (not (kindIs "map" .discover)) }}
+postgresql:
+    Database load balancing using `discover` is configured, but does not appear to be a map.
+    See https://docs.gitlab.com/charts/charts/globals#configure-postgresql-settings
+    Current format: {{ kindOf .discover }}
+{{-     end -}}
+{{-   end -}}
+{{- end -}}
+{{- end -}}
+{{/* END gitlab.checkConfig.database.externalLoadBalancing */}}
+
+{{/*
+Ensure that incomingEmail is enabled too if serviceDesk is enabled
+*/}}
+{{- define "gitlab.checkConfig.serviceDesk" -}}
+{{-   if $.Values.global.appConfig.serviceDeskEmail.enabled }}
+{{-     if not $.Values.global.appConfig.incomingEmail.enabled }}
+serviceDesk:
+    When configuring Service Desk email, you must also configure incoming email.
+    See https://docs.gitlab.com/charts/charts/globals#incoming-email-settings
+{{-     end -}}
+{{-     if (not (and (contains "+%{key}@" $.Values.global.appConfig.incomingEmail.address) (contains "+%{key}@" $.Values.global.appConfig.serviceDeskEmail.address))) }}
+serviceDesk:
+    When configuring Service Desk email, both incoming email and Service Desk email address must contain the "+%{key}" tag.
+    See https://docs.gitlab.com/ee/user/project/service_desk.html#using-custom-email-address
+{{-     end -}}
+{{-   end -}}
+{{- end -}}
+{{/* END gitlab.checkConfig.serviceDesk */}}
+
+{{/*
+Ensure that sentry has a DSN configured if enabled
+*/}}
+{{- define "gitlab.checkConfig.sentry" -}}
+{{-   if $.Values.global.appConfig.sentry.enabled }}
+{{-     if (not (or $.Values.global.appConfig.sentry.dsn $.Values.global.appConfig.sentry.clientside_dsn)) }}
+sentry:
+    When enabling sentry, you must configure at least one DSN.
+    See https://docs.gitlab.com/charts/charts/globals.html#sentry-settings
+{{-     end -}}
+{{-   end -}}
+{{- end -}}
+{{/* END gitlab.checkConfig.sentry */}}
+
+{{/*
+Ensure Registry notifications settings are in global scope
+*/}}
+{{- define "gitlab.checkConfig.registry.notifications" }}
+{{- if hasKey $.Values.registry "notifications" }}
+Registry: Notifications should be defined in the global scope. Use `global.registry.notifications` setting instead of `registry.notifications`.
+{{- end -}}
+{{- end -}}
+{{/* END gitlab.checkConfig.registryl.notifications */}}

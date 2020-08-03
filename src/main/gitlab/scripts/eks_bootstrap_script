@@ -138,7 +138,7 @@ do
 done
 shift $((OPTIND -1))
 
-validate_eks_required_tools
+validate_tools eksctl kubectl helm
 
 # Ensure we can connect to aws
 if ! eksctl get cluster -v 0 > /dev/null

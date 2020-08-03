@@ -1,3 +1,9 @@
+---
+stage: Enablement
+group: Distribution
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # Running GitLab QA
 
 The following documentation is meant to provide instructions for running
@@ -19,13 +25,13 @@ version of GitLab QA image.
 
 Export `GITLAB_VERSION` based on what you have observed:
 
-```sh
+```shell
 export GITLAB_VERSION=11.0.3-ee
 ```
 
 or:
 
-```sh
+```shell
 export GITLAB_VERSION=nightly
 ```
 
@@ -34,7 +40,7 @@ export GITLAB_VERSION=nightly
 Ensure you have a functional version of Ruby, preferably of the `2.5` branch.
 Install the `gitlab-qa` gem:
 
-```sh
+```shell
 gem install gitlab-qa
 ```
 
@@ -47,7 +53,7 @@ installation. Ensure that the daemon is running. If you have set `GITLAB_VERSION
 pull the GitLab QA nightly image to ensure that the latest nightly is used for
 testing, in conjunction with the nightly builds of the CNG containers:
 
-```sh
+```shell
 docker pull gitlab/gitlab-ee-qa:$GITLAB_VERSION
 ```
 
@@ -82,7 +88,7 @@ Assuming you have set the environment variables from the
 [Configuration](#configuration) step, the following command will perform the
 tests against the deployed GitLab instance:
 
-```sh
+```shell
 gitlab-qa Test::Instance::Any EE:$GITLAB_VERSION $GITLAB_URL
 ```
 

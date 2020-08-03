@@ -38,6 +38,22 @@ global:
         logPath: "/dev/stdout"
       mailbox: inbox
       idleTimeout: 60
+    serviceDeskEmail:
+      enabled: false
+      address:
+      host:
+      port: 993
+      ssl: true
+      startTls: false
+      user:
+      password:
+        secret: ""
+        key: password
+      expungeDeleted: false
+      logger:
+        logPath: "/dev/stdout"
+      mailbox: inbox
+      idleTimeout: 60
 
 hpa:
   minReplicas: 1
@@ -101,3 +117,17 @@ resources:
   requests:
     cpu: 50m
     memory: 150M
+
+## Allow to overwrite under which User and Group we're running.
+securityContext:
+  runAsUser: 1000
+  fsGroup: 1000
+
+## Enable deployment to use a serviceAccount
+serviceAccount:
+  enabled: false
+  create: false
+  annotations: {}
+  ## Name to be used for serviceAccount, otherwise defaults to chart fullname
+  # name: 
+  

@@ -69,3 +69,16 @@ image repository.
 {{- define "gitlab.extraVolumeMounts" -}}
 {{ tpl (default "" .Values.extraVolumeMounts) . }}
 {{- end -}}
+
+{{/*
+Returns the extraEnv keys and values to inject into containers.
+
+Global values will override any chart-specific values.
+*/}}
+{{- define "gitlab.extraEnv" -}}
+{{- $allExtraEnv := merge (default (dict) .Values.extraEnv) .Values.global.extraEnv -}}
+{{- range $key, $value := $allExtraEnv }}
+- name: {{ $key }}
+  value: {{ $value | quote }}
+{{- end -}}
+{{- end -}}

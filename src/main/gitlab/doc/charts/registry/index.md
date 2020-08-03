@@ -1,3 +1,9 @@
+---
+stage: Enablement
+group: Distribution
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # Using the Container Registry
 
 The `registry` sub-chart provides the Registry component to a complete cloud-native
@@ -44,8 +50,8 @@ registry:
     readOnly:
       enabled: false
   image:
-    tag: 'v2.9.0-gitlab'
-    pullPolicy: IfoNtPresent
+    tag: 'v2.9.1-gitlab'
+    pullPolicy: IfNotPresent
   annotations:
   service:
     type: ClusterIP
@@ -120,15 +126,18 @@ If you chose to deploy this chart as a standalone, remove the `registry` at the 
 | `image.pullPolicy`                         |                                              | Pull policy for the registry image                                                                   |
 | `image.pullSecrets`                        |                                              | Secrets to use for image repository                                                                  |
 | `image.repository`                         | `registry`                                   | Registry image                                                                                       |
-| `image.tag`                                | `v2.9.0-gitlab`                              | Version of the image to use                                                                          |
+| `image.tag`                                | `v2.9.1-gitlab`                              | Version of the image to use                                                                          |
 | `init.image.repository`                    |                                              | initContainer image                                                                                  |
 | `init.image.tag`                           |                                              | initContainer image tag                                                                              |
 | `log`                                      | `{level: warn, fields: {service: registry}}` | Configure the logging options                                                                        |
 | `minio.bucket`                             | `global.registry.bucket`                     | Legacy registry bucket name                                                                          |
 | `maintenance.readOnly.enabled`             | `false`                                      | Enable registry's read-only mode                                                                     |
+| `securityContext.fsGroup`                  | `1000`                                       | Group ID under which the pod should be started                                                       |
+| `securityContext.runAsUser`                | `1000`                                       | User ID under which the pod should be started                                                        |
 | `tokenService`                             | `container_registry`                         | JWT token service                                                                                    |
 | `tokenIssuer`                              | `gitlab-issuer`                              | JWT token issuer                                                                                     |
 | `tolerations`                              | `[]`                                         | Toleration labels for pod assignment                                                                 |
+| `updateStrategy`                           | `{}`                                         | Allows one to configure the update strategy utilized by the deployment                                |
 
 ## Chart configuration examples
 
@@ -196,13 +205,13 @@ You can change the included version of the Registry and `pullPolicy`.
 
 Default settings:
 
-- `tag: 'v2.9.0-gitlab'`
+- `tag: 'v2.9.1-gitlab'`
 - `pullPolicy: 'IfNotPresent'`
 
 ## Configuring the `service`
 
 This section controls the name and type of the [Service](https://gitlab.com/gitlab-org/charts/gitlab/blob/master/charts/registry/templates/service.yaml).
-These settings will be populated by [values.yaml](https://gitlab.com/gitlab-org/charts/gitlab/blob/master/charts/registry/values.yaml).
+These settings will be populated by [`values.yaml`](https://gitlab.com/gitlab-org/charts/gitlab/blob/master/charts/registry/values.yaml).
 
 By default, the Service is configured as:
 
@@ -224,7 +233,7 @@ This section controls the registry Ingress.
 | `annotations`     | String  |         | This field is an exact match to the standard `annotations` for [Kubernetes Ingress](https://kubernetes.io/docs/concepts/services-networking/ingress/). |
 | `enabled`         | Boolean | `false` | Setting that controls whether to create Ingress objects for services that support them. When `false` the `global.ingress.enabled` setting is used. |
 | `tls.enabled`     | Boolean | `true`  | When set to `false`, you disable TLS for the Registry subchart. This is mainly useful for cases in which you cannot use TLS termination at `ingress-level`, like when you have a TLS-terminating proxy before the Ingress Controller. |
-| `tls.serviceName` | String  | `redis` | The name of the Kubernetes TLS Secret that contains a valid certificate and key for the registry url. When not set, the `global.ingress.tls.secretName` is used instead. Defaults to not being set. |
+| `tls.secretName`  | String  |         | The name of the Kubernetes TLS Secret that contains a valid certificate and key for the registry URL. When not set, the `global.ingress.tls.secretName` is used instead. Defaults to not being set. |
 
 ## Configuring the `networkpolicy`
 
@@ -244,7 +253,7 @@ and Ingress to specific endpoints.
 ### Example policy for preventing connections to all internal endpoints
 
 The Registry service normally requires egress connections to object storage,
-Ingress connections from docker clients, and kube-dns for DNS lookups. This
+Ingress connections from Docker clients, and kube-dns for DNS lookups. This
 adds the following network restrictions to the Registry service:
 
 - All egress requests to the local network on `10.0.0.0/8` port 53 are allowed (for kubeDNS)
@@ -362,7 +371,7 @@ If you _must_ support older verions of Docker clients, you can do so by setting
 
 ### validation
 
-The `validation` field is a map that controls the docker image validation
+The `validation` field is a map that controls the Docker image validation
 process in the registry. When image validation is enabled the registry rejects
 windows images with foreign layers.
 
@@ -423,8 +432,12 @@ Examples for [AWS s3](https://docs.docker.com/registry/storage-drivers/s3/) and
 [Google GCS](https://docs.docker.com/registry/storage-drivers/gcs/) drivers can be
 found in [examples/objectstorage](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/objectstorage):
 
-- [registry.s3.yaml](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/objectstorage/registry.s3.yaml)
-- [registry.gcs.yaml](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/objectstorage/registry.gcs.yaml)
+- [`registry.s3.yaml`](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/objectstorage/registry.s3.yaml)
+- [`registry.gcs.yaml`](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/objectstorage/registry.gcs.yaml)
+
+For S3, make sure you give the correct
+[permissions for registry storage](https://docs.docker.com/registry/storage-drivers/s3/#s3-permission-scopes). For more information about storage configuration, see
+[Container Registry storage driver](https://docs.gitlab.com/ee/administration/packages/container_registry.html#container-registry-storage-driver) in the administration documentation.
 
 Place the *contents* of the `storage` block into the secret, and provide the following
 as items to the `storage` map:
@@ -435,7 +448,7 @@ as items to the `storage` map:
   to `/etc/docker/registry/storage/${extraKey}` within the container. This can be
   used to provide the `keyfile` for the `gcs` driver.
 
-```bash
+```shell
 # Example using S3
 kubectl create secret generic registry-storage \
     --from-file=config=registry-storage.yaml
@@ -493,7 +506,7 @@ health:
 
 The Docker Registry will build up extraneous data over time which can be freed using
 [garbage collection](https://docs.docker.com/registry/garbage-collection/).
-As of [now](https://gitlab.com/gitlab-org/charts/gitlab/issues/1586) there is no
+As of [now](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/1586) there is no
 fully automated or scheduled way to run the garbage collection with this Chart.
 
 ### Manual Garbage Collection
@@ -502,7 +515,7 @@ Manual garbage collection requires the registry to be in read-only mode first. L
 installed the GitLab Chart using Helm, named it `mygitlab` and installed it in the namespace `gitlabns`.
 Replace these values in the commands below according to your actual configuration.
 
-```bash
+```shell
 # Because of https://github.com/helm/helm/issues/2948 we can't rely on --reuse-values, so let's get our current config.
 helm get values mygitlab > mygitlab.yml
 # Upgrade Helm installation and configure the registry to be read-only.

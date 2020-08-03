@@ -2,6 +2,256 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 4.2.2 (2020-07-30)
+
+### Other (1 change)
+
+- Update GitLab Version to 13.2.2.
+
+
+## 4.2.1 (2020-07-24)
+
+### Fixed (1 change, 1 of them is from the community)
+
+- Use the global `psql` config parameters when the local `psql` configuration does not contain that config key, instead of going to the default option. !1461 (Matthias van de Meent)
+
+### Changed (1 change)
+
+- Update GitLab Runner to 0.19.1. !500
+
+### Other (1 change)
+
+- Update GitLab Version to 13.2.1.
+
+
+## 4.2.0 (2020-07-22)
+
+### Fixed (2 changes)
+
+- Restore per sub-chart configuration of PostgreSQL (#1812). !1420
+- Redis: switch encoding method for redis password in URI. !1447
+
+### Changed (2 changes)
+
+- Support extraEnv at the pod level for Sidekiq. !1443
+- Set default database pool size to 1 as the application will calculate the best pool size based on concurrency.
+
+### Added (3 changes, 1 of them is from the community)
+
+- Gitaly PVC support annotations. !1419 (Andy Ai)
+- Allows overriding targetAverageValue in sidekiq pods. !1428
+- Gitaly: support TLS flag for external instances. !1446
+
+### Other (2 changes, 1 of them is from the community)
+
+- Add an annotations support to the migrations job template. !1423 (Tiago Posse)
+- Update GitLab Version to 13.2.0.
+
+
+## 4.1.4 (2020-07-09)
+
+### Other (1 change)
+
+- Update GitLab Version to 13.1.4.
+
+
+## 4.1.3 (2020-07-06)
+
+### Changed (1 change)
+
+- Update GitLab Runner chart to 0.18.1. !1433
+
+### Other (1 change)
+
+- Update GitLab Version to 13.1.3.
+
+
+## 4.1.2 (2020-07-01)
+
+### Other (1 change)
+
+- Update GitLab Version to 13.1.2.
+
+
+## 4.1.1 (2020-06-24)
+
+### Fixed (1 change)
+
+- Update mailroom example docs to show the proper syntax for .mailbox. !1417
+
+### Other (1 change)
+
+- Update GitLab Version to 13.1.1.
+
+
+## 4.1.0 (2020-06-22)
+
+### Fixed (3 changes, 1 of them is from the community)
+
+- Added validation for redis host configuration. !1381 (Julius Kvedaras)
+- Fix GitLab Shell TCP config. !1393
+- Fix sentinel configuration for service_desk mailroom service. !1412
+
+### Changed (5 changes)
+
+- Break up gitlab-shell of gitaly config. !1353
+- Bump gitlab-exporter chart to 7.0.4. !1374
+- gitlab-shell - disable all forwarding via sshd. !1391
+- Centralize database.yml template (Rails). !1408
+- Update gitlab-exporter to version 7.0.6. !1411
+
+### Added (13 changes, 5 of them are from the community)
+
+- Add tracing support to helm chart. !1234 (Dmitry Chepurovskiy)
+- Added the ability to control the serviceAccounts of GitLab sub-charts. !1303 (Mark Tew)
+- Added Service Desk email configuration. !1324
+- Add gitlab.deploymentAnnotations template to charts in repository. !1351
+- Implement extraEnv pattern. !1377
+- Adds extraVolumeMounts for Sidekiq pods. !1380
+- Support passing registry notification headers as k8s secrets. !1383
+- Add nodePort configuration in NGINX service for gitlab-shell. !1394
+- Adds Sentry support for sidekiq and webservice. !1398
+- Add option to configure priorityClassName on Webservice chart. !1405 (Dragos Sutu)
+- Add option to configure priorityClassName on Sideqik chart. !1406 (Dragos Sutu)
+- Database: support load balancing reads (#1004). !1414
+- Adds update strategy to be configured for webservice. (Stepan Kuksenko)
+
+### Other (4 changes)
+
+- Add support for enabling the btree_gist pg extension. !1372
+- Ensure upgraded to 4.0 before 4.1. !1403
+- Update GitLab Runner chart to 0.18.0. !1416
+- Update GitLab Version to 13.1.0.
+
+
+## 4.0.9 (2020-07-09)
+
+### Other (1 change)
+
+- Update GitLab Version to 13.0.10.
+
+
+## 4.0.8 (2020-07-06)
+
+### Other (1 change)
+
+- Update GitLab Version to 13.0.9.
+
+
+## 4.0.7 (2020-07-01)
+
+### Other (1 change)
+
+- Update GitLab Version to 13.0.8.
+
+
+## 4.0.6 (2020-06-25)
+
+### Other (1 change)
+
+- Update GitLab Version to 13.0.7.
+
+
+## 4.0.5 (2020-06-10)
+
+### Changed (1 change)
+
+- Update GitLab Runner to 0.17.1. !1395
+
+### Other (1 change)
+
+- Update GitLab Version to 13.0.6.
+
+
+## 4.0.4 (2020-06-04)
+
+### Other (1 change)
+
+- Update GitLab Version to 13.0.5.
+
+
+## 4.0.3 (2020-06-03)
+
+### Other (1 change)
+
+- Update GitLab Version to 13.0.4.
+
+
+## 4.0.2 (2020-05-29)
+
+### Fixed (3 changes, 1 of them is from the community)
+
+- Mailroom: follow Redis Queues instance (#2097). !1347
+- Fix an bug in which it was impossible to configure the unicorn memory killer. !1365 (Matthias van de Meent)
+- Ensure database-upgrade scripts ignores running on the backup pods. !1367
+
+### Changed (1 change)
+
+- Update GitLab Runner to 0.17.0. !1356
+
+### Other (1 change)
+
+- Update GitLab Version to 13.0.3.
+
+
+## 4.0.1 (2020-05-27)
+
+### Fixed (1 change)
+
+- Ensure database-upgrade scripts ignores running on the backup pods. !1367
+
+### Changed (1 change)
+
+- Update GitLab Runner to 0.17.0. !1356
+
+### Other (1 change)
+
+- Update GitLab Version to 13.0.1.
+
+
+## 4.0.0 (2020-05-22)
+
+### Fixed (2 changes)
+
+- Add defaulting of multi-redis password enabled (#2030). !1335
+- Mailroom: follow Redis Queues instance (#2097). !1347
+
+### Changed (9 changes, 1 of them is from the community)
+
+- Deploy ChaosKube Helm chart. !1296
+- Allow configuration of security context user to help with Openshift installs. !1306 (Mickaël Canévet)
+- Moved gitlab-shell settings to gitaly config.toml. !1308
+- Make sidekiq-cluster the default. !1317
+- Update gitlab-exporter to 7.0.2. !1321
+- Bump Container Registry to v2.9.1-gitlab. !1326
+- Updated documention to include multi Redis support. !1330
+- NGINX: Enable HTTP2, as all services support it. !1338
+- Bump gitlab-exporter to 7.0.3. !1345
+
+### Added (8 changes, 2 of them are from the community)
+
+- Add task-runner pod antiAffinity support to helm chart. !1025 (Sam Wenham)
+- Replace unicorn chart with webservice. !1145 (Dmitry Chepurovskiy)
+- Provides capability to configure PDB per sidekiq pod config. !1292
+- Adds update strategy to be configured for Container Registry. !1293
+- Adds update strategy to be configured for sidekiq. !1294
+- Update min chart/gitlab versions for the major release. !1300
+- Add support for ci_jwt_signing_key Rails secret. !1318
+- Add extraEnvs for Sidekiq. !1333
+
+### Other (2 changes)
+
+- Update bitnami/postgres -> 8.9.4, postgres -> 11.7.0. !1320
+- Update GitLab Version to 13.0.0.
+
+
+## 3.3.13 (2020-07-06)
+
+### Other (1 change)
+
+- Update GitLab Version to 12.10.14.
+
+
 ## 3.3.12 (2020-07-01)
 
 ### Other (1 change)
@@ -16,25 +266,11 @@ entry.
 - Update GitLab Version to 12.10.12.
 
 
-## 3.3.10 (2020-06-10)
-
-### Other (1 change)
-
-- Update GitLab Version to 12.10.11.
-
-
 ## 3.3.9 (2020-06-04)
 
 ### Other (1 change)
 
 - Update GitLab Version to 12.10.10.
-
-
-## 3.3.8 (2020-06-03)
-
-### Other (1 change)
-
-- Update GitLab Version to 12.10.9.
 
 
 ## 3.3.7 (2020-05-29)
@@ -135,6 +371,41 @@ entry.
 - Update GitLab Version to 12.10.0.
 
 
+## 3.2.9 (2020-06-10)
+
+### Other (1 change)
+
+- Update GitLab Version to 12.9.10.
+
+
+## 3.2.8 (2020-06-03)
+
+### Other (1 change)
+
+- Update GitLab Version to 12.9.9.
+
+
+## 3.2.7 (2020-05-27)
+
+### Other (1 change)
+
+- Update GitLab Version to 12.9.8.
+
+
+## 3.2.6 (2020-05-14)
+
+### Other (1 change)
+
+- Update GitLab Version to 12.9.7.
+
+
+## 3.2.5 (2020-04-30)
+
+### Other (1 change)
+
+- Update GitLab Version to 12.9.5.
+
+
 ## 3.2.4 (2020-04-17)
 
 ### Other (1 change)
@@ -184,6 +455,13 @@ entry.
 ### Other (1 change)
 
 - Update GitLab Version to 12.9.0.
+
+
+## 3.1.8 (2020-04-30)
+
+### Other (1 change)
+
+- Update GitLab Version to 12.8.10.
 
 
 ## 3.1.7 (2020-04-15)

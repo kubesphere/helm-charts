@@ -1,3 +1,9 @@
+---
+stage: Enablement
+group: Distribution
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # Configure Charts using Globals
 
 To reduce configuration duplication when installing our wrapper Helm chart, several
@@ -18,16 +24,20 @@ for more information on how the global variables work.
 - [appConfig](#configure-appconfig-settings)
 - [Rails](#configure-rails-settings)
 - [GitLab Shell](#configure-gitlab-shell)
-- [Unicorn](#configure-unicorn)
+- [Webservice](#configure-webservice)
 - [Custom Certificate Authorities](#custom-certificate-authorities)
 - [Application Resource](#application-resource)
 - [Busybox image](#busybox-image)
+- [Service Accounts](#service-accounts)
+- [Annotations](#annotations)
+- [Tracing](#tracing)
+- [extraEnv](#extraenv)
 
 ## Configure Host settings
 
 The GitLab global host settings are located under the `global.hosts` key.
 
-```YAML
+```yaml
 global:
   hosts:
     domain: example.com
@@ -49,17 +59,17 @@ global:
 |:---------------------- |:-------:|:------------- |:----------- |
 | `domain`               | String  | `example.com` | The base domain. GitLab and Registry will be exposed on the subdomain of this setting. This defaults to `example.com`, but is not used for hosts that have their `name` property configured. See the `gitlab.name`, `minio.name`, and `registry.name` sections below. |
 | `externalIP`           |         | `nil`         | Set the external IP address that will be claimed from the provider. This will be templated into the [NGINX chart](nginx/index.md#configuring-nginx), in place of the more complex `nginx.service.loadBalancerIP`. |
-| `https`                | Boolean | `true`        | If set to true, you will need to ensure the NGINX chart has access to the certificates. In cases where you have TLS-termination in front of your Ingresses, you probably want to look at [`global.ingress.tls.enabled`](#configure-ingress-settings). Set to false for external urls to use `http://` instead of `https`. |
+| `https`                | Boolean | `true`        | If set to true, you will need to ensure the NGINX chart has access to the certificates. In cases where you have TLS-termination in front of your Ingresses, you probably want to look at [`global.ingress.tls.enabled`](#configure-ingress-settings). Set to false for external URLs to use `http://` instead of `https`. |
 | `hostSuffix`           | String  |               | [See Below](#hostsuffix). |
-| `gitlab.https`         | Boolean | `false`       | If `hosts.https` or `gitlab.https` are `true`, the GitLab external url will use `https://` instead of `http://`. |
+| `gitlab.https`         | Boolean | `false`       | If `hosts.https` or `gitlab.https` are `true`, the GitLab external URL will use `https://` instead of `http://`. |
 | `gitlab.name`          | String  |               | The hostname for GitLab. If set, this hostname is used, regardless of the `global.hosts.domain` and `global.hosts.hostSuffix` settings. |
-| `gitlab.serviceName`   | String  | `unicorn`     | The name of the `service` which is operating the GitLab server. The chart will template the hostname of the service (and current `.Release.Name`) to create the proper internal serviceName. |
+| `gitlab.serviceName`   | String  | `webservice`     | The name of the `service` which is operating the GitLab server. The chart will template the hostname of the service (and current `.Release.Name`) to create the proper internal serviceName. |
 | `gitlab.servicePort`   | String  | `workhorse`   | The named port of the `service` where the GitLab server can be reached. |
-| `minio.https`          | Boolean | `false`       | If `hosts.https` or `minio.https` are `true`, the MinIO external url will use `https://` instead of `http://`. |
+| `minio.https`          | Boolean | `false`       | If `hosts.https` or `minio.https` are `true`, the MinIO external URL will use `https://` instead of `http://`. |
 | `minio.name`           | String  |               | The hostname for MinIO. If set, this hostname is used, regardless of the `global.hosts.domain` and `global.hosts.hostSuffix` settings. |
 | `minio.serviceName`    | String  | `minio`       | The name of the `service` which is operating the MinIO server. The chart will template the hostname of the service (and current `.Release.Name`) to create the proper internal serviceName. |
 | `minio.servicePort`    | String  | `minio`       | The named port of the `service` where the MinIO server can be reached. |
-| `registry.https`       | Boolean | `false`       | If `hosts.https` or `registry.https` are `true`, the Registry external url will use `https://` instead of `http://`. |
+| `registry.https`       | Boolean | `false`       | If `hosts.https` or `registry.https` are `true`, the Registry external URL will use `https://` instead of `http://`. |
 | `registry.name`        | String  |               | The hostname for Registry. If set, this hostname is used, regardless of the `global.hosts.domain` and `global.hosts.hostSuffix` settings. |
 | `registry.serviceName` | String  | `registry`    | The name of the `service` which is operating the Registry server. The chart will template the hostname of the service (and current `.Release.Name`) to create the proper internal serviceName. |
 | `registry.servicePort` | String  | `registry`    | The named port of the `service` where the Registry server can be reached. |
@@ -104,7 +114,7 @@ Ingress objects.
 
 NOTE: **Note:** If you wish to use an external `cert-manager`, you must provide the following:
 
-- `gitlab.unicorn.ingress.tls.secretName`
+- `gitlab.webservice.ingress.tls.secretName`
 - `registry.ingress.tls.secretName`
 - `minio.ingress.tls.secretName`
 - `global.ingress.annotations`
@@ -118,75 +128,314 @@ in [Deploy using Helm](../installation/deployment.md#deploy-using-helm)
 The GitLab version used in the default image tag for the charts can be changed using
 the `global.gitlabVersion` key:
 
-```bash
+```shell
 --set global.gitlabVersion=11.0.1
 ```
 
-This impacts the default image tag used in the `unicorn`, `sidekiq`, and `migration`
+This impacts the default image tag used in the `webservice`, `sidekiq`, and `migration`
 charts. Note that the `gitaly`, `gitlab-shell` and `gitlab-runner` image tags should
 be separately updated to versions compatible with the GitLab version.
 
 ## Configure PostgreSQL settings
 
-The GitLab global PostgreSQL settings are located under the `global.psql` key. For
-more details, see the documentation within the [Unicorn chart](gitlab/unicorn/index.md#postgresql).
+The GitLab global PostgreSQL settings are located under the `global.psql` key.
 
 ```YAML
 global:
   psql:
-    host: db.example.com
-    # serviceName:
+    host: psql.example.com
+    # serviceName: pgbouncer
     port: 5432
+    database: gitlabhq_production
+    username: gitlab
     preparedStatements: false
-    pool: 10
+    pool: 1
     password:
       secret: gitlab-postgres
       key: psql-password
 ```
 
+| Name              | Type    | Default               | Description |
+|:----------------- |:-------:|:--------------------- |:----------- |
+| `host`            | String  |                       | The hostname of the PostgreSQL server with the database to use. This can be omitted if using PostgreSQL deployed by this chart. |
+| `serviceName`     | String  |                       | The name of the `service` which is operating the PostgreSQL database. If this is present, and `host` is not, the chart will template the hostname of the service in place of the `host` value. |
+| `database`        | String  | `gitlabhq_production` | The name of the database to use on the PostgreSQL server. |
+| `password.key`    | String  |                       | The `password.key` attribute for PostgreSQL defines the name of the key in the secret (below) that contains the password. |
+| `password.secret` | String  |                       | The `password.secret` attribute for PostgreSQL defines the name of the Kubernetes `Secret` to pull from. |
+| `pool`            | Integer | `1`                   | How many connections are made to the database. |
+| `port`            | Integer | `5432`                | The port on which to connect to the PostgreSQL server. |
+| `username`        | String  | `gitlab`              | The username with which to authenticate to the database. |
+| `preparedStatements`| Bool  | `false`               | If prepared statements should be used when communicating with the PostgreSQL server. |
+
+### PostgreSQL per chart
+
+In some complex deployments, it may be desired to configure different parts of
+this chart with different configurations for PostgreSQL. As of `v4.2.0`, all
+properties available within `global.psql` can be set on a per-chart basis,
+for example `gitlab.sidekiq.psql`. The local settings will override global values
+when supplied, inheriting any _not present_ from `global.psql`, with the exception
+of `psql.load_balancing`.
+
+[PostgreSQL load balancing](#postgresql-load-balancing) will _never_ inherit
+from the global, by design.
+
+### PostgreSQL SSL
+
+NOTE: **Note**: Currently, SSL support is mutual TLS only.
+See [issue #2034](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/2034)
+and [issue #1817](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/1817).
+
 If you want to connect GitLab with a PostgreSQL database over mutual TLS, create a secret
 containing the client key, client certificate and server certificate authority as different
 secret keys. Then describe the secret's structure using the `global.psql.ssl` mapping.
 
-```YAML
+```yaml
 global:
   psql:
-    host: db.example.com
-    # ... further settings like in the previous example ...
     ssl:
       secret: db-example-ssl-secrets # Name of the secret
-      clientKey: key.pem             # Secret key of the certificate's key
       clientCertificate: cert.pem    # Secret key storing the certificate
+      clientKey: key.pem             # Secret key of the certificate's key
       serverCA: server-ca.pem        # Secret key containing the CA for the database server
+```
+
+| Name                | Type    | Default | Description |
+|:-----------------   |:-------:|:------- |:----------- |
+| `secret`            | String  |         | Name of the Kuberentes `Secret` containing the following keys |
+| `clientCertificate` | String  |         | Name of the key witin the `Secret` containing the client certificate. |
+| `clientKey`         | String  |         | Name of the key within the `Secret` containing the client certificate's key file. |
+| `serverCA`          | String  |         | Name of the key within the `Secret` containing the certificate authority for the server. |
+
+### PostgreSQL load balancing
+
+NOTE: **Note**: This feature currently requires the use of an
+[external PostgreSQL](../advanced/external-db/), as this chart does not
+deploy PostgreSQL in an HA fashion.
+
+GitLab's Rails components have the ability to [make use of PostgreSQL
+clusters to load balance read-only queries](https://docs.gitlab.com/ee/administration/database_load_balancing.html).
+
+This feature can be configured in two fashions:
+
+- Using a static lists of _hostnames_ for the secondaries.
+- Using a DNS based service discovery mechanism.
+
+Configuration with a static list of is straight forward:
+
+```yaml
+global:
+  psql:
+    host: primary.database
+    load_balancing:
+       hosts:
+       - secondary-1.database
+       - secondary-2.database
+```
+
+Configuration of service discovery can be more complex. For a complete
+details of this configuration, the parameters and their associated
+behaviors, see [Service Discovery](https://docs.gitlab.com/ee/administration/database_load_balancing.html#service-discovery)
+in the [GitLab Administration documenation](https://docs.gitlab.com/ee/administration/index.html).
+
+```yaml
+global:
+  psql:
+    host: primary.database
+    load_balancing:
+      discover:
+        record:  secondary.postgresql.service.consul
+        # record_type: A
+        # nameserver: localhost
+        # port: 8600
+        # interval: 60
+        # disconnect_timeout: 120
+        # use_tcp: false
+```
+
+Further tuning is also available, in regards to the
+[handling of stale reads](https://docs.gitlab.com/ee/administration/database_load_balancing.html#handling-stale-reads).
+The GitLab Administration documentation covers these items in detail,
+and those properties can be added directly under `load_balancing`.
+
+```yaml
+global:
+  psql:
+    load_balancing:
+      max_replication_difference: # See documentation
+      max_replication_lag_time:   # See documentation
+      replica_check_interval:     # See documentation
 ```
 
 ## Configure Redis settings
 
-The GitLab global Redis settings are located under the `global.redis` key. For more
-details on these settings, see the documentation within the [Unicorn chart](gitlab/unicorn/index.md#redis).
+The GitLab global Redis settings are located under the `global.redis` key.
 
-```YAML
+By default we use an single, non-replicated Redis instance. If desired, a
+highly available Redis can be deployed instead. To install an HA Redis
+cluster one needs to set `redis.cluster.enabled=true` when the GitLab
+chart is installed.
+
+You can bring an external Redis instance by setting `redis.install=false`, and
+following our [advanced documentation](../advanced/external-redis/index.md) for
+configuration.
+
+```yaml
 global:
   redis:
     host: redis.example.com
-    # serviceName:
+    serviceName: redis
+    port: 6379
+    password:
+      enabled: true
+      secret: gitlab-redis
+      key: redis-password
+```
+
+| Name               | Type    | Default | Description |
+|:------------------ |:-------:|:------- |:----------- |
+| `host`             | String  |         | The hostname of the Redis server with the database to use. This can be omitted in lieu of `serviceName`. |
+| `serviceName`      | String  | `redis` | The name of the `service` which is operating the Redis database. If this is present, and `host` is not, the chart will template the hostname of the service (and current `.Release.Name`) in place of the `host` value. This is convenient when using Redis as a part of the overall GitLab chart. |
+| `port`             | Integer | `6379`  | The port on which to connect to the Redis server. |
+| `password.enabled` | Bool    | true    | The `password.enabled` provides a toggle for using a password with the Redis instance. |
+| `password.key`     | String  |         | The `password.key` attribute for Redis defines the name of the key in the secret (below) that contains the password. |
+| `password.secret`  | String  |         | The `password.secret` attribute for Redis defines the name of the Kubernetes `Secret` to pull from. |
+
+### Redis Sentinel support
+
+The current Redis Sentinel support only supports Sentinels that have
+been deployed separately from the GitLab chart. As a result, the Redis
+deployment through the GitLab chart should be disabled with `redis.install=false`.
+The Kubernetes Secret containing the Redis password will need to be manually created
+before deploying the GitLab chart.
+
+The installation of an HA Redis cluster from the GitLab chart does not
+support using sentinels. If sentinel support is desired, a Redis cluster
+needs to be created separately from the GitLab chart install. This can be
+done inside or outside the Kubernetes cluster.
+
+An issue to track the [supporting of sentinels in a GitLab deployed
+Redis cluster](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/1810) has
+been created for tracking purposes.
+
+```yaml
+redis:
+  install: false
+global:
+  redis:
+    host: redis.example.com
+    serviceName: redis
     port: 6379
     sentinels:
       - host: sentinel1.example.com
         port: 26379
-      - host: sentinel2.example.com
+      - host: sentinel2.exeample.com
         port: 26379
     password:
       enabled: true
-      secret: gitlab-redis-secret
+      secret: gitlab-redis
       key: redis-password
 ```
 
-_Note:_ The current Redis Sentinel support only supports Sentinels that have
-been deployed separately from the GitLab chart. As a result, the Redis
-deployment through the GitLab chart should be disabled with `redis.install=false`.
-The Secret containing the Redis password will need to be manually created
-before deploying the GitLab chart.
+| Name               | Type    | Default | Description |
+|:------------------ |:-------:|:------- |:----------- |
+| `host`             | String  |         | The `host` attribute needs to be set to the cluster name as specified in the `sentinel.conf`.|
+| `sentinels.[].host`| String  |         | The hostname of Redis Sentinel server for a Redis HA setup. |
+| `sentinels.[].port`| Integer | `26379` | The port on which to connect to the Redis Sentinel server. |
+
+NOTE: **Note**:
+All the prior Redis attributes in the general [configure Redis settings](#configure-redis-settings)
+continue to apply with the Sentinel support unless respecified in the table above.
+
+### Multiple Redis support
+
+The GitLab chart includes support for running with separate Redis instances
+for different persistence classes, currently: `cache`, `queues`, `shared_state` and
+`actioncable`
+
+| Instance     | Purpose                                             |
+|:-------------|:----------------------------------------------------|
+| cache        | Store cached data                                   |
+| queues       | Store Sidekiq background jobs                       |
+| shared_state | Store session-related and other persistent data     |
+| actioncable  | Pub/Sub queue backend for ActionCable               |
+
+Any number of the instances may be specified. Any instances not specified
+will be handled by the primary Redis instance specified
+by `global.redis.host` or use the deployed Redis instance from the chart.
+For example:
+
+```yaml
+redis:
+  install: false
+global:
+  redis:
+    host: redis.example
+    port: 6379
+    password:
+      enabled: true
+      secret: redis-secret
+      key: redis-password
+    cache:
+      host: cache.redis.example
+      port: 6379
+      password:
+        enabled: true
+        secret: cache-secret
+        key: cache-password
+    sharedState:
+      host: shared.redis.example
+      port: 6379
+      password:
+        enabled: true
+        secret: shared-secret
+        key: shared-password
+    queues:
+      host: queues.redis.example
+      port: 6379
+      password:
+        enabled: true
+        secret: queues-secret
+        key: queues-password
+    actioncable:
+      host: cable.redis.example
+      port: 6379
+      password:
+        enabled: true
+        secret: cable-secret
+        key: cable-password
+```
+
+The following table describes the attributes for each dictionary of the
+Redis instances.
+
+| Name               | Type    | Default | Description |
+|:------------------ |:-------:|:------- |:----------- |
+| `.host`            | String  |         | The hostname of the Redis server with the database to use. |
+| `.port`            | Integer | `6379`  | The port on which to connect to the Redis server. |
+| `.password.enabled`| Bool    | true    | The `password.enabled` provides a toggle for using a password with the Redis instance. |
+| `.password.key`    | String  |         | The `password.key` attribute for Redis defines the name of the key in the secret (below) that contains the password. |
+| `.password.secret` | String  |         | The `password.secret` attribute for Redis defines the name of the Kubernetes `Secret` to pull from. |
+
+NOTE: **Note**:
+The primary Redis definition is required as there are additional persistence
+ classes that have not been separated.
+
+NOTE: **Note**:
+Each instance definition may also use Redis Sentinel support. Sentinel
+configurations **are not shared** and needs to be specified for each
+instance that uses Sentinels. Please refer to the [Sentinel configuration](#redis-sentinel-support)
+for the attributes that are used to configure Sentinel servers.
+
+### Specifying secure Redis scheme (SSL)
+
+In order to connect to Redis using SSL, the `rediss` (note the double `s`) scheme parameter is required:
+
+```yaml
+global:
+  redis:
+    scheme: rediss
+  --set global.redis.scheme=rediss
+```
 
 ## Configure Grafana integration
 
@@ -198,22 +447,58 @@ The GitLab chart connects to the deployed Prometheus instance.
 
 ## Configure Registry settings
 
-The global Registry settings are located under the `global.registry` key. For more
-details on these settings, see the documentation within the [registry chart](registry/index.md).
+The global Registry settings are located under the `global.registry` key.
 
-```YAML
+```yaml
 global:
   registry:
     bucket: registry
     certificate:
     httpSecret:
+    notifications: {}
 ```
+
+For more details on `bucket`, `certificate`, and `httpSecret` settings, see the documentation within the [registry chart](registry/index.md).
+
+### notifications
+
+This setting is used to configure
+[Registry notifications](https://docs.docker.com/registry/configuration/#notifications).
+It takes in a map (following upstream specification), but with an added feature
+of providing sensitive headers as Kubernetes secrets. For example, consider the
+following snippet where the Authorization header contains sensitive data while
+other headers contain regular data:
+
+```yaml
+global:
+  registry:
+    notifications:
+      events:
+        includereferences: true
+      endpoints:
+        - name: CustomListener
+          url: https://mycustomlistener.com
+          timeout: 500mx
+          threshold: 5
+          backoff: 1s
+          headers:
+            X-Random-Config: [plain direct]
+            Authorization:
+              secret: registry-authorization-header
+              key: password
+```
+
+In this example, the header `X-Random-Config` is a regular header and its value
+can be provided in plaintext in the `values.yml` file or via `--set` flag.
+However, the header `Authorization` is a sensitive one, so mounting it from a
+Kubernetes secret is preferred. For details regarding the structure of the
+secret, refer the [secrets documentation](../installation/secrets.md#registry-sensitive-notification-headers)
 
 ## Configure Gitaly settings
 
 The global Gitaly settings are located under the `global.gitaly` key.
 
-```YAML
+```yaml
 global:
   gitaly:
     internal:
@@ -283,6 +568,7 @@ Each item of this list has 3 keys:
 - `name`: The name of the [storage](https://docs.gitlab.com/ee/administration/repository_storage_paths.html).
 - `hostname`: The host of Gitaly services.
 - `port`: (optional) The port number to reach the host on. Defaults to `8075`.
+- `tlsEnabled`: (optional) Override `global.gitaly.tls.enabled` for this particular entry.
 
 NOTE: **Note:** You must have an entry with `name: default`.
 
@@ -324,7 +610,7 @@ NOTE: **Note:** All Gitaly nodes **must** share the same authentication token.
 
 ### TLS settings
 
-Configuring Gitaly over TLS is detailed [in the Gitaly chart's documentation](gitlab/gitaly#running-gitaly-over-tls).
+Configuring Gitaly to serve via TLS is detailed [in the Gitaly chart's documentation](gitlab/gitaly#running-gitaly-over-tls).
 
 ## Configure MinIO settings
 
@@ -340,7 +626,7 @@ global:
 
 ## Configure appConfig settings
 
-The [Unicorn](gitlab/unicorn/index.md), [Sidekiq](gitlab/sidekiq/index.md), and
+The [Webservice](gitlab/webservice/index.md), [Sidekiq](gitlab/sidekiq/index.md), and
 [Gitaly](gitlab/gitaly/index.md) charts share multiple settings, which are configured
 with the `global.appConfig` key.
 
@@ -414,11 +700,29 @@ global:
         key: password
       mailbox: inbox
       idleTimeout: 60
+    serviceDeskEmail:
+      enabled: false
+      address: ""
+      host: "imap.gmail.com"
+      port: 993
+      ssl: true
+      startTls: false
+      user: ""
+      password:
+        secret:
+        key: password
+      mailbox: inbox
+      idleTimeout: 60
     pseudonymizer:
       configMap:
       bucket: gitlab-pseudo
       connection: {}
     cron_jobs: {}
+    sentry:
+      enabled: false
+      dsn:
+      clientside_dsn:
+      environment:
 ```
 
 ### General application settings
@@ -434,8 +738,8 @@ application are described below:
 | `defaultCanCreateGroup`             | Boolean | `true`  | A flag to decide if users are allowed to create groups. |
 | `usernameChangingEnabled`           | Boolean | `true`  | A flag to decide if users are allowed to change their username. |
 | `issueClosingPattern`               | String  | (empty) | [Pattern to close issues automatically](https://docs.gitlab.com/ee/administration/issue_closing_pattern.html). |
-| `defaultTheme`                      | Integer |         | [Numeric ID of the default theme for the GitLab instance](https://gitlab.com/gitlab-org/gitlab-foss/blob/master/lib/gitlab/themes.rb#L14-25). It takes a number, denoting the id of the theme. |
-| `defaultProjectsFeatures.*feature*` | Boolean | `true`  | [See below](#defaultProjectsFeatures) |
+| `defaultTheme`                      | Integer |         | [Numeric ID of the default theme for the GitLab instance](https://gitlab.com/gitlab-org/gitlab-foss/blob/master/lib/gitlab/themes.rb#L17-27). It takes a number, denoting the id of the theme. |
+| `defaultProjectsFeatures.*feature*` | Boolean | `true`  | [See below](#defaultprojectsfeatures). |
 | `webHookTimeout`                    | Integer |         | Waiting time in seconds before a [hook is deemed to have failed](https://docs.gitlab.com/ce/user/project/integrations/webhooks.html#receiving-duplicate-or-multiple-web-hook-requests-triggered-by-one-event). |
 
 #### defaultProjectsFeatures
@@ -472,14 +776,14 @@ under the `extra` key below `appConfig`:
 |:------------------------- |:------:|:------- |:----------- |
 | `extra.googleAnalyticsId` | String | (empty) | Tracking ID for Google Analytics. |
 | `extra.piwikSiteId`       | String | (empty) | Piwik Site ID. |
-| `extra.piwikUrl`          | String | (empty) | Piwik Url. |
+| `extra.piwikUrl`          | String | (empty) | Piwik URL. |
 
 ### LFS, Artifacts, Uploads, Packages, and External MR diffs
 
 Details on these settings are below. Documentation is not repeated individually,
 as they are structurally identical aside from the default value of the `bucket` property.
 
-```YAML
+```yaml
   enabled: true
   proxy_download: true
   bucket:
@@ -513,13 +817,13 @@ provider modules.
 Examples for [AWS](https://fog.io/storage/#using-amazon-s3-and-fog) and [Google](https://fog.io/storage/#google-cloud-storage)
 providers can be found in [examples/objectstorage](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/objectstorage).
 
-- [rails.s3.yaml](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/objectstorage/rails.s3.yaml)
-- [rails.gcs.yaml](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/objectstorage/rails.gcs.yaml)
+- [`rails.s3.yaml`](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/objectstorage/rails.s3.yaml)
+- [`rails.gcs.yaml`](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/objectstorage/rails.gcs.yaml)
 
 Once a YAML file containing the contents of the `connection` has been created, use
 this file to create the secret in Kubernetes.
 
-```bash
+```shell
 kubectl create secret generic gitlab-rails-storage \
     --from-file=connection=rails.yaml
 ```
@@ -546,7 +850,7 @@ This password will then be injected into GitLab's configuration at runtime.
 
 An example configuration snippet:
 
-```YAML
+```yaml
 ldap:
   preventSignin: false
   servers:
@@ -593,13 +897,13 @@ If the LDAP server uses a custom CA or self-signed certificate, you must:
 
 1. Ensure that the custom CA/Self-Signed certificate is created as a secret in the cluster/namespace:
 
-   ```bash
+   ```shell
    kubectl -n gitlab create secret generic my-custom-ca --from-file=my-custom-ca.pem
    ```
 
 1. Then, specify:
 
-   ```bash
+   ```shell
    --set global.certificates.customCAs[0].secret=my-custom-ca.pem
    --set global.appConfig.ldap.servers.main.ca_file=/etc/ssl/certs/ca-cert-my-custom-ca.pem
    ```
@@ -612,7 +916,7 @@ GitLab can leverage OmniAuth to allow users to sign in using Twitter, GitHub, Go
 and other popular services. Expanded documentation can be found in the [OmniAuth documentation](https://docs.gitlab.com/ee/integration/omniauth.html)
 for GitLab.
 
-```YAML
+```yaml
 omniauth:
   enabled: false
   autoSignInWithProvider:
@@ -663,7 +967,7 @@ and create a YAML or JSON file.
 
 Example of configuration of Google OAuth2:
 
-```YAML
+```yaml
 name: google_oauth2
 label: Google
 app_id: 'APP ID'
@@ -675,14 +979,14 @@ args:
 
 This content can be saved as `provider.yaml`, and then a secret created from it:
 
-```bash
+```shell
 kubectl create secret generic -n NAMESPACE SECRET_NAME --from-file=provider=provider.yaml
 ```
 
 Once created, the `providers` are enabled by providing the maps in configuration, as
 shown below:
 
-```YAML
+```yaml
 omniauth:
   providers:
     - secret: gitlab-google-oauth2
@@ -692,7 +996,7 @@ omniauth:
 
 Example configuration `--set` items, when using the global chart:
 
-```bash
+```shell
 --set global.appConfig.omniauth.providers[0].secret=gitlab-google-oauth2 \
 ```
 
@@ -715,7 +1019,7 @@ global:
 | Name          | Type    | Default         | Description |
 |:------------- |:-------:|:--------------- |:----------- |
 | `bucket`      | String  | `gitlab-pseudo` | Name of the bucket to use from the object storage provider. |
-| `configMap`   | String  |                 | [See Below](#configMap). |
+| `configMap`   | String  |                 | [See Below](#configmap). |
 | `connnection` |         | `{}`            | [See Below](#connection). |
 
 #### configMap
@@ -727,7 +1031,7 @@ Users can provide a custom one as a configMap.
 
 First, create a configMap:
 
-```bash
+```shell
 kubectl create configmap <name of the configmap> --from-file=pseudonymizer.yml=<path to pseudonymizer_config.yml>
 ```
 
@@ -754,13 +1058,13 @@ This property has two sub-keys: `secret` and `key`:
 Examples for [AWS (s3)](https://fog.io/storage/#using-amazon-s3-and-fog) and [Google (GCS)](https://fog.io/storage/#google-cloud-storage)
 providers can be found in [examples/objectstorage](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/objectstorage):
 
-- [rails.s3.yaml](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/objectstorage/rails.s3.yaml)
-- [rails.gcs.yaml](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/objectstorage/rails.gcs.yaml)
+- [`rails.s3.yaml`](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/objectstorage/rails.s3.yaml)
+- [`rails.gcs.yaml`](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/objectstorage/rails.gcs.yaml)
 
 Once a YAML file containing the contents of the `connection` has been created, create
 the secret in Kubernetes:
 
-```bash
+```shell
 kubectl create secret generic gitlab-rails-storage \
     --from-file=connection=rails.yaml
 ```
@@ -772,10 +1076,10 @@ basis using cron style schedules. A few examples are included below. See the
 sample [`gitlab.yml`](https://gitlab.com/gitlab-org/gitlab/blob/master/config/gitlab.yml.example#L346-427)
 for more job examples.
 
-These settings are shared between Sidekiq, Unicorn (for showing tooltips in UI)
+These settings are shared between Sidekiq, Webservice (for showing tooltips in UI)
 and task-runner (for debugging purposes) pods.
 
-```YAML
+```yaml
 global:
   appConfig:
     cron_jobs:
@@ -786,6 +1090,27 @@ global:
       expire_build_artifacts_worker:
         cron: "50 * * * *"
 ```
+
+### Sentry settings
+
+Use these settings to enable [GitLab error reporting with Sentry](https://docs.gitlab.com/omnibus/settings/configuration.html#error-reporting-and-logging-with-sentry).
+
+```yaml
+global:
+  appConfig:
+    sentry:
+      enabled:
+      dsn:
+      clientside_dsn:
+      environment:
+```
+
+| Name        | Type    | Default | Description |
+|:----------- |:-------:|:------- |:----------- |
+| `enabled`        | Boolean | `false`  | Enable or Disable the integration |
+| `dsn`            | String  |        | Sentry DSN for backend errors |
+| `clientside_dsn` | String  |        | Sentry DSN for front-end errors |
+| `environment`    | String  |        | See [Sentry environments](https://docs.sentry.io/enriching-error-data/environments/) |
 
 ## Configure Rails settings
 
@@ -823,25 +1148,53 @@ global:
 
 | Name        | Type    | Default | Description |
 |:----------- |:-------:|:------- |:----------- |
-| `port`      | Integer | `22`    | You can control the port used by the Ingress to pass SSH traffic, as well as the port used in SSH URLs provided from GitLab via `global.shell.port`. |
+| `port`      | Integer | `22`    | See [port](#port) below for specific documentation. |
 | `authToken` |         |         | See [authToken](gitlab/gitlab-shell/index.md#authtoken) in the GitLab Shell chart specific documentation. |
 | `hostKeys`  |         |         | See [hostKeys](gitlab/gitlab-shell/index.md#hostkeyssecret) in the GitLab Shell chart specific documentation. |
 
-## Configure Unicorn
+### Port
 
-The global Unicorn settings (that are used by other charts also) are located
-under the `global.unicorn` key.
+You can control the port used by the Ingress to pass SSH traffic, as well as the port used
+in SSH URLs provided from GitLab via `global.shell.port`. This is reflected in the
+port on which the service listens, as well as the SSH clone URLs provided in project UI.
 
 ```yaml
 global:
-  unicorn:
+  shell:
+    port: 32022
+```
+
+You can combine `global.shell.port` and `nginx-ingress.controller.service.type=NodePort`
+to set a NodePort for the NGINX controller Service object. Note that if
+`nginx-ingress.controller.service.nodePorts.gitlab-shell` is set, it will
+override `global.shell.port` when setting the NodePort for NGINX.
+
+```yaml
+global:
+  shell:
+    port: 32022
+
+nginx-ingress:
+  controller:
+    service:
+      type: NodePort
+```
+
+## Configure Webservice
+
+The global Webservice settings (that are used by other charts also) are located
+under the `global.webservice` key.
+
+```yaml
+global:
+  webservice:
     workerTimeout: 60
 ```
 
 ### workerTimeout
 
-Configure the request timeout (in seconds) after which a Unicorn worker process
-is killed by the Unicorn master process. The default value is 60 seconds.
+Configure the request timeout (in seconds) after which a Webservice worker process
+is killed by the Webservice master process. The default value is 60 seconds.
 
 ## Custom Certificate Authorities
 
@@ -869,7 +1222,7 @@ NOTE: **Note:** These secrets can be named in any fashion, but they *must not* c
 
 To create a secret:
 
-```bash
+```shell
 kubectl create secret generic custom-ca --from-file=unique_name=/path/to/cert
 ```
 
@@ -933,3 +1286,72 @@ global:
 Many charts also provide `init.image.repository` and `init.image.tag` settings
 locally that can be used to override this global setting for that specific
 chart.
+
+## Service Accounts
+
+GitLab Helm charts allow for the pods to run using custom [Service Accounts](https://kubernetes.io/docs/tasks/configure-pod-container/configure-service-account/).
+This is configured with the following settings in `global.serviceAccount`:
+
+```yaml
+global:
+  serviceAccount:
+    enabled: false
+    create: true
+    annotations: {}
+    ## Name to be used for serviceAccount, otherwise defaults to chart fullname
+    # name:
+```
+
+- Setting `global.serviceAccount.enabled` to `true` will create a custom service account for each deployment.
+- Setting `global.serviceAccount.create` to `false` will disable automatic service account creation.
+- Setting `global.serviceAccount.name` will use that name in the deployment for either auto-generated or manually created service accounts.
+
+## Annotations
+
+Custom annotations can be applied to Deployment, Service, and Ingress objects.
+
+```yaml
+global:
+  deployment:
+    annotations:
+      environment: production
+
+  service:
+    annotations:
+      environment: production
+
+  ingress:
+    annotations:
+      environment: production
+```
+
+## Tracing
+
+GitLab Helm charts support tracing, and you can configure it with:
+
+```yaml
+global:
+  tracing:
+    connection:
+      string: 'opentracing://jaeger?http_endpoint=http%3A%2F%2Fjaeger.example.com%3A14268%2Fapi%2Ftraces&sampler=const&sampler_param=1'
+    urlTemplate: 'http://jaeger-ui.example.com/search?service={{ service }}&tags=%7B"correlation_id"%3A"{{ correlation_id }}"%7D'
+```
+
+- `global.tracing.connection.string` is used to configure where tracing spans would be sent. You can read more about that in [GitLab tracing documentation](https://docs.gitlab.com/ee/development/distributed_tracing.html)
+- `global.tracing.urlTemplate` is used as a template for tracing info URL rendering in GitLab perfomance bar.
+
+## extraEnv
+
+`extraEnv` allows you to expose additional environment variables in all containers in the pods
+that are deployed via GitLab charts (`charts/gitlab/charts`). Extra environment variables set at
+the global level will be merged into those provided at the chart level, with precedence given
+to those provided at the chart level.
+
+Below is an example use of `extraEnv`:
+
+```yaml
+global:
+  extraEnv:
+    SOME_KEY: some_value
+    SOME_OTHER_KEY: some_other_value
+```

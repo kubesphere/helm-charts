@@ -1,3 +1,9 @@
+---
+stage: Enablement
+group: Distribution
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # GitLab components sub-charts
 
 The following is the documentation list for the GitLab component service subcharts:
@@ -9,4 +15,4 @@ The following is the documentation list for the GitLab component service subchar
 - GitLab/[GitLab Shell](gitlab-shell/index.md)
 - GitLab/[Migrations](migrations/index.md)
 - GitLab/[Sidekiq](sidekiq/index.md)
-- GitLab/[Unicorn](unicorn/index.md)
+- GitLab/[Webservice](webservice/index.md)

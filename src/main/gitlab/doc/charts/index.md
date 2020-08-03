@@ -1,3 +1,9 @@
+---
+stage: Enablement
+group: Distribution
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # Chart documentation
 
 Documentation on a per-chart basis is listed here. Each chart is documented individually,
@@ -23,4 +29,4 @@ There are some common global settings that apply to multiple charts. See the
 - GitLab/[GitLab Shell](gitlab/gitlab-shell/index.md)
 - GitLab/[migrations](gitlab/migrations/index.md)
 - GitLab/[Sidekiq](gitlab/sidekiq/index.md)
-- GitLab/[Unicorn](gitlab/unicorn/index.md)
+- GitLab/[Webservice](gitlab/webservice/index.md)

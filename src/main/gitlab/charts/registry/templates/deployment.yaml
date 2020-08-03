@@ -7,13 +7,16 @@ metadata:
   labels:
     {{- include "gitlab.standardLabels" . | nindent 4 }}
   annotations:
-    {{ include "gitlab.deploymentAnnotations" . | nindent 4 | trim }}
+    {{- include "gitlab.deploymentAnnotations" . | nindent 4 }}
 spec:
   replicas: {{ .Values.hpa.minReplicas }}
   selector:
     matchLabels:
       app: {{ template "name" . }}
       release: {{ .Release.Name }}
+{{- if .Values.updateStrategy }}
+  strategy: {{ toYaml .Values.updateStrategy | nindent 4 }}
+{{- end }}
   template:
     metadata:
       labels:
@@ -31,8 +34,8 @@ spec:
         {{- toYaml .Values.tolerations | nindent 8 }}
       {{- end }}
       securityContext:
-        runAsUser: 1000
-        fsGroup: 1000
+        runAsUser: {{ .Values.securityContext.runAsUser }}
+        fsGroup: {{ .Values.securityContext.fsGroup }}
       {{- if .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml .Values.nodeSelector | nindent 8 }}
@@ -142,5 +145,6 @@ spec:
                   path: storage/{{ .Values.storage.extraKey }}
                 {{- end }}
           {{- end }}
+          {{- include "registry.notifications.secrets" $ | nindent 10 }}
       {{- include "gitlab.certificates.volumes" . | nindent 6 }}
 {{- end -}}

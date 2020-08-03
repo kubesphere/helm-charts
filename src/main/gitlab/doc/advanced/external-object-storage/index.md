@@ -1,3 +1,9 @@
+---
+stage: Enablement
+group: Distribution
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # External object storage
 
 GitLab relies on object storage for highly-available persistent data in Kubernetes.
@@ -14,15 +20,15 @@ To disable MinIO, set this option and then follow the related documentation belo
 An [example of the full configuration](https://gitlab.com/gitlab-org/charts/gitlab/blob/master/examples/values-external-objectstorage.yaml)
 has been provided in the [examples](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples).
 
-This documentation specifies usage of access and secret keys for AWS. It is also possible to use [IAM roles](./aws-iam-roles.md).
+This documentation specifies usage of access and secret keys for AWS. It is also possible to use [IAM roles](aws-iam-roles.md).
 
 NOTE: **Note:** GitLab does not currently support using [Amazon KMS](https://aws.amazon.com/kms/)
 to encrypt data stored in S3 buckets. Adding KMS support is being discussed in
-[issue #1012](https://gitlab.com/gitlab-org/charts/gitlab/issues/1012).
+[issue #1012](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/1012).
 
 ## Azure Blob Storage
 
-GitLab uses [fog](https://github.com/fog/fog), but [doesn't currently support Fog Azure](https://gitlab.com/gitlab-org/gitlab-foss/issues/55624). To make use Azure Blob Storage, you will have to set up an [Azure MinIO gateway](azure-minio-gateway.md).
+GitLab uses [fog](https://github.com/fog/fog), but [doesn't currently support Fog Azure](https://gitlab.com/gitlab-org/gitlab-foss/-/issues/55624). To make use Azure Blob Storage, you will have to set up an [Azure MinIO gateway](azure-minio-gateway.md).
 
 ## Docker Registry images
 
@@ -103,16 +109,12 @@ See the [charts/globals documentation on appConfig](../../charts/globals.md#conf
 
 Create the secret(s) per the [connection details documentation](../../charts/globals.md#connection), and then configure the chart to use the provided secrets. Note, the same secret can be used for all of them.
 
-Examples for [AWS][fog-aws](any S3 compatible like [Azure using MinIO][minio-azure] ) and [Google][fog-gcs] providers can be found in
+Examples for [AWS](https://fog.io/storage/#using-amazon-s3-and-fog) (any S3 compatible like [Azure using MinIO](azure-minio-gateway.md)) and [Google](https://fog.io/storage/#google-cloud-storage) providers can be found in
 [examples/objectstorage](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/objectstorage).
 
 - [`rails.s3.yaml`](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/objectstorage/rails.s3.yaml)
 - [`rails.gcs.yaml`](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/objectstorage/rails.gcs.yaml)
 - [`rails.azure.yaml`](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples/objectstorage/rails.azure.yaml)
-
-[fog-aws]: https://fog.io/storage/#using-amazon-s3-and-fog
-[fog-gcs]: https://fog.io/storage/#google-cloud-storage
-[minio-azure]: ./azure-minio-gateway.md
 
 ### appConfig configuration
 

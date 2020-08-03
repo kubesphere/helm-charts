@@ -1,3 +1,9 @@
+---
+stage: Enablement
+group: Distribution
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # GitLab cloud native Helm Chart
 
 This is the official, recommended, and supported method to install GitLab on a cloud native environment.
@@ -22,10 +28,10 @@ can be installed separately.
   - GitLab/[GitLab Shell](charts/gitlab/gitlab-shell/index.md)
   - GitLab/[Migrations](charts/gitlab/migrations/index.md)
   - GitLab/[Sidekiq](charts/gitlab/sidekiq/index.md)
-  - GitLab/[Unicorn](charts/gitlab/unicorn/index.md)
+  - GitLab/[Webservice](charts/gitlab/webservice/index.md)
 - Optional dependencies:
-  - [PostgreSQL](https://hub.helm.sh/charts/stable/postgresql)
-  - [Redis](https://hub.helm.sh/charts/stable/redis)
+  - [PostgreSQL](https://hub.helm.sh/charts/bitnami/postgresql)
+  - [Redis](https://hub.helm.sh/charts/bitnami/redis)
   - [MinIO](charts/minio/index.md)
 - Optional additions:
   - [Prometheus](https://hub.helm.sh/charts/stable/prometheus)
@@ -37,8 +43,8 @@ can be installed separately.
 
 Some features of GitLab are not currently available using the Helm chart:
 
-- [GitLab Pages](https://gitlab.com/gitlab-org/charts/gitlab/issues/37)
-- [Smartcard authentication](https://gitlab.com/gitlab-org/charts/gitlab/issues/988)
+- [GitLab Pages](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/37)
+- [Smartcard authentication](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/988)
 
 Database limitations:
 
@@ -60,7 +66,7 @@ into production under sustained load, you should follow the complete
 We've done our best to make these charts as seamless as possible, but occasionally
 troubles do surface outside of our control. We've collected tips and tricks for
 troubleshooting common issues. Please examine these first before raising an
-[Issue](htps://gitlab.com/gitlab-org/charts/gitlab/-/issues), and feel free to add
+[Issue](https://gitlab.com/gitlab-org/charts/gitlab/-/issues), and feel free to add
 to them by raising a [Merge Request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests)!
 
 See [Troubleshooting](troubleshooting/index.md).
@@ -96,17 +102,12 @@ the amount of context we're comfortable placing here. Please see our (nearly)
 Once your GitLab Chart is installed, configuration changes and chart updates
 should be done using `helm upgrade`:
 
-```sh
-helm repo add stable https://kubernetes-charts.storage.googleapis.com
+```shell
 helm repo add gitlab https://charts.gitlab.io/
 helm repo update
 helm get values gitlab > gitlab.yaml
 helm upgrade gitlab gitlab/gitlab -f gitlab.yaml
 ```
-
-NOTE: **Note**:
-If using Helm v2, the stable repository is installed by Helm automatically.
-There are no adverse effects if it is added again.
 
 For more detailed information see [Upgrading](installation/upgrade.md).
 
@@ -114,7 +115,7 @@ For more detailed information see [Upgrading](installation/upgrade.md).
 
 To uninstall the GitLab Chart, run the following:
 
-```sh
+```shell
 helm uninstall gitlab
 ```
 
@@ -123,7 +124,7 @@ With Helm v2, you need to use the command `helm delete --purge gitlab`.
 
 For the purposes of continuity, these charts have some Kubernetes objects that
 are not removed when performing `helm uninstall`. These are items we require you to
-_conciously_ remove them, as they affect re-deployment should you chose to.
+_consciously_ remove them, as they affect re-deployment should you choose to.
 
 - PVCs for stateful data, which you must _consciously_ remove
   - Gitaly: This is your repository data.

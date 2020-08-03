@@ -38,6 +38,8 @@ metadata:
   labels:
     {{- include "gitlab.standardLabels" $ | nindent 4 }}
     queue-pod-name: {{ .name }}
+  annotations:
+    {{- include "gitlab.deploymentAnnotations" $ | nindent 4 }}
 spec:
   {{- if $.Values.global.operator.enabled }}
   paused: true
@@ -47,6 +49,9 @@ spec:
       app: {{ $name }}
       release: {{ $releaseName }}
       queue-pod-name: {{ .name }}
+{{- if or $.Values.updateStrategy .updateStrategy }}
+  strategy: {{ default $.Values.updateStrategy .updateStrategy | toYaml | nindent 4 }}
+{{- end }}
   template:
     metadata:
       labels:
@@ -68,9 +73,12 @@ spec:
       tolerations:
         {{- toYaml $.Values.tolerations | nindent 8 }}
       {{- end }}
+      {{- if or $.Values.priorityClassName .priorityClassName }}
+      priorityClassName: {{ default $.Values.priorityClassName .priorityClassName }}
+      {{- end }}
       securityContext:
-        runAsUser: 1000
-        fsGroup: 1000
+        runAsUser: {{ $.Values.securityContext.runAsUser }}
+        fsGroup: {{ $.Values.securityContext.fsGroup }}
       {{- if eq (default $.Values.global.antiAffinity .antiAffinity) "hard" }}
       affinity:
         podAntiAffinity:
@@ -92,13 +100,19 @@ spec:
                   app: {{ $name }}
                   release: {{ $releaseName }}
       {{- end }}
+      {{- if or $.Values.serviceAccount.enabled $.Values.global.serviceAccount.enabled }}
+      serviceAccountName: {{ include "gitlab.serviceAccount.name" $ }}
+      {{- end }}
       initContainers:
         {{- include "gitlab.extraInitContainers" $ | nindent 8 }}
         {{- include "gitlab.certificates.initContainer" $ | nindent 8 }}
         - name: configure
           command: ['sh', '/config/configure']
           image: {{ include "gitlab.busybox.image" (dict "local" $.Values.init "global" $.Values.global.busybox) | quote }}
+          env:
+          {{- include "gitlab.extraEnv" $ | nindent 10 }}
           volumeMounts:
+          {{- tpl (default "" .extraVolumeMounts) $ | nindent 10 }}
           {{- include "gitlab.extraVolumeMounts" $ | nindent 10 }}
           {{- include "gitlab.psql.ssl.volumeMount" $ | nindent 10 }}
           {{- include "gitlab.geo.psql.ssl.volumeMount" $ | nindent 10 }}
@@ -137,7 +151,9 @@ spec:
             - name: ENABLE_BOOTSNAP
               value: "1"
             {{- end }}
+            {{- include "gitlab.extraEnv" $ | nindent 12 }}
           volumeMounts:
+          {{- tpl (default "" .extraVolumeMounts) $ | nindent 10 }}
           {{- include "gitlab.extraVolumeMounts" $ | nindent 10 }}
           - name: sidekiq-config
             mountPath: '/var/opt/gitlab/templates'
@@ -169,7 +185,7 @@ spec:
             - name: CONFIG_DIRECTORY
               value: '/srv/gitlab/config'
             - name: SIDEKIQ_CLUSTER
-              value: {{ include "gitlab.boolean.local" (dict "global" $.Values.cluster "local" .cluster "default" false) | quote }}
+              value: {{ include "gitlab.boolean.local" (dict "global" $.Values.cluster "local" .cluster "default" true) | quote }}
             - name: SIDEKIQ_EXPERIMENTAL_QUEUE_SELECTOR
               value: {{ include "gitlab.boolean.local" (dict "global" $.Values.experimentalQueueSelector "local" .experimentalQueueSelector "default" false) | quote }}
             - name: SIDEKIQ_CONCURRENCY
@@ -198,12 +214,15 @@ spec:
             - name: ENABLE_BOOTSNAP
               value: "1"
             {{- end }}
+            {{- include "gitlab.tracing.env" $ | nindent 12 }}
+            {{- include "sidekiq.podExtraEnv" (dict "local" . "parent" $) | nindent 12 }}
 {{- if $metricsEnabled }}
           ports:
           - containerPort: {{ $metricsPort }}
             name: metrics
 {{- end }}
           volumeMounts:
+          {{- tpl (default "" .extraVolumeMounts) $ | nindent 10 }}
           {{- include "gitlab.extraVolumeMounts" $ | nindent 10 }}
 {{- if $metricsEnabled }}
           - name: sidekiq-metrics
@@ -255,6 +274,7 @@ spec:
           resources:
             {{- toYaml ( default $resources .resources ) | nindent 12 }}
       volumes:
+      {{- tpl (default "" .extraVolumes) $ | nindent 6 }}
       {{- include "gitlab.extraVolumes" $ | nindent 6 }}
       {{- include "gitlab.psql.ssl.volume" $ | nindent 6 }}
       {{- include "gitlab.geo.psql.ssl.volume" $ | nindent 6 }}

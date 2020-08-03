@@ -7,7 +7,7 @@ metadata:
   labels:
     {{- include "gitlab.standardLabels" . | nindent 4 }}
   annotations:
-    {{ include "gitlab.deploymentAnnotations" . | nindent 4 | trim }}
+    {{- include "gitlab.deploymentAnnotations" . | nindent 4 }}
 spec:
   replicas: {{ .Values.hpa.minReplicas }}
   selector:
@@ -27,8 +27,8 @@ spec:
         {{- toYaml .Values.tolerations | nindent 8 }}
       {{- end }}
       securityContext:
-        runAsUser: 1000
-        fsGroup: 1000
+        runAsUser: {{ .Values.securityContext.runAsUser }}
+        fsGroup: {{ .Values.securityContext.fsGroup }}
       {{- if eq (default .Values.global.antiAffinity .antiAffinity) "hard" }}
       affinity:
         podAntiAffinity:
@@ -50,12 +50,17 @@ spec:
                   app: {{ template "name" . }}
                   release: {{ .Release.Name }}
       {{- end }}
+      {{- if or .Values.serviceAccount.enabled .Values.global.serviceAccount.enabled }}
+      serviceAccountName: {{ include "gitlab.serviceAccount.name" . }}
+      {{- end }}
       initContainers:
         {{- include "gitlab.extraInitContainers" . | nindent 8 }}
         {{- include "gitlab.certificates.initContainer" . | nindent 8 }}
         - name: configure
           command: ['sh', '/config/configure']
           image: {{ include "gitlab.busybox.image" (dict "local" .Values.init "global" $.Values.global.busybox) | quote }}
+          env:
+          {{- include "gitlab.extraEnv" . | nindent 10 }}
           volumeMounts:
           {{- include "gitlab.extraVolumeMounts" . | nindent 10 }}
           - name: mailroom-config
@@ -76,6 +81,8 @@ spec:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ coalesce .Values.image.tag (include "gitlab.parseAppVersion" (dict "appVersion" .Chart.AppVersion "prepend" "false")) }}"
           {{ template "gitlab.imagePullPolicy" . }}
+          env:
+          {{- include "gitlab.extraEnv" . | nindent 10 }}
           volumeMounts:
             - name: mailroom-config
               mountPath: /var/opt/gitlab/mail_room.yml
@@ -115,7 +122,14 @@ spec:
               name: {{ .Values.global.appConfig.incomingEmail.password.secret | required "Missing required secret containing the IMAP password for incoming email. Make sure to set `global.appConfig.incomingEmail.password.secret`" }}
               items:
                 - key: {{ .Values.global.appConfig.incomingEmail.password.key }}
-                  path: mailroom/password
+                  path: mailroom/password_incoming_email
+          {{- if .Values.global.appConfig.serviceDeskEmail.enabled }}
+          - secret:
+              name: {{ .Values.global.appConfig.serviceDeskEmail.password.secret | required "Missing required secret containing the IMAP password for service desk email. Make sure to set `global.appConfig.serviceDeskEmail.password.secret`"}}
+              items:
+                - key: {{ .Values.global.appConfig.serviceDeskEmail.password.key }}
+                  path: mailroom/password_service_desk
+          {{- end }}
       - name: mailroom-secrets
         emptyDir:
           medium: "Memory"

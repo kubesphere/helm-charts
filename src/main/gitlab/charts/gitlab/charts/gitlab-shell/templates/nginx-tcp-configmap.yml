@@ -1,5 +1,6 @@
 {{- if not .Values.tcpExternalConfig}}
 {{- if .Values.enabled }}
+{{- $port := include "gitlab.shell.port" . | int -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -8,6 +9,6 @@ metadata:
   labels:
     {{- include "gitlab.standardLabels" . | nindent 4 }}
 data:
-  {{ include "gitlab.shell.port" . | int }}: "{{ .Release.Namespace }}/{{ template "fullname" . }}:{{ .Values.service.externalPort }}"
+  {{ $port }}: "{{ .Release.Namespace }}/{{ template "fullname" . }}:{{ $port }}"
 {{- end -}}
 {{- end -}}

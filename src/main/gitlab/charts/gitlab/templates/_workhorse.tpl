@@ -9,7 +9,7 @@ to the service name
 {{- if .Values.workhorse.host -}}
 {{- .Values.workhorse.host -}}
 {{- else -}}
-{{- $name := default "unicorn" .Values.workhorse.serviceName -}}
+{{- $name := default "webservice" .Values.workhorse.serviceName -}}
 {{- printf "%s-%s" .Release.Name $name -}}
 {{- end -}}
 {{- end -}}

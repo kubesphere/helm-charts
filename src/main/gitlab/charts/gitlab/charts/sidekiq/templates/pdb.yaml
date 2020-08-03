@@ -1,16 +1,23 @@
-{{/* This restricts disruptions to 1 over all sidekiq pods regardless of queue-pod-name */}}
 {{- if .Values.enabled -}}
+{{- $name := default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
+{{- $releaseName := .Release.Name -}}
+{{- $fullname := printf "%s-%s" $releaseName $name | trunc 63 | trimSuffix "-" -}}
+{{- range .Values.pods -}}
+{{- $queueName := printf "%s-%s" $fullname .name | trunc 63}}
+---
 apiVersion: policy/v1beta1
 kind: PodDisruptionBudget
 metadata:
-  name: {{ template "fullname" . }}
+  name: {{ printf "%s-v1" ($queueName | trunc 60) }}
   namespace: {{ $.Release.Namespace }}
   labels:
-    {{- include "gitlab.standardLabels" . | nindent 4 }}
+    {{- include "gitlab.standardLabels" $ | nindent 4 }}
 spec:
-  maxUnavailable: {{ .Values.maxUnavailable }}
+  maxUnavailable: {{ default $.Values.maxUnavailable .maxUnavailable }}
   selector:
     matchLabels:
-      app: {{ template "name" . }}
-      release: {{ .Release.Name }}
+      app: {{ $name }}
+      release: {{ $.Release.Name }}
+      queue-pod-name: {{ .name }}
+{{- end -}}
 {{- end -}}

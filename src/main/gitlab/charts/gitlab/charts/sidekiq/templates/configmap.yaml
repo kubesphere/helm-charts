@@ -10,21 +10,7 @@ data:
   installation_type: |
     gitlab-helm-chart
   database.yml.erb: |
-    production:
-      adapter: postgresql
-      encoding: unicode
-      database: {{ template "gitlab.psql.database" . }}
-      username: {{ template "gitlab.psql.username" . }}
-      password: "<%= File.read("/etc/gitlab/postgres/psql-password").strip.dump[1..-2] %>"
-      host: {{ include "gitlab.psql.host" . | quote }}
-      port: {{ template "gitlab.psql.port" . }}
-      pool: {{ template "gitlab.psql.pool" . }}
-      prepared_statements: {{ template "gitlab.psql.preparedStatements" . }}
-      # load_balancing:
-      #   hosts:
-      #     - host1.example.com
-      #     - host2.example.com
-      {{- include "gitlab.psql.ssl.config" . | nindent 6 }}
+    {{- include "gitlab.database.yml" . | nindent 4 }}
   {{- if include "gitlab.geo.secondary" . }}
   database_geo.yml.erb: |
     {{- include "gitlab.geo.database.yml" . | nindent 4 }}
@@ -66,6 +52,9 @@ data:
       {{- if eq .incomingEmail.enabled true }}
       {{- include "gitlab.appConfig.incoming_email" . | nindent 6 }}
       {{- end }}
+      {{- if eq .serviceDeskEmail.enabled true }}
+      {{- include "gitlab.appConfig.service_desk_email" . | nindent 6 }}
+      {{- end }}
       gravatar:
         plain_url: {{ .gravatar.plainUrl }}
         ssl_url: {{ .gravatar.sslUrl }}
@@ -80,6 +69,7 @@ data:
       {{- include "gitlab.appConfig.terraformState.configuration" (dict "config" $.Values.global.appConfig.terraformState "context" $) | nindent 6 }}
       {{- include "gitlab.appConfig.pseudonymizer.configuration" $ | nindent 6 }}
       {{- include "gitlab.geo.config" $ | nindent 6 }}
+      {{- include "gitlab.appConfig.sentry.configuration" $ | nindent 6 }}
       pages:
         enabled: false
       mattermost:

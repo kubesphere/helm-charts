@@ -52,7 +52,11 @@ RSpec.configure do |config|
   # show retry status in spec process
   config.verbose_retry = true
 
-  config.around do |example|
+  config.around :each, :feature do |example|
     example.run_with_retry retry: 2
   end
+
+  # enable the use of :focus to run a subset of specs
+  config.filter_run :focus => true
+  config.run_all_when_everything_filtered = true
 end

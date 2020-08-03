@@ -1,3 +1,9 @@
+---
+stage: Enablement
+group: Distribution
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # Using the GitLab-Gitaly chart
 
 The `gitaly` sub-chart provides a configurable deployment of Gitaly Servers.
@@ -40,7 +46,8 @@ the `helm install` command using the `--set` flags.
 | `extraInitContainers`           |                                            | List of extra init containers to include                                                                                                                             |
 | `extraVolumeMounts`             |                                            | List of extra volumes mountes to do                                                                                                                                  |
 | `extraVolumes`                  |                                            | List of extra volumes to create                                                                                                                                      |
-| `gitaly.serviceName`            |                                            | The name of the generated Gitaly service. Overrides `global.gitaly.serviceName`, and defaults to `<RELEASE-NAME>-gitaly`                                            |
+| `extraEnv`                      |                                            | List of extra environment variables to expose                                                                                                                        |
+| `gitaly.serviceName`            |                                            | The name of the generated Gitaly service. Overrides `global.gitaly.serviceName`, and defaults to `<RELEASE-NAME>-gitaly`                                             |
 | `image.pullPolicy`              | `Always`                                   | Gitaly image pull policy                                                                                                                                             |
 | `image.pullSecrets`             |                                            | Secrets for the image repository                                                                                                                                     |
 | `image.repository`              | `registry.com/gitlab-org/build/cng/gitaly` | Gitaly image repository                                                                                                                                              |
@@ -50,10 +57,13 @@ the `helm install` command using the `--set` flags.
 | `internal.names[]`              | `- default`                                | Ordered names of statfulset storages                                                                                                                                 |
 | `service.externalPort`          | `8075`                                     | Gitaly service exposed port                                                                                                                                          |
 | `service.internalPort`          | `8075`                                     | Gitaly internal port                                                                                                                                                 |
-| `service.name`                  | `gitaly`                                   | The name of the Service port that Gitaly is behind in the Service object.                                                                                          |
+| `service.name`                  | `gitaly`                                   | The name of the Service port that Gitaly is behind in the Service object.                                                                                            |
 | `service.type`                  | `ClusterIP`                                | Gitaly service type                                                                                                                                                  |
+| `securityContext.fsGroup`       | `1000`                                     | Group ID under which the pod should be started                                                                                                                       |
+| `securityContext.runAsUser`     | `1000`                                     | User ID under which the pod should be started                                                                                                                        |
 | `tolerations`                   | `[]`                                       | Toleration labels for pod assignment                                                                                                                                 |
 | `persistence.accessMode`        | `ReadWriteOnce`                            | Gitaly persistence access mode                                                                                                                                       |
+| `persistence.annotations`       |                                            | Gitaly persistence annotations                                                                                                                                       |
 | `persistence.enabled`           | `true`                                     | Gitaly enable persistence flag                                                                                                                                       |
 | `persistence.matchExpressions`  |                                            | Label-expression matches to bind                                                                                                                                     |
 | `persistence.matchLabels`       |                                            | Label-value matches to bind                                                                                                                                          |
@@ -75,6 +85,26 @@ the `helm install` command using the `--set` flags.
 | `prometheus.grpcLatencyBuckets` |                                            | Buckets corresponding to histogram latencies on GRPC method calls to be recorded by Gitaly. A string form of the array (for example, `"[1.0, 1.5, 2.0]"`) is required as input |
 
 ## Chart configuration examples
+
+### extraEnv
+
+`extraEnv` allows you to expose additional environment variables in all containers in the pods.
+
+Below is an example use of `extraEnv`:
+
+```yaml
+extraEnv:
+  SOME_KEY: some_value
+  SOME_OTHER_KEY: some_other_value
+```
+
+When the container is started, you can confirm that the enviornment variables are exposed:
+
+```shell
+env | grep SOME
+SOME_KEY=some_value
+SOME_OTHER_KEY=some_other_value
+```
 
 ### image.pullSecrets
 
@@ -144,7 +174,7 @@ This chart should be attached the Workhorse service.
 ```yaml
 workhorse:
   host: workhorse.example.com
-  serviceName: unicorn
+  serviceName: webservice
   port: 8181
 ```
 
@@ -152,7 +182,7 @@ workhorse:
 |:------------- |:-------:|:--------- |:----------- |
 | `host`        | String  |           | The hostname of the Workhorse server. This can be omitted in lieu of `serviceName`. |
 | `port`        | Integer | `8181`    | The port on which to connect to the Workhorse server.|
-| `serviceName` | String  | `unicorn` | The name of the `service` which is operating the Workhorse server. If this is present, and `host` is not, the chart will template the hostname of the service (and current `.Release.Name`) in place of the `host` value. This is convenient when using Workhorse as a part of the overall GitLab chart. |
+| `serviceName` | String  | `webservice` | The name of the `service` which is operating the Workhorse server. If this is present, and `host` is not, the chart will template the hostname of the service (and current `.Release.Name`) in place of the `host` value. This is convenient when using Workhorse as a part of the overall GitLab chart. |
 
 ## Chart Settings
 
@@ -175,6 +205,9 @@ NOTE: **Note:** The persistence settings for Gitaly are used in a volumeClaimTem
   that should be valid for all your Gitaly pods. You should *not* include settings
   that are meant to reference a single specific volume (ie volumeName). If you want
   to reference a specific volume, you need to manually create the PersistentVolumeClaim.
+  
+NOTE: **Note:** You can't change these through our settings once you've deployed. In [StatefulSet](https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/)
+  the `VolumeClaimTemplate` is immutable.
 
 ```yaml
 persistence:
@@ -185,6 +218,7 @@ persistence:
   matchLabels: {}
   matchExpressions: []
   subPath: "/data"
+  annotations: {}
 ```
 
 | Name               | Type    | Default         | Description |
@@ -196,6 +230,7 @@ persistence:
 | `size`             | String  | `50Gi`          | The minimum volume size to request for the data persistence. |
 | `storageClass`     | String  |                 | Sets the storageClassName on the Volume Claim for dynamic provisioning. When unset or null, the default provisioner will be used. If set to a hyphen, dynamic provisioning is disabled. |
 | `subPath`          | String  |                 | Sets the path within the volume to mount, rather than the volume root. The root is used if the subPath is empty. |
+| `annotations`      | Map     |                 | Sets the annotations on the Volume Claim for dynamic provisioning. See [Kubernetes Annotations Documentation](https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/) for details. |
 
 ### Running Gitaly over TLS
 

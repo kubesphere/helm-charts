@@ -22,7 +22,7 @@ spec:
     maintainers:
     - name: GitLab
       url: https://about.gitlab.com
-    links: 
+    links:
       {{- toYaml .Values.global.application.links | nindent 6 }}
     notes: |-
       {{ if not .Values.global.hosts.externalIP -}}
@@ -33,7 +33,7 @@ spec:
       ```
       kubectl get \
         --namespace {{ .Release.Namespace }} \
-        ing {{ .Release.Name }}-unicorn \
+        ing {{ .Release.Name }}-webservice \
         -o jsonpath='{.status.loadBalancer.ingress[0].ip}'
       ```
 
@@ -46,7 +46,7 @@ spec:
 
       {{ if not .Values.gitlab.migrations.initialRootPassword.secret -}}
 
-      GitLab is provisioned with a randomly generated administrator password. To retrieve it: 
+      GitLab is provisioned with a randomly generated administrator password. To retrieve it:
 
       ```
       kubectl get secret {{ .Release.Name }}-gitlab-initial-root-password -ojsonpath='{.data.password}' | base64 --decode ; echo
@@ -68,6 +68,9 @@ spec:
       # Using GitLab
 
       More information on using GitLab is available in our [documentation](https://docs.gitlab.com/ee/README.html).
+    icons:
+      - src: data:image/svg+xml;base64,PD94bWwgdmVyc2lvbj0iMS4wIiBlbmNvZGluZz0iVVRGLTgiPz4KPHN2ZyB3aWR0aD0iMjEwcHgiIGhlaWdodD0iMTk0cHgiIHZlcnNpb249IjEuMSIgdmlld0JveD0iMCAwIDIxMCAxOTQiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+PGcgZmlsbD0ibm9uZSIgZmlsbC1ydWxlPSJldmVub2RkIj48cGF0aCBkPSJtMTA1LjA2IDE5My42NiAzOC42NC0xMTguOTJoLTc3LjI4bDM4LjY0IDExOC45MnoiIGZpbGw9IiNFMjQzMjkiLz48cGF0aCBkPSJtMTA1LjA2IDE5My42NS0zOC42NC0xMTguOTJoLTU0LjE1M2w5Mi43OTMgMTE4LjkyeiIgZmlsbD0iI0ZDNkQyNiIvPjxwYXRoIGQ9Im0xMi4yNjggNzQuNzM0LTExLjc0MiAzNi4xMzljLTEuMDcxIDMuMjk2IDAuMTAyIDYuOTA3IDIuOTA2IDguOTQ0bDEwMS42MyA3My44MzgtOTIuNzkzLTExOC45MnoiIGZpbGw9IiNGQ0EzMjYiLz48cGF0aCBkPSJtMTIuMjY4IDc0LjczNGg1NC4xNTNsLTIzLjI3My03MS42MjVjLTEuMTk3LTMuNjg2LTYuNDExLTMuNjg1LTcuNjA4IDBsLTIzLjI3MiA3MS42MjV6IiBmaWxsPSIjRTI0MzI5Ii8+PHBhdGggZD0ibTEwNS4wNiAxOTMuNjUgMzguNjQtMTE4LjkyaDU0LjE1M2wtOTIuNzkzIDExOC45MnoiIGZpbGw9IiNGQzZEMjYiLz48cGF0aCBkPSJtMTk3Ljg1IDc0LjczNCAxMS43NDIgMzYuMTM5YzEuMDcxIDMuMjk2LTAuMTAyIDYuOTA3LTIuOTA2IDguOTQ0bC0xMDEuNjMgNzMuODM4IDkyLjc5My0xMTguOTJ6IiBmaWxsPSIjRkNBMzI2Ii8+PHBhdGggZD0ibTE5Ny44NSA3NC43MzRoLTU0LjE1M2wyMy4yNzMtNzEuNjI1YzEuMTk3LTMuNjg2IDYuNDExLTMuNjg1IDcuNjA4IDBsMjMuMjcyIDcxLjYyNXoiIGZpbGw9IiNFMjQzMjkiLz48L2c+PC9zdmc+Cg==
+        type: image/svg+xml
   selector:
     matchLabels:
       app.kubernetes.io/name: {{ .Release.Name }}

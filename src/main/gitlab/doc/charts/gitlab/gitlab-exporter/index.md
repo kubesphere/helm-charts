@@ -1,3 +1,9 @@
+---
+stage: Enablement
+group: Distribution
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # Using the GitLab-Exporter chart
 
 The `gitlab-exporter` sub-chart provides Prometheus metrics for GitLab
@@ -30,10 +36,11 @@ to the `helm install` command using the `--set` flags.
 | `extraInitContainers`            |                       | List of extra init containers to include       |
 | `extraVolumeMounts`              |                       | List of extra volumes mountes to do            |
 | `extraVolumes`                   |                       | List of extra volumes to create                |
+| `extraEnv`                       |                       | List of extra environment variables to expose  |
 | `image.pullPolicy`               | `IfNotPresent`        | GitLab image pull policy                       |
 | `image.pullSecrets`              |                       | Secrets for the image repository               |
 | `image.repository`               | `registry.gitlab.com/gitlab-org/build/cng/gitlab-exporter` | GitLab Exporter image repository |
-| `image.tag`                      |                       | Unicorn image tag                              |
+| `image.tag`                      |                       | image tag                                      |
 | `init.image.repository`          |                       | initContainer image                            |
 | `init.image.tag`                 |                       | initContainer image tag                        |
 | `metrics.enabled`                | `true`                | Toggle Prometheus metrics exporter             |
@@ -44,12 +51,34 @@ to the `helm install` command using the `--set` flags.
 | `service.internalPort`           | `9168`                | GitLab Exporter internal port                  |
 | `service.name`                   | `gitlab-exporter`     | GitLab Exporter service name                   |
 | `service.type`                   | `ClusterIP`           | GitLab Exporter service type                   |
+| `securityContext.fsGroup`        | `1000`                | Group ID under which the pod should be started |
+| `securityContext.runAsUser`      | `1000`                | User ID under which the pod should be started  |
 | `tolerations`                    | `[]`                  | Toleration labels for pod assignment           |
 | `psql.port`                      |                       | Set PostgreSQL server port. Takes precedence over `global.psql.port` |
 
 ## Chart configuration examples
 
 ### image.pullSecrets
+
+### extraEnv
+
+`extraEnv` allows you to expose additional environment variables in all containers in the pods.
+
+Below is an example use of `extraEnv`:
+
+```yaml
+extraEnv:
+  SOME_KEY: some_value
+  SOME_OTHER_KEY: some_other_value
+```
+
+When the container is started, you can confirm that the enviornment variables are exposed:
+
+```shell
+env | grep SOME
+SOME_KEY=some_value
+SOME_OTHER_KEY=some_other_value
+```
 
 `pullSecrets` allows you to authenticate to a private registry to pull images for a pod.
 
@@ -60,7 +89,7 @@ Below is an example use of `pullSecrets`:
 
 ```YAML
 image:
-  repository: my.unicorn.repository
+  repository: my.image.repository
   pullPolicy: Always
   pullSecrets:
   - name: my-secret-name

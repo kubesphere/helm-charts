@@ -9,11 +9,11 @@ dependencies:
   repository: https://kubernetes-charts.storage.googleapis.com/
   condition: prometheus.install
 - name: postgresql
-  version: 7.7.3
+  version: 8.9.4
   repository: https://charts.bitnami.com/bitnami
   condition: postgresql.install
 - name: gitlab-runner
-  version: 0.16.1
+  version: 0.19.1
   repository: https://charts.gitlab.io/
   condition: gitlab-runner.install
 - name: grafana

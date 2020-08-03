@@ -1,3 +1,9 @@
+---
+stage: Enablement
+group: Distribution
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # Changelog entries
 
 This guide contains instructions for when and how to generate a changelog entry
@@ -6,9 +12,9 @@ are later integrated by [changelog_manager](changelog-manager.md)
 
 ## Overview
 
-Each bullet point, or **entry**, in our [`CHANGELOG.md`][changelog.md] file is
-generated from a single data file in the [`changelogs/unreleased/`][unreleased]
-folder. The file is expected to be a [YAML] file in the
+Each bullet point, or **entry**, in our [`CHANGELOG.md`](https://gitlab.com/gitlab-org/charts/gitlab/blob/master/CHANGELOG.md) file is
+generated from a single data file in the [`changelogs/unreleased/`](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/changelogs/)
+folder. The file is expected to be a [YAML](https://en.wikipedia.org/wiki/YAML) file in the
 following format:
 
 ```yaml
@@ -27,10 +33,6 @@ valid options are: added, fixed, changed, deprecated, removed, security, other. 
 
 Community contributors and core team members are encouraged to add their name to
 the `author` field. GitLab team members **should not**.
-
-[changelog.md]: https://gitlab.com/gitlab-org/charts/gitlab/blob/master/CHANGELOG.md
-[unreleased]: https://gitlab.com/gitlab-org/charts/gitlab/tree/master/changelogs/
-[YAML]: https://en.wikipedia.org/wiki/YAML
 
 ## What warrants a changelog entry?
 
@@ -244,11 +246,9 @@ type: added
 
 ### History and Reasoning
 
-This method was adopted from the primary [GitLab codebase][gl-codebase], as we
+This method was adopted from the primary [GitLab codebase](https://gitlab.com/gitlab-org/gitlab-foss/blob/master/doc/development/changelog.md), as we
 found the workflow to be appealing and familiar.
 
 ---
 
 [Return to Development documentation](index.md)
-
-[gl-codebase]: https://gitlab.com/gitlab-org/gitlab-foss/blob/master/doc/development/changelog.md

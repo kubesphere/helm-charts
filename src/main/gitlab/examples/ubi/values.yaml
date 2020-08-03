@@ -17,7 +17,7 @@ postgresql:
   install: false
 
 redis:
-  enabled: false
+  install: false
 
 nginx-ingress:
   enabled: false
@@ -145,7 +145,7 @@ gitlab:
           secret: my-s3cmd-config # You config for 's3cmd'.
           key: config
 
-  unicorn:
+  webservice:
     image:
       tag: master-ubi8
     workhorse:

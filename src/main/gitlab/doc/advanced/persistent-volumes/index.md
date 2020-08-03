@@ -1,9 +1,15 @@
+---
+stage: Enablement
+group: Distribution
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # Managing Persistent Volumes
 
 Some of the included services require persistent storage, configured through
-[Persistent Volumes][pv] that specify which disks your cluster has access to.
+[Persistent Volumes](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistent-volumes) that specify which disks your cluster has access to.
 Documentation on the storage configuration necessary to install this chart can be found in our
-[Storage Guide][guide]
+[Storage Guide](../../installation/storage.md).
 
 Storage changes after installation need to be manually handled by your cluster
 administrators. Automated management of these volumes after installation is not
@@ -13,21 +19,21 @@ Examples of changes not automatically managed after initial installation
 include:
 
 - Mounting different volumes to the Pods
-- Changing the effective accessModes or [Storage Class][]
+- Changing the effective accessModes or [Storage Class](https://kubernetes.io/docs/concepts/storage/storage-classes/)
 - Expanding the storage size of your volume*<sup>1</sup>
 
 <sup>1</sup> In Kubernetes 1.11, [expanding the storage size of your volume is supported](https://kubernetes.io/blog/2018/07/12/resizing-persistent-volumes-using-kubernetes/)
-if you have `allowVolumeExpansion` configured to true in your [Storage Class][].
+if you have `allowVolumeExpansion` configured to true in your [Storage Class](https://kubernetes.io/docs/concepts/storage/storage-classes/).
 
 Automating theses changes is complicated due to:
 
-1. Kubernetes does not allow changes to most fields in an existing [PersistentVolumeClaim][pvc]
-1. Unless [manually configured][guide], the [PVC][pvc] is the only reference to dynamically provisioned [PersistentVolumes][pv]
-1. `Delete` is the default [reclaimPolicy][reclaim] for dynamically provisioned [PersistentVolumes][pv]
+1. Kubernetes does not allow changes to most fields in an existing [PersistentVolumeClaim](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistentvolumeclaims)
+1. Unless [manually configured](../../installation/storage.md), the [PVC](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistentvolumeclaims) is the only reference to dynamically provisioned [PersistentVolumes](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistent-volumes)
+1. `Delete` is the default [reclaimPolicy](https://kubernetes.io/docs/concepts/storage/storage-classes/#reclaim-policy) for dynamically provisioned [PersistentVolumes](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistent-volumes)
 
-This means in order to make changes, we need to delete the [PersistentVolumeClaim][pvc]
-and create a new one with our changes. But due to the default [reclaimPolicy][reclaim],
-deleting the [PersistentVolumeClaim][pvc] may delete the [PersistentVolumes][pv]
+This means in order to make changes, we need to delete the [PersistentVolumeClaim](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistentvolumeclaims)
+and create a new one with our changes. But due to the default [reclaimPolicy](https://kubernetes.io/docs/concepts/storage/storage-classes/#reclaim-policy),
+deleting the [PersistentVolumeClaim](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistentvolumeclaims) may delete the [PersistentVolumes](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistent-volumes)
 and underlying disk. And unless configured with appropriate volumeNames and/or
 labelSelectors, the chart won't know the volume to attach to.
 
@@ -38,7 +44,7 @@ process needs to be followed to make changes to your storage.
 
 Find the volumes/claims that are being used:
 
-```bash
+```shell
 kubectl --namespace <namespace> get PersistentVolumeClaims -l release=<chart release name> -ojsonpath='{range .items[*]}{.spec.volumeName}{"\t"}{.metadata.labels.app}{"\n"}{end}'
 ```
 
@@ -50,7 +56,7 @@ service they are for.
 
 For example:
 
-```bash
+```shell
 $ kubectl --namespace helm-charts-win get PersistentVolumeClaims -l release=review-update-app-h8qogp -ojsonpath='{range .items[*]}{.spec.volumeName}{"\t"}{.metadata.labels.app}{"\n"}{end}'
 pvc-6247502b-8c2d-11e8-8267-42010a9a0113  gitaly
 pvc-61bbc05e-8c2d-11e8-8267-42010a9a0113  minio
@@ -66,8 +72,8 @@ pvc-61bdf136-8c2d-11e8-8267-42010a9a0113  redis
 > will first need to be applied in the storage solution, then the results need
 > to be updated in Kubernetes.
 
-Before making changes, you should ensure your [PersistentVolumes][pv] are using
-the `Retain` [reclaimPolicy][reclaim] so they don't get removed while you are
+Before making changes, you should ensure your [PersistentVolumes](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistent-volumes) are using
+the `Retain` [reclaimPolicy](https://kubernetes.io/docs/concepts/storage/storage-classes/#reclaim-policy) so they don't get removed while you are
 making changes.
 
 First, [find the volumes/claims that are being used](#locate-the-gitlab-volumes).
@@ -77,7 +83,7 @@ under the `spec` field, to be `Retain` rather than `Delete`
 
 For example:
 
-```bash
+```shell
 kubectl --namespace helm-charts-win edit PersistentVolume pvc-6247502b-8c2d-11e8-8267-42010a9a0113
 ```
 
@@ -131,14 +137,14 @@ First, make the desired changes to the disk outside of the cluster. (Resize the
 disk in gke, or create a new disk from a snapshot or clone, etc).
 
 How you do this, and whether or not it can be done live, without downtime, is
-dependant on the storage solutions you are using, and can't be covered by this
+dependent on the storage solutions you are using, and can't be covered by this
 document.
 
 Next, evaluate whether you need these changes to be reflected in the Kubernetes
 objects. For example: with expanding the disk storage size, the storage size
-settings in the [PersistentVolumeClaim][pvc] will only be used when a new volume
+settings in the [PersistentVolumeClaim](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistentvolumeclaims) will only be used when a new volume
 resource is requested. So you would only need to increase the values in the
-[PersistentVolumeClaim][pvc] if you intend to scale up more disks (for use in
+[PersistentVolumeClaim](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistentvolumeclaims) if you intend to scale up more disks (for use in
 additional Gitaly pods).
 
 If you do need to have the changes reflected in Kubernetes, be sure that you've
@@ -159,7 +165,7 @@ should only be updates to reflect the real state of the attached disk)
 
 For example:
 
-```bash
+```shell
 kubectl --namespace helm-charts-win edit PersistentVolume pvc-6247502b-8c2d-11e8-8267-42010a9a0113
 ```
 
@@ -207,23 +213,23 @@ status:
   phase: Bound
 ```
 
-Now that the changes have been reflected in the [volume][pv], we need to update
-the [claim][pvc].
+Now that the changes have been reflected in the [volume](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistent-volumes), we need to update
+the [claim](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistentvolumeclaims).
 
 Follow the instructions in the [Make changes to the PersistentVolumeClaim](#make-changes-to-the-persistentvolumeclaim) section.
 
 #### Update the volume to bind to the claim
 
-In a separate terminal, start watching to see when the [claim][pvc] has its status change to bound,
+In a separate terminal, start watching to see when the [claim](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistentvolumeclaims) has its status change to bound,
 and then move onto the next step to make the volume available for use in the new claim.
 
-```bash
+```shell
 kubectl --namespace <namespace> get --watch PersistentVolumeClaim <claim name>
 ```
 
 Edit the volume to make it available to the new claim. Remove the `.spec.claimRef` section.
 
-```bash
+```shell
 kubectl --namespace <namespace> edit PersistentVolume <volume name>
 ```
 
@@ -263,7 +269,7 @@ status:
   phase: Released
 ```
 
-Shortly after making the change to the [Volume][pv], the terminal watching the claim status should show `Bound`.
+Shortly after making the change to the [Volume](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistent-volumes), the terminal watching the claim status should show `Bound`.
 
 Finally, [apply the changes to the GitLab chart](#apply-the-changes-to-the-gitlab-chart)
 
@@ -271,16 +277,16 @@ Finally, [apply the changes to the GitLab chart](#apply-the-changes-to-the-gitla
 
 If you want to switch to using a new volume, using a disk that has a copy of the
 appropriate data from the old volume, then first you need to create the new
-[Persistent Volume][pv] in Kubernetes.
+[Persistent Volume](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistent-volumes) in Kubernetes.
 
-In order to create a [Persistent Volume][pv] for your disk, you will need to
+In order to create a [Persistent Volume](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistent-volumes) for your disk, you will need to
 locate the [driver specific documentation](https://kubernetes.io/docs/concepts/storage/volumes/#types-of-volumes)
 for your storage type.
 
 There are a couple of things to keep in mind when following the driver documentation:
 
-- You need to use the driver to create a [Persistent Volume][pv], not a Pod object with a volume as shown in a lot of the documentation.
-- You do **not** want to create a [PersistentVolumeClaim][pvc] for the volume, we will be editing the existing claim instead.
+- You need to use the driver to create a [Persistent Volume](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistent-volumes), not a Pod object with a volume as shown in a lot of the documentation.
+- You do **not** want to create a [PersistentVolumeClaim](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistentvolumeclaims) for the volume, we will be editing the existing claim instead.
 
 The driver documentation often includes examples for using the driver in a Pod, for example:
 
@@ -304,7 +310,7 @@ spec:
       fsType: ext4
 ```
 
-What you actually want, is to create a [Persistent Volume][pv], like so:
+What you actually want, is to create a [Persistent Volume](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistent-volumes), like so:
 
 ```yaml
 apiVersion: v1
@@ -321,10 +327,10 @@ spec:
     fsType: ext4
 ```
 
-You normally create a local `yaml` file with the [PersistentVolume][pv] information,
+You normally create a local `yaml` file with the [PersistentVolume](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistent-volumes) information,
 then issue a create command to Kubernetes to create the object using the file.
 
-```bash
+```shell
 kubectl --namespace <your namespace> create -f <local-pv-file>.yaml
 ```
 
@@ -332,9 +338,9 @@ Once your volume is created, you can move on to [Making changes to the Persisten
 
 ## Make changes to the PersistentVolumeClaim
 
-Find the [PersistentVolumeClaim][pvc] you want to change.
+Find the [PersistentVolumeClaim](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistentvolumeclaims) you want to change.
 
-```bash
+```shell
 kubectl --namespace <namespace> get PersistentVolumeClaims -l release=<chart release name> -ojsonpath='{range .items[*]}{.metadata.name}{"\t"}{.metadata.labels.app}{"\n"}{end}'
 ```
 
@@ -344,9 +350,9 @@ kubectl --namespace <namespace> get PersistentVolumeClaims -l release=<chart rel
 The command will print a list of the PersistentVolumeClaim names, followed by the name of the
 service they are for.
 
-Then save a copy of the [claim][pvc] to your local filesystem:
+Then save a copy of the [claim](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistentvolumeclaims) to your local filesystem:
 
-```bash
+```shell
 kubectl --namespace <namespace> get PersistentVolumeClaim <claim name> -o yaml > <claim name>.bak.yaml
 ```
 
@@ -385,7 +391,7 @@ status:
   phase: Bound
 ```
 
-Create a new yaml file for a new PVC object. Have it use the same `metadata.name`, `metadata.labels`, `metadata,namespace`, and `spec` fields. (With your updates applied). And drop the other settings:
+Create a new YAML file for a new PVC object. Have it use the same `metadata.name`, `metadata.labels`, `metadata,namespace`, and `spec` fields. (With your updates applied). And drop the other settings:
 
 Example:
 
@@ -409,34 +415,34 @@ spec:
   volumeName: pvc-6247502b-8c2d-11e8-8267-42010a9a0113
 ```
 
-Now delete the old [claim][pvc]:
+Now delete the old [claim](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistentvolumeclaims):
 
-```bash
+```shell
 kubectl --namespace <namespace> delete PersistentVolumeClaim <claim name>
 ```
 
 Create the new claim:
 
-```bash
+```shell
 kubectl --namespace <namespace> create PersistentVolumeClaim -f <new claim yaml file>
 ```
 
-If you are binding to the same [PersistentVolume][pv] that was previous bound to
+If you are binding to the same [PersistentVolume](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistent-volumes) that was previous bound to
 the claim, then proceed to [update the volume to bind to the claim](#update-the-volume-to-bind-to-the-claim)
 
 Otherwise, if you have bound the claim to a new volume, move onto [apply the changes to the GitLab chart](#apply-the-changes-to-the-gitlab-chart)
 
 ## Apply the changes to the GitLab chart
 
-After making changes to the [PersistentVolumes][pv] and [PersistentVolumeClaims][pvc],
+After making changes to the [PersistentVolumes](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistent-volumes) and [PersistentVolumeClaims](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistentvolumeclaims),
 you will also want to issue a Helm update with the changes applied to the chart
 settings as well.
 
 See the [installation storage guide](../../installation/storage.md#using-the-custom-storage-class)
 for the options.
 
-> **Note**: If you made changes to the Gitaly [volume claim][pvc], you will need to delete the
-> Gitaly [StatefulSet][statefulset] before you will be able to issue a Helm update. This is
+> **Note**: If you made changes to the Gitaly [volume claim](https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistentvolumeclaims), you will need to delete the
+> Gitaly [StatefulSet](https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/) before you will be able to issue a Helm update. This is
 > because the StatefulSet's Volume Template is immutable, and cannot be changed.
 >
 > You can delete the statefulset without deleting the Gitaly Pods:
@@ -448,7 +454,7 @@ Update the chart, and include the updated configuration:
 
 Example:
 
-```bash
+```shell
 helm upgrade --install review-update-app-h8qogp gitlab/gitlab \
   --set gitlab.gitaly.persistence.size=100Gi \
   <your other config settings>
@@ -457,10 +463,3 @@ helm upgrade --install review-update-app-h8qogp gitlab/gitlab \
 NOTE: **Note**:
 With Helm v2, one may need to specify the namespace that the release was
 deployed to with the `--namespace <namespace>` option.
-
-[pv]: https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistent-volumes
-[pvc]: https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistentvolumeclaims
-[reclaim]: https://kubernetes.io/docs/concepts/storage/storage-classes/#reclaim-policy
-[statefulset]: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/
-[guide]: ../../installation/storage.md
-[Storage Class]: https://kubernetes.io/docs/concepts/storage/storage-classes/

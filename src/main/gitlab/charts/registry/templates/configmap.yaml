@@ -48,17 +48,7 @@ data:
     {{- end }}
     validation:
       disabled: {{ eq true .Values.validation.disabled }}
-    {{- if .Values.notifications }}
-    notifications:
-    {{- if .Values.notifications.events }}
-      events:
-        {{ toYaml .Values.notifications.events | nindent 8 | trim}}
-    {{- end }}
-    {{- if .Values.notifications.endpoints }}
-      endpoints:
-        {{ toYaml .Values.notifications.endpoints | nindent 8 | trim }}
-    {{- end -}}
-    {{- end }}
+    {{- include "registry.notifications.config" $ | nindent 4 }}
     storage:
       maintenance:
         readonly:

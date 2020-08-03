@@ -9,8 +9,17 @@ global:
       secret: redis-secret
       key: redis-password
     cache:
-      host: cache.redis.example
-      port: 9002
+      # use Sentinel servers for the cache example
+      # any redis connection can use sentinels, but each connection
+      # needs to be explicitly specified
+      # host: cache.redis.example
+      # port: 9002
+      host: <redis_cluster_name>  # specified in sentinel.conf
+      sentinels:
+        - host: sentinel1.redis.example
+          port: 26379
+        - host: sentinel2.redis.example
+          port: 26379
       password:
         enabled: true
         secret: cache-secret

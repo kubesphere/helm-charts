@@ -3,7 +3,8 @@
 {{- $releaseName := .Release.Name -}}
 {{- $fullname := printf "%s-%s" $releaseName $name | trunc 63 | trimSuffix "-" -}}
 {{- range .Values.pods -}}
-{{- $queueName := printf "%s-%s" $fullname .name | trunc 63}}
+{{- $queueName := printf "%s-%s" $fullname .name | trunc 63 }}
+{{- $hpa := default dict .hpa }}
 ---
 apiVersion: autoscaling/v2beta1
 kind: HorizontalPodAutoscaler
@@ -23,6 +24,6 @@ spec:
   - type: Resource
     resource:
       name: cpu
-      targetAverageValue: {{ $.Values.hpa.targetAverageValue }}
-{{- end -}}
+      targetAverageValue: {{ default $.Values.hpa.targetAverageValue $hpa.targetAverageValue }}
+{{- end }}
 {{- end -}}

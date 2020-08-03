@@ -6,5 +6,9 @@
 s3:
   aws_signature_version: 4
   host: storage.example.com
-  endpoint: "https://storage.example.com:9000"
+  regionendpoint: "https://storage.example.com:9000"
   path_style: true
+  region: us-east-1
+  bucket: registry
+  accesskey: ACCESSKEY
+  secretkey: SECRETKEY

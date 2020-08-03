@@ -1,3 +1,9 @@
+---
+stage: Enablement
+group: Distribution
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # Using the GitLab-Shell chart
 
 The `gitlab-shell` sub-chart provides an SSH server configured for Git SSH access to GitLab.
@@ -19,7 +25,8 @@ or update the AuthorizedKeys file within these pods.
 
 The `gitlab-shell` chart is configured in two parts: [external services](#external-services),
 and [chart settings](#chart-settings). The port exposed through Ingress is configured
-with `global.shell.port`, and defaults to `22`.
+with `global.shell.port`, and defaults to `22`. The Service's external port is also
+controlled by `global.shell.port`.
 
 ## Installation command line options
 
@@ -40,6 +47,7 @@ with `global.shell.port`, and defaults to `22`.
 | `extraInitContainers`    |                | List of extra init containers to include |
 | `extraVolumeMounts`      |                | List of extra volumes mounts to do       |
 | `extraVolumes`           |                | List of extra volumes to create          |
+| `extraEnv`               |                | List of extra environment variables to expose |
 | `hpa.targetAverageValue` | `100m`         | Set the autoscaling target value         |
 | `image.pullPolicy`       | `Always`       | Shell image pull policy                  |
 | `image.pullSecrets`      |                | Secrets for the image repository         |
@@ -49,18 +57,38 @@ with `global.shell.port`, and defaults to `22`.
 | `init.image.tag`         |                | initContainer image tag                  |
 | `replicaCount`           | `1`            | Shell replicas                           |
 | `service.externalTrafficPolicy` | `Cluster` | Shell service external traffic policy (Cluster or Local)  |
-| `service.externalPort`   | `22`           | Shell exposed port                       |
-| `service.internalPort`   | `22`           | Shell internal port                      |
+| `service.internalPort`   | `2222`         | Shell internal port                      |
 | `service.nodePort`       |                | Sets shell nodePort if set               |
 | `service.name`           | `gitlab-shell` | Shell service name                       |
 | `service.type`           | `ClusterIP`    | Shell service type                       |
 | `service.loadBalancerIP` |                | IP address to assign to LoadBalancer (if supported) |
 | `service.loadBalancerSourceRanges` |      | List of IP CIDRs allowed access to LoadBalancer (if supported)  |
-| `service.type`           | `ClusterIP`    | Shell service type                       |
+| `securityContext.fsGroup` | `1000`      |Group ID under which the pod should be started |
+| `securityContext.runAsUser` | `1000`      |User ID under which the pod should be started  |
 | `tolerations`            | `[]`           | Toleration labels for pod assignment     |
-| `workhorse.serviceName`    | `unicorn`      | Workhorse service name (by default, Workhorse is a part of the Unicorn Pods / Service)                   |
+| `workhorse.serviceName`    | `webservice`      | Workhorse service name (by default, Workhorse is a part of the webservice Pods / Service)                   |
 
 ## Chart configuration examples
+
+### extraEnv
+
+`extraEnv` allows you to expose additional environment variables in all containers in the pods.
+
+Below is an example use of `extraEnv`:
+
+```yaml
+extraEnv:
+  SOME_KEY: some_value
+  SOME_OTHER_KEY: some_other_value
+```
+
+When the container is started, you can confirm that the enviornment variables are exposed:
+
+```shell
+env | grep SOME
+SOME_KEY=some_value
+SOME_OTHER_KEY=some_other_value
+```
 
 ### image.pullSecrets
 
@@ -119,7 +147,7 @@ This chart should be attached the Workhorse service.
 ```yaml
 workhorse:
   host: workhorse.example.com
-  serviceName: unicorn
+  serviceName: webservice
   port: 8181
 ```
 
@@ -127,7 +155,7 @@ workhorse:
 |:--------------|:-------:|:----------|:------------|
 | `host`        | String  |           | The hostname of the Workhorse server. This can be omitted in lieu of `serviceName`. |
 | `port`        | Integer | `8181`    | The port on which to connect to the Workhorse server.|
-| `serviceName` | String  | `unicorn` | The name of the `service` which is operating the Workhorse server. By default, Workhorse is a part of the Unicorn Pods / Service. If this is present, and `host` is not, the chart will template the hostname of the service (and current `.Release.Name`) in place of the `host` value. This is convenient when using Workhorse as a part of the overall GitLab chart. |
+| `serviceName` | String  | `webservice` | The name of the `service` which is operating the Workhorse server. By default, Workhorse is a part of the webservice Pods / Service. If this is present, and `host` is not, the chart will template the hostname of the service (and current `.Release.Name`) in place of the `host` value. This is convenient when using Workhorse as a part of the overall GitLab chart. |
 
 ## Chart Settings
 

@@ -1,3 +1,9 @@
+---
+stage: Enablement
+group: Distribution
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # GitLab Geo
 
 GitLab Geo provides the ability to have read-only, geographically distributed
@@ -59,17 +65,14 @@ Bear in mind that communication is required:
   - Primary will need to expose TCP port `5432`.
   - Secondary will need to expose TCP ports `5432` & `5431`.
 
-Install an [operating system supported by Omnibus GitLab][og-os], and then
-[install the Omnibus GitLab][og-install] onto it. Do not provide the
+Install an [operating system supported by Omnibus GitLab](https://docs.gitlab.com/ee/install/requirements.html#operating-systems), and then
+[install the Omnibus GitLab](https://about.gitlab.com/install/) onto it. Do not provide the
 `EXTERNAL_URL` environment variable when installing, as we'll provide a minimal
 configuration file before reconfiguring the package.
 
 Once you have installed the operating system, and the GitLab package, configuration
 can be created for the services that will be used. Before we do that, information
 must be collected.
-
-[og-os]: https://docs.gitlab.com/ee/install/requirements.html#operating-systems
-[og-install]: https://about.gitlab.com/install/
 
 ## Setup Kubernetes clusters
 
@@ -87,13 +90,9 @@ Each cluster that is provisioned should have:
 
 - Enough resources to support a base-line installation of these charts.
 - Access to persistent storage:
-  - MinIO not required if using [external object storage][ext-object]
-  - Gitaly not required if using [external Gitaly][ext-gitaly]
-  - Redis not required if using [external Redis][ext-redis]
-
-[ext-object]: ../external-object-storage/index.md
-[ext-gitaly]: ../external-gitaly/index.md
-[ext-redis]: ../external-redis/index.md
+  - MinIO not required if using [external object storage](../external-object-storage/index.md)
+  - Gitaly not required if using [external Gitaly](../external-gitaly/index.md)
+  - Redis not required if using [external Redis](../external-redis/index.md)
 
 ## Collect information
 
@@ -229,8 +228,8 @@ postgresql:
    - [global.psql.host](../../charts/globals.md#configure-postgresql-settings)
    - Also configure any additional settings, such as:
      - [Configuring SSL/TLS](../../installation/deployment.md#tls-certificates)
-     - [Using external Redis][ext-redis]
-     - [using external Object Storage][ext-object]
+     - [Using external Redis](../external-redis/index.md)
+     - [using external Object Storage](../external-object-storage/index.md)
 
 1. Deploy the chart using this configuration
 
@@ -528,13 +527,13 @@ postgresql:
 
 1. Update the configuration to reflect the correct values for:
 
-   - [global.hosts.domain](../../charts/globals.md#configure-host-settings)
-   - [global.psql.host](../../charts/globals.md#configure-postgresql-settings)
-   - [global.geo.psql.host](../../charts/globals.md#configure-postgresql-settings)
+   - [`global.hosts.domain`](../../charts/globals.md#configure-host-settings)
+   - [`global.psql.host`](../../charts/globals.md#configure-postgresql-settings)
+   - [`global.geo.psql.host`](../../charts/globals.md#configure-postgresql-settings)
    - Also configure any additional settings, such as:
      - [Configuring SSL/TLS](../../installation/deployment.md#tls-certificates)
-     - [Using external Redis][ext-redis]
-     - [using external Object Storage][ext-object]
+     - [Using external Redis](../external-redis/index.md)
+     - [using external Object Storage](../external-object-storage/index.md)
 
 1. Deploy the chart using this configuration
 
