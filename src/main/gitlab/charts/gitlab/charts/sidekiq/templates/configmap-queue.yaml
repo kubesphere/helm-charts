@@ -12,21 +12,23 @@ metadata:
   name: {{ printf "%s-%s" $fullname .name | trunc 63 }}
   namespace: {{ $.Release.Namespace }}
   labels:
-{{ include "gitlab.standardLabels" $ | indent 4 }}
+    {{- include "gitlab.standardLabels" $ | nindent 4 }}
     queue_pod_name: {{ .name }}
 data:
   sidekiq_queues.yml.erb: |
     {{- if .queues }}
     :queues:
-{{ toYaml .queues | indent 6 }}
+      {{ toYaml .queues | nindent 6 }}
     {{- else }}
-    <%= YAML.load_file('/srv/gitlab/config/sidekiq_queues.yml').to_yaml %>
-    {{- end }}
-    {{- if .concurrency }}
-    :concurrency: {{ .concurrency }}
-    {{- end }}
-    {{- if .timeout }}
-    :timeout: {{ .timeout }}
+    <%=
+       # this works because codebase default content has only `:
+       sq = YAML.load_file('/srv/gitlab/config/sidekiq_queues.yml')
+       {{ if .negateQueues }}
+       negate = {{ .negateQueues | toJson }}
+       sq[:queues] = sq[:queues].select{ |q| ! negate.include? q[0]}
+       {{ end }}
+       sq.to_yaml
+    %>
     {{- end }}
 # Leave this here - This line denotes end of block to the parser.
 ---

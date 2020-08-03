@@ -1,3 +1,9 @@
+---
+stage: Enablement
+group: Distribution
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # Backing up a GitLab installation
 
 GitLab backups are taken by running the `backup-utility` command on the `task-runner` pod provided in the chart. Backups can also be automated by enabling the [Cron based backup](#cron-based-backup) functionality of this chart.
@@ -11,13 +17,13 @@ Follow these steps for backing up a GitLab Helm chart based installation
 
 1. Ensure the task runner pod is running, by executing the following command
 
-   ```sh
+   ```shell
    kubectl get pods -lrelease=RELEASE_NAME,app=task-runner
    ```
 
 1. Run the backup utility
 
-   ```sh
+   ```shell
    kubectl exec <task-runner pod name> -it backup-utility
    ```
 
@@ -33,7 +39,15 @@ You need to set the following parameters:
 
 - `gitlab.task-runner.backups.cron.enabled`: Set to true to enable cron based backups
 - `gitlab.task-runner.backups.cron.schedule`: Set as per the Kubernetes schedule docs
-- `gitlab.task-runner.backups.cron.extraArgs`: Optionally set extra arguments for backup-utility (like `--skip db`)
+- `gitlab.task-runner.backups.cron.extraArgs`: Optionally set extra arguments for [backup-utility](https://gitlab.com/gitlab-org/build/CNG/blob/master/gitlab-task-runner/scripts/bin/backup-utility) (like `--skip db`)
+
+## Backup utility extra arguments
+
+The backup utility can take some extra arguments. See what those are with:
+
+```shell
+kubectl exec <task-runner pod name> -it backup-utility --help
+```
 
 ## Backup the secrets
 
@@ -41,13 +55,13 @@ You should also save a copy of the rails secrets. (These are not included in the
 
 1. Find the object name for the rails secrets
 
-   ```sh
+   ```shell
    kubectl get secrets | grep rails-secret
    ```
 
 1. Save a copy of the rails secrets
 
-   ```sh
+   ```shell
    kubectl get secrets <rails-secret-name> -o jsonpath="{.data['secrets\.yml']}" | base64 --decode > secrets.yaml
    ```
 

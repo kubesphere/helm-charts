@@ -1,3 +1,9 @@
+---
+stage: Enablement
+group: Distribution
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # Changelog entries
 
 This guide contains instructions for when and how to generate a changelog entry
@@ -6,9 +12,9 @@ are later integrated by [changelog_manager](changelog-manager.md)
 
 ## Overview
 
-Each bullet point, or **entry**, in our [`CHANGELOG.md`][changelog.md] file is
-generated from a single data file in the [`changelogs/unreleased/`][unreleased]
-folder. The file is expected to be a [YAML] file in the
+Each bullet point, or **entry**, in our [`CHANGELOG.md`](https://gitlab.com/gitlab-org/charts/gitlab/blob/master/CHANGELOG.md) file is
+generated from a single data file in the [`changelogs/unreleased/`](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/changelogs/)
+folder. The file is expected to be a [YAML](https://en.wikipedia.org/wiki/YAML) file in the
 following format:
 
 ```yaml
@@ -27,10 +33,6 @@ valid options are: added, fixed, changed, deprecated, removed, security, other. 
 
 Community contributors and core team members are encouraged to add their name to
 the `author` field. GitLab team members **should not**.
-
-[changelog.md]: https://gitlab.com/gitlab-org/charts/gitlab/blob/master/CHANGELOG.md
-[unreleased]: https://gitlab.com/gitlab-org/charts/gitlab/tree/master/changelogs/
-[YAML]: https://en.wikipedia.org/wiki/YAML
 
 ## What warrants a changelog entry?
 
@@ -76,7 +78,7 @@ changes.
 
 - **Bad:** Strip out `nil`s in the Array of Commit objects returned from
   `find_commits_by_message_with_elastic`
-- **Good:** Fix 500 errors caused by elasticsearch results referencing
+- **Good:** Fix 500 errors caused by Elasticsearch results referencing
   garbage-collected commits
 
 The first example focuses on _how_ we fixed something, not on _what_ it fixes.
@@ -94,13 +96,13 @@ automatically.
 
 Its simplest usage is to provide the value for `title`:
 
-```sh
+```shell
 bin/changelog 'Hey DZ, I added a feature to GitLab!'
 ```
 
 At this point the script would ask you to select the category of the change (mapped to the `type` field in the entry):
 
-```text
+```plaintext
 >> Please specify the category of your change:
 1. New feature
 2. Bug fix
@@ -117,7 +119,7 @@ the command above on a branch called `feature/hey-dz`, it will generate a
 
 The command will output the path of the generated file and its contents:
 
-```text
+```plaintext
 create changelogs/unreleased/my-feature.yml
 ---
 title: Hey DZ, I added a feature to GitLab!
@@ -147,7 +149,7 @@ If you use **`--amend`** and don't provide a title, it will automatically use
 the "subject" of the previous commit, which is the first line of the commit
 message:
 
-```sh
+```shell
 $ git show --oneline
 ab88683 Added an awesome new feature to GitLab
 
@@ -165,7 +167,7 @@ type:
 Use **`--force`** or **`-f`** to overwrite an existing changelog entry if it
 already exists.
 
-```sh
+```shell
 $ bin/changelog 'Hey DZ, I added a feature to GitLab!'
 error changelogs/unreleased/feature-hey-dz.yml already exists! Use `--force` to overwrite.
 
@@ -183,7 +185,7 @@ type:
 Use the **`--merge-request`** or **`-m`** argument to provide the
 `merge_request` value:
 
-```sh
+```shell
 $ bin/changelog 'Hey DZ, I added a feature to GitLab!' -m 1983
 create changelogs/unreleased/feature-hey-dz.yml
 ---
@@ -198,7 +200,7 @@ type:
 Use the **`--dry-run`** or **`-n`** argument to prevent actually writing or
 committing anything:
 
-```sh
+```shell
 $ bin/changelog --amend --dry-run
 create changelogs/unreleased/feature-hey-dz.yml
 ---
@@ -215,7 +217,7 @@ $ ls changelogs/unreleased/
 Use the **`--git-username`** or **`-u`** argument to automatically fill in the
 `author` value with your configured Git `user.name` value:
 
-```sh
+```shell
 $ git config user.name
 Jane Doe
 
@@ -232,7 +234,7 @@ type:
 
 Use the **`--type`** or **`-t`** argument to provide the `type` value:
 
-```sh
+```shell
 $ bin/changelog 'Hey DZ, I added a feature to GitLab!' -t added
 create changelogs/unreleased/feature-hey-dz.yml
 ---
@@ -244,11 +246,9 @@ type: added
 
 ### History and Reasoning
 
-This method was adopted from the primary [GitLab codebase][gl-codebase], as we
+This method was adopted from the primary [GitLab codebase](https://gitlab.com/gitlab-org/gitlab-foss/blob/master/doc/development/changelog.md), as we
 found the workflow to be appealing and familiar.
 
 ---
 
 [Return to Development documentation](index.md)
-
-[gl-codebase]: https://gitlab.com/gitlab-org/gitlab-foss/blob/master/doc/development/changelog.md

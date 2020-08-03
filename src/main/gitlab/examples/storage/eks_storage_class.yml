@@ -6,4 +6,4 @@ provisioner: kubernetes.io/aws-ebs
 reclaimPolicy: Retain
 parameters:
   type: gp2
-  zone: *AWS_ZONE*
+  zone: '*AWS_ZONE*'

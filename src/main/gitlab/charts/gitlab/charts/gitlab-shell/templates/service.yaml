@@ -5,9 +5,9 @@ metadata:
   name: {{ template "fullname" . }}
   namespace: {{ $.Release.Namespace }}
   labels:
-{{ include "gitlab.standardLabels" . | indent 4 }}
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
   annotations:
-{{ include "gitlab.serviceAnnotations" . | indent 4 }}
+    {{- include "gitlab.serviceAnnotations" . | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
   ports:
@@ -15,6 +15,12 @@ spec:
       targetPort: {{ .Values.service.internalPort }}
       protocol: TCP
       name: ssh
+      {{- if and (eq .Values.service.type "NodePort") .Values.service.nodePort }}
+      nodePort: {{ .Values.service.nodePort | int64 }}
+      {{- end }}
+  {{- if or (eq .Values.service.type "NodePort") (eq .Values.service.type "LoadBalancer") }}
+  externalTrafficPolicy: {{ .Values.service.externalTrafficPolicy }}
+  {{- end }}
 {{- if .Values.service.loadBalancerIP }}
   loadBalancerIP: {{ .Values.service.loadBalancerIP }}
 {{- end }}
@@ -26,7 +32,7 @@ spec:
 {{- end }}
 {{- if .Values.service.externalIPs }}
   externalIPs:
-{{ toYaml .Values.service.externalIPs | indent 4  }}
+    {{- toYaml .Values.service.externalIPs | nindent 4  }}
 {{- end }}
   selector:
     app: {{ template "name" . }}

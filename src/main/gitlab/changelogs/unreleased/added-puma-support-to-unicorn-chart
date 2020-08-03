@@ -1,0 +1,5 @@
+---
+title: Unicorn chart now optionally can run puma server
+merge_request: 1216
+author: Dmitry Chepurovskiy
+type: added

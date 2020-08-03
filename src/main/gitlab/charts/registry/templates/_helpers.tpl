@@ -65,3 +65,79 @@ Returns the nginx ingress class
 {{- define "registry.ingressclass" -}}
 {{- pluck "class" .Values.global.ingress (dict "class" (printf "%s-nginx" .Release.Name)) | first -}}
 {{- end -}}
+
+{{/*
+Populate registry notifications
+*/}}
+{{- define "registry.notifications.config" -}}
+{{- if $.Values.global.registry.notifications }}
+notifications:
+  {{- if $.Values.global.registry.notifications.events }}
+  events:
+    {{- toYaml $.Values.global.registry.notifications.events | nindent 4 }}
+  {{- end -}}
+  {{- if $.Values.global.registry.notifications.endpoints }}
+  endpoints:
+    {{- range $endpoint := $.Values.global.registry.notifications.endpoints -}}
+      {{- if $endpoint.name -}}
+        {{- $headers := pluck "headers" $endpoint | first -}}
+        {{- $endpoint = omit $endpoint "headers" }}
+        {{- toYaml (list $endpoint) | nindent 4 }}
+        {{- if $headers }}
+      headers:
+          {{- range $header, $value := $headers -}}
+            {{- if kindIs "map" $value -}}
+              {{- if hasKey $value "secret" }}
+        {{ $header }}: SECRET_{{ $value.secret }}_{{ default "value" $value.key }}
+              {{- end -}}
+            {{- else }}
+        {{ $header }}: {{ $value }}
+            {{- end -}}
+          {{- end -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Individual secret items to be used as volumes
+Usage:
+{{ include "registry.notifications.secrets.item " ( \
+     dict
+         "value" $value
+         "fileName" $fileName
+     ) }}
+*/}}
+{{- define "registry.notifications.secrets.item" -}}
+- secret:
+    name: {{ .value.secret }}
+    items:
+      - key: {{ default "value" .value.key }}
+        path: notifications/SECRET_{{ .fileName }}
+{{- end }}
+
+{{/*
+Sensitive registry notification headers mounted as secrets
+*/}}
+{{- define "registry.notifications.secrets" -}}
+{{- if $.Values.global.registry.notifications }}
+  {{- $uniqSecrets := list -}}
+  {{- range $endpoint := $.Values.global.registry.notifications.endpoints -}}
+    {{- if and $endpoint.name $endpoint.headers -}}
+      {{- range $header, $value := $endpoint.headers -}}
+        {{- if kindIs "map" $value -}}
+          {{- if hasKey $value "secret" }}
+            {{- $fileName := printf "%s_%s" $value.secret (default "value" $value.key) -}}
+            {{- if not (has $fileName $uniqSecrets) }}
+              {{- $uniqSecrets = append $uniqSecrets $fileName }}
+{{ include "registry.notifications.secrets.item" (dict "value" $value "fileName" $fileName) }}
+            {{- end -}}
+          {{- end -}}
+        {{- end -}}
+      {{- end -}}
+    {{- end -}}
+  {{- end -}}
+{{- end -}}
+{{- end -}}

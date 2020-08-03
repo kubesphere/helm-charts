@@ -6,7 +6,7 @@ metadata:
   name: {{ template "fullname" . }}-tmp
   namespace: {{ $.Release.Namespace }}
   labels:
-{{ include "gitlab.standardLabels" . | indent 4 }}
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
 spec:
   accessModes:
     - {{ .Values.persistence.accessMode | quote }}
@@ -26,11 +26,11 @@ spec:
   selector:
 {{- if .Values.persistence.matchLabels }}
     matchLabels:
-{{ toYaml .Values.persistence.matchLabels | indent 6 }}
+      {{- toYaml .Values.persistence.matchLabels | nindent 6 }}
 {{- end -}}
 {{- if .Values.persistence.matchExpressions }}
     matchExpressions:
-{{ toYaml .Values.persistence.matchExpressions | indent 6 }}
+      {{- toYaml .Values.persistence.matchExpressions | nindent 6 }}
 {{- end -}}
 {{- end }}
 {{- if and .Values.enabled .Values.backups.cron.enabled .Values.backups.cron.persistence.enabled }}
@@ -41,7 +41,7 @@ metadata:
   name: {{ template "fullname" . }}-backup-tmp
   namespace: {{ $.Release.Namespace }}
   labels:
-{{ include "gitlab.standardLabels" . | indent 4 }}
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
 spec:
   accessModes:
     - {{ .Values.backups.cron.persistence.accessMode | quote }}
@@ -61,10 +61,10 @@ spec:
   selector:
 {{- if .Values.backups.cron.persistence.matchLabels }}
     matchLabels:
-{{ toYaml .Values.backups.cron.persistence.matchLabels | indent 6 }}
+      {{- toYaml .Values.backups.cron.persistence.matchLabels | nindent 6 }}
 {{- end -}}
 {{- if .Values.backups.cron.persistence.matchExpressions }}
     matchExpressions:
-{{ toYaml .Values.backups.cron.persistence.matchExpressions | indent 6 }}
+      {{- toYaml .Values.backups.cron.persistence.matchExpressions | nindent 6 }}
 {{- end -}}
 {{- end }}

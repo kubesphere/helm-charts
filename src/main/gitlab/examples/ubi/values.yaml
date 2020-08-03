@@ -17,7 +17,7 @@ postgresql:
   install: false
 
 redis:
-  enabled: false
+  install: false
 
 nginx-ingress:
   enabled: false
@@ -76,6 +76,7 @@ global:
   # See: https://gitlab.com/gitlab-org/charts/gitlab/tree/master/doc/advanced/external-object-storage
   registry:
     bucket: my-registry-storage  # Registry storage bucket.
+
   appConfig:
     lfs:
       bucket: my-lfs-storage  # LFS storage bucket.
@@ -144,7 +145,7 @@ gitlab:
           secret: my-s3cmd-config # You config for 's3cmd'.
           key: config
 
-  unicorn:
+  webservice:
     image:
       tag: master-ubi8
     workhorse:

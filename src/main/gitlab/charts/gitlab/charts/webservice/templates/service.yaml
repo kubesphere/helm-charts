@@ -1,0 +1,31 @@
+{{- if .Values.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "fullname" . }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
+  annotations:
+    {{- include "gitlab.serviceAnnotations" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type }}
+  ports:
+    - port: {{ .Values.service.externalPort }}
+      targetPort: {{ .Values.service.internalPort }}
+      protocol: TCP
+      name: http-webservice
+    - port: {{ .Values.service.workhorseExternalPort }}
+      targetPort: {{ .Values.service.workhorseInternalPort }}
+      protocol: TCP
+      name: http-workhorse
+    {{- if eq .Values.monitoring.exporter.enabled true }}
+    - port: {{ .Values.monitoring.exporter.port }}
+      targetPort: {{ .Values.monitoring.exporter.port }}
+      protocol: TCP
+      name: http-exporter
+    {{- end }}
+  selector:
+    app: {{ template "name" . }}
+    release: {{ .Release.Name }}
+{{- end }}

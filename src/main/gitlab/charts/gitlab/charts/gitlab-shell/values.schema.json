@@ -1,0 +1,331 @@
+{
+  "schema": "https://json-schema.org/draft-07/schema#",
+  "properties": {
+    "annotations": {
+      "title": "Pod annotations",
+      "type": "object"
+    },
+    "config": {
+      "properties": {
+        "loginGraceTime": {
+          "title": "Amount of time after which server will disconnect on failed logins",
+          "type": "number"
+        },
+        "maxStartups": {
+          "$comment": "We either need start and rate to be specified, or full to be specified",
+          "anyOf": [
+            {
+              "allOf": [
+                {
+                  "required": [
+                    "start",
+                    "rate"
+                  ]
+                }
+              ]
+            },
+            {
+              "required": [
+                "full"
+              ]
+            }
+          ],
+          "properties": {
+            "full": {
+              "type": "number"
+            },
+            "rate": {
+              "type": "number"
+            },
+            "start": {
+              "type": "number"
+            }
+          },
+          "title": "Maximum number of concurrent unauthenticated connections to the SSH daemon",
+          "type": "object"
+        }
+      },
+      "required": [
+        "loginGraceTime",
+        "maxStartups"
+      ],
+      "title": "GitLab Shell configuration",
+      "type": "object"
+    },
+    "deployment": {
+      "properties": {
+        "livenessProbe": {
+          "properties": {
+            "failureThreshold": {
+              "type": "number"
+            },
+            "initialDelaySeconds": {
+              "type": "number"
+            },
+            "periodSeconds": {
+              "type": "number"
+            },
+            "successThreshold": {
+              "type": "number"
+            },
+            "timeoutSeconds": {
+              "type": "number"
+            }
+          },
+          "title": "Liveness probe settings",
+          "type": "object"
+        }
+      },
+      "required": [
+        "livenessProbe"
+      ],
+      "title": "Deploment details",
+      "type": "object"
+    },
+    "enabled": {
+      "title": "Shell enabled",
+      "type": "boolean"
+    },
+    "global": {
+      "properties": {
+        "shell": {
+          "properties": {
+            "authToken": {
+              "properties": {
+                "key": {
+                  "title": "Name of the key",
+                  "type": "string"
+                },
+                "secret": {
+                  "title": "Name of the Kubernetes Secret",
+                  "type": "string"
+                }
+              },
+              "title": "Secret with GitLab Shell authToken to communicate with Workhorse",
+              "type": "object"
+            },
+            "hostKeys": {
+              "title": "Secret with SSH Host keys",
+              "type": "object"
+            },
+            "port": {
+              "title": "Port used by ingress to pass SSH traffic and shown in UI",
+              "type": "number"
+            }
+          },
+          "type": "object"
+        }
+      },
+      "title": "Global properties",
+      "type": "object"
+    },
+    "hpa": {
+      "properties": {
+        "targetAverageValue": {
+          "title": "Autoscaling target value",
+          "type": "string"
+        }
+      },
+      "required": [
+        "targetAverageValue"
+      ],
+      "title": "Horizontal Pod Autoscaler settings",
+      "type": "object"
+    },
+    "image": {
+      "properties": {
+        "pullPolicy": {
+          "enum": [
+            "Always",
+            "Never",
+            "IfNotPresent"
+          ],
+          "title": "Image pull policy",
+          "type": "string"
+        },
+        "pullSecrets": {
+          "title": "Secrets to be used to pull image",
+          "type": "array"
+        },
+        "repository": {
+          "title": "Docker image repository",
+          "type": "string"
+        }
+      },
+      "required": [
+        "repository"
+      ],
+      "title": "Docker image details",
+      "type": "object"
+    },
+    "init": {
+      "properties": {
+        "image": {
+          "properties": {
+            "repository": {
+              "title": "Image repository",
+              "type": "string"
+            },
+            "resources": {
+              "properties": {
+                "requests": {
+                  "properties": {
+                    "cpu": {
+                      "title": "Required CPU",
+                      "type": [
+                        "string",
+                        "number"
+                      ]
+                    }
+                  },
+                  "title": "Resource requests",
+                  "type": "object"
+                }
+              },
+              "title": "Resources allocated to init container",
+              "type": "object"
+            },
+            "tag": {
+              "title": "Image tag",
+              "type": "string"
+            }
+          },
+          "title": "Init container image details",
+          "type": "object"
+        }
+      },
+      "required": [
+        "image"
+      ],
+      "title": "Init container details",
+      "type": "object"
+    },
+    "maxReplicas": {
+      "title": "Maximum number of pod replicas",
+      "type": "number"
+    },
+    "maxUnavailable": {
+      "title": "Maximum number of unavailable pods",
+      "type": "number"
+    },
+    "minReplicas": {
+      "title": "Minimum number of pod replicas",
+      "type": "number"
+    },
+    "resources": {
+      "properties": {
+        "requests": {
+          "properties": {
+            "cpu": {
+              "title": "Required CPU",
+              "type": [
+                "string",
+                "number"
+              ]
+            },
+            "memory": {
+              "title": "Required Memory",
+              "type": [
+                "string",
+                "number"
+              ]
+            }
+          },
+          "title": "Resource requests",
+          "type": "object"
+        }
+      },
+      "title": "Resources allocated to container",
+      "type": "object"
+    },
+    "service": {
+      "properties": {
+        "externalIPs": {
+          "title": "List of external IPs",
+          "type": "array"
+        },
+        "externalTrafficPolicy": {
+          "title": "Service external traffic policy",
+          "type": "string"
+        },
+        "internalPort": {
+          "title": "Service internal port",
+          "type": "number"
+        },
+        "loadBalancerIP": {
+          "title": "IP address to assign to LoadBalancer",
+          "type": "string"
+        },
+        "loadBalancerSourceRanges": {
+          "title": "List of IP CIDRs allowed access to LoadBalancer",
+          "type": "array"
+        },
+        "name": {
+          "title": "Name of the service",
+          "type": "string"
+        },
+        "nodePort": {
+          "title": "Service node port",
+          "type": "number"
+        },
+        "type": {
+          "title": "Type of the service",
+          "type": "string"
+        }
+      },
+      "required": [
+        "name",
+        "internalPort",
+        "type"
+      ],
+      "title": "GitLab Shell Kubernetes Service details",
+      "type": "object"
+    },
+    "tolerations": {
+      "title": "Tolerations labels for pod assignment",
+      "type": "array"
+    },
+    "workhorse": {
+      "properties": {
+        "host": {
+          "title": "Workhorse host",
+          "type": "string"
+        },
+        "port": {
+          "title": "Workhorse port",
+          "type": "number"
+        },
+        "serviceName": {
+          "title": "Workhorse service name",
+          "type": "string"
+        }
+      },
+      "title": "Workhorse service details",
+      "type": "object"
+    }
+  },
+  "required": [
+    "enabled"
+  ],
+  "if": {
+    "properties": {
+      "enabled": {
+        "const": true
+      }
+    },
+    "required": [
+      "enabled"
+    ]
+  },
+  "then": {
+    "required": [
+      "config",
+      "deployment",
+      "hpa",
+      "image",
+      "maxReplicas",
+      "service",
+      "workhorse"
+    ]
+  }
+}

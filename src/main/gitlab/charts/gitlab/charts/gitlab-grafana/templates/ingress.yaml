@@ -1,13 +1,13 @@
 {{- if .Values.global.grafana.enabled -}}
 {{- $gitlabHostname := include "gitlab.gitlab.hostname" . -}}
-{{- $tlsSecret := include "unicorn.tlsSecret" . -}}
+{{- $tlsSecret := include "webservice.tlsSecret" . -}}
 apiVersion: extensions/v1beta1
 kind: Ingress
 metadata:
   name: {{ .Release.Name }}-grafana
   namespace: {{ $.Release.Namespace }}
   labels:
-{{ include "gitlab.standardLabels" . | indent 4 }}
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
   annotations:
     kubernetes.io/ingress.class: "{{ template "gitlab.ingressclass" . }}"
     kubernetes.io/ingress.provider: nginx

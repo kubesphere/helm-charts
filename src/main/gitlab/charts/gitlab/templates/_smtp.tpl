@@ -1,7 +1,7 @@
 {{/* ######### SMTP templates */}}
 
 {{/*
-  Generates smtp settings for ActionMailer to be used in unicorn and sidekiq
+  Generates smtp settings for ActionMailer to be used in webservice and sidekiq
 */}}
 {{- define "gitlab.smtp_settings" -}}
 {{- if .Values.global.smtp.enabled -}}

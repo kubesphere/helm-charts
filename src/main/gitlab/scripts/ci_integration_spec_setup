@@ -1,0 +1,10 @@
+#!/bin/bash
+
+export DEBIAN_FRONTEND=noninteractive
+HELM_VERSION=${HELM_VERSION:-3.1.2}
+
+wget -q -O - https://get.helm.sh/helm-v${HELM_VERSION}-linux-amd64.tar.gz | tar zxf -
+chmod +x linux-amd64/helm
+mv linux-amd64/helm /usr/local/bin/
+
+helm dependencies update

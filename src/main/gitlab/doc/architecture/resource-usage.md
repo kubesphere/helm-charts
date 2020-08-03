@@ -1,3 +1,9 @@
+---
+stage: Enablement
+group: Distribution
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # Resource usage
 
 ## Resource Requests
@@ -32,11 +38,11 @@ We will measure:
   set the limit above this and the average load values.
 
 - **Heavy Load** - Try and come up with a stress test for the service, then measure
-  the resource usage required to do it. We currently don't use these  values for any
+  the resource usage required to do it. We currently don't use these values for any
   defaults, but users will likely want to set resource limits somewhere between the
   average loads/stress task and this value.
 
-### Unicorn
+### Webservice
 
 Load was tested using <https://gitlab.com/andrewn/gitlab-load-kit> each test over
 a period of 5 minutes, on the first 100 urls crawlable by the root user. Values
@@ -61,7 +67,7 @@ are per pod.
     - memory: 1.2G
 
 - **Stressful Task**
-  - Loading large MR diff (gitlab-ce master to 10-0-stable)
+  - Loading large MR diff (`gitlab-ce master` to `10-0-stable`)
     - cpu: 400m
     - memory: 1.4G
 
@@ -81,7 +87,7 @@ are per pod.
 
 ### Sidekiq
 
-Load was tested using <https://gitlab.com/andrewn/gitlab-load-kit> and a custom executor that targeted the pipeline trigger api on a single project. This api was hit with 20 requests concurrently for varying amounts of time.
+Load was tested using <https://gitlab.com/andrewn/gitlab-load-kit> and a custom executor that targeted the pipeline trigger API on a single project. This API was hit with 20 requests concurrently for varying amounts of time.
 
 - **Idle values**
   - 0 tasks, 1 pods
@@ -115,7 +121,7 @@ Load was tested using <https://gitlab.com/andrewn/gitlab-load-kit> and a custom 
   - cpu: 50m (from minimal load)
   - memory: 650M (from average load)
   - target cpu average: 350m (from average loads)
-    - *In the future [we should be using custom metrics](https://gitlab.com/gitlab-org/charts/gitlab/issues/1008) that measure the number of busy workers.*
+    - *In the future [we should be using custom metrics](https://gitlab.com/gitlab-org/charts/gitlab/-/issues/1008) that measure the number of busy workers.*
 
 - **Recommended Limits**
   - cpu: > 1 (greater than stress task)

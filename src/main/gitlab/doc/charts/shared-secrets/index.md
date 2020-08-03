@@ -1,13 +1,19 @@
+---
+stage: Enablement
+group: Distribution
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # Using the Shared-Secrets chart
 
 The `shared-secrets` sub-chart is responsible for provisioning a variety of secrets
 used across the installation, unless otherwise manually specified. This includes:
 
 1. Initial root password
-1. Self-signed TLS certificates for all public services: GitLab, Minio, and Registry
+1. Self-signed TLS certificates for all public services: GitLab, MinIO, and Registry
 1. Registry authentication certificates
-1. Minio, Registry, GitLab Shell, and Gitaly secrets
-1. Redis and Postgres passwords
+1. MinIO, Registry, GitLab Shell, and Gitaly secrets
+1. Redis and PostgreSQL passwords
 1. SSH host keys
 
 ## Installation command line options

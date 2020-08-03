@@ -5,7 +5,9 @@ metadata:
   name: {{ template "fullname" . }}
   namespace: {{ $.Release.Namespace }}
   labels:
-{{ include "gitlab.standardLabels" . | indent 4 }}
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
+  annotations:
+    {{- include "gitlab.deploymentAnnotations" . | nindent 4 }}
 spec:
   selector:
     matchLabels:
@@ -18,6 +20,7 @@ spec:
         release: {{ .Release.Name }}
       annotations:
         checksum/config: {{ include (print $.Template.BasePath "/configmap.yml") . | sha256sum }}
+        checksum/config-sshd: {{ include (print $.Template.BasePath "/configmap-sshd.yml") . | sha256sum }}
         cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
       {{- range $key, $value := .Values.annotations }}
         {{ $key }}: {{ $value | quote }}
@@ -25,16 +28,18 @@ spec:
     spec:
       {{- if .Values.tolerations }}
       tolerations:
-{{ toYaml .Values.tolerations | indent 8 }}
+        {{- toYaml .Values.tolerations | nindent 8 }}
       {{- end }}
       initContainers:
-{{ include "gitlab.extraInitContainers" . | indent 8 }}
-{{ include "gitlab.certificates.initContainer" . | indent 8 }}
+        {{- include "gitlab.extraInitContainers" . | nindent 8 }}
+        {{- include "gitlab.certificates.initContainer" . | nindent 8 }}
         - name: configure
           command: ['sh', '/config/configure']
-          image: {{ .Values.init.image }}:{{ .Values.init.tag }}
+          image: {{ include "gitlab.busybox.image" (dict "local" .Values.init "global" $.Values.global.busybox) | quote }}
+          env:
+          {{- include "gitlab.extraEnv" . | nindent 10 }}
           volumeMounts:
-{{ include "gitlab.extraVolumeMounts" . | indent 10 }}
+          {{- include "gitlab.extraVolumeMounts" . | nindent 10 }}
           - name: shell-config
             mountPath: /config
             readOnly: true
@@ -45,11 +50,11 @@ spec:
             mountPath: /init-secrets
             readOnly: false
           resources:
-{{ toYaml .Values.init.resources | indent 12 }}
+            {{- toYaml .Values.init.resources | nindent 12 }}
       securityContext:
-        runAsUser: 1000
-        fsGroup: 1000
-{{- include "pullsecrets" .Values.image | indent 6}}
+        runAsUser: {{ .Values.securityContext.runAsUser }}
+        fsGroup: {{ .Values.securityContext.fsGroup }}
+{{- include "pullsecrets" .Values.image | indent 6 }}
       {{- if eq (default .Values.global.antiAffinity .Values.antiAffinity) "hard" }}
       affinity:
         podAntiAffinity:
@@ -71,10 +76,13 @@ spec:
                   app: {{ template "name" . }}
                   release: {{ .Release.Name }}
       {{- end }}
+      {{- if or .Values.serviceAccount.enabled .Values.global.serviceAccount.enabled }}
+      serviceAccountName: {{ include "gitlab.serviceAccount.name" . }}
+      {{- end }}
       containers:
-{{ include "gitlab.extraContainers" . | indent 8 }}
+        {{- include "gitlab.extraContainers" . | nindent 8 }}
         - name: {{ .Chart.Name }}
-          image: "{{ .Values.image.repository }}:{{ coalesce .Values.image.tag (include "gitlab.parseAppVersion" .Chart.AppVersion) }}"
+          image: "{{ .Values.image.repository }}:{{ coalesce .Values.image.tag (include "gitlab.parseAppVersion" (dict "appVersion" .Chart.AppVersion "prepend" "true")) }}"
           {{ template "gitlab.imagePullPolicy" . }}
           ports:
             - containerPort: {{ .Values.service.internalPort }}
@@ -88,32 +96,42 @@ spec:
               value: '/srv/gitlab-shell'
             - name: KEYS_DIRECTORY
               value: '/etc/gitlab-secrets/ssh'
+            {{- include "gitlab.extraEnv" . | nindent 12 }}
           volumeMounts:
             - name: shell-config
               mountPath: '/etc/gitlab-shell'
             - name: shell-secrets
               mountPath: '/etc/gitlab-secrets'
               readOnly: true
-{{ include "gitlab.extraVolumeMounts" . | indent 12 }}
-{{ include "gitlab.certificates.volumeMount" . | indent 12 }}
+            - name: sshd-config
+              mountPath: /etc/ssh/sshd_config
+              subPath: sshd_config
+              readOnly: true
+            {{- include "gitlab.extraVolumeMounts" . | nindent 12 }}
+            {{- include "gitlab.certificates.volumeMount" . | nindent 12 }}
           livenessProbe:
             exec:
               command:
               - /scripts/healthcheck
-            initialDelaySeconds: 10
-            timeoutSeconds: 3
-            periodSeconds: 10
+            initialDelaySeconds: {{ .Values.deployment.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.deployment.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.deployment.livenessProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.deployment.livenessProbe.successThreshold }}
+            failureThreshold: {{ .Values.deployment.livenessProbe.failureThreshold }}
           # readinessProbe:
           #   httpGet:
           #     path: /
           #     port: {{ .Values.service.internalPort }}
           resources:
-{{ toYaml .Values.resources | indent 12 }}
+            {{- toYaml .Values.resources | nindent 12 }}
       volumes:
-{{ include "gitlab.extraVolumes" . | indent 6 }}
+      {{- include "gitlab.extraVolumes" . | nindent 6 }}
       - name: shell-config
         configMap:
           name: {{ template "fullname" . }}
+      - name: sshd-config
+        configMap:
+          name: {{ template "fullname" . }}-sshd
       - name: shell-init-secrets
         projected:
           defaultMode: 0440
@@ -125,20 +143,13 @@ spec:
                 items:
                   - key: {{ template "gitlab.gitlab-shell.authToken.key" . }}
                     path: shell/.gitlab_shell_secret
-            {{- if .Values.global.redis.password.enabled }}
-            - secret:
-                name: {{ template "gitlab.redis.password.secret" . }}
-                items:
-                  - key: {{ template "gitlab.redis.password.key" . }}
-                    path: redis/password
-            {{- end }}
       # Actual config dirs that will be used in the container
       - name: shell-secrets
         emptyDir:
           medium: "Memory"
-{{ include "gitlab.certificates.volumes" . | indent 6 }}
+      {{- include "gitlab.certificates.volumes" . | nindent 6 }}
     {{- if .Values.nodeSelector }}
       nodeSelector:
-{{ toYaml .Values.nodeSelector | indent 8 }}
+        {{- toYaml .Values.nodeSelector | nindent 8 }}
     {{- end }}
 {{- end }}

@@ -4,13 +4,15 @@ class Version < String
     \.(?<minor>\d+)
     (\.(?<patch>\d+))?
     (-(?<rc>rc(?<rc_number>\d*)))?
-    (-ee)?\z
+    (-ee)?
+    (\+(?<build_metadata>[0-9A-Za-z-]*))?\z
   }x
 
   MAJOR = :major
   MINOR = :minor
   PATCH = :patch
   RC = :rc
+  BUILD_METADATA = :build_metadata
 
   def initialize(version_string)
     super(version_string)
@@ -50,6 +52,7 @@ class Version < String
     return MINOR if minor != other.minor
     return PATCH if patch != other.patch
     return RC if rc != other.rc
+    return BUILD_METADATA if build_metadata != other.build_metadata
   end
 
   def ee?
@@ -86,10 +89,22 @@ class Version < String
     @rc ||= extract_from_version(:rc_number).to_i
   end
 
+  def build_metadata
+    return unless build_metadata?
+
+    @build_metadata ||= extract_from_version(:build_metadata)
+  end
+
   def rc?
     return @is_rc if defined?(@is_rc)
 
     @is_rc = extract_from_version(:rc, fallback: false)
+  end
+
+  def build_metadata?
+    return @has_build_metadata if defined?(@has_build_metadata)
+
+    @has_build_metadata = extract_from_version(:build_metadata, fallback: false)
   end
 
   def version?
@@ -97,7 +112,7 @@ class Version < String
   end
 
   def release?
-    valid? && !rc? && !ee?
+    valid? && !rc? && !ee? && !build_metadata?
   end
 
   def next_minor

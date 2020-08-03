@@ -1,3 +1,9 @@
+---
+stage: Enablement
+group: Distribution
+info: To determine the technical writer assigned to the Stage/Group associated with this page, see https://about.gitlab.com/handbook/engineering/ux/technical-writing/#designated-technical-writers
+---
+
 # Using the GitLab Runner chart
 
 The GitLab Runner subchart provides a GitLab Runner for running CI jobs. It is enabled by default and should work out of the box with support for caching using s3 compatible object storage.
@@ -12,13 +18,13 @@ There are no required settings, it should work out of the box if you deploy all 
 
 ## Deploying a stand-alone runner
 
-By default we do infer `gitlabUrl`, automatically generate a registration token, and generate it through the `migrations` chart. This behaviour will not work if you intend to deploy it with a running GitLab instance.
+By default we do infer `gitlabUrl`, automatically generate a registration token, and generate it through the `migrations` chart. This behavior will not work if you intend to deploy it with a running GitLab instance.
 
-In this case you will need to set `gitlabUrl` value to be the url of the running GitLab instance. You will also need to manually create `gitlab-runner` secret and fill it with the `registrationToken` provided by the running GitLab.
+In this case you will need to set `gitlabUrl` value to be the URL of the running GitLab instance. You will also need to manually create `gitlab-runner` secret and fill it with the `registrationToken` provided by the running GitLab.
 
-## Using docker-in-docker
+## Using Docker-in-Docker
 
-In order to run docker-in-docker, the runner container needs to be privileged to have access to the needed capabilities. To enable it set the `privileged` value to `true`.
+In order to run Docker-in-Docker, the runner container needs to be privileged to have access to the needed capabilities. To enable it set the `privileged` value to `true`. See the [upstream documentation](https://docs.gitlab.com/runner/install/kubernetes.html#running-docker-in-docker-containers-with-gitlab-runners) in regards to why this is does not default to `true`.
 
 ### Security concerns
 
@@ -29,10 +35,10 @@ Privileged containers have extended capabilities, for example they can mount arb
 | Parameter                                      | Description                                | Default                               |
 | ---------------------------------------------- | ------------------------------------------ | ------------------------------------- |
 | `gitlab-runner.image`                          | Runner image                               | `gitlab/gitlab-runner:alpine-v10.5.0` |
-| `gitlab-runner.enabled`                        |                                            | `true`                                |
+| `gitlab-runner.install`                        | Install the `gitlab-runner` chart          | `true`                                |
 | `gitlab-runner.imagePullPolicy`                | Image pull policy                          | `IfNotPresent`                        |
-| `gitlab-runner.init.image`                     | `initContainer` image                      | `busybox`                             |
-| `gitlab-runner.init.tag`                       | `initContainer` image tag                  | `latest`                              |
+| `gitlab-runner.init.image.repository`          | `initContainer` image                      |                                       |
+| `gitlab-runner.init.image.tag`                 | `initContainer` image tag                  |                                       |
 | `gitlab-runner.pullSecrets`                    | Secrets for the image repository           |                                       |
 | `gitlab-runner.unregisterRunners`              | Unregister all runners before termination  | `true`                                |
 | `gitlab-runner.concurrent`                     | Number of concurrent jobs                  | `20`                                  |
@@ -74,7 +80,7 @@ Additional details about private registries and their authentication methods can
 
 Below is an example use of `pullSecrets`
 
-```YAML
+```yaml
 image: my.runner.repository
 imagePullPolicy: Always
 pullSecrets:
