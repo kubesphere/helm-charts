@@ -15,7 +15,7 @@ IAM roles can be specified by adding annotations and changing the secrets, as sp
 
 An IAM role can be specified via the annotations key:
 
-```
+```plaintext
 --set registry.annotations."iam\.amazonaws\.com/role"=<role name>
 ```
 
@@ -34,13 +34,13 @@ s3:
 
 For LFS, artifacts, uploads, packages and pseudonymizer an IAM role can be specified via the annotations key in the `unicorn` and `sidekiq` configuration:
 
-```
+```shell
 --set gitlab.sidekiq.annotations."iam\.amazonaws\.com/role"=<role name>
 --set gitlab.unicorn.annotations."iam\.amazonaws\.com/role"=<role name>
 ```
 
 For the [object-storage.yaml](../../charts/globals.md#connection) secret, omit the access and secret key.
-As unicorn uses Fog for S3 storage, the [use_iam_profile](https://docs.gitlab.com/ee/administration/job_artifacts.html#s3-compatible-connection-settings) key should be added for Fog to use the role:
+As Unicorn uses Fog for S3 storage, the [use_iam_profile](https://docs.gitlab.com/ee/administration/job_artifacts.html#s3-compatible-connection-settings) key should be added for Fog to use the role:
 
 ```yaml
 provider: AWS
@@ -52,13 +52,13 @@ region: us-east-1
 
 The `task-runner` configuration allows for annotations to be set to upload backups to S3:
 
-```
+```shell
 --set gitlab.task-runner.annotations."iam\.amazonaws\.com/role"=<role name>
 ```
 
 The [s3cmd.config](./index.md#backups-storage-example) secret is to be created without the access and secret keys:
 
-```
+```ini
 [default]
 bucket_location = us-east-1
 ```

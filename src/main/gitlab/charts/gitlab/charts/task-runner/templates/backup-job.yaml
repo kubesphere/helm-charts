@@ -5,7 +5,7 @@ metadata:
   name: {{ template "fullname" . }}-backup
   namespace: {{ $.Release.Namespace }}
   labels:
-{{ include "gitlab.standardLabels" . | indent 4 }}
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
 spec:
   concurrencyPolicy: {{ .Values.backups.cron.concurrencyPolicy }}
   failedJobsHistoryLimit: {{ .Values.backups.cron.failedJobsHistoryLimit }}
@@ -28,20 +28,20 @@ spec:
           restartPolicy: "OnFailure"
           {{- if .Values.tolerations }}
           tolerations:
-{{ toYaml .Values.tolerations | indent 12 }}
+            {{- toYaml .Values.tolerations | nindent 12 }}
           {{- end }}
           securityContext:
             runAsUser: 1000
             fsGroup: 1000
           initContainers:
-{{ include "gitlab.extraInitContainers" . | indent 12 }}
-{{ include "gitlab.certificates.initContainer" . | indent 12 }}
+            {{- include "gitlab.extraInitContainers" . | nindent 12 }}
+            {{- include "gitlab.certificates.initContainer" . | nindent 12 }}
             - name: configure
               command: ['sh', '/config/configure']
-              image: {{ .Values.init.image }}:{{ .Values.init.tag }}
+              image: {{ include "gitlab.busybox.image" (dict "local" .Values.init "global" $.Values.global.busybox) | quote }}
               volumeMounts:
-{{ include "gitlab.extraVolumeMounts" . | indent 16 }}
-{{ include "gitlab.psql.ssl.volumeMount" . | indent 16 }}
+                {{- include "gitlab.extraVolumeMounts" . | nindent 16 }}
+                {{- include "gitlab.psql.ssl.volumeMount" . | nindent 16 }}
                 - name: task-runner-config
                   mountPath: /config
                   readOnly: true
@@ -52,10 +52,10 @@ spec:
                   mountPath: /init-secrets
                   readOnly: false
               resources:
-{{ toYaml .Values.init.resources | indent 16 }}
-{{- include "pullsecrets" .Values.image | indent 10}}
+                {{- toYaml .Values.init.resources | nindent 16 }}
+{{- include "pullsecrets" .Values.image | indent 10 }}
           containers:
-{{ include "gitlab.extraContainers" . | indent 12 }}
+            {{- include "gitlab.extraContainers" . | nindent 12 }}
             - name: {{ .Chart.Name }}-backup
               args:
                 - /bin/bash
@@ -95,7 +95,7 @@ spec:
                   value: '/etc/gitlab/objectstorage/{{ default "config" .Values.backups.objectStorage.config.key }}'
                 {{- end }}
               volumeMounts:
-{{ include "gitlab.extraVolumeMounts" . | indent 16 }}
+                {{- include "gitlab.extraVolumeMounts" . | nindent 16 }}
                 - name: task-runner-config
                   mountPath: '/var/opt/gitlab/templates'
                 - name: task-runner-secrets
@@ -110,12 +110,12 @@ spec:
                   subPath: "{{ .Values.backups.cron.persistence.subPath }}"
                   {{- end }}
                   readOnly: false
-{{ include "gitlab.certificates.volumeMount" . | indent 16 }}
+                {{- include "gitlab.certificates.volumeMount" . | nindent 16 }}
               resources:
-{{ toYaml .Values.backups.cron.resources | indent 16 }}
+                {{- toYaml .Values.backups.cron.resources | nindent 16 }}
           volumes:
-{{ include "gitlab.extraVolumes" . | indent 12 }}
-{{ include "gitlab.psql.ssl.volume" . | indent 12 }}
+            {{- include "gitlab.extraVolumes" . | nindent 12 }}
+            {{- include "gitlab.psql.ssl.volume" . | nindent 12 }}
             - name: task-runner-config
               projected:
                 sources:
@@ -151,13 +151,7 @@ spec:
                     items:
                       - key: {{ template "gitlab.gitaly.authToken.key" . }}
                         path: gitaly/gitaly_token
-                {{- if .Values.global.redis.password.enabled }}
-                - secret:
-                    name: {{ template "gitlab.redis.password.secret" . }}
-                    items:
-                      - key: {{ template "gitlab.redis.password.key" . }}
-                        path: redis/password
-                {{- end }}
+                {{- include "gitlab.redis.secrets" . | nindent 16 }}
                 - secret:
                     name: {{ template "gitlab.psql.password.secret" . }}
                     items:
@@ -188,15 +182,16 @@ spec:
                 {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "uploads" "config" $.Values.global.appConfig.uploads) | nindent 16 }}
                 {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "packages" "config" $.Values.global.appConfig.packages) | nindent 16 }}
                 {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "external_diffs" "config" $.Values.global.appConfig.externalDiffs) | nindent 16 }}
+                {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "terraform_state" "config" $.Values.global.appConfig.terraformState) | nindent 16 }}
                 {{- include "gitlab.appConfig.pseudonymizer.mountSecrets" $ | nindent 16 }}
                 {{- include "gitlab.appConfig.ldap.servers.mountSecrets" $ | nindent 16 }}
                 {{- include "gitlab.appConfig.omniauth.mountSecrets" $ | nindent 16 }}
             - name: task-runner-secrets
               emptyDir:
                 medium: "Memory"
-{{ include "gitlab.certificates.volumes" . | indent 12 }}
+            {{- include "gitlab.certificates.volumes" . | nindent 12 }}
         {{- if .Values.nodeSelector }}
           nodeSelector:
-{{ toYaml .Values.nodeSelector | indent 12 }}
+            {{- toYaml .Values.nodeSelector | nindent 12 }}
         {{- end }}
 {{- end }}

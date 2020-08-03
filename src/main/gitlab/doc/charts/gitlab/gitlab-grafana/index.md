@@ -1,17 +1,15 @@
-# Using the gitlab-grafana chart
+# Using the GitLab-Grafana chart
 
-The `gitlab-grafana` subchart adapts the [stable/grafana][] chart to operate
-correctly with the same level of configuration as the Omnibus
+The `gitlab-grafana` subchart adapts the [`stable/grafana`](https://github.com/helm/charts/tree/master/stable/grafana)
+chart to operate correctly with the same level of configuration as the Omnibus
 GitLab install. In addition, the installation of Grafana allows additional
 dashboards to be installed by the end user and be incorporated with the
 GitLab supplied dashboards.
 
-[stable/grafana]: https://github.com/helm/charts/tree/master/stable/grafana
-
 ## Requirements
 
 This chart depends on the `stable/grafana` chart which is usually installed
-by the `GitLab` meta chart. In addition, Kubernetes ingress support is
+by the `GitLab` meta chart. In addition, Kubernetes Ingress support is
 needed to properly route the Grafana requests using the `/-/grafana` path.
 
 ## Design Choices
@@ -38,26 +36,31 @@ Grafana server environment.
 There are no required settings, it should work out of the box if you deploy
 all of the charts together. The administrator credentials are created by
 the `shared-secrets` chart and the administrator username is set to `root`.
+Password for Grafana's root user can be extracted by the following command:
+
+```shell
+kubectl get secret gitlab-grafana-initial-password -ojsonpath='{.data.password}' | base64 --decode ; echo
+```
 
 ## Installation command line options
 
-| Parameter           | Default | Description                                                          |
-|---------------------|---------|----------------------------------------------------------------------|
-| ingress.tls         |  `{}`   | Hash of Ingress TLS settings if GitLab cert manager is not installed |
-| ingress.annotations |  `{}`   | Additional annotations to add to Grafana Ingress resource            |
+| Parameter             | Default | Description                                                          |
+|-----------------------|---------|----------------------------------------------------------------------|
+| `ingress.tls`         | `{}`    | Hash of Ingress TLS settings if GitLab cert manager is not installed |
+| `ingress.annotations` | `{}`    | Additional annotations to add to Grafana Ingress resource            |
 
 ## Dashboard Support
 
 Grafana dashboards are automatically discovered from the ConfigMaps in
 the deployed namespace. If a ConfigMap has been created with the
 `gitlab_grafana_dashboard` label set to `true`, then the JSON encoded
-dashboard in the ConfigMap will be imported into Grafana. This mechanism
-does not allow any updates to the dashboard to be written back to the
-ConfigMap containing the JSON encoded dashboard.
+dashboard in the ConfigMap will be imported into Grafana. This import happens
+once (when Grafana is restarted) and any changes to the dashboard will not be
+written back to the ConfigMap.
 
-The end user may supply their own dashboards utilizing the same mechanism
-by supplying the `gitlab_grafana_dashboard` label and managing the
-ConfigMap themselves.
+There are currently no dashboards created when the chart is installed. Any
+user created dashboards can be imported by creating a ConfigMap using the
+`gitlab_grafana_dashboard` label and managing the ConfigMap themselves.
 
 ## Datasource Support
 

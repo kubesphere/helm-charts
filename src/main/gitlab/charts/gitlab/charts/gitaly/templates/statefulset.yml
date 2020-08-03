@@ -1,17 +1,17 @@
-{{- if .Values.enabled -}}
+{{- if .Values.global.gitaly.enabled -}}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
   name: {{ template "fullname" . }}
   namespace: {{ $.Release.Namespace }}
   labels:
-{{ include "gitlab.immutableLabels" . | indent 4 }}
+    {{- include "gitlab.immutableLabels" . | nindent 4 }}
 spec:
   selector:
     matchLabels:
       app: {{ template "name" . }}
       release: {{ .Release.Name }}
-  serviceName: {{ template "fullname" . }}
+  serviceName: {{ template "gitlab.gitaly.serviceName" . }}
   replicas: {{template "gitlab.gitaly.replicas" . }}
   podManagementPolicy: Parallel
   {{- if .Values.global.operator.enabled }}
@@ -32,17 +32,20 @@ spec:
     spec:
       {{- if .Values.tolerations }}
       tolerations:
-{{ toYaml .Values.tolerations | indent 8 }}
+        {{- toYaml .Values.tolerations | nindent 8 }}
+      {{- end }}
+      {{- if .Values.priorityClassName }}
+      priorityClassName: "{{ .Values.priorityClassName }}"
       {{- end }}
       terminationGracePeriodSeconds: 30
       initContainers:
-{{ include "gitlab.extraInitContainers" . | indent 8 }}
-{{ include "gitlab.certificates.initContainer" . | indent 8 }}
+        {{- include "gitlab.extraInitContainers" . | nindent 8 }}
+        {{- include "gitlab.certificates.initContainer" . | nindent 8 }}
         - name: configure
           command: ['sh', '/config/configure']
-          image: {{ .Values.init.image }}:{{ .Values.init.tag }}
+          image: {{ include "gitlab.busybox.image" (dict "local" .Values.init "global" $.Values.global.busybox) | quote }}
           volumeMounts:
-{{ include "gitlab.extraVolumeMounts" . | indent 10 }}
+          {{- include "gitlab.extraVolumeMounts" . | nindent 10 }}
           - name: gitaly-config
             mountPath: /config
             readOnly: true
@@ -53,11 +56,11 @@ spec:
             mountPath: /init-secrets
             readOnly: false
           resources:
-{{ toYaml .Values.init.resources | indent 12 }}
+            {{- toYaml .Values.init.resources | nindent 12 }}
       securityContext:
         runAsUser: {{ .Values.securityContext.runAsUser }}
         fsGroup: {{ .Values.securityContext.fsGroup }}
-{{- include "pullsecrets" .Values.image | indent 6}}
+{{- include "pullsecrets" .Values.image | indent 6 }}
       {{- if eq (default .Values.global.antiAffinity .Values.antiAffinity) "hard" }}
       affinity:
         podAntiAffinity:
@@ -80,9 +83,9 @@ spec:
                   release: {{ .Release.Name }}
       {{- end }}
       containers:
-{{ include "gitlab.extraContainers" . | indent 8 }}
+        {{- include "gitlab.extraContainers" . | nindent 8 }}
         - name: {{ .Chart.Name }}
-          image: "{{ .Values.image.repository }}:{{ coalesce .Values.image.tag (include "gitlab.parseAppVersion" .Chart.AppVersion) }}"
+          image: "{{ .Values.image.repository }}:{{ coalesce .Values.image.tag (include "gitlab.parseAppVersion" (dict "appVersion" .Chart.AppVersion "prepend" "true")) }}"
           {{ template "gitlab.imagePullPolicy" . }}
           ports:
             - containerPort: {{ .Values.service.internalPort }}
@@ -96,6 +99,8 @@ spec:
               value: '/etc/gitaly'
             - name: GITALY_CONFIG_FILE
               value: '/etc/gitaly/config.toml'
+            - name: SSL_CERT_DIR
+              value: '/etc/ssl/certs'
             {{- if .Values.metrics.enabled }}
             - name: GITALY_PROMETHEUS_LISTEN_ADDR
               value: ':{{ .Values.metrics.metricsPort }}'
@@ -105,8 +110,8 @@ spec:
                 fieldRef:
                   fieldPath: metadata.name
           volumeMounts:
-{{ include "gitlab.extraVolumeMounts" . | indent 12 }}
-{{ include "gitlab.certificates.volumeMount" . | indent 12 }}
+            {{- include "gitlab.extraVolumeMounts" . | nindent 12 }}
+            {{- include "gitlab.certificates.volumeMount" . | nindent 12 }}
             - name: gitaly-config
               mountPath: '/etc/gitaly/templates'
             - name: gitaly-secrets
@@ -132,9 +137,9 @@ spec:
             timeoutSeconds: 3
             periodSeconds: 10
           resources:
-{{ toYaml .Values.resources | indent 12 }}
+            {{- toYaml .Values.resources | nindent 12 }}
       volumes:
-{{ include "gitlab.extraVolumes" . | indent 6 }}
+      {{- include "gitlab.extraVolumes" . | nindent 6 }}
       - name: gitaly-config
         configMap:
           name: {{ template "fullname" . }}
@@ -159,17 +164,19 @@ spec:
               items:
                 - key: {{ template "gitlab.gitlab-shell.authToken.key" . }}
                   path: ".gitlab_shell_secret"
-          {{- if .Values.global.redis.password.enabled }}
+          {{- if .Values.global.gitaly.tls.enabled }}
           - secret:
-              name: {{ template "gitlab.redis.password.secret" . }}
+              name: {{ template "gitlab.gitaly.tls.secret" . }}
               items:
-                - key: {{ template "gitlab.redis.password.key" . }}
-                  path: redis_password
+                - key: "tls.crt"
+                  path: "gitaly.crt"
+                - key: "tls.key"
+                  path: "gitaly.key"
           {{- end }}
-{{ include "gitlab.certificates.volumes" . | indent 6 }}
+      {{- include "gitlab.certificates.volumes" . | nindent 6 }}
     {{- if .Values.nodeSelector }}
       nodeSelector:
-{{ toYaml .Values.nodeSelector | indent 8 }}
+        {{- toYaml .Values.nodeSelector | nindent 8 }}
     {{- end -}}
   {{- if .Values.persistence.enabled }}
   volumeClaimTemplates:
@@ -194,11 +201,11 @@ spec:
         selector:
       {{- if .Values.persistence.matchLabels }}
           matchLabels:
-      {{ toYaml .Values.persistence.matchLabels | indent 6 }}
+      {{- toYaml .Values.persistence.matchLabels | nindent 12 }}
       {{- end -}}
       {{- if .Values.persistence.matchExpressions }}
           matchExpressions:
-      {{ toYaml .Values.persistence.matchExpressions | indent 6 }}
+      {{- toYaml .Values.persistence.matchExpressions | nindent 12 }}
       {{- end -}}
   {{- end }}
-{{ end }}
+{{- end }}

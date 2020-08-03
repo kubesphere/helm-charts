@@ -1,6 +1,6 @@
 # GitLab Cloud Native Chart Beta
 
-We have been working hard on the chart and it's underlying containers, and are excited to to reach beta and share it with the GitLab community.
+We have been working hard on the chart and it's underlying containers, and are excited to reach beta and share it with the GitLab community.
 
 This effort has required extensive changes across the product:
 
@@ -33,7 +33,7 @@ Before opening an issue please review the [known issues and limitations](#known-
 
 We greatly appreciate the wider testing of the community during beta, and encourage [detailed issues to be reported](https://gitlab.com/gitlab-org/charts/gitlab/issues/new) so we can address them.
 
-We welcome any improvements contributed in the form of [Merge Requests](https://gitlab.com/gitlab-org/charts/gitlab/merge_requests).
+We welcome any improvements contributed in the form of [Merge Requests](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests).
 
 ## Known issues and limitations
 
@@ -45,7 +45,7 @@ Helm Chart Issues/Limitations:
 - No GitLab Pages support: <https://gitlab.com/gitlab-org/charts/gitlab/issues/37>
 - No GitLab Geo support: <https://gitlab.com/gitlab-org/charts/gitlab/issues/8>
 - No support for incoming email: <https://gitlab.com/gitlab-org/charts/gitlab/issues/235>
-- Does not support running multiple gitaly servers: <https://gitlab.com/gitlab-org/charts/gitlab/issues/432>
+- Does not support running multiple Gitaly servers: <https://gitlab.com/gitlab-org/charts/gitlab/issues/432>
 
 Limitations planned to be fixed during beta:
 

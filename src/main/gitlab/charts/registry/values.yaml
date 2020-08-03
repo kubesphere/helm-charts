@@ -1,6 +1,6 @@
 image:
-  repository: registry
-  tag: '2.7.1'
+  repository: registry.gitlab.com/gitlab-org/build/cng/gitlab-container-registry
+  tag: 'v2.9.0-gitlab'
   pullPolicy: 'IfNotPresent'
   pullSecrets: []
 
@@ -101,9 +101,10 @@ global:
 
 ## Control the InitContainer behaviors.
 init:
-  image: "busybox"
-  tag: "latest"
-  pullPolicy: "IfNotPresent"
+  image:
+    # repository:
+    # tag:
+    pullPolicy: "IfNotPresent"
   resources:
     requests:
       cpu: 50m
@@ -181,6 +182,16 @@ compatibility:
   schema1:
     enabled: false
 
+# https://docs.docker.com/registry/notifications/#configuration
+notifications: {}
+  # endpoints:
+  #   - name: FooListener
+  #     url: https://foolistener.com/event
+  #     timeout: 500ms
+  #     threshold: 10
+  #     backoff: 1s
+  # events: {}
+
 # Enable the registry to accept windows based docker images
 # See https://github.com/docker/distribution/issues/2795
 validation:
@@ -203,6 +214,9 @@ debug:
 # Amount of time to wait for HTTP connections to drain after
 # receiving a SIGTERM signal
 draintimeout: '0'
+
+# Enable the registry to return relative URLs in Location headers
+relativeurls: false
 
 # https://docs.docker.com/registry/configuration/#health
 health:

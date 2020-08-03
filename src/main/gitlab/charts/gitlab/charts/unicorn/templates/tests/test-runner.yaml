@@ -9,7 +9,7 @@ metadata:
 spec:
   containers:
   - name: test-runner
-    image: {{ coalesce .Values.image.repository (include "image.repository" .) }}:{{ coalesce .Values.image.tag (include "gitlab.versionTag" . ) }}
+    image: {{ include "unicorn.image" . }}
     command: ['sh', '/tests/test_login']
     volumeMounts:
       - name: tests

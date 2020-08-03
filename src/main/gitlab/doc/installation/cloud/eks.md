@@ -34,10 +34,10 @@ The table below describes all variables.
 |-------------------|--------------------------------------------------|------------------|
 | `REGION`          | The region where your cluster lives              | `us-east-2`      |
 | `CLUSTER_NAME`    | The name of the cluster                          | `gitlab-cluster` |
-| `CLUSTER_VERSION` | The version of your EKS cluster                  | `1.11`           |
+| `CLUSTER_VERSION` | The version of your EKS cluster                  | `1.14`           |
 | `NUM_NODES`       | The number of nodes required                     | `2`              |
 | `MACHINE_TYPE`    | The type of nodes to deploy                      | `m5.xlarge`      |
-| `SERVICE_ACCOUNT` | The service account name to use for helm/tiller  | `tiller`         |
+| `SERVICE_ACCOUNT` | The service account name to use for Helm/Tiller  | `tiller`         |
 
 Run the script, by passing in your desired parameters. It can work with the
 default parameters.
@@ -53,6 +53,8 @@ The script can also be used to clean up the created EKS resources:
 ```
 
 ### Manual cluster creation
+
+- We recommend a cluster with 8vCPU and 30GB of RAM.
 
 For the most up to date instructions, follow Amazon's
 [EKS getting started guide](https://docs.aws.amazon.com/eks/latest/userguide/getting-started.html).
@@ -85,13 +87,19 @@ when defining their storage solution.
 
 ## External Access to GitLab
 
-By default, GitLab will deploy an ingress which will create an associated
+By default, GitLab will deploy an Ingress which will create an associated
 Elastic Load Balancer (ELB). Since the DNS names of the ELB cannot be known
 ahead of time, it's difficult to utilize [Let's Encrypt](https://letsencrypt.org/) to automatically provision
 HTTPS certificates.
 
 We recommend [using your own certificates](../tls.md#option-2-use-your-own-wildcard-certificate),
 and then mapping your desired DNS name to the created ELB using a CNAME record.
+
+You can fetch your ELB's hostname to place in the CNAME record with the following:
+
+```shell
+kubectl get ingress/RELEASE-unicorn -ojsonpath='{.status.loadBalancer.ingress[0].hostname}'
+```
 
 NOTE: **Note:**
 For environments where internal load balancers are required,

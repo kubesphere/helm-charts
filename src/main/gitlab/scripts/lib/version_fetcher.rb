@@ -3,11 +3,13 @@ require_relative 'version'
 require 'open-uri'
 require 'uri'
 require 'cgi'
+require 'bundler'
 
 class VersionFetcher
-  def initialize(version, repo)
-    @version = Version.new(version)
+  def initialize(version, repo, auto_deploy: false)
+    @version = Version.new(version) if version
     @repo = repo
+    @auto_deploy = auto_deploy
     @api_token = ENV['FETCH_DEV_ARTIFACTS_PAT']
     @api_url = if @repo.start_with?('gitlab/')
                  'https://dev.gitlab.org/api/v4'
@@ -20,6 +22,7 @@ class VersionFetcher
 
   # GitLab Shell Version
   def gitlab_shell
+    return version_from_env('GITLAB_SHELL_VERSION') if @auto_deploy
     return @version if @version.nil? || @version == 'master'
 
     url = "#{@api_url}/projects/#{CGI.escape(@repo)}/repository/files/GITLAB_SHELL_VERSION/raw?ref=#{ref(@version)}"
@@ -31,6 +34,7 @@ class VersionFetcher
 
   # Gitaly Version
   def gitaly
+    return version_from_env('GITALY_SERVER_VERSION') if @auto_deploy
     return @version if @version.nil? || @version == 'master'
 
     url = "#{@api_url}/projects/#{CGI.escape(@repo)}/repository/files/GITALY_SERVER_VERSION/raw?ref=#{ref(@version)}"
@@ -46,6 +50,22 @@ class VersionFetcher
     nil
   end
 
+  def mailroom
+    return version_from_env('MAILROOM_VERSION') if @auto_deploy
+    return @version if @version.nil?
+
+    url = "#{@api_url}/projects/#{CGI.escape(@repo)}/repository/files/Gemfile.lock/raw?ref=#{ref(@version)}"
+    $stdout.puts "Getting GitLab Gemfile.lock from #{url} to find the mailroom gem version"
+    gemfile_object = Bundler::LockfileParser.new(open(url, 'PRIVATE-TOKEN' => @api_token).read)
+    mailroom_spec = gemfile_object.specs.find { |x| x.name == 'gitlab-mail_room' }
+
+    return nil unless mailroom_spec
+
+    new_version = mailroom_spec.version.to_s
+    $stdout.puts "# Mailroom appVersion: #{new_version}"
+    Version.new(new_version)
+  end
+
   def fetch(chart_name)
     chart_name = chart_name.tr('-', '_').to_sym
 
@@ -59,6 +79,16 @@ class VersionFetcher
   end
 
   private
+
+  def version_from_env(key)
+    env_name = "AUTO_DEPLOY_COMPONENT_#{key}"
+    version = ENV[env_name]
+    $stdout.puts "# searching ENV #{env_name} => #{version.inspect}"
+    raise "Can't find #{env_name} environment variable" if version.nil?
+
+    normalized_version = version.start_with?('v') ? version[1..-1] : version
+    Version.new(normalized_version)
+  end
 
   def ref(version)
     if version.valid?

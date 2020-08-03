@@ -27,7 +27,8 @@
 image: registry.gitlab.com/gitlab-org/gitlab-build-images:gitlab-charts-build-base
 
 variables:
-  KUBECTL_VERSION: "v1.12.10"
+  AUTO_DEPLOY_TAG_REGEX: '^[0-9]+\.[0-9]+\.[0-9]+\+[a-z0-9]{7,}$'
+  KUBECTL_VERSION: "v1.13.12"
   GOOGLE_APPLICATION_CREDENTIALS: ${CI_PROJECT_DIR}/.google_keyfile.json
   # AUTO_DEVOPS_DOMAIN is the application deployment domain and should be set as a variable at the group or project level.
   # AUTO_DEVOPS_DOMAIN: domain.example.com
@@ -36,6 +37,7 @@ variables:
   POSTGRES_PASSWORD: testing-password
   POSTGRES_ENABLED: "false"
   POSTGRES_DB: $CI_ENVIRONMENT_SLUG
+  GIT_CLONE_PATH: $CI_BUILDS_DIR/gitlab
 
 stages:
   - prepare
@@ -48,12 +50,39 @@ stages:
   - package
   - cleanup
 
+tag_auto_deploy:
+  stage: package
+  rules:
+    - if: $CI_PIPELINE_TRIGGERED && $TRIGGER_JOB == "tag_auto_deploy" && $AUTO_DEPLOY_TAG && $REPOSITORY_PAT
+  script:
+    - ./scripts/tag_auto_deploy.rb
+
+.deps_pipeline: &deps_pipeline
+  variables:
+    - $DEPS_PIPELINE
+
+.except_deps_update: &except_deps_update
+  except:
+    variables:
+      - $DEPS_PIPELINE
+      - $TRIGGER_JOB
+
+dependency_update:
+  image: registry.gitlab.com/gitlab-org/gitlab-omnibus-builder/ruby_docker
+  stage: prepare
+  script:
+    - curl https://deps.app/install.sh | bash -s -- -b $HOME/bin
+    - $HOME/bin/deps ci
+  only:
+    <<: *deps_pipeline
+
 lint_package:
   stage: package
   when: always
   script:
     - helm init --client-only
     - helm repo add gitlab https://charts.gitlab.io
+    - helm repo add jetstack https://charts.jetstack.io
     - helm dependencies update
     - helm lint --set certmanager-issuer.email=support@gitlab.com
     - mkdir -p build
@@ -63,8 +92,37 @@ lint_package:
     paths:
     - build
   except:
-    - tags
-    - /(^docs[\/-].+|.+-docs$)/
+    <<: *deps_pipeline
+    refs:
+      - tags
+      - triggers
+      - /(^docs[\/-].+|.+-docs$)/
+
+.kubeval:
+  stage: package
+  when: always
+  script:
+    - helm init --client-only
+    - helm repo add gitlab https://charts.gitlab.io
+    - helm repo add jetstack https://charts.jetstack.io
+    - helm dependencies update
+    - helm kubeval . --force-color --strict --set certmanager-issuer.email=support@gitlab.com --skip-kinds "CustomResourceDefinition" -v $KUBE_VERSION
+  except:
+    <<: *deps_pipeline
+    refs:
+      - tags
+      - triggers
+      - /(^docs[\/-].+|.+-docs$)/
+
+"Validate 1.12.9":
+  extends: .kubeval
+  variables:
+    KUBE_VERSION: "1.12.9"
+
+"Validate 1.16.0":
+  extends: .kubeval
+  variables:
+    KUBE_VERSION: "1.16.0"
 
 .review_template:
   stage: review
@@ -79,10 +137,9 @@ lint_package:
     - install_tiller
     - create_secret
     - install_external_dns "${DNS_PROVIDER}" "${KUBE_INGRESS_BASE_DOMAIN}"
-    - if ! crdExists || previousDeployFailed ; then OPERATOR_BOOTSTRAP=true deploy ; fi
     - deploy
     - wait_for_deploy
-    - add_license
+    - restart_task_runner
     - echo "export QA_ENVIRONMENT_URL=gitlab-$CI_ENVIRONMENT_SLUG.$KUBE_INGRESS_BASE_DOMAIN" >> "${VARIABLES_FILE}"
     - echo "export GITLAB_ROOT_DOMAIN=$CI_ENVIRONMENT_SLUG.$KUBE_INGRESS_BASE_DOMAIN"        >> "${VARIABLES_FILE}"
     - echo "export GITLAB_URL=gitlab-$CI_ENVIRONMENT_SLUG.$KUBE_INGRESS_BASE_DOMAIN"         >> "${VARIABLES_FILE}"
@@ -97,8 +154,11 @@ lint_package:
     variables:
       - $KUBECONFIG
   except:
-    - master
-    - /(^docs[\/-].+|.+-docs$)/
+    <<: *deps_pipeline
+    refs:
+      - master
+      - triggers
+      - /(^docs[\/-].+|.+-docs$)/
 
 review_gke:
   variables:
@@ -108,6 +168,8 @@ review_gke:
     name: gke_review/$CI_COMMIT_REF_NAME
     url: https://gitlab-$CI_ENVIRONMENT_SLUG.$KUBE_INGRESS_BASE_DOMAIN
     on_stop: stop_review_gke
+    auto_stop_in: 4 days
+  resource_group: "gke-review-app-${CI_COMMIT_REF_NAME}"
 
 review_eks:
   variables:
@@ -117,6 +179,8 @@ review_eks:
     name: eks_review/$CI_COMMIT_REF_NAME
     url: https://gitlab-$CI_ENVIRONMENT_SLUG.$KUBE_INGRESS_BASE_DOMAIN
     on_stop: stop_review_eks
+    auto_stop_in: 4 days
+  resource_group: "eks-review-app-${CI_COMMIT_REF_NAME}"
 
 .stop_review_template:
   stage: review
@@ -134,8 +198,11 @@ review_eks:
     variables:
       - $KUBECONFIG
   except:
-    - master
-    - /(^docs[\/-].+|.+-docs$)/
+    <<: *deps_pipeline
+    refs:
+      - master
+      - triggers
+      - /(^docs[\/-].+|.+-docs$)/
 
 stop_review_gke:
   extends: .stop_review_template
@@ -176,6 +243,7 @@ stop_review_eks:
     url: https://gitlab-staging.$KUBE_INGRESS_BASE_DOMAIN
   variables:
     DOMAIN: -staging.$KUBE_INGRESS_BASE_DOMAIN
+  <<: *except_deps_update
   only:
     refs:
       - master
@@ -202,6 +270,7 @@ stop_review_eks:
   variables:
     DOMAIN: ".$KUBE_INGRESS_BASE_DOMAIN"
   when: manual
+  <<: *except_deps_update
   only:
     refs:
       - master
@@ -223,9 +292,9 @@ stop_review_eks:
     - ensure_namespace
     - install_tiller
     - create_secret
-    - if ! crdExists || previousDeployFailed ; then OPERATOR_BOOTSTRAP=true deploy ; fi
     - deploy
     - wait_for_deploy
+    - restart_task_runner
     - echo "export QA_ENVIRONMENT_URL=gitlab.$KUBE_INGRESS_BASE_DOMAIN" >> "${VARIABLES_FILE}"
     - echo "export GITLAB_ROOT_DOMAIN=$KUBE_INGRESS_BASE_DOMAIN"        >> "${VARIABLES_FILE}"
     - echo "export S3_ENDPOINT=https://minio.$KUBE_INGRESS_BASE_DOMAIN" >> "${VARIABLES_FILE}"
@@ -235,6 +304,7 @@ stop_review_eks:
   variables:
     DOMAIN: ".$KUBE_INGRESS_BASE_DOMAIN"
 #  when: manual
+  <<: *except_deps_update
   only:
     refs:
       - master
@@ -248,6 +318,7 @@ stable_gke:
     url: https://gitlab.$KUBE_INGRESS_BASE_DOMAIN
   variables:
     VARIABLES_FILE: "variables/stable_gke"
+  resource_group: "gke-production"
 
 stable_eks:
   extends: .stable
@@ -256,6 +327,7 @@ stable_eks:
     url: https://gitlab.$KUBE_INGRESS_BASE_DOMAIN
   variables:
     VARIABLES_FILE: "variables/stable_eks"
+  resource_group: "eks-production"
 
 review_helm_test:
   stage: qa
@@ -272,6 +344,7 @@ review_helm_test:
     variables:
       - $KUBECONFIG
   except:
+    <<: *deps_pipeline
     refs:
       - master
       - /(^docs[\/-].+|.+-docs$)/
@@ -284,6 +357,7 @@ production_helm_test:
   script:
     - export TILLER_NAMESPACE=$KUBE_NAMESPACE
     - helm test --cleanup "$CI_ENVIRONMENT_SLUG"
+  <<: *except_deps_update
   only:
     refs:
       - master@charts/gitlab
@@ -313,8 +387,10 @@ debug_review:
     variables:
       - $KUBECONFIG
   except:
-    - master
-    - /(^docs[\/-].+|.+-docs$)/
+    <<: *deps_pipeline
+    refs:
+      - master
+      - /(^docs[\/-].+|.+-docs$)/
 
 danger-review:
   image: registry.gitlab.com/gitlab-org/gitlab-build-images:danger
@@ -324,6 +400,7 @@ danger-review:
     variables:
       - $DANGER_GITLAB_API_TOKEN
   except:
+    <<: *deps_pipeline
     refs:
       - master
       - tags
@@ -332,12 +409,14 @@ danger-review:
     - danger --fail-on-errors=true
 
 check_docs_lint:
-  image: "registry.gitlab.com/gitlab-org/gitlab-build-images:gitlab-docs-lint"
+  image: "registry.gitlab.com/gitlab-org/gitlab-docs:lint"
   stage: prepare
   cache: {}
   dependencies: []
   before_script: []
   script:
+    # Lint prose
+    - vale --minAlertLevel error doc
     # Lint Markdown
     - markdownlint --config .markdownlint.json 'doc/**/*.md'
     - mv doc/ /tmp/gitlab-docs/content/charts
@@ -348,6 +427,50 @@ check_docs_lint:
     - bundle exec nanoc check internal_links
     # Check the internal anchor links
     - bundle exec nanoc check internal_anchors
+  <<: *except_deps_update
+
+.review-docs:
+  image: ruby:2.6-alpine
+  stage: review
+  cache: {}
+  dependencies: []
+  before_script:
+  - gem install gitlab --no-doc
+  # We need to download the script rather than clone the repo since the
+  # review-docs-cleanup job will not be able to run when the branch gets
+  # deleted (when merging the MR).
+  - apk add --update openssl
+  - wget https://gitlab.com/gitlab-org/gitlab/-/raw/master/scripts/trigger-build-docs
+  - chmod 755 trigger-build-docs
+  variables:
+    GIT_STRATEGY: none
+    DOCS_REVIEW_APPS_DOMAIN: 178.62.207.141.nip.io
+  when: manual
+  except:
+    - triggers
+
+# Trigger a docs build in gitlab-docs
+# Useful to preview the docs changes live
+# https://docs.gitlab.com/ee/development/documentation/index.html#previewing-the-changes-live
+review-docs-deploy:
+  extends:
+  - .review-docs
+  environment:
+    name: docs_review/$CI_COMMIT_REF_SLUG
+    url: http://docs-preview-charts-$CI_COMMIT_REF_SLUG.$DOCS_REVIEW_APPS_DOMAIN/charts
+    on_stop: review-docs-cleanup
+  script:
+  - ./trigger-build-docs deploy
+
+# Cleanup remote environment of gitlab-docs
+review-docs-cleanup:
+  extends:
+  - .review-docs
+  environment:
+    name: docs_review/$CI_COMMIT_REF_SLUG
+    action: stop
+  script:
+  - ./trigger-build-docs cleanup
 
 # ---------------------------------------------------------------------------
 
@@ -424,24 +547,34 @@ check_docs_lint:
       replicas="$new_replicas"
     fi
 
-    #ROOT_PASSWORD=$(cat /dev/urandom | LC_TYPE=C tr -dc "[:alpha:]" | head -c 16)
-    #echo "Generated root login: $ROOT_PASSWORD"
-    kubectl create secret generic "${CI_ENVIRONMENT_SLUG}-gitlab-initial-root-password" --from-literal=password=$ROOT_PASSWORD -o yaml --dry-run | kubectl replace --force -f -
-
-    # YAML_FILE=""${KUBE_INGRESS_BASE_DOMAIN//\./-}.yaml"
     # Cleanup and previous installs, as FAILED and PENDING_UPGRADE will cause errors with `upgrade`
     if [ "$CI_ENVIRONMENT_SLUG" != "production" ] && previousDeployFailed ; then
       echo "Deployment in bad state, cleaning up $CI_ENVIRONMENT_SLUG"
       delete
       cleanup
     fi
+
+    #ROOT_PASSWORD=$(cat /dev/urandom | LC_TYPE=C tr -dc "[:alpha:]" | head -c 16)
+    #echo "Generated root login: $ROOT_PASSWORD"
+    kubectl create secret generic "${CI_ENVIRONMENT_SLUG}-gitlab-initial-root-password" --from-literal=password=$ROOT_PASSWORD -o yaml --dry-run | kubectl replace --force -f -
+
+    echo "${REVIEW_APPS_EE_LICENSE}" > /tmp/license.gitlab
+    kubectl create secret generic "${CI_ENVIRONMENT_SLUG}-gitlab-license" --from-file=license=/tmp/license.gitlab -o yaml --dry-run | kubectl replace --force -f -
+
+    # YAML_FILE=""${KUBE_INGRESS_BASE_DOMAIN//\./-}.yaml"
+
+    if ! crdExists ; then scripts/crdctl create "${CI_ENVIRONMENT_SLUG}" ; fi
+
     helm repo add gitlab https://charts.gitlab.io/
+    helm repo add jetstack https://charts.jetstack.io
     helm dep update .
 
-    # If OPERATOR_BOOTSTRAP is set, we _do not_ want to use --wait / --timeout
     WAIT="--wait --timeout 900"
-    if [ -n "${OPERATOR_BOOTSTRAP}" ]; then
-      WAIT=""
+
+    # Only enable Prometheus on `master`
+    PROMETHEUS_INSTALL="false"
+    if [ "$CI_COMMIT_REF_NAME" == "master" ]; then
+      PROMETHEUS_INSTALL="true"
     fi
 
     # helm's --set argument dislikes special characters, pass them as YAML
@@ -468,6 +601,7 @@ check_docs_lint:
       --set global.ingress.tls.secretName=helm-charts-win-tls \
       --set global.ingress.configureCertmanager=false \
       --set certmanager.install=false \
+      --set prometheus.install=$PROMETHEUS_INSTALL \
       --set gitlab.unicorn.maxReplicas=3 \
       --set gitlab.sidekiq.maxReplicas=2 \
       --set gitlab.task-runner.enabled=true \
@@ -475,48 +609,12 @@ check_docs_lint:
       --set redis.resources.requests.cpu=100m \
       --set minio.resources.requests.cpu=100m \
       --set global.operator.enabled=true \
-      --set global.operator.bootstrap=${OPERATOR_BOOTSTRAP-false} \
       --set gitlab.operator.crdPrefix="$CI_ENVIRONMENT_SLUG" \
+      --set global.gitlab.license.secret="$CI_ENVIRONMENT_SLUG-gitlab-license" \
       --namespace="$KUBE_NAMESPACE" \
       --version="$CI_PIPELINE_ID-$CI_JOB_ID" \
       "$name" \
       .
-  }
-
-  function add_license() {
-    if [ -z "${REVIEW_APPS_EE_LICENSE}" ]; then echo "License not found" && return; fi
-
-    while [ -z "$(kubectl get pods -n ${KUBE_NAMESPACE} --field-selector=status.phase=Running -lapp=task-runner,release=${CI_ENVIRONMENT_SLUG} --no-headers -o=custom-columns=NAME:.metadata.name)" ]; do
-      echo "Waiting till task-runner pod is ready";
-      sleep 5;
-    done
-
-    task_runner_pod=$(kubectl get pods -n ${KUBE_NAMESPACE} --field-selector=status.phase=Running -lapp=task-runner,release=${CI_ENVIRONMENT_SLUG} --no-headers -o=custom-columns=NAME:.metadata.name)
-
-    if [ -z "${task_runner_pod}" ]; then echo "Task runner pod not found" && return; fi
-    echo "Task runner pod is ${task_runner_pod}"
-
-    echo "${REVIEW_APPS_EE_LICENSE}" > /tmp/license.gitlab
-    kubectl -n "$KUBE_NAMESPACE" cp /tmp/license.gitlab ${task_runner_pod}:/tmp/license.gitlab
-    rm /tmp/license.gitlab
-
-    kubectl -n "$KUBE_NAMESPACE" exec -it ${task_runner_pod} -- /srv/gitlab/bin/rails runner -e production \
-     '
-     content = File.read("/tmp/license.gitlab").strip;
-     FileUtils.rm_f("/tmp/license.gitlab");
-
-     unless License.where(data:content).empty?
-       puts "License already exists";
-       Kernel.exit 0;
-     end
-
-     unless License.new(data: content).save
-       puts "Could not add license";
-       Kernel.exit 0;
-     end
-
-     puts "License added";
-     '
   }
 
   function wait_for_deploy {
@@ -540,6 +638,17 @@ check_docs_lint:
     echo ""
   }
 
+  function restart_task_runner() {
+    # restart the task-runner pods, by deleting them
+    # the ReplicaSet of the Deployment will re-create them
+    # this ensure we run up-to-date on tags like `master` when there
+    # have been no changes to the configuration to warrant a restart
+    # via metadata checksum annotations
+    kubectl -n ${KUBE_NAMESPACE} delete pods -lapp=task-runner,release=${CI_ENVIRONMENT_SLUG}
+    # always "succeed" so not to block.
+    return 0
+  }
+
   function setup_test_db() {
     if [ -z ${KUBERNETES_PORT+x} ]; then
       DB_HOST=postgres
@@ -561,6 +670,7 @@ check_docs_lint:
 
     helm init --client-only
     helm repo add gitlab https://charts.gitlab.io
+    helm repo add jetstack https://charts.jetstack.io
     if [[ ! -d "$auto_chart" ]]; then
       helm fetch ${auto_chart} --untar
     fi
@@ -593,7 +703,7 @@ check_docs_lint:
     fi
 
     # Expect the `DOMAIN` is a wildcard.
-    domain_ip=$(nslookup gitlab$DOMAIN 2>/dev/null | grep "Address 1:" | cut -d' ' -f3)
+    domain_ip=$(nslookup gitlab$DOMAIN 2>/dev/null | grep "Address: \d" | awk '{print $2}')
     if [ -z $domain_ip ]; then
       echo "There was a problem resolving the IP of 'gitlab$DOMAIN'. Be sure you have configured a DNS entry."
       false
@@ -681,7 +791,8 @@ check_docs_lint:
   }
 
 .specs: &specs
-  image: registry.gitlab.com/gitlab-org/gitlab-build-images:ruby-2.6.3-git-2.22-chrome-73.0-node-12.x-yarn-1.16-graphicsmagick-1.3.33-docker-18.06.1
+  image: registry.gitlab.com/gitlab-org/gitlab-build-images:ruby-2.6.3-git-2.22-chrome-73.0-node-12.x-yarn-1.16-graphicsmagick-1.3.34-docker-19.03.1
+
   stage: specs
   services:
   - docker:dind
@@ -692,19 +803,11 @@ check_docs_lint:
     RELEASE_NAME: $CI_ENVIRONMENT_SLUG
     S3_CONFIG_PATH: /etc/gitlab/minio
   script:
-    - source "${VARIABLES_FILE}"
-    - apt-get update && apt-get install -y --no-install-recommends curl ca-certificates
-    - curl -LsO https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl
-    - chmod +x kubectl
-    - mv kubectl /usr/local/bin/kubectl
-    - mkdir -p /etc/gitlab/minio
-    - kubectl get secret ${CI_ENVIRONMENT_SLUG}-minio-secret -o jsonpath='{.data.accesskey}' | base64 --decode > /etc/gitlab/minio/accesskey
-    - kubectl get secret ${CI_ENVIRONMENT_SLUG}-minio-secret -o jsonpath='{.data.secretkey}' | base64 --decode > /etc/gitlab/minio/secretkey
+    - if [[ -n "${VARIABLES_FILE}" ]]; then source "${VARIABLES_FILE}"; ./scripts/ci_feature_spec_setup; fi
     - bundle install -j $(nproc) --without non_test --path gems
-    - bundle exec rspec -c -f d spec
+    - bundle exec rspec -c -f d spec -t "${RSPEC_TAGS}"
   after_script:
     - *auto_devops
-    - add_license
   artifacts:
     when: on_failure
     expire_in: 7d
@@ -714,15 +817,18 @@ check_docs_lint:
     key: "${CI_JOB_NAME}"
     paths:
     - gems
+  <<: *except_deps_update
 
 review_specs_gke:
   extends: .specs
   variables:
     VARIABLES_FILE: "variables/review_gke"
+    RSPEC_TAGS: type:feature
   environment:
     name: gke_review/$CI_COMMIT_REF_NAME
     url: https://gitlab-$CI_ENVIRONMENT_SLUG.$KUBE_INGRESS_BASE_DOMAIN
     on_stop: stop_review_gke
+  resource_group: "gke-review-app-${CI_COMMIT_REF_NAME}"
   only:
     refs:
       - branches
@@ -737,10 +843,12 @@ review_specs_eks:
   extends: .specs
   variables:
     VARIABLES_FILE: "variables/review_eks"
+    RSPEC_TAGS: type:feature
   environment:
     name: eks_review/$CI_COMMIT_REF_NAME
     url: https://gitlab-$CI_ENVIRONMENT_SLUG.$KUBE_INGRESS_BASE_DOMAIN
     on_stop: stop_review_eks
+  resource_group: "eks-review-app-${CI_COMMIT_REF_NAME}"
   only:
     refs:
       - branches
@@ -751,33 +859,49 @@ review_specs_eks:
       - master
       - /(^docs[\/-].+|.+-docs$)/
 
+specs_without_cluster:
+  extends: .specs
+  variables:
+    RSPEC_TAGS: ~type:feature
+  needs: []
+
 .production_specs:
   extends: .specs
+  <<: *except_deps_update
   only:
     refs:
       - master
     variables:
       - $KUBECONFIG
 
+production_specs_without_cluster:
+  extends: .production_specs
+  variables:
+    RSPEC_TAGS: ~type:feature
+
 production_specs_gke:
   extends: .production_specs
   variables:
     VARIABLES_FILE: "variables/stable_gke"
+    RSPEC_TAGS: type:feature
   environment:
     name: gke_production
     url: https://gitlab.$KUBE_INGRESS_BASE_DOMAIN
+  resource_group: "gke-production"
 
 production_specs_eks:
   extends: .production_specs
   allow_failure: true
   variables:
     VARIABLES_FILE: "variables/stable_eks"
+    RSPEC_TAGS: type:feature
   environment:
     name: eks_production
     url: https://gitlab.$KUBE_INGRESS_BASE_DOMAIN
+  resource_group: "eks-production"
 
 .qa:
-  image: registry.gitlab.com/gitlab-org/gitlab-omnibus-builder:ruby_docker-0.0.7
+  image: registry.gitlab.com/gitlab-org/gitlab-omnibus-builder/ruby_docker
   stage: qa
   services:
   - docker:dind
@@ -800,6 +924,7 @@ production_specs_eks:
     expire_in: 7d
     paths:
     - ./gitlab-qa-run-*
+  <<: *except_deps_update
   only:
     refs:
       - branches
@@ -809,7 +934,7 @@ production_specs_eks:
   allow_failure: true
 
 wait_for_images:
-  image: registry.gitlab.com/gitlab-org/gitlab-omnibus-builder/ruby_docker:0.0.41
+  image: registry.gitlab.com/gitlab-org/gitlab-omnibus-builder/ruby_docker
   stage: prepare
   services:
   - docker:dind
@@ -827,9 +952,16 @@ wait_for_images:
 release_package:
   stage: package
   script:
-    - curl --request POST --form "token=${COM_CHARTS_TRIGGER_TOKEN}" --form ref=master
+    - |
+      if [[ $CI_COMMIT_REF_NAME =~ $AUTO_DEPLOY_TAG_REGEX ]]; then
+        UNSTABLE="true"
+      else
+        UNSTABLE="false"
+      fi
+    - curl -fS --request POST --form "token=${COM_CHARTS_TRIGGER_TOKEN}" --form ref=master
         --form "variables[CHART_NAME]=$CI_PROJECT_NAME"
         --form "variables[RELEASE_REF]=$CI_COMMIT_REF_NAME"
+        --form "variables[UNSTABLE]=$UNSTABLE"
         https://gitlab.com/api/v4/projects/2860651/trigger/pipeline
   only:
     - tags@gitlab/charts/gitlab

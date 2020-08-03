@@ -2,17 +2,17 @@
 
 GitLab requires a variety of secrets to operate:
 
-Gitlab Components:
+GitLab Components:
 
 - Registry authentication certificates
 - SSH Host Keys and Certificates for GitLab Shell
-- Passwords for individual Gitlab services
+- Passwords for individual GitLab services
 
 Optional External Services:
 
 - SMTP server
 - LDAP
-- Omniauth
+- OmniAuth
 - IMAP for incoming emails (via mail_room service)
 - S/MIME certificate
 
@@ -36,14 +36,14 @@ documentation.
   - [GitLab Shell secret](#gitlab-shell-secret)
   - [Gitaly secret](#gitaly-secret)
   - [GitLab Rails secret](#gitlab-rails-secret)
-  - [GitLab workhorse secret](#gitlab-workhorse-secret)
-  - [GitLab runner secret](#gitlab-runner-secret)
-  - [Postgres password](#postgresql-password)
-  - [Minio secret](#minio-secret)
+  - [GitLab Workhorse secret](#gitlab-workhorse-secret)
+  - [GitLab Runner secret](#gitlab-runner-secret)
+  - [PostgreSQL password](#postgresql-password)
+  - [MinIO secret](#minio-secret)
   - [Registry HTTP secret](#registry-http-secret)
   - [Grafana password](#grafana-password)
 - [External Services](#external-services)
-  - [Unicorn Omniauth](#unicorn-omniauth)
+  - [Unicorn OmniAuth](#unicorn-omniauth)
   - [LDAP Password](#ldap-password)
   - [SMTP Password](#smtp-password)
   - [IMAP Password](#imap-password-for-incoming-emails)
@@ -59,7 +59,7 @@ In the example below, we assume that we require self-signed certificates.
 
 Generate a certificate-key pair:
 
-```
+```shell
 mkdir -p certs
 openssl req -new -newkey rsa:4096 -subj "/CN=gitlab-issuer" -nodes -x509 -keyout certs/registry-example-com.key -out certs/registry-example-com.crt
 ```
@@ -68,7 +68,7 @@ Create a secret containing these certificates.
 We will create `registry-auth.key` and `registry-auth.crt` keys inside the
 `<name>-registry-secret` secret. Replace `<name>` with the name of the release.
 
-```
+```shell
 kubectl create secret generic <name>-registry-secret --from-file=registry-auth.key=certs/registry-example-com.key --from-file=registry-auth.crt=certs/registry-example-com.crt
 ```
 
@@ -78,7 +78,7 @@ This secret is referenced by the `global.registry.certificate.secret` setting.
 
 Generate the OpenSSH certificate-key pairs:
 
-```
+```shell
 mkdir -p hostKeys
 ssh-keygen -t rsa  -f hostKeys/ssh_host_rsa_key -N ""
 ssh-keygen -t dsa  -f hostKeys/ssh_host_dsa_key -N ""
@@ -89,19 +89,34 @@ ssh-keygen -t ed25519  -f hostKeys/ssh_host_ed25519_key -N ""
 Create the secret containing these certificates. Replace `<name>` with the name
 of the release.
 
-```
+```shell
 kubectl create secret generic <name>-gitlab-shell-host-keys --from-file hostKeys
 ```
 
 This secret is referenced by the `global.shell.hostKeys.secret` setting.
 
+## Initial Enterprise license
+
+Create a Kubernetes secret for storing the Enterprise license for the GitLab instance.
+Replace `<name>` with the name of the release.
+
+```shell
+kubectl create secret generic <name>-gitlab-license --from-file=license=/tmp/license.gitlab
+```
+
+Then use `--set global.gitlab.license.secret=<name>-gitlab-license` to
+inject the license into your configuration.
+
+You can also use the `global.gitlab.license.key` option to change the default
+`license` key pointing to the license in the license secret.
+
 ### Initial root password
 
-Create a kubernetes secret for storing the initial root password. The password
+Create a Kubernetes secret for storing the initial root password. The password
 should be at least 6 characters long. Replace `<name>` with the name of the
 release.
 
-```
+```shell
 kubectl create secret generic <name>-gitlab-initial-root-password --from-literal=password=$(head -c 512 /dev/urandom | LC_CTYPE=C tr -cd 'a-zA-Z0-9' | head -c 32)
 ```
 
@@ -110,7 +125,7 @@ kubectl create secret generic <name>-gitlab-initial-root-password --from-literal
 Generate a random 64 character alpha-numeric password for Redis. Replace
 `<name>` with the name of the release.
 
-```
+```shell
 kubectl create secret generic <name>-redis-secret --from-literal=secret=$(head -c 512 /dev/urandom | LC_CTYPE=C tr -cd 'a-zA-Z0-9' | head -c 64)
 ```
 
@@ -123,7 +138,7 @@ randomly generated one.
 Generate a random 64 character alpha-numeric secret for GitLab Shell. Replace
 `<name>` with the name of the release.
 
-```
+```shell
 kubectl create secret generic <name>-gitlab-shell-secret --from-literal=secret=$(head -c 512 /dev/urandom | LC_CTYPE=C tr -cd 'a-zA-Z0-9' | head -c 64)
 ```
 
@@ -134,7 +149,7 @@ This secret is referenced by the `global.shell.authToken.secret` setting.
 Generate a random 64 character alpha-numeric token for Gitaly. Replace `<name>`
 with the name of the release.
 
-```
+```shell
 kubectl create secret generic <name>-gitaly-secret --from-literal=token=$(head -c 512 /dev/urandom | LC_CTYPE=C tr -cd 'a-zA-Z0-9' | head -c 64)
 ```
 
@@ -144,7 +159,7 @@ This secret is referenced by the `global.gitaly.authToken.secret` setting.
 
 Replace `<name>` with the name of the release.
 
-```
+```shell
 cat << EOF > secrets.yml
 production:
   secret_key_base: $(head -c 512 /dev/urandom | LC_CTYPE=C tr -cd 'a-zA-Z0-9' | head -c 128)
@@ -159,50 +174,52 @@ kubectl create secret generic <name>-rails-secret --from-file=secrets.yml
 
 This secret is referenced by the `global.railsSecrets.secret` setting.
 
-### GitLab workhorse secret
+### GitLab Workhorse secret
 
 Generate the workhorse secret. This must have a length of 32 characters and
 base64-encoded. Replace `<name>` with the name of the release.
 
-```
+```shell
 kubectl create secret generic <name>-gitlab-workhorse-secret --from-literal=shared_secret=$(head -c 512 /dev/urandom | LC_CTYPE=C tr -cd 'a-zA-Z0-9' | head -c 32 | base64)
 ```
 
 This secret is referenced by the `global.workhorse.key` setting.
 
-### GitLab runner secret
+### GitLab Runner secret
 
 Replace `<name>` with the name of the release.
 
-```
+```shell
 kubectl create secret generic <name>-gitlab-runner-secret --from-literal=runner-registration-token=$(head -c 512 /dev/urandom | LC_CTYPE=C tr -cd 'a-zA-Z0-9' | head -c 64)
 ```
 
-### Minio secret
+### MinIO secret
 
-Generate a set of random 20 & 64 character alpha-numeric keys for Minio.
+Generate a set of random 20 & 64 character alpha-numeric keys for MinIO.
 Replace `<name>` with the name of the release.
 
-```
+```shell
 kubectl create secret generic <name>-minio-secret --from-literal=accesskey=$(head -c 512 /dev/urandom | LC_CTYPE=C tr -cd 'a-zA-Z0-9' | head -c 20) --from-literal=secretkey=$(head -c 512 /dev/urandom | LC_CTYPE=C tr -cd 'a-zA-Z0-9' | head -c 64)
 ```
 
 This secret is referenced by the `global.minio.credentials.secret` setting.
 
-### Postgresql password
+### PostgreSQL password
 
 Generate a random 64 character alpha-numeric password. Replace `<name>` with
 the name of the release.
 
-```
-kubectl create secret generic <name>-postgresql-password --from-literal=postgres-password=$(head -c 512 /dev/urandom | LC_CTYPE=C tr -cd 'a-zA-Z0-9' | head -c 64)
+```shell
+kubectl create secret generic <name>-postgresql-password \
+    --from-literal=postgresql-password=$(head -c 512 /dev/urandom | LC_CTYPE=C tr -cd 'a-zA-Z0-9' | head -c 64) \
+    --from-literal=postgresql-postgres-password=$(head -c 512 /dev/urandom | LC_CTYPE=C tr -cd 'a-zA-Z0-9' | head -c 64)
 ```
 
 ### Grafana password
 
 If configuring [Grafana integration](../charts/globals.md#configure-grafana-integration), generate a random 64 character alpha-numeric password.
 
-```
+```shell
 generate_secret_if_needed "gitlab-grafana-initial-password" --from-literal=password=$(gen_random 'a-zA-Z0-9' 64)
 ```
 
@@ -211,7 +228,7 @@ generate_secret_if_needed "gitlab-grafana-initial-password" --from-literal=passw
 Generate a random 64 character alpha-numeric key shared by all registry pods.
 Replace `<name>` with the name of the release.
 
-```
+```shell
 kubectl create secret generic <name>-registry-httpsecret --from-literal=secret=$(head -c 512 /dev/urandom | LC_CTYPE=C tr -cd 'a-zA-Z0-9' | head -c 64 | base64)
 ```
 
@@ -219,43 +236,49 @@ kubectl create secret generic <name>-registry-httpsecret --from-literal=secret=$
 
 Some charts have further secrets to enable functionality that can not be automatically generated.
 
-### Unicorn Omniauth
+### Unicorn OmniAuth
 
-In order to enable the use of [Omniauth Providers](https://docs.gitlab.com/ee/integration/omniauth.html) with the deployed GitLab, please follow the [instructions in the Globals chart](../charts/globals.md#omniauth)
+In order to enable the use of [OmniAuth Providers](https://docs.gitlab.com/ee/integration/omniauth.html) with the deployed GitLab, please follow the [instructions in the Globals chart](../charts/globals.md#omniauth)
 
 ### LDAP Password
 
 If you need password authentication to connect with your LDAP server, you must store the password in a Kubernetes secret.
 
-```
+```shell
 kubectl create secret generic ldap-main-password --from-literal=password=yourpasswordhere
 ```
 
 Then use `--set global.appConfig.ldap.servers.main.password.secret=ldap-main-password` to
 inject the password into your configuration.
 
+NOTE: **Note** Use the `Secret` name, not the _actual password_ when configuring the Helm property.
+
 ### SMTP password
 
 If you are using an SMTP server that requires authentication, store the password
 in a Kubernetes secret.
 
-```
+```shell
 kubectl create secret generic smtp-password --from-literal=password=yourpasswordhere
 ```
 
-Then use `--set global.smtp.password.secret=smtp-password` in your helm command.
+Then use `--set global.smtp.password.secret=smtp-password` in your Helm command.
+
+NOTE: **Note** Use the `Secret` name, not the _actual password_ when configuring the Helm property.
 
 ### IMAP password for incoming emails
 
 To let GitLab have access to [incoming emails](https://docs.gitlab.com/ee/administration/incoming_email.html)
 store the password of the IMAP account in a Kubernetes secret.
 
-```
+```shell
 kubectl create secret generic incoming-email-password --from-literal=password=yourpasswordhere
 ```
 
 Then use `--set global.appConfig.incomingEmail.password.secret=incoming-email-password`
-in your helm command along with other required settings as specified [in the docs](command-line-options.md#incoming-email-configuration).
+in your Helm command along with other required settings as specified [in the docs](command-line-options.md#incoming-email-configuration).
+
+NOTE: **Note** Use the `Secret` name, not the _actual password_ when configuring the Helm property.
 
 ### S/MIME Certificate
 
@@ -263,7 +286,7 @@ Outgoing email messages can be digitally signed using the [S/MIME](https://en.wi
 The S/MIME certificate needs to be stored in a Kubernetes secret as a
 TLS type secret.
 
-```
+```shell
 kubectl create secret tls smime-certificate --key=file.key --cert file.crt
 ```
 

@@ -1,22 +1,26 @@
 dependencies:
 - name: cert-manager
-  version: 0.4.0
-  repository: https://kubernetes-charts.storage.googleapis.com/
+  version: 0.10.1
+  repository: https://charts.jetstack.io/
   condition: certmanager.install
   alias: certmanager
 - name: prometheus
-  version: 5.5.3
+  version: 10.0.0
   repository: https://kubernetes-charts.storage.googleapis.com/
   condition: prometheus.install
 - name: postgresql
-  version: 0.12.0
-  repository: https://kubernetes-charts.storage.googleapis.com/
+  version: 7.7.3
+  repository: https://charts.bitnami.com/bitnami
   condition: postgresql.install
 - name: gitlab-runner
-  version: 0.10.1
+  version: 0.16.1
   repository: https://charts.gitlab.io/
   condition: gitlab-runner.install
 - name: grafana
-  version: 3.8.15
+  version: 4.0.1
   repository: https://kubernetes-charts.storage.googleapis.com/
   condition: global.grafana.enabled
+- name: redis
+  version: 10.3.4
+  repository: https://charts.bitnami.com/bitnami
+  condition: redis.install

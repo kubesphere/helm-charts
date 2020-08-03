@@ -1,11 +1,11 @@
-{{- if and .Values.enabled .Values.global.operator.rollout.autoPause .Values.global.operator.enabled (not .Values.global.operator.bootstrap) }}
+{{- if and .Values.enabled .Values.global.operator.rollout.autoPause .Values.global.operator.enabled }}
 apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: {{ template "fullname" . }}-pause
   namespace: {{ .Release.Namespace }}
   labels:
-{{ include "gitlab.standardLabels" . | indent 4 }}
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
   annotations:
     "helm.sh/hook": pre-upgrade
     "helm.sh/hook-weight": "-5"
@@ -17,7 +17,7 @@ metadata:
   name: {{ template "fullname" . }}-pause
   namespace: {{ .Release.Namespace }}
   labels:
-{{ include "gitlab.standardLabels" . | indent 4 }}
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
   annotations:
     "helm.sh/hook": pre-upgrade
     "helm.sh/hook-weight": "-5"
@@ -33,7 +33,7 @@ metadata:
   name: {{ template "fullname" . }}-pause
   namespace: {{ .Release.Namespace }}
   labels:
-{{ include "gitlab.standardLabels" . | indent 4 }}
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
   annotations:
     "helm.sh/hook": pre-upgrade
     "helm.sh/hook-weight": "-5"
@@ -53,7 +53,7 @@ metadata:
   name: {{ template "fullname" . }}-pause
   namespace: {{ $.Release.Namespace }}
   labels:
-{{ include "gitlab.standardLabels" . | indent 4 }}
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
   annotations:
     "helm.sh/hook": pre-upgrade
     "helm.sh/hook-weight": "-4"
@@ -66,6 +66,9 @@ spec:
         release: {{ .Release.Name }}
     spec:
       restartPolicy: Never
+      securityContext:
+        runAsUser: {{ .Values.global.kubectl.securityContext.runAsUser }}
+        fsGroup: {{ .Values.global.kubectl.securityContext.fsGroup }}
       serviceAccountName: {{ template "fullname" . }}-pause
       {{- include "pullsecrets" .Values.global.kubectl.image | indent 6 }}
       containers:

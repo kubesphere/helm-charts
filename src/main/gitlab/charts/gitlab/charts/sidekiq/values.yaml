@@ -8,8 +8,9 @@ image:
   # tag: latest
 
 init:
-  image: busybox
-  tag: latest
+  image: {}
+    # repository:
+    # tag:
   resources:
     requests:
       cpu: 50m
@@ -18,8 +19,25 @@ init:
 tolerations: []
 
 enabled: true
+cluster: false
+experimentalQueueSelector: false
 
 annotations: {}
+
+logging:
+  # set to "json" for json
+  # structured logs
+  format: "default"
+
+networkpolicy:
+  enabled: false
+  egress:
+    enabled: false
+    rules: []
+  ingress:
+    enabled: false
+    rules: []
+  annotations: {}
 
 metrics:
   enabled: true
@@ -31,11 +49,30 @@ metrics:
 redis:
   password: {}
 
+psql: {}
+  # port: 5432
+
 # https://docs.gitlab.com/ee/administration/operations/sidekiq_memory_killer.html#sidekiq-memorykiller
 memoryKiller:
+  daemonMode: false
   maxRss: 2000000
   graceTime: 900
   shutdownWait: 30
+  checkInterval: 3
+  #hardLimitRss: 3000000
+
+livenessProbe:
+  initialDelaySeconds: 20
+  periodSeconds: 60
+  timeoutSeconds: 30
+  successThreshold: 1
+  failureThreshold: 3
+readinessProbe:
+  initialDelaySeconds: 0
+  periodSeconds: 10
+  timeoutSeconds: 2
+  successThreshold: 1
+  failureThreshold: 3
 
 global:
   # imagePullPolicy: IfNotPresent
@@ -57,6 +94,7 @@ global:
     # port: '5432'
     # database: 'gitlabhq_production'
     # username: 'gitlab'
+    # pool: 10
     # preparedStatements: false
     # password:
     #   secret: gitlab-postgres
@@ -73,6 +111,7 @@ global:
       names: ["default"]
     external: []
     authToken: {}
+  unicorn: {}
   minio:
     enabled:
     credentials: {}
@@ -103,6 +142,10 @@ global:
     externalDiffs:
       when:
       proxy_download: true
+      bucket:
+      connection: {}
+    terraformState:
+      enabled: false
       bucket:
       connection: {}
     ldap:
@@ -169,7 +212,7 @@ trusted_proxies: []
 # Global defaults
 minReplicas: 1
 maxReplicas: 10
-concurrency: 10
+concurrency: 25
 hpa:
   targetAverageValue: 350m
 timeout: 5
@@ -185,7 +228,7 @@ maxUnavailable: 1
 # Define queue groups into Pods
 pods:
   - name: all-in-1
-    concurrency: 25
+    # concurrency: 25
     # minReplicas: 1
     # maxReplicas: 10
     queues:

@@ -5,9 +5,9 @@ metadata:
   name: {{ template "fullname" . }}
   namespace: {{ $.Release.Namespace }}
   labels:
-{{ include "gitlab.standardLabels" . | indent 4 }}
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
   annotations:
-{{ include "gitlab.serviceAnnotations" . | indent 4 }}
+    {{- include "gitlab.serviceAnnotations" . | nindent 4 }}
 spec:
   type: {{ .Values.service.type }}
   ports:

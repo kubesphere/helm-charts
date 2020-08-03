@@ -18,8 +18,13 @@ To use, add the `kubernetes.io/ingress.class: nginx` annotation to your Ingress 
 ## TL;DR;
 
 ```console
-$ helm install stable/nginx-ingress
+$ helm install gitlab-nginx stable/nginx-ingress
 ```
+
+NOTE: **Note**:
+All Helm commands are specified using Helm v3 syntax. If the
+Helm v2 syntax differs every effort is made to provide a note that details
+the difference.
 
 ## Introduction
 
@@ -33,8 +38,14 @@ This chart bootstraps an nginx-ingress deployment on a [Kubernetes](http://kuber
 To install the chart with the release name `my-release`:
 
 ```console
-$ helm install --name my-release stable/nginx-ingress
+$ helm install my-release stable/nginx-ingress
 ```
+
+NOTE: **Note**:
+When using Helm v2 if a release name was not specified with the `--name`
+option it would randomly generate the release name. Helm v3 requires that
+the release name be specified as a positional argument on the command line
+unless the `--generate-name` option is used.
 
 The command deploys nginx-ingress on the Kubernetes cluster in the default configuration. The [configuration](#configuration) section lists the parameters that can be configured during installation.
 
@@ -45,8 +56,11 @@ The command deploys nginx-ingress on the Kubernetes cluster in the default confi
 To uninstall/delete the `my-release` deployment:
 
 ```console
-$ helm delete my-release
+$ helm uninstall my-release
 ```
+
+NOTE: **Note:**
+With Helm v2, you need to use the command `helm delete --purge gitlab`.
 
 The command removes all the Kubernetes components associated with the chart and deletes the release.
 
@@ -170,21 +184,26 @@ Parameter | Description | Default
 `udp` | UDP service key:value pairs | `{}`
 
 ```console
-$ helm install stable/nginx-ingress --name my-release \
+$ helm install my-release stable/nginx-ingress \
     --set controller.stats.enabled=true
 ```
+
+NOTE: **Note**:
+Helm v2 handles specifying the release name differently than Helm v3.
+Please see the note in the [Installing the Chart](#installing-the-chart)
+section for more information.
 
 Alternatively, a YAML file that specifies the values for the parameters can be provided while installing the chart. For example,
 
 ```console
-$ helm install stable/nginx-ingress --name my-release -f values.yaml
+$ helm install my-release stable/nginx-ingress -f values.yaml
 ```
 
 A useful trick to debug issues with ingress is to increase the logLevel
 as described [here](https://github.com/kubernetes/ingress-nginx/blob/master/docs/troubleshooting.md#debug)
 
 ```console
-$ helm install stable/nginx-ingress --set controller.extraArgs.v=2
+$ helm install my-release stable/nginx-ingress --set controller.extraArgs.v=2
 ```
 
 ## PodDisruptionBudget
@@ -196,10 +215,15 @@ else it would make it impossible to evacuate a node. See [gh issue #7127](https:
 The Nginx ingress controller can export Prometheus metrics. In order for this to work, the VTS dashboard must be enabled as well.
 
 ```console
-$ helm install stable/nginx-ingress --name my-release \
+$ helm install my-release stable/nginx-ingress \
     --set controller.stats.enabled=true \
     --set controller.metrics.enabled=true
 ```
+
+NOTE: **Note**:
+Helm v2 handles specifying the release name differently than Helm v3.
+Please see the note in the [Installing the Chart](#installing-the-chart)
+section for more information.
 
 You can add Prometheus annotations to the metrics service using `controller.metrics.service.annotations`. Alternatively, if you use the Prometheus Operator, you need to create a ServiceMonitor as follows:
 
@@ -225,7 +249,7 @@ spec:
 
 ## ExternalDNS Service configuration
 
-Add an [ExternalDNS](https://github.com/kubernetes-incubator/external-dns) annotation to the LoadBalancer service:
+Add an [ExternalDNS](https://github.com/kubernetes-sigs/external-dns) annotation to the LoadBalancer service:
 
 ```yaml
 annotations:

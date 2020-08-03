@@ -5,7 +5,7 @@ metadata:
   name: {{ template "fullname" . }}
   namespace: {{ $.Release.Namespace }}
   labels:
-{{ include "gitlab.standardLabels" . | indent 4 }}
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
 data:
   configure: |
     {{- include "gitlab.scripts.configure.secrets" (dict "required" "shell" ) | nindent 4 -}}
@@ -17,7 +17,7 @@ data:
     user: git
 
     # Url to gitlab instance. Used for api calls. Should end with a slash.
-    gitlab_url: "http://{{ template "gitlab.unicorn.host" . }}:{{ default 8080 .Values.unicorn.port }}/"
+    gitlab_url: "http://{{ template "gitlab.workhorse.host" . }}:{{ template "gitlab.workhorse.port" . }}/"
 
     secret_file: /etc/gitlab-secrets/shell/.gitlab_shell_secret
 
@@ -26,16 +26,6 @@ data:
 
     # File used as authorized_keys for gitlab user
     auth_file: "/home/git/.ssh/authorized_keys"
-
-    # Redis settings used for pushing commit notices to gitlab
-    redis:
-      host: {{ template "gitlab.redis.host" . }}
-      port: {{ template "gitlab.redis.port" . }}
-      {{- if .Values.global.redis.password.enabled }}
-      pass: "<%= File.read("/etc/gitlab-secrets/redis/password").strip.dump[1..-2] %>"
-      {{- end }}
-      database: nil
-      namespace: resque:gitlab
 
     # Log file.
     # Default is gitlab-shell.log in the root directory.

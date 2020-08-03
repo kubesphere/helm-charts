@@ -5,10 +5,10 @@ metadata:
   name: {{ template "fullname" . }}
   namespace: {{ $.Release.Namespace }}
   labels:
-{{ include "gitlab.standardLabels" . | indent 4 }}
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
 data:
   configure: |-
-{{ .Values.init.script | indent 4 }}
+    {{- .Values.init.script | nindent 4 }}
   config.yml: |
     version: 0.1
     log:
@@ -26,6 +26,7 @@ data:
         X-Content-Type-Options: [nosniff]
       addr: :{{ .Values.service.internalPort }}
       secret: "HTTP_SECRET"
+      relativeurls: {{ .Values.relativeurls }}
     health:
       {{- if kindIs "map" .Values.health }}
       {{ toYaml .Values.health | nindent 6 | trim }}
@@ -47,6 +48,17 @@ data:
     {{- end }}
     validation:
       disabled: {{ eq true .Values.validation.disabled }}
+    {{- if .Values.notifications }}
+    notifications:
+    {{- if .Values.notifications.events }}
+      events:
+        {{ toYaml .Values.notifications.events | nindent 8 | trim}}
+    {{- end }}
+    {{- if .Values.notifications.endpoints }}
+      endpoints:
+        {{ toYaml .Values.notifications.endpoints | nindent 8 | trim }}
+    {{- end -}}
+    {{- end }}
     storage:
       maintenance:
         readonly:
@@ -71,6 +83,6 @@ data:
         disable: true
       {{- end }}
       {{- else }}
-{{ include (print $.Template.BasePath "/_storage_default.yaml") . | indent 6}}
+      {{- include (print $.Template.BasePath "/_storage_default.yaml") . | nindent 6}}
       {{- end }}
 {{- end -}}

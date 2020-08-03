@@ -5,7 +5,7 @@ metadata:
   name: {{ template "fullname" . }}
   namespace: {{ $.Release.Namespace }}
   labels:
-{{ include "gitlab.standardLabels" . | indent 4 }}
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
 spec:
   {{- if .Values.global.operator.enabled }}
   paused: true
@@ -27,12 +27,12 @@ spec:
         {{ $key }}: {{ $value | quote }}
       {{- end }}
 {{- if .Values.metrics.enabled }}
-{{ toYaml .Values.metrics.annotations | indent 8 }}
+        {{- toYaml .Values.metrics.annotations | nindent 8 }}
 {{- end }}
     spec:
       {{- if .Values.tolerations }}
       tolerations:
-{{ toYaml .Values.tolerations | indent 8 }}
+        {{- toYaml .Values.tolerations | nindent 8 }}
       {{- end }}
       securityContext:
         runAsUser: 1000
@@ -59,15 +59,16 @@ spec:
                   release: {{ .Release.Name }}
       {{- end }}
       initContainers:
-{{ include "gitlab.extraInitContainers" . | indent 8 }}
-{{ include "gitlab.certificates.initContainer" . | indent 8 }}
+        {{- include "gitlab.extraInitContainers" . | nindent 8 }}
+        {{- include "gitlab.certificates.initContainer" . | nindent 8 }}
         - name: configure
           command: ['sh']
           args: [ '-c', 'sh -x /config-unicorn/configure ; sh -x /config-workhorse/configure ; mkdir -p -m 3770 /tmp/gitlab']
-          image: {{ .Values.init.image }}:{{ .Values.init.tag }}
+          image: {{ include "gitlab.busybox.image" (dict "local" .Values.init "global" $.Values.global.busybox) | quote }}
           volumeMounts:
-{{ include "gitlab.extraVolumeMounts" . | indent 10 }}
-{{ include "gitlab.psql.ssl.volumeMount" . | indent 10 }}
+          {{- include "gitlab.extraVolumeMounts" . | nindent 10 }}
+          {{- include "gitlab.psql.ssl.volumeMount" . | nindent 10 }}
+          {{- include "gitlab.geo.psql.ssl.volumeMount" . | nindent 10 }}
           - name: unicorn-config
             mountPath: /config-unicorn
             readOnly: true
@@ -87,9 +88,9 @@ spec:
             mountPath: /tmp
             readOnly: false
           resources:
-{{ toYaml .Values.init.resources | indent 12 }}
+            {{- toYaml .Values.init.resources | nindent 12 }}
         - name: dependencies
-          image: "{{ coalesce .Values.image.repository (include "image.repository" .) }}:{{ coalesce .Values.image.tag (include "gitlab.versionTag" . ) }}"
+          image: {{ include "unicorn.image" . }}
           {{ template "gitlab.imagePullPolicy" . }}
           args:
             - /scripts/wait-for-deps
@@ -106,25 +107,35 @@ spec:
               value: '/srv/gitlab/config'
             - name: WORKHORSE_ARCHIVE_CACHE_DISABLED
               value: "1"
+            {{- if .Values.global.rails.bootsnap.enabled }}
+            - name: ENABLE_BOOTSNAP
+              value: "1"
+            {{- end }}
           volumeMounts:
-{{ include "gitlab.extraVolumeMounts" . | indent 12 }}
+            {{- include "gitlab.extraVolumeMounts" . | nindent 12 }}
             - name: unicorn-config
               mountPath: '/var/opt/gitlab/templates'
             - name: unicorn-secrets
               mountPath: '/etc/gitlab'
               readOnly: true
+            - name: unicorn-secrets
+              mountPath: /srv/gitlab/config/secrets.yml
+              subPath: rails-secrets/secrets.yml
+              readOnly: true
           resources:
-{{ toYaml .Values.init.resources | indent 12 }}
-{{- include "pullsecrets" .Values.image | indent 6}}
+            {{- toYaml .Values.init.resources | nindent 12 }}
+{{- include "pullsecrets" .Values.image | indent 6 }}
       containers:
-{{ include "gitlab.extraContainers" . | indent 8 }}
+        {{- include "gitlab.extraContainers" . | nindent 8 }}
         - name: {{ .Chart.Name }}
-          image: "{{ coalesce .Values.image.repository (include "image.repository" .) }}:{{ coalesce .Values.image.tag (include "gitlab.versionTag" . ) }}"
+          image: {{ include "unicorn.image" . }}
           {{ template "gitlab.imagePullPolicy" . }}
           ports:
             - containerPort: {{ .Values.service.internalPort }}
               name: unicorn
           env:
+            - name: GITLAB_WEBSERVER
+              value: {{ .Values.webServer }}
             - name: TMPDIR
               value: "/tmp/gitlab"
             - name: GITALY_FEATURE_DEFAULT_ON
@@ -141,6 +152,10 @@ spec:
             - name: GITLAB_WORKHORSE_SENTRY_DSN
               value: {{ .Values.workhorse.sentryDSN }}
 {{- end }}
+            {{- if .Values.global.rails.bootsnap.enabled }}
+            - name: ENABLE_BOOTSNAP
+              value: "1"
+            {{- end }}
           volumeMounts:
 {{- if .Values.metrics.enabled }}
             - name: unicorn-metrics
@@ -174,21 +189,21 @@ spec:
               mountPath: /home/git/gitlab
               readOnly: true
 {{- end }}
-{{ include "gitlab.certificates.volumeMount" . | indent 12 }}
-{{ include "gitlab.extraVolumeMounts" . | indent 12 }}
+            {{- include "gitlab.certificates.volumeMount" . | nindent 12 }}
+            {{- include "gitlab.extraVolumeMounts" . | nindent 12 }}
           livenessProbe:
-            exec:
-              command:
-              - /scripts/healthcheck
+            httpGet:
+              path: /-/liveness
+              port: {{ .Values.service.internalPort }}
             initialDelaySeconds: {{ .Values.deployment.livenessProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.deployment.livenessProbe.periodSeconds }}
             timeoutSeconds: {{ .Values.deployment.livenessProbe.timeoutSeconds }}
             successThreshold: {{ .Values.deployment.livenessProbe.successThreshold }}
             failureThreshold: {{ .Values.deployment.livenessProbe.failureThreshold }}
           readinessProbe:
-            exec:
-              command:
-              - /scripts/healthcheck
+            httpGet:
+              path: /-/readiness
+              port: {{ .Values.service.internalPort }}
             initialDelaySeconds: {{ .Values.deployment.readinessProbe.initialDelaySeconds }}
             periodSeconds: {{ .Values.deployment.readinessProbe.periodSeconds }}
             timeoutSeconds: {{ .Values.deployment.readinessProbe.timeoutSeconds }}
@@ -197,9 +212,13 @@ spec:
           lifecycle:
             preStop:
               exec:
+                {{- if eq (lower .Values.webServer) "unicorn" }}
                 command: ["/bin/bash", "-c", "pkill -SIGQUIT -f 'unicorn master'"]
+                {{- else }}
+                command: ["/bin/bash", "-c", "pkill -SIGINT -o ruby"]
+                {{- end }}
           resources:
-{{ toYaml .Values.resources | indent 12 }}
+            {{- toYaml .Values.resources | nindent 12 }}
         - name: gitlab-workhorse
           image: "{{ coalesce .Values.workhorse.image (include "workhorse.repository" .) }}:{{ coalesce .Values.workhorse.tag (include "gitlab.versionTag" . ) }}"
           {{ template "gitlab.imagePullPolicy" . }}
@@ -232,8 +251,8 @@ spec:
             - name: shared-tmp
               mountPath: '/tmp'
               readOnly: false
-{{ include "gitlab.certificates.volumeMount" . | indent 12 }}
-{{ include "gitlab.extraVolumeMounts" . | indent 12 }}
+            {{- include "gitlab.certificates.volumeMount" . | nindent 12 }}
+            {{- include "gitlab.extraVolumeMounts" . | nindent 12 }}
           livenessProbe:
             exec:
               command:
@@ -253,10 +272,11 @@ spec:
             successThreshold: {{ .Values.workhorse.readinessProbe.successThreshold }}
             failureThreshold: {{ .Values.workhorse.readinessProbe.failureThreshold }}
           resources:
-{{ toYaml .Values.workhorse.resources | indent 12 }}
+            {{- toYaml .Values.workhorse.resources | nindent 12 }}
       volumes:
-{{ include "gitlab.extraVolumes" . | indent 6 }}
-{{ include "gitlab.psql.ssl.volume" . | indent 6 }}
+      {{- include "gitlab.extraVolumes" . | nindent 6 }}
+      {{- include "gitlab.psql.ssl.volume" . | nindent 6 }}
+      {{- include "gitlab.geo.psql.ssl.volume" . | nindent 6 }}
       - name: shared-tmp
         emptyDir: {}
 {{- if .Values.metrics.enabled }}
@@ -289,18 +309,19 @@ spec:
               items:
                 - key: {{ template "gitlab.gitaly.authToken.key" . }}
                   path: gitaly/gitaly_token
-          {{- if .Values.global.redis.password.enabled }}
-          - secret:
-              name: {{ template "gitlab.redis.password.secret" . }}
-              items:
-                - key: {{ template "gitlab.redis.password.key" . }}
-                  path: redis/password
-          {{- end }}
+          {{- include "gitlab.redis.secrets" . | nindent 10 }}
           - secret:
               name: {{ template "gitlab.psql.password.secret" . }}
               items:
                 - key: {{ template "gitlab.psql.password.key" . }}
                   path: postgres/psql-password
+          {{- if include "gitlab.geo.secondary" $ }}
+          - secret:
+              name: {{ template "gitlab.geo.psql.password.secret" . }}
+              items:
+                - key: {{ template "gitlab.geo.psql.password.key" . }}
+                  path: postgres/geo-psql-password
+          {{- end }}
           - secret:
               name: {{ template "gitlab.registry.certificate.secret" . }}
               items:
@@ -317,6 +338,7 @@ spec:
           {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "uploads" "config" $.Values.global.appConfig.uploads) | nindent 10 }}
           {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "packages" "config" $.Values.global.appConfig.packages) | nindent 10 }}
           {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "external_diffs" "config" $.Values.global.appConfig.externalDiffs) | nindent 10 }}
+          {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "terraform_state" "config" $.Values.global.appConfig.terraformState) | nindent 10 }}
           {{- include "gitlab.appConfig.ldap.servers.mountSecrets" $ | nindent 10 }}
           {{- include "gitlab.appConfig.omniauth.mountSecrets" $ | nindent 10 }}
           {{- if and $.Values.global.smtp.enabled $.Values.global.smtp.authentication }}
@@ -346,9 +368,9 @@ spec:
         emptyDir: {}
       - name: shared-artifact-directory
         emptyDir: {}
-{{ include "gitlab.certificates.volumes" . | indent 6 }}
+      {{- include "gitlab.certificates.volumes" . | nindent 6 }}
     {{- if .Values.nodeSelector }}
       nodeSelector:
-{{ toYaml .Values.nodeSelector | indent 8 }}
+        {{- toYaml .Values.nodeSelector | nindent 8 }}
     {{- end }}
 {{- end }}

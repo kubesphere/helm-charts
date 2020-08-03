@@ -3,7 +3,7 @@
 > **Outdated**:
 The charts are now in beta. See the [beta documentation](beta.md) for more information
 
-We have been working hard on the chart and it's underlying containers, and are excited to to reach alpha and share it with the GitLab community.
+We have been working hard on the chart and it's underlying containers, and are excited to reach alpha and share it with the GitLab community.
 
 This effort has required extensive changes across the product:
 
@@ -43,7 +43,7 @@ We greatly appreciate the wider testing of the community during alpha, and encou
 
 We also reserve the right to close issues without providing a reason. Issues can accumulate quickly and we need to spend more time moving the charts forward than doing issue triage.
 
-We welcome any improvements contributed in the form of [Merge Requests](https://gitlab.com/gitlab-org/charts/gitlab/merge_requests).
+We welcome any improvements contributed in the form of [Merge Requests](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests).
 
 ## Known issues and limitations
 
@@ -60,8 +60,8 @@ Helm Chart Issues/Limitations:
 - No support for incoming email: <https://gitlab.com/gitlab-org/charts/gitlab/issues/235>
 - Limited support for customizing GitLab options: <https://gitlab.com/gitlab-org/charts/gitlab/issues/236>
 - CI traces are not persisted: <https://gitlab.com/gitlab-org/charts/gitlab/issues/245>
-- No support for scaling unicorn separate from workhorse: <https://gitlab.com/gitlab-org/charts/gitlab/issues/61>
-- GitLab maintenance rake tasks won't work in k8s environments
+- No support for scaling Unicorn separate from workhorse: <https://gitlab.com/gitlab-org/charts/gitlab/issues/61>
+- GitLab maintenance Rake tasks won't work in k8s environments
 - No guarantees on safe pod shutdown: <https://gitlab.com/gitlab-org/charts/gitlab/issues/239>
 
 Features that are currently out of scope:

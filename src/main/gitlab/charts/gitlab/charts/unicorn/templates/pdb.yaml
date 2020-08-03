@@ -5,7 +5,7 @@ metadata:
   name: {{ template "fullname" . }}
   namespace: {{ $.Release.Namespace }}
   labels:
-{{ include "gitlab.standardLabels" . | indent 4 }}
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
 spec:
   maxUnavailable: {{ .Values.maxUnavailable }}
   selector:

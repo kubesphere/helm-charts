@@ -1,0 +1,14 @@
+#!/bin/bash
+
+export DEBIAN_FRONTEND=noninteractive
+
+apt-get update && apt-get install -y --no-install-recommends curl ca-certificates
+
+curl -LsO https://storage.googleapis.com/kubernetes-release/release/${KUBECTL_VERSION}/bin/linux/amd64/kubectl
+chmod +x kubectl
+mv kubectl /usr/local/bin/kubectl
+
+mkdir -p /etc/gitlab/minio
+
+kubectl get secret ${CI_ENVIRONMENT_SLUG}-minio-secret -o jsonpath='{.data.accesskey}' | base64 --decode > /etc/gitlab/minio/accesskey
+kubectl get secret ${CI_ENVIRONMENT_SLUG}-minio-secret -o jsonpath='{.data.secretkey}' | base64 --decode > /etc/gitlab/minio/secretkey

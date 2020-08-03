@@ -8,15 +8,14 @@
 
 global:
   gitaly:
-    internal:
-      names: []  # disable populating internal nodes
+    enabled: false
     external:
       - name: default                   # required
         hostname: node1.git.example.com # required
         port: 8075                      # optional, default shown
-      - name: secondary                 # required
-        hostname: node2.git.example.com # required
-        port: 8075                      # optional, default shown
-gitlab:
-  gitaly:
-    enabled: false
+      - name: praefect                  # required
+        hostname: ha.git.example.com    # required
+        port: 2305                      # Praefect uses port 2305
+    authToken:
+      secret: external-gitaly-token     # required
+      key: token                        # optional, default shown

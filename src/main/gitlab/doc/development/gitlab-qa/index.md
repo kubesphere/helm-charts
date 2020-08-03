@@ -13,7 +13,7 @@ Before running GitLab QA, there are a few things to do.
 ### Determine running version of GitLab
 
 From your deployed GitLab chart, visit `/admin` and see the Components panel
-for the version of GitLab that is running. If this is is `X.Y.Z-pre`, then you
+for the version of GitLab that is running. If this is `X.Y.Z-pre`, then you
 will want the `nightly` image. If this is `X.Y.Z-ee`, then you will want this
 version of GitLab QA image.
 

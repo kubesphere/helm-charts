@@ -10,7 +10,7 @@ Using this pod user can run commands using `kubectl exec -it <pod name> -- <arbi
 
 The task runner runs a container from the [task-runner image](https://gitlab.com/gitlab-org/build/CNG/tree/master/gitlab-task-runner).
 
-The image contains some custom scripts that are to be called as commands by the user, these scripts can be found [here](https://gitlab.com/gitlab-org/build/CNG/tree/master/gitlab-task-runner/scripts). These scripts are for running rake tasks, backup, restore, and some helper scripts for interacting with object storage.
+The image contains some custom scripts that are to be called as commands by the user, these scripts can be found [here](https://gitlab.com/gitlab-org/build/CNG/tree/master/gitlab-task-runner/scripts). These scripts are for running Rake tasks, backup, restore, and some helper scripts for interacting with object storage.
 
 ## Backup utility
 
@@ -25,13 +25,13 @@ There is also an option to manually set a part of the name of the generated back
 
 The sequence of execution is:
 
-1. Backup the database (if not skipped) using the [GitLab backup rake task](https://gitlab.com/gitlab-org/build/CNG/blob/74dc35d4b481e86330bf6b244f88e5dd8876cc0c/gitlab-task-runner/scripts/bin/backup-utility#L120)
-1. Backup the repositories (if not skipped) using the [GitLab backup rake task](https://gitlab.com/gitlab-org/build/CNG/blob/74dc35d4b481e86330bf6b244f88e5dd8876cc0c/gitlab-task-runner/scripts/bin/backup-utility#L123)
+1. Backup the database (if not skipped) using the [GitLab backup Rake task](https://gitlab.com/gitlab-org/build/CNG/blob/74dc35d4b481e86330bf6b244f88e5dd8876cc0c/gitlab-task-runner/scripts/bin/backup-utility#L120)
+1. Backup the repositories (if not skipped) using the [GitLab backup Rake task](https://gitlab.com/gitlab-org/build/CNG/blob/74dc35d4b481e86330bf6b244f88e5dd8876cc0c/gitlab-task-runner/scripts/bin/backup-utility#L123)
 1. For each of the object storage backends
    1. If the object storage backend is marked for skipping, skip this storage backend.
    1. Tar the existing data in the corresponding object storage bucket naming it `<bucket-name>.tar`
    1. Move the tar to the backup location on disk
-1. Write a `backup_information.yml` file which contains some metadata identifying the version of gitlab, the time of the backup and the skipped items.
+1. Write a `backup_information.yml` file which contains some metadata identifying the version of GitLab, the time of the backup and the skipped items.
 1. Create a tar file containing individual tar files along with `backup_information.yml`
 1. Upload the resulting tar file to object storage `gitlab-backups` bucket.
 
@@ -50,19 +50,20 @@ of your artifacts by setting the `BACKUP_BACKEND` environment variable to `gcs`.
 ### Restore
 
 The backup utility when given an argument `--restore` attempts to restore from an existing backup to the running instance. This
-backup can be from either an omnibus-gitlab or a CNG Helm chart installation given that both the instance that was
-backed up and the running instance runs the same version of gitlab. The restore expects a file in backup bucket using `-t <backup-name>` or a remote url using `-f <url>`.
+backup can be from either an Omnibus GitLab or a CNG Helm chart installation given that both the instance that was
+backed up and the running instance runs the same version of GitLab. The restore expects a file in backup bucket using `-t <backup-name>` or a remote url using `-f <url>`.
 
 When given a `-t` parameter it looks into backup bucket in object storage for a backup tar with such name. When
 given a `-f` parameter it expects that the given url is a valid uri of a backup tar in a location accessible from the container.
 
 After fetching the backup tar the sequence of execution is:
 
-1. For repositories and database run the [GitLab backup rake task](https://gitlab.com/gitlab-org/gitlab-foss/tree/master/lib/tasks/gitlab/backup.rake)
+1. For repositories and database run the [GitLab backup Rake task](https://gitlab.com/gitlab-org/gitlab-foss/tree/master/lib/tasks/gitlab/backup.rake)
 1. For each of object storage backends:
    - tar the existing data in the corresponding object storage bucket naming it `<backup-name>.tar`
    - upload it to `tmp` bucket in object storage
    - clean up the corresponding bucket
    - restore the backup content into the corresponding bucket
 
-> Note:  If the restore fails, user will need to revert to previous backup using data in `tmp` directory of the the backup bucket. This is currently a manual process.
+NOTE: **Note:**
+If the restore fails, the user will need to revert to previous backup using data in `tmp` directory of the backup bucket. This is currently a manual process.

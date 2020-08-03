@@ -27,8 +27,9 @@ enabled: true
 tolerations: []
 
 init:
-  image: busybox
-  tag: latest
+  image: {}
+    # repository:
+    # tag:
   resources:
     requests:
       cpu: 50m
@@ -41,10 +42,13 @@ global:
 redis:
   password: {}
 
+psql: {}
+  # port: 5432 
+
 resources:
   # limits:
   #  cpu: 1
   #  memory: 2G
   requests:
-    cpu: 50m
+    cpu: 75m
     memory: 100M

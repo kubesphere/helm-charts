@@ -1,0 +1,38 @@
+redis:
+  install: false
+global:
+  redis:
+    host: redis.example
+    port: 9001
+    password:
+      enabled: true
+      secret: redis-secret
+      key: redis-password
+    cache:
+      host: cache.redis.example
+      port: 9002
+      password:
+        enabled: true
+        secret: cache-secret
+        key: cache-password
+    sharedState:
+      host: shared.redis.example
+      port: 9003
+      password:
+        enabled: true
+        secret: shared-secret
+        key: shared-password
+    queues:
+      host: queues.redis.example
+      port: 9004
+      password:
+        enabled: true
+        secret: queues-secret
+        key: queues-password
+    actioncable:
+      host: cable.redis.example
+      port: 9005
+      password:
+        enabled: true
+        secret: cable-secret
+        key: cable-password

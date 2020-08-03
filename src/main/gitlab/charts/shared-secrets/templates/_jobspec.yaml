@@ -4,7 +4,7 @@ metadata:
   name: {{ template "shared-secrets.jobname" . }}
   namespace: {{ .Release.Namespace }}
   labels:
-{{ include "gitlab.standardLabels" . | indent 4 }}
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
 {{- if and .Values.enabled (not .Values.global.operator.enabled) }}
   annotations:
     "helm.sh/hook": pre-install,pre-upgrade
@@ -19,7 +19,7 @@ spec:
     spec:
       {{- if .Values.tolerations }}
       tolerations:
-{{ toYaml .Values.tolerations | indent 8 }}
+        {{- toYaml .Values.tolerations | nindent 8 }}
       {{- end }}
       securityContext:
         runAsUser: {{ .Values.securityContext.runAsUser }}
@@ -28,7 +28,7 @@ spec:
       serviceAccountName: {{ template "shared-secrets.serviceAccountName" . }}
       {{- end }}
       restartPolicy: Never
-{{- include "pullsecrets" .Values.global.kubectl.image | indent 6}}
+      {{- include "pullsecrets" .Values.global.kubectl.image | nindent 6 }}
       containers:
         - name: {{ .Chart.Name }}
           image: {{ include "gitlab.kubectl.image" . | quote }}
@@ -40,7 +40,7 @@ spec:
             - name: ssh
               mountPath: /etc/ssh
           resources:
-{{ toYaml .Values.resources | indent 12 }}
+            {{- toYaml .Values.resources | nindent 12 }}
       volumes:
       - name: scripts
         configMap:

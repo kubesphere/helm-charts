@@ -12,7 +12,10 @@ This chart depends on Redis, and PostgreSQL, either as part of the complete GitL
 
 The `migrations` creates a new migrations [Job][] each time the chart is deployed. In order to prevent job name collisions, we append the chart revision, and a random alpha-numeric value to the Job name each time is created. The purpose of the random text is described further in this section.
 
-For now we also have the jobs remain as objects in the cluster after they complete. This is so we can observe the migration logs. Currently this means these Jobs persist even after a `helm delete`. This is one of the reasons why we append random text to the Job name, so that future deployments using the same release name don't cause conflicts. Once we have some form of log-shipping in place, we can revisit the persistence of these objects.
+For now we also have the jobs remain as objects in the cluster after they complete. This is so we can observe the migration logs. Currently this means these Jobs persist even after a `helm uninstall`. This is one of the reasons why we append random text to the Job name, so that future deployments using the same release name don't cause conflicts. Once we have some form of log-shipping in place, we can revisit the persistence of these objects.
+
+NOTE: **Note**:
+If using Helm v2, the uninstall command would be `helm delete --purge`.
 
 The container used in this chart has some additional optimizations that we are not currently using in this Chart. Mainly the ability to quickly skip running migrations if they are already up to date, without needing to boot up the rails application to check. This optimization requires us to persist the migration status. Which we are not doing with this chart at the moment. In the future we will introduce storage support for the migrations status to this chart.
 
@@ -24,24 +27,28 @@ The `migrations` chart is configured in two parts: external services, and chart 
 
 Table below contains all the possible charts configurations that can be supplied to `helm install` command using the `--set` flags
 
-| Parameter               | Description                              | Default           |
-| ----------------------- | ---------------------------------------- | ----------------  |
-| `image.repository`      | Migrations image repository              | `registry.gitlab.com/gitlab-org/build/cng/gitlab-rails-ee` |
-| `image.tag`             | Migrations image tag                     |                   |
-| `image.pullPolicy`      | Migrations pull policy                   | `Always`          |
-| `image.pullSecrets`     | Secrets for the image repository         |                   |
-| `init.image`            | initContainer image                      | `busybox`         |
-| `init.tag`              | initContainer image tag                  | `latest`          |
-| `enabled`               | Migrations enable flag                   | `true`            |
-| `tolerations`           | Toleration labels for pod assignment     | `[]`              |
-| `redis.serviceName`     | Redis service name                       | `redis`           |
-| `psql.serviceName`      | Name of Service providing PostgreSQL     | `release-postgresql` |
-| `psql.password.secret`  | psql secret                              | `gitlab-postgres` |
-| `psql.password.key`     | key to psql password in psql secret      | `psql-password`   |
-| `extraInitContainers`   | List of extra init containers to include |                   |
-| `extraContainers`       | List of extra containers to include      |                   |
-| `extraVolumes`          | List of extra volumes to create          |                   |
-| `extraVolumeMounts`     | List of extra volumes mountes to do      |                   |
+| Parameter                   | Description                              | Default           |
+| --------------------------- | ---------------------------------------- | ----------------  |
+| `image.repository`          | Migrations image repository              | `registry.gitlab.com/gitlab-org/build/cng/gitlab-task-runner-ee` |
+| `image.tag`                 | Migrations image tag                     |                   |
+| `image.pullPolicy`          | Migrations pull policy                   | `Always`          |
+| `image.pullSecrets`         | Secrets for the image repository         |                   |
+| `init.image`                | initContainer image                      | `busybox`         |
+| `init.tag`                  | initContainer image tag                  | `latest`          |
+| `enabled`                   | Migrations enable flag                   | `true`            |
+| `tolerations`               | Toleration labels for pod assignment     | `[]`              |
+| `redis.serviceName`         | Redis service name                       | `redis`           |
+| `psql.serviceName`          | Name of Service providing PostgreSQL     | `release-postgresql` |
+| `psql.password.secret`      | psql secret                              | `gitlab-postgres` |
+| `psql.password.key`         | key to psql password in psql secret      | `psql-password`   |
+| `psql.port`                 | Set PostgreSQL server port. Takes precedence over `global.psql.port` |   |
+| `resources.requests.cpu`    | `250m`                                   | GitLab Migrations minimum cpu |
+| `resources.requests.memory` | `200Mi`                                  | GitLab Migrations minimum memory |
+| `extraInitContainers`       | List of extra init containers to include |                   |
+| `extraContainers`           | List of extra containers to include      |                   |
+| `extraVolumes`              | List of extra volumes to create          |                   |
+| `extraVolumeMounts`         | List of extra volumes mountes to do      |                   |
+| `bootsnap.enabled`          | Enable the Bootsnap cache for Rails      | `true`            |
 
 ## Chart configuration examples
 
@@ -67,7 +74,7 @@ image:
 
 By default, the Helm charts use the Enterprise Edition of GitLab. If desired, you can instead use the Community Edition. Learn more about the [difference between the two](https://about.gitlab.com/install/ce-or-ee/).
 
-In order to use the Community Edition, set `image.repository` to `registry.gitlab.com/gitlab-org/build/cng/gitlab-rails-ce`
+In order to use the Community Edition, set `image.repository` to `registry.gitlab.com/gitlab-org/build/cng/gitlab-task-runner-ce`
 
 ## External Services
 
@@ -115,9 +122,9 @@ The sub keys describe each Sentinel connection.
 
 _Note:_ The current Redis Sentinel support only supports Sentinels that have
 been deployed separately from the GitLab chart. As a result, the Redis
-deployment through the GitLab chart should be disabled with `redis.enabled=false`
-and `redis-ha.enabled=false`. The Secret containing the Redis password
-will need to be manually created before deploying the GitLab chart.
+deployment through the GitLab chart should be disabled with `redis.install=false`.
+The Secret containing the Redis password will need to be manually created
+before deploying the GitLab chart.
 
 ### PostgreSQL
 

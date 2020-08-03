@@ -12,6 +12,7 @@ minio:
     storageClass: CUSTOM_STORAGE_CLASS_NAME
     size: 10Gi
 redis:
-  persistence:
-    storageClass: CUSTOM_STORAGE_CLASS_NAME
-    size: 5Gi
+  master:
+    persistence:
+      storageClass: CUSTOM_STORAGE_CLASS_NAME
+      size: 5Gi

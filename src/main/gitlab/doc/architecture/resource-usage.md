@@ -32,7 +32,7 @@ We will measure:
   set the limit above this and the average load values.
 
 - **Heavy Load** - Try and come up with a stress test for the service, then measure
-  the resource usage required to do it. We currently don't use these  values for any
+  the resource usage required to do it. We currently don't use these values for any
   defaults, but users will likely want to set resource limits somewhere between the
   average loads/stress task and this value.
 
@@ -61,7 +61,7 @@ are per pod.
     - memory: 1.2G
 
 - **Stressful Task**
-  - Loading large MR diff (gitlab-ce master to 10-0-stable)
+  - Loading large MR diff (`gitlab-ce master` to `10-0-stable`)
     - cpu: 400m
     - memory: 1.4G
 
@@ -81,7 +81,7 @@ are per pod.
 
 ### Sidekiq
 
-Load was tested using <https://gitlab.com/andrewn/gitlab-load-kit> and a custom executor that targeted the pipeline trigger api on a single project. This api was hit with 20 requests concurrently for varying amounts of time.
+Load was tested using <https://gitlab.com/andrewn/gitlab-load-kit> and a custom executor that targeted the pipeline trigger API on a single project. This API was hit with 20 requests concurrently for varying amounts of time.
 
 - **Idle values**
   - 0 tasks, 1 pods

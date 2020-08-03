@@ -32,6 +32,11 @@ function bootstrap(){
   set -e
   validate_required_tools;
 
+  set +e
+  helm version --short --client | grep -q '^v3\.[0-9]\{1,\}'
+  IS_HELM_3=$?
+  set -e
+
   # Use the default cluster version for the specified zone if not provided
   if [ -z "${CLUSTER_VERSION}" ]; then
     CLUSTER_VERSION=$(gcloud container get-server-config --zone $ZONE --project $PROJECT --format='value(defaultClusterVersion)');
@@ -65,7 +70,7 @@ function bootstrap(){
   gcloud container clusters get-credentials $CLUSTER_NAME --zone $ZONE --project $PROJECT;
 
   # Create roles for RBAC Helm
-  if $RBAC_ENABLED; then
+  if $RBAC_ENABLED && [ ! $IS_HELM_3 -eq 0 ]; then
     status_code=$(curl -L -w '%{http_code}' -o rbac-config.yaml -s "https://gitlab.com/gitlab-org/charts/gitlab/raw/master/doc/installation/examples/rbac-config.yaml");
     if [ "$status_code" != 200 ]; then
       echo "Failed to download rbac-config.yaml, status code: $status_code";
@@ -76,12 +81,28 @@ function bootstrap(){
     kubectl --user=${CLUSTER_NAME}-admin-user create -f rbac-config.yaml;
   fi
 
+  echo "Wait for metrics API service"
+  # Helm 2.15 and 3.0 bug https://github.com/helm/helm/issues/6361#issuecomment-550503455
+  kubectl --namespace=kube-system wait --for=condition=Available --timeout=5m apiservices/v1beta1.metrics.k8s.io
+
   echo "Installing helm..."
-  helm init --wait --service-account tiller
+
+  if [ $IS_HELM_3 -eq 0 ]; then
+    helm repo add stable https://kubernetes-charts.storage.googleapis.com/
+  else
+    helm init --wait --service-account tiller
+  fi
+
   helm repo update
 
   if ! ${USE_STATIC_IP}; then
-    helm install --name dns --namespace kube-system stable/external-dns \
+    if [ $IS_HELM_3 -eq 0 ]; then
+      name_flag=''
+    else
+      name_flag='--name'
+    fi
+
+    helm install $name_flag dns --namespace kube-system stable/external-dns \
       --version '^2.1.2' \
       --set provider=google \
       --set google.project=$PROJECT \

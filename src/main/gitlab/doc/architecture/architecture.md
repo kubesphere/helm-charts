@@ -29,16 +29,14 @@ The following GitLab components have images in the CNG repository.
 - Gitaly
 - GitLab Elasticsearch Indexer
 - [mail_room](https://github.com/tpitale/mail_room)
-- GitLab exporter
+- GitLab Exporter
 - GitLab Shell
 - Sidekiq
-- Gitlab task-runner
+- GitLab task-runner
 - Unicorn
 - Workhorse
 
 The following are forked charts which also use GitLab specific Docker images.
-
-- Redis-ha
 
 Docker images that are used for `initContainers` and various `Job`s.
 
@@ -66,27 +64,32 @@ Ingress, and certificate management charts.
 
 At this high level, a customer can make decisions like:
 
-- Whether they want to use the embedded Postgres chart, or to use an external
-  database like Amazon RDS for Postgres.
+- Whether they want to use the embedded PostgreSQL chart, or to use an external
+  database like Amazon RDS for PostgreSQL.
 - To bring their own SSL certificates, or leverage Let's Encrypt.
-- To use a load balancer, or a dedicated ingress.
+- To use a load balancer, or a dedicated Ingress.
 
 Customers who would like to get started quickly and easily should begin with this chart.
 
-### Subcharts
+### Structure of these charts
 
-The gitlab chart is made of multiple subcharts. These charts provide individual components of the GitLab software.
+The main GitLab chart is an umbrella chart, made up of many other charts. Each sub-chart is
+documented individually, and laid in a structure that matches the
+[charts](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/charts) directory structure.
 
-Subcharts included are :
+Non-GitLab components are packaged and documented on the top level. GitLab
+component services are documented under the [GitLab](../charts/gitlab/index.md) chart:
 
-- [sidekiq](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/charts/gitlab/charts/sidekiq)
-- [unicorn](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/charts/gitlab/charts/unicorn)
-- [gitlab-shell](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/charts/gitlab/charts/gitlab-shell)
-- [gitaly](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/charts/gitlab/charts/gitaly)
-- [minio](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/charts/minio)
-- [redis](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/charts/redis)
-- [nginx](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/charts/nginx)
-- [registry](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/charts/registry)
+- [NGINX](../charts/nginx/index.md)
+- [MinIO](../charts/minio/index.md)
+- [Registry](../charts/registry/index.md)
+- GitLab/[Gitaly](../charts/gitlab/gitaly/index.md)
+- GitLab/[GitLab Exporter](../charts/gitlab/gitlab-exporter/index.md)
+- GitLab/[GitLab Grafana](../charts/gitlab/gitlab-grafana/index.md)
+- GitLab/[GitLab Shell](../charts/gitlab/gitlab-shell/index.md)
+- GitLab/[Migrations](../charts/gitlab/migrations/index.md)
+- GitLab/[Sidekiq](../charts/gitlab/sidekiq/index.md)
+- GitLab/[Unicorn](../charts/gitlab/unicorn/index.md)
 
 ### Components list
 

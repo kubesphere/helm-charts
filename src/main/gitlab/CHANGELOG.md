@@ -2,6 +2,685 @@
 documentation](doc/development/changelog.md) for instructions on adding your own
 entry.
 
+## 3.3.12 (2020-07-01)
+
+### Other (1 change)
+
+- Update GitLab Version to 12.10.13.
+
+
+## 3.3.11 (2020-06-25)
+
+### Other (1 change)
+
+- Update GitLab Version to 12.10.12.
+
+
+## 3.3.10 (2020-06-10)
+
+### Other (1 change)
+
+- Update GitLab Version to 12.10.11.
+
+
+## 3.3.9 (2020-06-04)
+
+### Other (1 change)
+
+- Update GitLab Version to 12.10.10.
+
+
+## 3.3.8 (2020-06-03)
+
+### Other (1 change)
+
+- Update GitLab Version to 12.10.9.
+
+
+## 3.3.7 (2020-05-29)
+
+### Other (1 change)
+
+- Update GitLab Version to 12.10.8.
+
+
+## 3.3.6 (2020-05-27)
+
+### Fixed (1 change)
+
+- backport Mailroom: follow Redis Queues instance (#2097). !1354
+
+### Other (1 change)
+
+- Update GitLab Version to 12.10.7.
+
+
+## 3.3.5 (2020-05-15)
+
+### Changed (1 change)
+
+- Update GitLab runner chart to 0.16.1. !1331
+
+### Other (1 change)
+
+- Update GitLab Version to 12.10.6.
+
+
+## 3.3.4 (2020-05-14)
+
+### Other (1 change)
+
+- Update GitLab Version to 12.10.5.
+
+
+## 3.3.3 (2020-05-04)
+
+### Other (1 change)
+
+- Update GitLab Version to 12.10.3.
+
+
+## 3.3.2 (2020-04-30)
+
+### Fixed (3 changes)
+
+- Fixed PostgreSQL port when enabling Geo. !1304
+- Fix redis secret templating when password.enabled=false. !1313
+- Add terraform_state secret to task-runner. !1315
+
+### Other (1 change)
+
+- Update GitLab Version to 12.10.2.
+
+
+## 3.3.1 (2020-04-24)
+
+### Other (1 change)
+
+- Update GitLab Version to 12.10.1.
+
+
+## 3.3.0 (2020-04-22)
+
+### Removed (1 change)
+
+- Remove Redis from Gitlab-Shell and Gitaly charts. !1271
+
+### Fixed (3 changes, 2 of them are from the community)
+
+- Fix the gitaly service name not being used correctly in all places. !1204 (Matthias van de Meent)
+- Change default concurrency setting for Sidekiq to 25 globally. !1233
+- Fixed that unnecessary secret is generated when using external Redis. !1237 (Colin Luo)
+
+### Changed (6 changes)
+
+- Updated Helm references and commands to v3 notations. !1210
+- Support queues, negateQueues, and experimentalQueueSelector for Sidekiq when cluster is enabled. !1251
+- Updated references to deprecated postgresql and redis charts. !1253
+- Make GitLab task-runner scalable, default 1 #1254. !1263
+- GitLab Exporter to 7.0.1. !1265
+- Bump Container Registry to v2.9.0-gitlab. !1273
+
+### Added (6 changes, 2 of them are from the community)
+
+- Add storage setting for terraform state. !1208
+- Ability to override PostgreSQL port for subcharts. !1212 (Stepan Kuksenko)
+- Expose settings to configure Registry notifications. !1225
+- Add option for using Sidekiq Cluster to start Sidekiq. !1247
+- Add optional `priorityClassName` configuration value to Gitaly chart. !1282 (Theo Meneau)
+- Support configuration of multiple Redis instances. !1287
+
+### Other (1 change)
+
+- Update GitLab Version to 12.10.0.
+
+
+## 3.2.4 (2020-04-17)
+
+### Other (1 change)
+
+- Update GitLab Version to 12.9.4.
+
+
+## 3.2.3 (2020-04-15)
+
+### Added (1 change, 1 of them is from the community)
+
+- Add support for the Seat Link enabled flag. !1272 (Matthias van de Meent)
+
+### Other (1 change)
+
+- Update GitLab Version to 12.9.3.
+
+
+## 3.2.2 (2020-03-31)
+
+### Other (1 change)
+
+- Update GitLab Version to 12.9.2.
+
+
+## 3.2.1 (2020-03-26)
+
+### Other (1 change)
+
+- Update GitLab Version to 12.9.1.
+
+
+## 3.2.0 (2020-03-22)
+
+### Fixed (4 changes, 1 of them is from the community)
+
+- Fix unicorn worker killer configuration. !1199 (Matthias van de Meent)
+- Fix logic of registry HPA deprecations. !1203
+- Ensure kubectl jobs are not run as root. !1206
+- Add gitlab.host to Migrations Rails config #1947. !1215
+
+### Changed (2 changes)
+
+- Update gitlab-org/gitlab-exporter from 6.0.0 to 6.1.0. !1176
+- Bump Container Registry to v2.8.2-gitlab. !1214
+
+### Other (1 change)
+
+- Update GitLab Version to 12.9.0.
+
+
+## 3.1.7 (2020-04-15)
+
+### Other (1 change)
+
+- Update GitLab Version to 12.8.9.
+
+
+## 3.1.6 (2020-03-26)
+
+### Fixed (1 change)
+
+- Fix logic of registry HPA deprecations. !1203
+
+### Other (1 change)
+
+- Update GitLab Version to 12.8.8.
+
+
+## 3.1.5 (2020-03-16)
+
+### Other (1 change)
+
+- Update GitLab Version to 12.8.7.
+
+
+## 3.1.4 (2020-03-11)
+
+### Other (1 change)
+
+- Update GitLab Version to 12.8.6.
+
+
+## 3.1.3 (2020-03-09)
+
+### Other (1 change)
+
+- Update GitLab Version to 12.8.5.
+
+
+## 3.1.2
+
+### Changed (1 change)
+
+- Update gitlab-org/charts/gitlab-runner from 0.13.1 to 0.14.0. !1187
+
+### Other (1 change)
+
+- Update GitLab Version to 12.8.2.
+
+
+## 3.1.1
+
+### Other (1 change)
+
+- Update GitLab Version to 12.8.1.
+
+
+## 3.1.0
+
+### Fixed (4 changes, 2 of them are from the community)
+
+- Route gitlab-shell and gitaly requests through workhorse. !1114 (Dmitry Chepurovskiy)
+- Enabled Geo configuration checks. !1121
+- Disable cert-manager's webook that validates its CRDs. !1139 (Erik Sundell (@consideRatio))
+- Corrected references to gitlab-runner.install. !1149
+
+### Changed (8 changes)
+
+- Update gitlab-exporter to 5.2.2. !1087
+- Changed migrations job to use task-runner image. !1126
+- Bump registry to v2.7.7-gitlab. !1133
+- Update registry chart versions to reflect recent changes. !1144
+- Update gitlab-exporter to 6.0.0. !1151
+- Align gitlab/unicorn chart service names for Istio environments. !1153
+- Bump Container Registry to v2.8.0-gitlab. !1172
+- Updated EKS bootstrap script to default to Kubernetes 1.14. !1175
+
+### Added (6 changes, 3 of them are from the community)
+
+- Allows the database `pool` to be configurable. !1111 (skarbek)
+- Added ability to set NodePort and ExternalTrafficPolicy for gitlab-shell service. !1112 (Dmitry Chepurovskiy)
+- Adds logging.format option to enable structured json logging for sidekiq. !1132
+- Performance: enable Bootsnap for all Rails-derived containers. !1157
+- NOTES: add notice of runner default to unprivilieged. !1158
+- Add `component` field to the nginx ingress podAntiAffinity. !1169 (Ivan Kurnosov (@zerkms))
+
+### Other (5 changes)
+
+- Document command for easily fetching ELB hostname. !1159
+- Doc: link upstream docs for why GitLab Runner is not privileged by default. !1160
+- Include GitLab Exporter & GitLab Grafana to sub-chart lists. !1161
+- Bump Container Registry to v2.8.1-gitlab. !1173
+- Update GitLab Version to 12.8.0.
+
+
+## 3.0.7 (2020-04-15)
+
+### Other (1 change)
+
+- Update GitLab Version to 12.7.9.
+
+
+## 3.0.6 (2020-03-26)
+
+### Fixed (1 change)
+
+- Fix logic of registry HPA deprecations. !1203
+
+### Other (1 change)
+
+- Update GitLab Version to 12.7.8.
+
+
+## 3.0.5
+
+### Other (1 change)
+
+- Update GitLab Version to 12.7.7.
+
+
+## 3.0.4
+
+### Fixed (1 change, 1 of them is from the community)
+
+- Use the volume with Postgres client SSL certificate in the gitlab-exporter deployment. !1162 (Franciszek Walkowiak)
+
+### Other (1 change)
+
+- Update GitLab Version to 12.7.6.
+
+
+## 3.0.3
+
+### Fixed (1 change)
+
+- Workhorse - set sentinel port default. !1135
+
+### Other (1 change)
+
+- Update GitLab Version to 12.7.5.
+
+
+## 3.0.2
+
+### Changed (1 change)
+
+- Update gitlab-runner chart to 0.13.1. !1138
+
+### Other (1 change)
+
+- Update GitLab Version to 12.7.4.
+
+
+## 3.0.1
+
+### Changed (1 change)
+
+- Update gitlab-runner chart to 0.13.0. !1131
+
+### Other (1 change)
+
+- Update GitLab Version to 12.7.2.
+
+
+## 3.0.0
+
+### Fixed (2 changes)
+
+- NGINX: port spec.clusterIP fixup, unblock upgrades in Helm v3. !1082
+- Set globals at top level for newer Helm versions. !1083
+
+### Changed (7 changes)
+
+- Upgrade bundled PostgreSQL chart to stable/postgresql 7.7.0. !955
+- Bump the requests for exporter and migrations. !967
+- Moved Gitaly enabled flag to global namespace. !1081
+- Changed from forked Redis chart to upstream chart. !1086
+- Update Prometheus chart to v10.0.0. !1089
+- Split the operator bootstrap out of the chart. !1090
+- Registy now defaults to GitLab's container registry fork version v2.7.6-gitlab. !1105
+
+### Added (4 changes, 2 of them are from the community)
+
+- Add Selectors to SideKiq Deployments. !876
+- Added ability to configure sshd MaxStartups for gitlab-shell. !1058 (Dmitry Chepurovskiy)
+- Adds Network Policy object for Sidekiq Deployments. !1102 (skarbek)
+- Add the maxRequestDurationSeconds configuration and move unicorn workersTimeout to global. !1103
+
+### Other (2 changes)
+
+- Use mail_room gem version from Gemfile.lock as appVersion in the chart. !1088
+- Update GitLab Version to 12.7.0.
+
+
+## 2.6.9
+
+### Other (1 change)
+
+- Update GitLab Version to 12.6.8.
+
+
+## 2.6.8
+
+### Fixed (1 change, 1 of them is from the community)
+
+- Use the volume with Postgres client SSL certificate in the gitlab-exporter deployment. !1162 (Franciszek Walkowiak)
+
+### Other (1 change)
+
+- Update GitLab Version to 12.6.7.
+
+
+## 2.6.7
+
+### Other (1 change)
+
+- Update GitLab Version to 12.6.6.
+
+
+## 2.6.6
+
+### Fixed (1 change)
+
+- Mount secrets.yml to dependencies initContainer. !1108
+
+### Other (1 change)
+
+- Update GitLab Version to 12.6.4.
+
+
+## 2.6.5
+
+### Other (1 change)
+
+- Update GitLab Version to 12.6.4.
+
+
+## 2.6.4
+
+### Other (1 change)
+
+- Update GitLab Version to 12.6.3.
+
+
+## 2.6.3
+
+### Fixed (1 change)
+
+- Correctly set the proper gitaly release version. !1092
+
+### Other (1 change)
+
+- Update GitLab Version to 12.6.2.
+
+
+## 2.6.2
+
+### Other (1 change)
+
+- Update GitLab Version to 12.6.2.
+
+
+## 2.6.1
+
+### Other (2 changes)
+
+- Update gitlab-org/charts/gitlab-runner from 0.11.0 to 0.12.0. !1085
+- Update GitLab Version to 12.6.1.
+
+
+## 2.6.0
+
+### Fixed (3 changes, 1 of them is from the community)
+
+- Geo: automate secondary migrations behaviors. !1055
+- Fix reference to piwik url and site ID in GitLab chart template. !1061 (Kevinjil)
+- Corrected indentation issue with Gitaly volumeClaimTemplate selector. !1070
+
+### Deprecated (1 change)
+
+- Deprecate init.image and init.tag settings in favor of init.image.repository and init.image.tag. !1062
+
+### Changed (4 changes, 1 of them is from the community)
+
+- Upgrade nginx ingress controller to 0.21 to Enable TLSv1.3, and TLSv1.1 is disabled by default. !1014 (Xiangxuan Liu)
+- Specify Kubernetes 1.12 as minimum required version and use v1.13 tools and libraries. !1053
+- Updated gitlab-exporter to 5.1.0. !1075
+- Update certmanager to 0.10.1. !1079
+
+### Added (6 changes, 3 of them are from the community)
+
+- Added support of memory killer daemon mode. !1040 (Dmitry Chepurovskiy)
+- Added http probes for sidekiq and unicorn. !1045 (Dmitry Chepurovskiy)
+- Enable Bootsnap cache in Task runner. !1056
+- Add global setting to configure busybox image for initContainers. !1062
+- Adding capability to use pullsecrets in order to download minio mc image. !1066 (Mustafa Bhabhrawala)
+- Enable Bootsnap cache in migrations. !1069
+
+### Other (2 changes)
+
+- Document the use of external Minio for object storage. !1005
+- Update GitLab Version to 12.6.0.
+
+
+## 2.5.11
+
+### Other (1 change)
+
+- Update GitLab Version to 12.5.10.
+
+
+## 2.5.10
+
+### Other (1 change)
+
+- Update GitLab Version to 12.5.9.
+
+
+## 2.5.9
+
+### Fixed (1 change)
+
+- Mount secrets.yml to dependencies initContainer. !1108
+
+### Other (1 change)
+
+- Update GitLab Version to 12.5.7.
+
+
+## 2.5.8
+
+### Other (1 change)
+
+- Update GitLab Version to 12.5.7.
+
+
+## 2.5.7
+
+### Other (1 change)
+
+- Update GitLab Version to 12.5.6.
+
+
+## 2.5.6
+
+### Added (1 change, 1 of them is from the community)
+
+- Redis-HA added storageClass Value. !1077 (conblem)
+
+### Other (1 change)
+
+- Update GitLab Version to 12.5.5.
+
+
+## 2.5.5
+
+### Other (1 change)
+
+- Update GitLab Version to 12.5.4.
+
+
+## 2.5.4
+
+### Fixed (1 change)
+
+- Fix bug that broke gitlab-exporter from connecting to external pg hosts. !1060
+
+### Other (1 change)
+
+- Update GitLab Version to 12.5.3.
+
+
+## 2.5.3
+
+### Other (1 change)
+
+- Update GitLab Version to 12.5.2.
+
+
+## 2.5.2
+
+### Other (1 change)
+
+- Update GitLab Version to 12.5.1.
+
+
+## 2.5.1
+
+### Added (1 change)
+
+- Geo: support configuration and deployment of GitLab Geo #1212. !877
+
+### Other (1 change)
+
+- Update GitLab Version to 12.5.0.
+
+
+## 2.5.0
+
+### Fixed (2 changes)
+
+- Fixed -k switch for eks_bootstrap_script and eksctl website reference. !1016
+- Fixed Redis Sentinel support for gitlab-workhorse. !1043
+
+### Changed (5 changes)
+
+- Update shell logging inside gitaly to use gitaly config file. !1004
+- Add internal_socket_dir to gitaly config. !1017
+- Update grafana chart to 4.0.1. !1026
+- Mailroom: update probes to direct binary. !1036
+- Update prometheus chart to 9.0.0. !1039
+
+### Added (7 changes, 1 of them is from the community)
+
+- Support running Gitaly over TLS. !969
+- Registry: Add support for setting relativeurls config. !1007 (thom8)
+- Allow to specify an initial Enterprise license. !1008
+- Added creds subcommand to eks_bootstrap_script. !1020
+- Add shutdown blackout for unicorn. !1028
+- Sidekiq: add negateQueues functionality. !1029
+- Add LDAP preventSignin. !1031
+
+### Other (2 changes)
+
+- Update gitlab-runner to 0.11.0/12.5.0. !1046
+- Update GitLab Version to 12.5.0.
+
+
+## 2.4.13
+
+### Other (1 change)
+
+- Update GitLab Version to 12.4.8.
+
+
+## 2.4.12
+
+### Other (1 change)
+
+- Update GitLab Version to 12.4.7.
+
+
+## 2.4.10
+
+### Other (1 change)
+
+- Update GitLab Version to 12.4.5.
+
+
+## 2.4.9
+
+### Other (1 change)
+
+- Update GitLab Version to 12.4.4.
+
+
+## 2.4.8
+
+### Other (1 change)
+
+- Update GitLab Version to 12.4.3.
+
+
+## 2.4.7
+
+### Fixed (1 change)
+
+- Support use of kube2iam for cache when minio is disabled. !1011
+
+### Added (2 changes)
+
+- enable many pods for mailroom. !1019
+- Creates NetworkPolicy object for Mailroom. !1023
+
+### Other (2 changes)
+
+- Adds the global gitlab annotations to mailroom.
+- Update GitLab Version to 12.4.2.
+
+
+## 2.4.6
+
+### Fixed (1 change)
+
+- global.ingress.tls default to empty map. !1022
+
+### Added (1 change)
+
+- Allow to configure the liveness probe for gitlab-shell. !1021
+
+### Other (1 change)
+
+- Update GitLab Version to 12.4.2.
+
+
 ## 2.4.5
 
 ### Other (2 changes)
@@ -83,6 +762,43 @@ entry.
 - Add example values for UBI-based deployment. !986
 - Update gitlab-runner to 0.10.0/12.4.0. !1003
 - Update GitLab Version to 12.4.0.
+
+
+## 2.3.12
+
+### Fixed (2 changes)
+
+- Broken pluck expectation in gitlab.ingress.tls.configured #1653. !1013
+- global.ingress.tls default to empty map. !1022
+
+### Other (1 change)
+
+- Update GitLab Version to 12.3.9.
+
+
+## 2.3.11
+
+### Other (1 change)
+
+- Update GitLab Version to 12.3.8.
+
+
+## 2.3.10
+
+### Other (1 change)
+
+- Update GitLab Version to 12.3.7.
+
+
+## 2.3.9
+
+### Fixed (1 change)
+
+- Fix typo in nginx backend PDB. !1006
+
+### Other (1 change)
+
+- Update GitLab Version to 12.3.6.
 
 
 ## 2.3.8
@@ -185,6 +901,17 @@ entry.
 - Rename gitlab-monitor to gitlab-exporter. !897
 - Update gitlab-runner to 0.9.0/12.3.0. !965
 - Update GitLab Version to 12.3.0.
+
+
+## 2.2.12
+
+### Fixed (1 change)
+
+- Fix typo in nginx backend PDB. !1006
+
+### Other (1 change)
+
+- Update GitLab Version to 12.2.9.
 
 
 ## 2.2.11

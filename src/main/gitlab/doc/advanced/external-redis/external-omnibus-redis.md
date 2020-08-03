@@ -44,7 +44,7 @@ postgresql['enable'] = false
 
 After creating `gitlab.rb`, we'll reconfigure the package with `gitlab-ctl reconfigure`. Once the task has completed, check the running processes with `gitlab-ctl status`. The output should appear as such:
 
-```
+```plaintext
 # gitlab-ctl status
 run: logrotate: (pid 4856) 1859s; run: log: (pid 31262) 77460s
 run: redis: (pid 30562) 77637s; run: log: (pid 30561) 77637s

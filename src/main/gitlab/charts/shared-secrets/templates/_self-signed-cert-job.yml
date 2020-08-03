@@ -5,7 +5,7 @@ metadata:
   name: {{ template "shared-secrets.jobname" . }}-selfsign
   namespace: {{ .Release.Namespace }}
   labels:
-{{ include "gitlab.standardLabels" . | indent 4 }}
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
 {{- if not .Values.global.operator.enabled }}
   annotations:
     "helm.sh/hook": pre-install,pre-upgrade
@@ -23,7 +23,7 @@ spec:
         fsGroup: {{ .Values.securityContext.fsGroup }}
       serviceAccountName: {{ template "shared-secrets.serviceAccountName" . }}
       restartPolicy: Never
-{{- include "pullsecrets" .Values.selfsign.image | indent 6}}
+      {{- include "pullsecrets" .Values.selfsign.image | nindent 6 }}
       initContainers:
       - name: cfssl-self-sign
         image: "{{ .Values.selfsign.image.repository }}:{{ .Values.selfsign.image.tag }}"
@@ -48,7 +48,7 @@ spec:
         - name: certs-path
           mountPath: /output
         resources:
-{{ toYaml .Values.resources | indent 10 }}
+          {{- toYaml .Values.resources | nindent 10 }}
       containers:
       - name: kubectl
         image: {{ include "gitlab.kubectl.image" . | quote }}
@@ -79,7 +79,7 @@ spec:
         - name: certs-path
           mountPath: /output
         resources:
-{{ toYaml .Values.resources | indent 10 }}
+          {{- toYaml .Values.resources | nindent 10 }}
       volumes:
       - name: certs-path
         emptyDir: {}

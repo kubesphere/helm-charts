@@ -28,7 +28,7 @@ updates to following example must also be made at
 https://gitlab.com/gitlab-org/gitlab-foss/blob/master/doc/administration/gitaly/index.md#gitaly-server-configuration
 -->
 
-```Ruby
+```ruby
 # Avoid running unnecessary services on the Gitaly server
 postgresql['enable'] = false
 redis['enable'] = false
@@ -48,15 +48,23 @@ gitlab_rails['auto_migrate'] = false
 gitlab_rails['internal_api_url'] = 'GITLAB_URL'
 gitlab_shell['secret_token'] = 'SHELL_TOKEN'
 
-# Make Gitaly accept connections on all network interfaces. You must use
-# firewalls to restrict access to this address/port.
-gitaly['listen_addr'] = "0.0.0.0:8075"
+# Authentication token to ensure only authorized servers can communicate with
+# Gitaly server
 gitaly['auth_token'] = 'AUTH_TOKEN'
 
-gitaly['storage'] = [
-  { 'name' => 'default', 'path' => '/mnt/gitlab/default/repositories' },
-  { 'name' => 'storage1', 'path' => '/mnt/gitlab/storage1/repositories' },
-]
+# Make Gitaly accept connections on all network interfaces. You must use
+# firewalls to restrict access to this address/port.
+# Comment out following line if you only want to support TLS connections
+gitaly['listen_addr'] = "0.0.0.0:8075"
+
+git_data_dirs({
+  'default' => {
+    'path' => '/var/opt/gitlab/git-data'
+  },
+  'storage1' => {
+    'path' => '/mnt/gitlab/git-data'
+  },
+})
 
 # To use TLS for Gitaly you need to add
 gitaly['tls_listen_addr'] = "0.0.0.0:8076"
@@ -66,7 +74,7 @@ gitaly['key_path'] = "path/to/key.pem"
 
 After creating `gitlab.rb`, reconfigure the package with `gitlab-ctl reconfigure`. Once the task has completed, check the running processes with `gitlab-ctl status`. The output should appear as such:
 
-```
+```plaintext
 # gitlab-ctl status
 run: gitaly: (pid 30562) 77637s; run: log: (pid 30561) 77637s
 run: logrotate: (pid 4856) 1859s; run: log: (pid 31262) 77460s

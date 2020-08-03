@@ -1,14 +1,15 @@
-# Default values for unicorn-web.
+# Default values for unicorn.
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 image:
   pullSecrets: []
   # pullPolicy: IfNotPresent
-  # repository: registry.gitlab.com/gitlab-org/build/cng/gitlab-unicorn-ee
+  # repository: registry.gitlab.com/gitlab-org/build/cng/gitlab-webservice-ee
   # tag: latest
 init:
-  image: busybox
-  tag: latest
+  image: {}
+    # repository:
+    # tag:
   resources:
     requests:
       cpu: 50m
@@ -23,7 +24,12 @@ monitoring:
   exporter:
     enabled: false
     port: 8083
-    blackoutSeconds: 10
+
+# Shutdown settings
+# Defines an interval to block healthcheck,
+# but continue accepting application requests.
+shutdown:
+  blackoutSeconds: 10
 
 
 annotations: {}
@@ -35,7 +41,6 @@ metrics:
     prometheus.io/port: "8080"
     prometheus.io/path: "/-/metrics"
 service:
-  name: unicorn
   type: ClusterIP
   externalPort: 8080
   internalPort: 8080
@@ -52,10 +57,17 @@ ingress:
     # enabled: true
   annotations: {}
 workerProcesses: 2
-workerTimeout: 60
+
 memory: # in MB units
-  min: 700
-  max: 1024
+  min: 1024
+  max: 1280
+
+puma:
+  workerMaxMemory: 1024 # in MB units
+  threads:
+    min: 4
+    max: 4
+
 hpa:
   targetAverageValue: 1
 
@@ -93,6 +105,10 @@ workhorse:
     timeoutSeconds: 2
     successThreshold: 1
     failureThreshold: 3
+
+psql: {}
+  # port: 5432
+
 global:
   # imagePullPolicy: IfNotPresent
   ingress:
@@ -119,6 +135,7 @@ global:
     # port: '5432'
     # database: 'gitlabhq_production'
     # username: 'gitlab'
+    # pool: 10
     # preparedStatements: false
     # password:
     #   secret: gitlab-postgres
@@ -139,6 +156,8 @@ global:
   minio:
     enabled:
     credentials: {}
+  unicorn: {}
+    # workerTimeout: 60
   appConfig:
     incomingEmail:
       enabled: false
@@ -166,6 +185,10 @@ global:
     externalDiffs:
       when:
       proxy_download: true
+      bucket:
+      connection: {}
+    terraformState:
+      enabled: false
       bucket:
       connection: {}
     ldap:
@@ -230,12 +253,14 @@ trusted_proxies: []
 resources:
   # limits:
   #  cpu: 1.5
-  #  memory: 1.5G
+  #  memory: 2G
   requests:
     cpu: 300m
-    memory: 1.2G
+    memory: 1.5G
 maxUnavailable: 1
 minReplicas: 2
 maxReplicas: 10
 helmTests:
   enabled: true
+
+webServer: unicorn

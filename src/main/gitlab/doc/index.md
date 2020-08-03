@@ -1,39 +1,190 @@
 # GitLab cloud native Helm Chart
 
-This is the official and recommended way to install GitLab on a cloud native environment.
+This is the official, recommended, and supported method to install GitLab on a cloud native environment.
 
-Do note that it is not necessary to have GitLab installed on Kubernetes in order to use
+NOTE: **Note:** It is not necessary to have GitLab installed on Kubernetes in order to use
 the [GitLab Kubernetes integration](https://docs.gitlab.com/ee/user/project/clusters/).
 
 ## Introduction
 
-The `gitlab` chart is the best way to operate GitLab on Kubernetes. This chart
+The `gitlab/gitlab` chart is the best way to operate GitLab on Kubernetes. This chart
 contains all the required components to get started, and can scale to large deployments.
 
-The default deployment includes:
+This chart includes all the components for a complete experience, but each part
+can be installed separately.
 
-- Core GitLab components: Unicorn, Shell, Workhorse, Registry, Sidekiq, and Gitaly
-- Optional dependencies: Postgres, Redis, Minio
-- An auto-scaling, unprivileged [GitLab Runner](https://docs.gitlab.com/runner/) using the Kubernetes executor
-- Automatically provisioned SSL via [Let's Encrypt](https://letsencrypt.org/).
-
-There are also some [example values.yaml files](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/examples).
+- Core GitLab components:
+  - [NGINX Ingress](charts/nginx/index.md)
+  - [Registry](charts/registry/index.md)
+  - GitLab/[Gitaly](charts/gitlab/gitaly/index.md)
+  - GitLab/[GitLab Exporter](charts/gitlab/gitlab-exporter/index.md)
+  - GitLab/[GitLab Grafana](charts/gitlab/gitlab-grafana/index.md)
+  - GitLab/[GitLab Shell](charts/gitlab/gitlab-shell/index.md)
+  - GitLab/[Migrations](charts/gitlab/migrations/index.md)
+  - GitLab/[Sidekiq](charts/gitlab/sidekiq/index.md)
+  - GitLab/[Unicorn](charts/gitlab/unicorn/index.md)
+- Optional dependencies:
+  - [PostgreSQL](https://hub.helm.sh/charts/stable/postgresql)
+  - [Redis](https://hub.helm.sh/charts/stable/redis)
+  - [MinIO](charts/minio/index.md)
+- Optional additions:
+  - [Prometheus](https://hub.helm.sh/charts/stable/prometheus)
+  - [Grafana](https://hub.helm.sh/charts/stable/grafana)
+  - [_Unprivileged_](https://docs.gitlab.com/runner/install/kubernetes.html#running-docker-in-docker-containers-with-gitlab-runners) [GitLab Runner](https://docs.gitlab.com/runner/) using the Kubernetes executor
+  - Automatically provisioned SSL via [Let's Encrypt](https://letsencrypt.org/), using [Jetstack](https://www.jetstack.io/)'s [cert-manager](https://cert-manager.io/docs/)
 
 ## Limitations
 
 Some features of GitLab are not currently available using the Helm chart:
 
 - [GitLab Pages](https://gitlab.com/gitlab-org/charts/gitlab/issues/37)
-- [GitLab Geo](https://gitlab.com/gitlab-org/charts/gitlab/issues/8)
-- [No in-cluster HA database](https://gitlab.com/gitlab-org/charts/gitlab/issues/48)
 - [Smartcard authentication](https://gitlab.com/gitlab-org/charts/gitlab/issues/988)
 
 Database limitations:
 
-- MySQL will not be supported, as support is [deprecated within GitLab](https://docs.gitlab.com/omnibus/settings/database.html#using-a-mysql-database-management-server-enterprise-edition-only)
-- Support is only available for Postgres 9.6. Backup and restore [will not work with other versions](https://gitlab.com/gitlab-org/charts/gitlab/issues/852).
+- GitLab Geo functionality [requires the use of external database service(s)](installation/deployment.md#postgresql).
 
-## GitLab version mappings
+## GitLab Helm chart quick start guide
+
+For those looking to get up and running with these charts as fast as possible, in
+a _non-production_ use case, we provide a [Quick Start Guide](quickstart/index.md)
+for Proof of Concept (PoC) deployments.
+
+This guide walks the user through deploying these charts with default values & features,
+but _does not_ meet production ready requirements. If you wish to deploy these charts
+into production under sustained load, you should follow the complete
+[Installation guide](#installation) below.
+
+## Troubleshooting
+
+We've done our best to make these charts as seamless as possible, but occasionally
+troubles do surface outside of our control. We've collected tips and tricks for
+troubleshooting common issues. Please examine these first before raising an
+[Issue](htps://gitlab.com/gitlab-org/charts/gitlab/-/issues), and feel free to add
+to them by raising a [Merge Request](https://gitlab.com/gitlab-org/charts/gitlab/-/merge_requests)!
+
+See [Troubleshooting](troubleshooting/index.md).
+
+## Installation
+
+The `gitlab/gitlab` chart contains all required dependencies. In production, you
+may want to enable optional features or [advanced configuration](#advanced-configuration).
+This guide walks all of the options and features of these charts in great depth.
+
+If you are just looking to deploy a Proof of Concept for testing, we strongly suggest
+you follow our [Quick Start](#gitlab-helm-chart-quick-start-guide) for your first iteration.
+
+1. [Preparation](installation/index.md)
+1. [Deployment](installation/deployment.md)
+
+### Global settings
+
+The complexity of these charts lends themselves to the use of global properties.
+There are many common global settings that apply to multiple charts. See the
+[Globals documentation](charts/globals.md) for details on the different global
+configuration values and their application.
+
+### Complete properties list
+
+We're often asked to put a table of all possible properties directly into this index.
+These charts are _massive_ in scale, and as such the number of properties exceeds
+the amount of context we're comfortable placing here. Please see our (nearly)
+[comprehensive list of properties and defaults](installation/command-line-options.md).
+
+## Upgrading
+
+Once your GitLab Chart is installed, configuration changes and chart updates
+should be done using `helm upgrade`:
+
+```sh
+helm repo add stable https://kubernetes-charts.storage.googleapis.com
+helm repo add gitlab https://charts.gitlab.io/
+helm repo update
+helm get values gitlab > gitlab.yaml
+helm upgrade gitlab gitlab/gitlab -f gitlab.yaml
+```
+
+NOTE: **Note**:
+If using Helm v2, the stable repository is installed by Helm automatically.
+There are no adverse effects if it is added again.
+
+For more detailed information see [Upgrading](installation/upgrade.md).
+
+## Uninstall
+
+To uninstall the GitLab Chart, run the following:
+
+```sh
+helm uninstall gitlab
+```
+
+NOTE: **Note:**
+With Helm v2, you need to use the command `helm delete --purge gitlab`.
+
+For the purposes of continuity, these charts have some Kubernetes objects that
+are not removed when performing `helm uninstall`. These are items we require you to
+_conciously_ remove them, as they affect re-deployment should you chose to.
+
+- PVCs for stateful data, which you must _consciously_ remove
+  - Gitaly: This is your repository data.
+  - PostgreSQL (if internal): This is your metadata.
+  - Redis (if internal): This is cache & job queues, which can be safely removed.
+- Secrets, if generated by our shared-secrets Job. These charts are designed to
+never generate Kubernetes Secrets via Helm directly. As such, Helm can't remove them. They
+contain passwords, encryption secrets, etc. They should not be callously destroyed.
+- ConfigMaps
+  - `ingress-controller-leader-RELEASE-nginx`: This is generated by the NGINX Ingress
+controller itself, and is outside the control of our chart. It can be safely removed.
+
+The PVCs and Secrets will have the `release` label set, so you can find these with:
+
+```shell
+kubectl get pvc,secret -lrelease=gitlab
+```
+
+## Advanced
+
+Beyond the basic deployments of GitLab in cloud native environments, more complex
+configuration is possible. This section serves a guide point for those tasks which
+require further planning, such as large scale deployments or migrating from
+the Omnibus GitLab.
+
+### Advanced Configuration
+
+Advanced and large scale deployments have the ability to make use of external
+services, extended functionality, and alternate providers.
+
+Examples of advanced configurations:
+
+- GitLab Geo
+- External object storage providers
+- External PostgreSQL, Redis, Gitaly
+- External Ingress providers
+
+See [Advanced Configuration](advanced/index.md).
+
+### Migrate from Omnibus GitLab to Kubernetes
+
+It is possible to migrate from [Omnibus GitLab](https://docs.gitlab.com/omnibus/)
+to these charts. Doing so generally requires migrating existing data to object
+storage, and thus is an [Advanced Configuration](advanced/index.md).
+
+To migrate your existing Omnibus GitLab instance to these charts, follow the
+[migration documentation](installation/migration/index.md).
+
+## Architecture
+
+These charts are complex, as they coordinate the deployment of a complete application
+suite. We provide [documentation](architecture/index.md) of the goals, structure,
+design decisions, and resource consumption.
+
+## Development
+
+For those interested in contributing to these charts, we provide development
+guidelines covering the gamut of working with this project. They can be found
+under [development](development/index.md).
+
+### GitLab version mappings
 
 The GitLab chart doesn't have the same version number as GitLab itself.
 Breaking changes are anticipated that may need to be introduced to the chart
@@ -41,88 +192,19 @@ that would warrant a major version bump, and the requirement for these changes
 could completely block other development on these charts until completed.
 
 To quickly see the full list of the `gitlab` chart versions and the GitLab version
-they map to, issue the following command with [helm](installation/tools.md#helm):
+they map to, issue the following command with [Helm](installation/tools.md#helm):
 
-```sh
+```shell
 helm repo add gitlab https://charts.gitlab.io/
-helm search -l gitlab/gitlab
+helm search repo -l gitlab/gitlab
 ```
+
+NOTE: **Note**
+With Helm v2, the search command would be `helm search -l gitlab/gitlab`
 
 For more information, visit the [version mappings docs](installation/version_mappings.md).
 
-## List of charts
-
-The main GitLab chart is based on a variety of other charts. Each sub-chart is
-documented individually, and laid in a structure that matches the
-[charts](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/charts) directory structure.
-
-Non-GitLab components are packaged and documented on the top level. GitLab
-component services are documented under the [GitLab](charts/gitlab/index.md) chart:
-
-- [NGINX](charts/nginx/index.md)
-- [Redis](charts/redis/index.md)
-- [Minio](charts/minio/index.md)
-- [Registry](charts/registry/index.md)
-- GitLab/[sidekiq](charts/gitlab/sidekiq/index.md)
-- GitLab/[gitlab-shell](charts/gitlab/gitlab-shell/index.md)
-- GitLab/[gitaly](charts/gitlab/gitaly/index.md)
-- GitLab/[unicorn](charts/gitlab/unicorn/index.md)
-- GitLab/[migrations](charts/gitlab/migrations/index.md)
-
-## Global settings
-
-There are some common global settings that apply to multiple charts. See the
-[Globals documentation](charts/globals.md) for details on the different global
-configuration.
-
-## Installing GitLab using the Helm Chart
-
-The `gitlab` chart includes all required dependencies, and takes a few minutes
-to deploy:
-
-1. [Preparation](installation/index.md)
-1. [Deployment](installation/deployment.md)
-
-## Updating GitLab using the Helm Chart
-
-Once your GitLab Chart is installed, configuration changes and chart updates
-should be done using `helm upgrade`:
-
-```sh
-helm repo add gitlab https://charts.gitlab.io/
-helm repo update
-helm get values gitlab > gitlab.yaml
-helm upgrade gitlab gitlab/gitlab -f gitlab.yaml
-```
-
-For more detailed information see [Upgrading](installation/upgrade.md).
-
-## Uninstalling GitLab using the Helm Chart
-
-To uninstall the GitLab Chart, run the following:
-
-```sh
-helm delete gitlab
-```
-
-## Migrate from Omnibus GitLab to Kubernetes
-
-To migrate your existing Omnibus GitLab instance to your Kubernetes cluster,
-follow the [migration documentation](installation/migration/index.md).
-
-## Advanced configuration
-
-See [Advanced Configuration](advanced/index.md).
-
-## Troubleshooting
-
-See [Troubleshooting](troubleshooting/index.md).
-
-## Contributing
+### Contributing
 
 See the [developer documentation](development/index.md) to learn how to contribute
-to the GitLab charts.
-
-## Misc
-
-[Weekly demos preparation](development/preparation/index.md)
+to the GitLab charts, in addition to our [Contributing Guidelines](https://gitlab.com/gitlab-org/charts/gitlab/tree/master/CONTRIBUTING.md).

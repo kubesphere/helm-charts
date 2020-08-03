@@ -8,7 +8,7 @@ Major releases will be for breaking changes **and** significant milestones in th
 
 We will bump it for:
 
-- significant additions/changes (let's say we add pages by default, or we drop nginx completely)
+- significant additions/changes (let's say we add pages by default, or we drop NGINX completely)
 - breaking changes in GitLab or in the charts (requiring manual interaction to your existing install to upgrade)
 - Major updates in the GitLab image. (the release of 12.0.0)
 
@@ -42,18 +42,21 @@ We will bump it for:
 | `0.3.0`       | `11.1.0`       | GitLab minor release, along with new chart changes |
 | `0.4.0`       | `11.1.0`       | Chart change that we feel makes sense to include as a minor version bump |
 | `0.2.4`       | `11.0.3`       | Security release |
-| ~~`0.3.1`~~   | ~~`11.1.1`~~   | ~~Security release~~ <sup>*1</sup> |
-| `0.4.1`       | `11.1.1`       | Security release <sup>*1</sup> |
+| ~~`0.3.1`~~   | ~~`11.1.1`~~   | ~~Security release~~ (*1*) |
+| `0.4.1`       | `11.1.1`       | Security release (*1*) |
 | ...           | ...            | ... |
 | `1.0.0`       | `11.x.0`       | GitLab minor release, along with Chart GA |
 | `2.0.0`       | `11.x.x`       | Introduced some breaking change to the chart |
 | `3.0.0`       | `12.0.0`       | GitLab 12 release |
 
-<sup>1</sup> If we have two chart versions that both would need to be upgraded to the same image version for a security release, we will just update the newer one. Otherwise automating release logic will be overly complicated. Users can workaround if needed by manually specifying the image version, or upgrading their chart.
+- (*1*): If we have two chart versions that both would need to be upgraded to the same image version
+  for a security release, we will just update the newer one. Otherwise automating release logic will
+  be overly complicated. Users can workaround if needed by manually specifying the image version, or
+  upgrading their chart.
 
 ### Future iteration
 
-While we considered just using the GitLab version as our own, we are not yet in lockstep with gitlab releases to the point where we would make a breaking change here in the chart, and require gitlab to bump the version number to 12 for instance. For now we will move forward with a chart specific version scheme, until we get to the point where we have the charts stable enough that we are comfortable with sharing the same version, and a chart update being a reasonable reason to bump GitLab's core version.
+While we considered just using the GitLab version as our own, we are not yet in lockstep with GitLab releases to the point where we would make a breaking change here in the chart, and require GitLab to bump the version number to 12 for instance. For now we will move forward with a chart specific version scheme, until we get to the point where we have the charts stable enough that we are comfortable with sharing the same version, and a chart update being a reasonable reason to bump GitLab's core version.
 
 ## Branches and Tags
 
@@ -91,7 +94,7 @@ Related to releasing using the proposed branching strategy
 
 ## Releasing the chart
 
-Releasing a new version of the chart is handled by the helm release tasks in the [release tools repo](https://gitlab.com/gitlab-org/release-tools)
+Releasing a new version of the chart is handled by the Helm release tasks in the [release tools repo](https://gitlab.com/gitlab-org/release-tools)
 
 By default, this task will be automatically run from CI when a new release image is tagged in the [CNG image repo](https://gitlab.com/gitlab-org/build/CNG)
 
@@ -104,19 +107,28 @@ stable branch for the version you will release.
 
 For example, if you want to release version `0.2.1` of the charts, the changes will need to be in `0-2-stable`
 
-To manually release the chart, checkout and setup the [release tools repo](https://gitlab.com/gitlab-org/release-tools).
+A chatops command exists to tag a release. Run the following command in the
+relevant release Slack channel (eg: `#f_release_12_4`)
 
+```plaintext
+/chatops run helm tag <charts version> <GitLab version>
 ```
-git clone git@gitlab.com:gitlab-org/release-tools.git
-bundle install
-```
 
-Then run the appropriate helm release task:
+You can also do it manually, without using the chatops command as follows:
 
-- When you want to release without changing the gitlab app version, call the release task with the new chart version (eg `0.2.1`)
-  - `bundle exec rake helm:tag_chart[0.2.1]`
+1. checkout and setup the [release tools repo](https://gitlab.com/gitlab-org/release-tools).
 
-- When you want to release and change both the chart version and the app version (eg `0.2.1` with GitLab `11.0.1`)
-  - `bundle exec rake helm:tag_chart[0.2.1,11.0.1]`
+   ```shell
+   git clone git@gitlab.com:gitlab-org/release-tools.git
+   bundle install
+   ```
 
-> You can run the script in dry-run mode which prevents pushes by setting TEST=true in your environment
+1. Then run the appropriate Helm release task:
+
+   - When you want to release without changing the GitLab app version, call the release task with the new chart version (eg `0.2.1`)
+     - `bundle exec rake helm:tag_chart[0.2.1]`
+
+   - When you want to release and change both the chart version and the app version (eg `0.2.1` with GitLab `11.0.1`)
+     - `bundle exec rake helm:tag_chart[0.2.1,11.0.1]`
+
+    > You can run the script in dry-run mode which prevents pushes by setting TEST=true in your environment

@@ -5,7 +5,7 @@ metadata:
   name: {{ template "fullname" . }}
   namespace: {{ $.Release.Namespace }}
   labels:
-{{ include "gitlab.standardLabels" . | indent 4 }}
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
 data:
   installation_type: |
     gitlab-helm-chart
@@ -14,27 +14,28 @@ data:
       adapter: postgresql
       encoding: unicode
       database: {{ template "gitlab.psql.database" . }}
-      pool: 10
       username: {{ template "gitlab.psql.username" . }}
       password: "<%= File.read("/etc/gitlab/postgres/psql-password").strip.dump[1..-2] %>"
-      host: {{ template "gitlab.psql.host" . }}
+      host: {{ include "gitlab.psql.host" . | quote }}
       port: {{ template "gitlab.psql.port" . }}
+      pool: {{ template "gitlab.psql.pool" . }}
       prepared_statements: {{ template "gitlab.psql.preparedStatements" . }}
       # load_balancing:
       #   hosts:
       #     - host1.example.com
       #     - host2.example.com
-{{- include "gitlab.psql.ssl.config" . | indent 6 }}
+      {{- include "gitlab.psql.ssl.config" . | nindent 6 }}
+  {{- if include "gitlab.geo.secondary" . }}
+  database_geo.yml.erb: |
+    {{- include "gitlab.geo.database.yml" . | nindent 4 }}
+  {{- end }}
   smtp_settings.rb: |
-{{ include "gitlab.smtp_settings" . | indent 4 }}
-  resque.yml.erb: |
-    production:
-      # Redis (single instance)
-      url: {{ template "gitlab.redis.url" . }}
-{{- if .Values.global.redis.sentinels }}
-{{ include "gitlab.redis.sentinels" . | indent 6 }}
-{{- end }}
-      id:
+    {{- include "gitlab.smtp_settings" . | nindent 4 }}
+  {{- include "gitlab.rails.redis.resque" . | nindent 2 }}
+  {{- include "gitlab.rails.redis.cache" . | nindent 2 }}
+  {{- include "gitlab.rails.redis.sharedState" . | nindent 2 }}
+  {{- include "gitlab.rails.redis.queues" . | nindent 2 }}
+  {{- include "gitlab.rails.redis.cable" . | nindent 2 }}
   gitlab.yml.erb: |
     production: &base
       gitlab:
@@ -44,8 +45,10 @@ data:
         ssh_host: {{ . | quote }}
         {{- end }}
         {{- with .Values.global.appConfig }}
+        max_request_duration_seconds: {{ default (include "gitlab.appConfig.maxRequestDurationSeconds" $) .maxRequestDurationSeconds }}
         impersonation_enabled: {{ .enableImpersonation }}
         usage_ping_enabled: {{ eq .enableUsagePing true }}
+        seat_link_enabled: {{ eq .enableSeatLink true }}
         default_can_create_group: {{ eq .defaultCanCreateGroup true }}
         username_changing_enabled: {{ eq .usernameChangingEnabled true }}
         issue_closing_pattern: {{ .issueClosingPattern | quote }}
@@ -55,26 +58,28 @@ data:
         {{- end }}
         trusted_proxies:
         {{- if .Values.trusted_proxies }}
-{{ toYaml .Values.trusted_proxies | indent 10 }}
+          {{- toYaml .Values.trusted_proxies | nindent 10 }}
         {{- end }}
         time_zone: {{ .Values.global.time_zone | quote }}
         {{- include "gitlab.outgoing_email_settings" . | indent 8 }}
       {{- with .Values.global.appConfig }}
       {{- if eq .incomingEmail.enabled true }}
-{{ include "gitlab.appConfig.incoming_email" . | indent 6 }}
+      {{- include "gitlab.appConfig.incoming_email" . | nindent 6 }}
       {{- end }}
       gravatar:
         plain_url: {{ .gravatar.plainUrl }}
         ssl_url: {{ .gravatar.sslUrl }}
       {{- include "gitlab.appConfig.cronJobs" . | nindent 6 }}
-{{ include "gitlab.appConfig.extra" . | indent 6 }}
+      {{- include "gitlab.appConfig.extra" . | nindent 6 }}
       {{- end }}
       {{- include "gitlab.appConfig.artifacts.configuration" (dict "config" $.Values.global.appConfig.artifacts "context" $) | nindent 6 }}
       {{- include "gitlab.appConfig.lfs.configuration" (dict "config" $.Values.global.appConfig.lfs "context" $) | nindent 6 }}
       {{- include "gitlab.appConfig.uploads.configuration" (dict "config" $.Values.global.appConfig.uploads "context" $) | nindent 6 }}
       {{- include "gitlab.appConfig.packages.configuration" (dict "config" $.Values.global.appConfig.packages "context" $) | nindent 6 }}
       {{- include "gitlab.appConfig.external_diffs.configuration" (dict "config" $.Values.global.appConfig.externalDiffs "context" $) | nindent 6 }}
+      {{- include "gitlab.appConfig.terraformState.configuration" (dict "config" $.Values.global.appConfig.terraformState "context" $) | nindent 6 }}
       {{- include "gitlab.appConfig.pseudonymizer.configuration" $ | nindent 6 }}
+      {{- include "gitlab.geo.config" $ | nindent 6 }}
       pages:
         enabled: false
       mattermost:
@@ -87,11 +92,11 @@ data:
       kerberos:
         enabled: false
       shared:
-{{ include "gitlab.appConfig.gitaly" . | indent 6 }}
-{{ include "gitlab.appConfig.repositories" . | indent 6 }}
+      {{- include "gitlab.appConfig.gitaly" . | nindent 6 }}
+      {{- include "gitlab.appConfig.repositories" . | nindent 6 }}
       backup:
         path: "tmp/backups"   # Relative paths are relative to Rails.root (default: tmp/backups/)
-{{ include "gitlab.appConfig.shell" . | indent 6 }}
+      {{- include "gitlab.appConfig.shell" . | nindent 6 }}
       workhorse:
       git:
         bin_path: /usr/bin/git
@@ -105,8 +110,11 @@ data:
           address: 0.0.0.0
           port: {{ .Values.metrics.port }}
 {{- end }}
+      sidekiq:
+        log_format: {{ .Values.logging.format }}
   configure: |
     {{- include "gitlab.scripts.configure.secrets" (dict "required" "gitaly registry postgres rails-secrets") | nindent 4 -}}
     {{- include "gitlab.psql.ssl.initScript" . | nindent 4 }}
+    {{- include "gitlab.geo.psql.ssl.initScript" . | nindent 4 }}
 # Leave this here - This line denotes end of block to the parser.
 {{- end }}

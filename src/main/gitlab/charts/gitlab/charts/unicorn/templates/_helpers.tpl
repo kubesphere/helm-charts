@@ -30,3 +30,15 @@ image repository.
 {{ index .Values "global" "enterpriseImages" .Chart.Name "workhorse" "repository" }}
 {{- end -}}
 {{- end -}}
+
+{{/*
+Returns the unicorn image depending on the value of global.edition.
+
+Used to switch the deployment from Enterprise Edition (default) to Community
+Edition. If global.edition=ce, returns the Community Edition image repository
+set in the Gitlab values.yaml, otherwise returns the Enterprise Edition
+image repository.
+*/}}
+{{- define "unicorn.image" -}}
+{{ coalesce .Values.image.repository (include "image.repository" .) }}:{{ coalesce .Values.image.tag (include "gitlab.versionTag" . ) }}
+{{- end -}}

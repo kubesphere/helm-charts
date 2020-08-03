@@ -33,7 +33,15 @@ You need to set the following parameters:
 
 - `gitlab.task-runner.backups.cron.enabled`: Set to true to enable cron based backups
 - `gitlab.task-runner.backups.cron.schedule`: Set as per the Kubernetes schedule docs
-- `gitlab.task-runner.backups.cron.extraArgs`: Optionally set extra arguments for backup-utility (like `--skip db`)
+- `gitlab.task-runner.backups.cron.extraArgs`: Optionally set extra arguments for [backup-utility](https://gitlab.com/gitlab-org/build/CNG/blob/master/gitlab-task-runner/scripts/bin/backup-utility) (like `--skip db`)
+
+## Backup utility extra arguments
+
+The backup utility can take some extra arguments. See what those are with:
+
+```shell
+kubectl exec <task-runner pod name> -it backup-utility --help
+```
 
 ## Backup the secrets
 

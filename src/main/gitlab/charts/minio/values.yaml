@@ -44,9 +44,10 @@ global:
 
 ## Control the InitContainer behaviors.
 init:
-  image: "busybox"
-  tag: "latest"
-  pullPolicy: "IfNotPresent"
+  image:
+    # repository:
+    # tag:
+    pullPolicy: "IfNotPresent"
   script: |-
     sed -e 's@ACCESS_KEY@'"$(cat /config/accesskey)"'@' -e 's@SECRET_KEY@'"$(cat /config/secretkey)"'@' /config/config.json > /minio/config.json
   resources:
@@ -118,6 +119,12 @@ resources:
     memory: 128Mi
     cpu: 100m
 
+# Additational pod annotations
+podAnnotations: {}
+
+# Additional pod labels
+podLabels: {}
+
 ## Create a buckets after minio install
 ## An array of items, with name, policy, and purge
 defaultBuckets:
@@ -131,6 +138,7 @@ defaultBuckets:
   - name: tmp
   - name: gitlab-pseudo
   - name: gitlab-mr-diffs
+  - name: gitlab-terraform-state
   ## If enabled, must be a string with length > 0
   # - name: example
   ## Can be one of none|download|upload|public, defaults to `none`

@@ -4,12 +4,13 @@
 image:
   pullSecrets: []
   # pullPolicy: IfNotPresent
-  # repository: registry.gitlab.com/gitlab-org/build/cng/gitlab-rails-ee
+  # repository: registry.gitlab.com/gitlab-org/build/cng/gitlab-task-runner-ee
   # tag: latest
 
 init:
-  image: busybox
-  tag: latest
+  image: {}
+    # repository:
+    # tag:
   resources:
     requests:
       cpu: 50m
@@ -28,6 +29,10 @@ gitaly:
   authToken: {}
   #   secret: gitaly-secret
   #   key: token
+
+psql: {}
+  # port: 5432 
+
 global:
   # imagePullPolicy: IfNotPresent
   psql: {}
@@ -35,6 +40,7 @@ global:
     # port: '5432'
     # database: 'gitlabhq_production'
     # username: 'gitlab'
+    # pool: 10
     # preparedStatements: false
     # password:
     #   secret: gitlab-postgres
@@ -53,7 +59,7 @@ global:
     authToken: {}
 resources:
   requests:
-    cpu: 50m
+    cpu: 250m
     memory: 200Mi
 activeDeadlineSeconds: 3600
 backoffLimit: 6

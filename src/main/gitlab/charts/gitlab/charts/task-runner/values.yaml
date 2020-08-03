@@ -5,8 +5,9 @@ image:
   # tag: latest
 
 init:
-  image: busybox
-  tag: latest
+  image: {}
+    # repository:
+    # tag:
   resources:
     requests:
       cpu: 50m
@@ -15,7 +16,12 @@ init:
 tolerations: []
 
 enabled: true
+replicas: 1
 annotations: {}
+
+psql: {}
+  # port: 5432 
+
 global:
   # imagePullPolicy: IfNotPresent
   hosts:
@@ -30,6 +36,7 @@ global:
     # port: '5432'
     # database: 'gitlabhq_production'
     # username: 'gitlab'
+    # pool: 10
     # preparedStatements: false
     # ssl:
     #   secret: gitlab-ssl-secret
@@ -47,6 +54,7 @@ global:
   minio:
     enabled:
     credentials: {}
+  unicorn: {}
   appConfig:
     lfs:
       enabled: true
@@ -71,6 +79,10 @@ global:
     externalDiffs:
       when:
       proxy_download: true
+      bucket:
+      connection: {}
+    terraformState:
+      enabled: false
       bucket:
       connection: {}
     ldap:

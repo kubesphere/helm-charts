@@ -9,5 +9,6 @@ minio:
   persistence:
     volumeName: DISK_VOLUME_NAME
 redis:
-  persistence:
-    volumeName: DISK_VOLUME_NAME
+  master:
+    persistence:
+      volumeName: DISK_VOLUME_NAME
