@@ -66,7 +66,7 @@ global:
   ## doc/charts/globals.md#configure-host-settings
   hosts:
     domain: example.com
-    hostSuffix:
+    # hostSuffix:
     https: false
     externalIP:
     ssh: ~
