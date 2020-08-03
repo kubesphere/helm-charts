@@ -48,6 +48,7 @@ Parameter | Description | Default
 `driver.tag` | Tag of CSI plugin | `v1.2.0-rc3 `
 `driver.pullPolicy` | Image pull policy of CSI plugin | `IfNotPresent`
 `driver.maxVolume` | Max volume of CSI plugin | `10`
+`driver.kubeletDir` | Directory of kubelet | `/var/lib/kubelet`
 `provisioner.repository` | Image of csi-provisioner | `csiplugin/csi-provisioner`
 `provisioner.tag` | Tag of csi-provisioner | `v1.5.0`
 `provisioner.volumeNamePrefix` | Prefix of volume name created by the driver | `pvc`

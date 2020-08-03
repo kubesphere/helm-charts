@@ -30,6 +30,7 @@ driver:
   tag: v1.2.0-rc.3
   pullPolicy: IfNotPresent
   maxVolume: 10
+  kubeletDir: /var/lib/kubelet
 
 provisioner:
   repository: csiplugin/csi-provisioner
