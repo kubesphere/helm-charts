@@ -1,12 +1,11 @@
 apiVersion: v2
-name: porter
+appVersion: 0.3-alpha
 description: Porter chart for KubeSphere
-type: application
-version: 0.1.1
-appVersion: 0.1.1
 icon: https://raw.githubusercontent.com/cncf/landscape/master/hosted_logos/porter.svg
 maintainers:
-  - name: KubeSphere
-    email: kubesphere@gmail.com
-  - name: chinazj
-    email: jian.zhang@jhlinux.com
+- email: kubesphere@gmail.com
+  name: KubeSphere
+- email: jian.zhang@jhlinux.com
+  name: chinazj
+name: porter
+version: 0.1.2
