@@ -1,21 +1,20 @@
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
+  name: {{ template "porter.fullname" . }}-agent
+  namespace: {{ template "porter.namespace" . }}
   labels:
-    control-plane: {{ template "agent.name" . }}
-    controller-tools.k8s.io: "1.0"
-  name: {{ template "agent.name" . }}
-  namespace: {{ .Values.namespace }}
+    {{- include "porter.labels" . | nindent 4 }}
 spec:
   selector:
-    matchLabels:
-    {{- include "agent.matchLabels" . | nindent 6 }}
+    matchLabels: {{- include "agent.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-      labels:
-      {{- include "agent.matchLabels" . | nindent 8 }}
+      labels: {{- include "agent.selectorLabels" . | nindent 8 }}
     spec:
-      hostNetwork: {{ .Values.agent.hostNetwork }}
+      serviceAccountName: {{ template "porter.serviceAccountName" . }}
+      nodeSelector:
+        "beta.kubernetes.io/os": linux
       containers:
       - env:
         - name: MY_NODE_NAME
@@ -28,10 +27,9 @@ spec:
               fieldPath: status.hostIP
         image: {{ .Values.agent.image.repository }}:{{ .Values.agent.image.tag }}
         imagePullPolicy: {{ .Values.agent.image.pullPolicy }}
-        name: {{ template "agent.name" . }}
-        resources:
-{{ toYaml .Values.agent.resources | indent 10 }}
+        name: agent
+        resources: {{- toYaml .Values.agent.resources | nindent 10 }}
         securityContext:
           capabilities:
             add:
-            - NET_ADMIN 
+            - NET_ADMIN

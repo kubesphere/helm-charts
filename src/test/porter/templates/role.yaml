@@ -2,8 +2,10 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: leader-election-role
-  namespace: {{ .Values.namespace }}
+  name: {{ template "porter.fullname" . }}-role
+  namespace: {{ template "porter.namespace" . }}
+  labels:
+    {{- include "porter.labels" . | nindent 4 }}
 rules:
 - apiGroups:
   - ""

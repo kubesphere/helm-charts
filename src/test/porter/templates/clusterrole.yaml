@@ -1,8 +1,9 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
-  creationTimestamp: null
-  name: {{ template "manager.clusterrole" . }}
+  labels:
+    {{- include "porter.labels" . | nindent 4 }}
+  name: {{ template "porter.fullname" . }}-clusterrole
 rules:
 - apiGroups:
   - ""
