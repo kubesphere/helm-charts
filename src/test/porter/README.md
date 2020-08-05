@@ -38,13 +38,11 @@ The command removes all the Kubernetes components associated with the chart and 
 
 ## Configuration
 
-namespace: porter-system
 
 The following table lists the configurable parameters of the MSOMS chart and their default values.
 
 | Parameter | Description  | Default |
 | -----------------------    | -----------------------| -----------------------|
-| `namespace`| namespace | porter-system |
 | `manager.image.repository`| `manager` image name.        | kubespheredev/porter |
 | `manager.image.tag`       | `manager` image tag.         | v0.3-dev  |
 | `manager.image.pullPolicy`| `manager` image pull Policy. | IfNotPresent  |

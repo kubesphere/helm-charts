@@ -1,17 +1,18 @@
----
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  labels: {{- include "manager.matchLabels" . | nindent 4 }}
-  name: {{ template "manager.name" . }}
-  namespace: {{ .Values.namespace }}
+  name: {{ template "porter.fullname" . }}-manager
+  namespace: {{ template "porter.namespace" . }}
+  labels:
+    {{- include "porter.labels" . | nindent 4 }}
 spec:
   selector:
-    matchLabels: {{- include "manager.matchLabels" . | nindent 6 }}
+    matchLabels: {{- include "manager.selectorLabels" . | nindent 6 }}
   template:
     metadata:
-      labels: {{- include "manager.matchLabels" . | nindent 8 }}
+      labels: {{- include "manager.selectorLabels" . | nindent 8 }}
     spec:
+      serviceAccountName: {{ template "porter.serviceAccountName" . }}
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
@@ -20,8 +21,10 @@ spec:
               - key: app
                 operator: In
                 values:
-                - {{ template "manager.name" . }}
+                - porter-manager
             topologyKey: kubernetes.io/hostname
+      nodeSelector:
+        node-role.kubernetes.io/master: ""
       containers:
       - command:
         - /manager
@@ -32,7 +35,7 @@ spec:
               fieldPath: metadata.namespace
         image: {{ .Values.manager.image.repository }}:{{ .Values.manager.image.tag }}
         imagePullPolicy: {{ .Values.manager.image.pullPolicy }}
-        name: {{ include "manager.application" . }}
+        name: manager
         readinessProbe:
           httpGet:
             path: /hello
@@ -45,6 +48,6 @@ spec:
             add:
             - NET_ADMIN
             - SYS_TIME
-      hostNetwork: {{ .Values.manager.hostNetwork }}
+      hostNetwork: true
       terminationGracePeriodSeconds: {{ .Values.manager.terminationGracePeriodSeconds }}
       tolerations: {{- toYaml .Values.manager.tolerations | nindent 8 }}

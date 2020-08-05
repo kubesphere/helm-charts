@@ -1,8 +1,6 @@
 # Default values for porter.
 # This is a YAML-formatted file.
 
-namespace: porter-system
-
 manager:
   image:
     repository: kubespheredev/porter
@@ -15,9 +13,6 @@ manager:
     requests:
       cpu: 100m
       memory: 20Mi
-  hostNetwork: true
-  nodeSelector:
-    node-role.kubernetes.io/master: ""
   terminationGracePeriodSeconds: 10
   tolerations:
     - key: CriticalAddonsOnly
@@ -37,10 +32,6 @@ agent:
     requests:
       cpu: 100m
       memory: 20Mi
-  hostNetwork: true
 
-monitor:
-  port: 8443
-
-service:
-  port: 443
+serviceAccount:
+  create: true
