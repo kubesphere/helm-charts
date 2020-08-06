@@ -258,6 +258,21 @@ entries:
     version: 0.1.3
   porter:
   - apiVersion: v2
+    appVersion: 0.3-alpha
+    created: "2020-08-06T00:00:58.493497406Z"
+    description: Porter chart for KubeSphere
+    digest: 915e7d60ee822d44e5c4c880557e6e30019d5a822256bc1def0fd9558e31ea8c
+    icon: https://raw.githubusercontent.com/cncf/landscape/master/hosted_logos/porter.svg
+    maintainers:
+    - email: kubesphere@gmail.com
+      name: KubeSphere
+    - email: jian.zhang@jhlinux.com
+      name: chinazj
+    name: porter
+    urls:
+    - https://charts.kubesphere.io/test/porter-0.1.2.tgz
+    version: 0.1.2
+  - apiVersion: v2
     appVersion: 0.1.1
     created: "2020-07-01T06:49:29.964713436Z"
     description: Porter chart for KubeSphere
@@ -462,4 +477,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/test/snapshot-controller-0.1.0.tgz
     version: 0.1.0
-generated: "2020-07-21T12:15:52.048274746Z"
+generated: "2020-08-06T00:00:58.492920367Z"
