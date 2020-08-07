@@ -1,0 +1,297 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "etcd.fullname" . }}
+  labels: {{- include "etcd.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels: {{- include "etcd.matchLabels" . | nindent 6 }}
+  serviceName: {{ include "etcd.fullname" . }}-headless
+  podManagementPolicy: {{ .Values.statefulset.podManagementPolicy }}
+  replicas: {{ .Values.statefulset.replicaCount }}
+  updateStrategy:
+    type: {{ .Values.statefulset.updateStrategy }}
+    {{- if (eq "Recreate" .Values.statefulset.updateStrategy) }}
+    rollingUpdate: null
+    {{- else if .Values.statefulset.rollingUpdatePartition }}
+    rollingUpdate:
+      partition: {{ .Values.statefulset.rollingUpdatePartition }}
+    {{- end }}
+  template:
+    metadata:
+      labels: {{- include "etcd.labels" . | nindent 8 }}
+      {{- if or .Values.podAnnotations .Values.metrics.enabled }}
+      annotations:
+        {{- if .Values.podAnnotations }}
+        {{- include "etcd.tplValue" ( dict "value" .Values.podAnnotations "context" $) | nindent 8 }}
+        {{- end }}
+        {{- if .Values.metrics.podAnnotations }}
+        {{- include "etcd.tplValue" ( dict "value" .Values.metrics.podAnnotations "context" $) | nindent 8 }}
+        {{- end }}
+      {{- end }}
+    spec:
+{{- include "etcd.imagePullSecrets" . | indent 6 }}
+      {{- if .Values.affinity }}
+      affinity: {{- include "etcd.tplValue" (dict "value" .Values.affinity "context" $) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.nodeSelector }}
+      nodeSelector: {{- include "etcd.tplValue" (dict "value" .Values.nodeSelector "context" $) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.tolerations }}
+      tolerations: {{- include "etcd.tplValue" (dict "value" .Values.tolerations "context" $) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.priorityClassName }}
+      priorityClassName: {{ .Values.priorityClassName }}
+      {{- end }}
+      {{- if .Values.securityContext.enabled }}
+      securityContext:
+        fsGroup: {{ .Values.securityContext.fsGroup }}
+        runAsUser: {{ .Values.securityContext.runAsUser }}
+      {{- end }}
+      {{- if and .Values.volumePermissions.enabled .Values.persistence.enabled }}
+      initContainers:
+        - name: volume-permissions
+          image: {{ include "etcd.volumePermissions.image" . }}
+          imagePullPolicy: {{ .Values.volumePermissions.image.pullPolicy | quote }}
+          command:
+            - /bin/bash
+            - -ec
+            - |
+              chown -R {{ .Values.securityContext.runAsUser }}:{{ .Values.securityContext.fsGroup }} /bitnami/etcd
+          securityContext:
+            runAsUser: 0
+          {{- if .Values.volumePermissions.resources }}
+          resources: {{- toYaml .Values.volumePermissions.resources | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: data
+              mountPath: /bitnami/etcd
+      {{- end }}
+      containers:
+        # Variables to populate static cluster
+        {{- $replicaCount := int .Values.statefulset.replicaCount }}
+        {{- $clientPort := int .Values.service.port }}
+        {{- $peerPort := int .Values.service.peerPort }}
+        {{- $etcdFullname := include "etcd.fullname" . }}
+        {{- $releaseNamespace := .Release.Namespace }}
+        {{- $etcdHeadlessServiceName := printf "%s-%s" $etcdFullname "headless" }}
+        {{- $clusterDomain := .Values.clusterDomain }}
+        {{- $etcdPeerProtocol := include "etcd.peerProtocol" . }}
+        {{- $etcdClientProtocol := include "etcd.clientProtocol" . }}
+        - name: etcd
+          image: {{ include "etcd.image" . }}
+          imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
+          command:
+            - /scripts/setup.sh
+          lifecycle:
+            preStop:
+              exec:
+                command:
+                  - /scripts/prestop-hook.sh
+          {{- if .Values.resources }}
+          resources: {{- toYaml .Values.resources | nindent 12 }}
+          {{- end }}
+          {{- if .Values.envVarsConfigMap }}
+          envFrom:
+            - configMapRef:
+                name: {{ include "etcd.envVarsCM" . }}
+          {{- end }}
+          env:
+            - name: BITNAMI_DEBUG
+              value: {{ ternary "true" "false" .Values.image.debug | quote }}
+            - name: MY_POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: MY_POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: ETCDCTL_API
+              value: "3"
+            - name: ETCD_NAME
+              value: "$(MY_POD_NAME)"
+            - name: ETCD_DATA_DIR
+              value: {{ include "etcd.dataDir" . }}
+            - name: ETCD_ADVERTISE_CLIENT_URLS
+              value: "{{ $etcdClientProtocol }}://$(MY_POD_NAME).{{ $etcdHeadlessServiceName }}.{{ .Release.Namespace }}.svc.{{ $clusterDomain }}:{{ .Values.service.port }}"
+            - name: ETCD_LISTEN_CLIENT_URLS
+              value: "{{ $etcdClientProtocol }}://0.0.0.0:{{ .Values.service.port }}"
+            - name: ETCD_INITIAL_ADVERTISE_PEER_URLS
+              value: "{{ $etcdPeerProtocol }}://$(MY_POD_NAME).{{ $etcdHeadlessServiceName }}.{{ .Release.Namespace }}.svc.{{ $clusterDomain }}:{{ .Values.service.peerPort }}"
+            - name: ETCD_LISTEN_PEER_URLS
+              value: "{{ $etcdPeerProtocol }}://0.0.0.0:{{ .Values.service.peerPort }}"
+            {{- if .Values.maxProcs }}
+            - name: GOMAXPROCS
+              value: {{ .Values.maxProcs }}
+            {{- end }}
+            {{- if gt $replicaCount 1 }}
+            - name: ETCD_INITIAL_CLUSTER_TOKEN
+              value: "etcd-cluster-k8s"
+            - name: ETCD_INITIAL_CLUSTER_STATE
+            {{- if not (empty .Values.etcd.initialClusterState) }}
+              value: {{ .Values.etcd.initialClusterState | quote }}
+            {{- else if .Release.IsInstall }}
+              value: "new"
+            {{- else }}
+              value: "existing"
+            {{- end }}
+            {{- $initialCluster := list }}
+            {{- range $e, $i := until $replicaCount }}
+            {{- $initialCluster = append $initialCluster (printf "%s-%d=%s://%s-%d.%s.%s.svc.%s:%d" $etcdFullname $i $etcdPeerProtocol $etcdFullname $i $etcdHeadlessServiceName $releaseNamespace $clusterDomain $peerPort) }}
+            {{- end }}
+            - name: ETCD_INITIAL_CLUSTER
+              value: {{ join "," $initialCluster | quote }}
+            {{- end }}
+            - name: ALLOW_NONE_AUTHENTICATION
+              value: {{ ternary "yes" "no" (or .Values.auth.rbac.enabled .Values.allowNoneAuthentication) | quote }}
+            {{- if .Values.auth.rbac.enabled }}
+            - name: ETCD_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ if .Values.auth.rbac.existingSecret }}{{ .Values.auth.rbac.existingSecret }}{{ else }}{{ include "etcd.fullname" . }}{{ end }}
+                  key: etcd-root-password
+            {{- end }}
+            {{- if and .Values.auth.client.secureTransport .Values.auth.client.useAutoTLS }}
+            - name: ETCD_AUTO_TLS
+              value: "true"
+            {{- else if .Values.auth.client.secureTransport }}
+            - name: ETCD_CERT_FILE
+              value: "/opt/bitnami/etcd/certs/client/cert.pem"
+            - name: ETCD_KEY_FILE
+              value: "/opt/bitnami/etcd/certs/client/key.pem"
+            {{- if .Values.auth.client.enableAuthentication }}
+            - name: ETCD_CLIENT_CERT_AUTH
+              value: "true"
+            - name: ETCD_TRUSTED_CA_FILE
+              value: "/opt/bitnami/etcd/certs/client/ca.crt"
+            {{- end }}
+            {{- end }}
+            {{- if and .Values.auth.peer.secureTransport .Values.auth.peer.useAutoTLS }}
+            - name: ETCD_PEER_AUTO_TLS
+              value: "true"
+            {{- else if .Values.auth.peer.secureTransport }}
+            - name: ETCD_PEER_CERT_FILE
+              value: "/opt/bitnami/etcd/certs/peer/cert.pem"
+            - name: ETCD_PEER_KEY_FILE
+              value: "/opt/bitnami/etcd/certs/peer/key.pem"
+            {{- if .Values.auth.peer.enableAuthentication }}
+            - name: ETCD_PEER_CLIENT_CERT_AUTH
+              value: "true"
+            - name: ETCD_PEER_TRUSTED_CA_FILE
+              value: "/opt/bitnami/etcd/certs/peer/ca.crt"
+            {{- end }}
+            {{- end }}
+          ports:
+            - name: client
+              containerPort: 2379
+            - name: peer
+              containerPort: 2380
+          {{- if .Values.livenessProbe.enabled }}
+          livenessProbe:
+            exec:
+              command:
+                - /scripts/probes.sh
+            initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.livenessProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.livenessProbe.successThreshold }}
+            failureThreshold: {{ .Values.livenessProbe.failureThreshold }}
+          {{- end }}
+          {{- if .Values.readinessProbe.enabled }}
+          readinessProbe:
+            exec:
+              command:
+                - /scripts/probes.sh
+            initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.readinessProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.readinessProbe.successThreshold }}
+            failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
+          {{- end }}
+          volumeMounts:
+            - name: scripts
+              mountPath: /scripts/setup.sh
+              subPath: setup.sh
+            - name: scripts
+              mountPath: /scripts/prestop-hook.sh
+              subPath: prestop-hook.sh
+            - name: scripts
+              mountPath: /scripts/probes.sh
+              subPath: probes.sh
+            - name: data
+              mountPath: /bitnami/etcd
+            {{- if .Values.startFromSnapshot.enabled }}
+            - name: init-snapshot-volume
+              mountPath: /init-snapshot
+            {{- end }}
+            {{- if .Values.disasterRecovery.enabled }}
+            - name: snapshot-volume
+              mountPath: /snapshots
+            {{- end }}
+            {{- if .Values.configFileConfigMap }}
+            - name: etcd-config
+              mountPath: /opt/bitnami/etcd/conf/
+            {{- end }}
+            {{- if or .Values.auth.client.enableAuthentication (and .Values.auth.client.secureTransport (not .Values.auth.client.useAutoTLS )) }}
+            - name: etcd-client-certs
+              mountPath: /opt/bitnami/etcd/certs/client/
+              readOnly: true
+            {{- end }}
+            {{- if or .Values.auth.peer.enableAuthentication (and .Values.auth.peer.secureTransport (not .Values.auth.peer.useAutoTLS )) }}
+            - name: etcd-peer-certs
+              mountPath: /opt/bitnami/etcd/certs/peer/
+              readOnly: true
+            {{- end }}
+      volumes:
+        - name: scripts
+          configMap:
+            name: {{ include "etcd.fullname" . }}-scripts
+            defaultMode: 0755
+        {{- if .Values.startFromSnapshot.enabled }}
+        - name: init-snapshot-volume
+          persistentVolumeClaim:
+            claimName: {{ .Values.startFromSnapshot.existingClaim }}
+        {{- end }}
+        {{- if .Values.disasterRecovery.enabled }}
+        - name: snapshot-volume
+          persistentVolumeClaim:
+            claimName: {{ include "etcd.disasterRecovery.pvc.name" . }}
+        {{- end }}
+        {{- if .Values.configFileConfigMap }}
+        - name: etcd-config
+          configMap:
+            name: {{ include "etcd.configFileCM" . }}
+        {{- end }}
+        {{- if or .Values.auth.client.enableAuthentication (and .Values.auth.client.secureTransport (not .Values.auth.client.useAutoTLS )) }}
+        - name: etcd-client-certs
+          secret:
+            secretName: {{ required "A secret containinig the client certificates is required" .Values.auth.client.existingSecret }}
+            defaultMode: 256
+        {{- end }}
+        {{- if or .Values.auth.peer.enableAuthentication (and .Values.auth.peer.secureTransport (not .Values.auth.peer.useAutoTLS )) }}
+        - name: etcd-peer-certs
+          secret:
+            secretName: {{ required "A secret containinig the peer certificates is required" .Values.auth.peer.existingSecret }}
+            defaultMode: 256
+        {{- end }}
+{{- if not .Values.persistence.enabled }}
+        - name: data
+          emptyDir: {}
+{{- else }}
+  volumeClaimTemplates:
+    - metadata:
+        name: data
+        {{- if .Values.persistence.annotations }}
+        annotations: {{- include "etcd.tplValue" ( dict "value" .Values.persistence.annotations "context" $) | nindent 10 }}
+        {{- end }}
+      spec:
+        accessModes:
+        {{- range .Values.persistence.accessModes }}
+          - {{ . | quote }}
+        {{- end }}
+        resources:
+          requests:
+            storage: {{ .Values.persistence.size | quote }}
+        {{ include "etcd.storageClass" . }}
+{{- end }}

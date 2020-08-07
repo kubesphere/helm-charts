@@ -1,0 +1,14 @@
+{{- if and .Values.disasterRecovery.enabled (not .Values.disasterRecovery.pvc.existingClaim) -}}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ include "etcd.fullname" . }}-snapshotter
+  labels: {{- include "etcd.labels" . | nindent 4 }}
+spec:
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: {{ .Values.disasterRecovery.pvc.size | quote }}
+  storageClassName: {{ .Values.disasterRecovery.pvc.storageClassName | quote }}
+{{- end -}}
