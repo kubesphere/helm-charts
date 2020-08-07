@@ -92,8 +92,8 @@ admin:
   cors: true
   # Admin API credentials
   credentials:
-    admin: {{ randAlphaNum 32 | quote }}
-    viewer: {{ randAlphaNum 32 | quote }}
+    admin: edd1c9f034335f136f87ad84b625c8f1
+    viewer: 4054f7cf07e344346cd3f287985e76a2
 
 # APISIX plugins to be enabled
 plugins:
