@@ -1,0 +1,17 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "etcd.fullname" . }}
+  labels:
+{{ include "etcd.labels" . | indent 4 }}
+spec:
+  type: ClusterIP
+  ports:
+  - port: {{ .Values.service.port }}
+    targetPort: etcd
+    protocol: TCP
+    name: etcd
+  clusterIP: None
+  selector:
+    app.kubernetes.io/name: {{ include "etcd.name" . }}
+    app.kubernetes.io/instance: {{ .Release.Name }}
