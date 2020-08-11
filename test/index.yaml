@@ -188,6 +188,23 @@ entries:
     urls:
     - https://charts.kubesphere.io/test/csi-qingcloud-1.2.0.tgz
     version: 1.2.0
+  etcd:
+  - apiVersion: v1
+    appVersion: 3.3.12
+    created: "2020-08-11T08:23:49.034755299Z"
+    description: etcd is a distributed reliable key-value store for the most critical
+      data of a distributed system.
+    digest: 01efe84b2e43588a6ce1f10d83ca4a773c901fbfbaa9df5c897a447c14eca3c9
+    icon: https://github.com/etcd-io/etcd/raw/master/logos/etcd-glyph-color.svg
+    maintainers:
+    - email: kubesphere@yunify.com
+      name: KubeSphere
+    name: etcd
+    sources:
+    - https://github.com/kubesphere/helm-charts/tree/master/src/test/etcd
+    urls:
+    - https://charts.kubesphere.io/test/etcd-0.1.0.tgz
+    version: 0.1.0
   ks-installer:
   - apiVersion: v1
     appVersion: 2.1.1
@@ -477,4 +494,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/test/snapshot-controller-0.1.0.tgz
     version: 0.1.0
-generated: "2020-08-06T00:00:58.492920367Z"
+generated: "2020-08-11T08:23:49.033847286Z"
