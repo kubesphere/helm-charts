@@ -73,6 +73,7 @@ etcd:
   host: http://etcd-apisix.local:2379 # http://172.20.128.89:2379
   prefix: "/apisix"
   timeout: 3
+  enabled: true
 
 dns:
   #resolvers:
@@ -126,9 +127,9 @@ plugins:
 stream_plugins:
   - mqtt-proxy
 
-resources:
+resources: 
   limits:
-    cpu: '2'
+    cpu: '4'
   requests:
     cpu: '50m'
   # We usually recommend not to specify default resources and to leave this as a conscious

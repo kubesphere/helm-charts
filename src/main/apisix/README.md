@@ -40,7 +40,9 @@ A/B testing, canary release, blue-green deployment, limit rate, defense against 
 
 
 ```console
-helm install ks-main/apisix
+helm repo add main https://charts.kubesphere.io/main
+helm repo update
+helm install main/apisix
 ```
 
 To install the chart with the release name `my-release`:

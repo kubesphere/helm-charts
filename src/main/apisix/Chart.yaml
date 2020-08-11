@@ -23,6 +23,8 @@ maintainers:
 name: apisix
 dependencies:
 - name: etcd
+  version: 0.1.0
+  repository: https://charts.kubesphere.io/test
   condition: etcd.enabled
 
 # A chart can be either an 'application' or a 'library' chart.
