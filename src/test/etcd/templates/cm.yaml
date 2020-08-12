@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "etcd.fullname" . }}
+  labels:
+    app: {{ template "etcd.fullname" . }}
+    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+data:
+  etcd.conf: |-
+    name: 'default'
+    data-dir: /data/etcd
+    snapshot-count: 10000
+    listen-client-urls: http://0.0.0.0:2379
+    advertise-client-urls: http://0.0.0.0:2379
+    max-snapshots: 5
+    max-wals: 5
+    initial-cluster-token: 'etcd-cluster'
+    initial-cluster-state: 'new'
+    enable-v2: true
+    logger: zap
+    force-new-cluster: false
+    auto-compaction-mode: periodic
+    auto-compaction-retention: "1"
