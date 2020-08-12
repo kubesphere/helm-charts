@@ -8,8 +8,8 @@ metadata:
     "helm.sh/hook": test-success
 spec:
   containers:
-    - name: wget
+    - name: ping
       image: busybox
-      command: ['wget']
-      args:  ['{{ include "redis.fullname" . }}:{{ .Values.service.port }}']
+      command: ['nc']
+      args:  ['{{ include "redis.fullname" . }}', '{{ .Values.service.port }}']
   restartPolicy: Never
