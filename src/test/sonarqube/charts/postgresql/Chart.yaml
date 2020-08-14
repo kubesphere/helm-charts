@@ -1,18 +1,22 @@
-description: Object-relational database management system (ORDBMS) with an emphasis
-  on extensibility and on standards-compliance.
-engine: gotpl
+apiVersion: v1
+appVersion: 11.7.0
+description: Chart for PostgreSQL, an object-relational database management system
+  (ORDBMS) with an emphasis on extensibility and on standards-compliance.
 home: https://www.postgresql.org/
-icon: https://www.postgresql.org/media/img/about/press/elephant.png
+icon: https://bitnami.com/assets/stacks/postgresql/img/postgresql-stack-110x117.png
 keywords:
 - postgresql
 - postgres
 - database
 - sql
+- replication
+- cluster
 maintainers:
-- name: swordbeta
-- name: databus23
+- email: containers@bitnami.com
+  name: Bitnami
+- email: cedric@desaintmartin.fr
+  name: desaintmartin
 name: postgresql
 sources:
-- https://github.com/kubernetes/charts
-- https://github.com/docker-library/postgres
-version: 0.8.3
+- https://github.com/bitnami/bitnami-docker-postgresql
+version: 8.6.4

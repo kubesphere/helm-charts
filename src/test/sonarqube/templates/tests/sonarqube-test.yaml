@@ -1,7 +1,8 @@
+{{- if .Values.enableTests -}}
 apiVersion: v1
 kind: Pod
 metadata:
-  name: "{{ .Release.Name }}-ui-test-{{ randAlphaNum 5 | lower }}"
+  name: "{{ .Release.Name }}-ui-test"
   annotations:
     "helm.sh/hook": test-success
   labels:
@@ -12,7 +13,7 @@ metadata:
 spec:
   initContainers:
     - name: "test-framework"
-      image: "dduportal/bats:0.4.0"
+      image: {{ default "dduportal/bats:0.4.0" .Values.plugins.initTestContainerImage }}
       command:
       - "bash"
       - "-c"
@@ -38,5 +39,6 @@ spec:
     configMap:
       name: {{ template "sonarqube.fullname" . }}-tests
   - name: tools
-    emptyDir: {}
+    emptyDir: {{ toYaml .Values.emptyDir | nindent 6 }}
   restartPolicy: Never
+{{- end -}}

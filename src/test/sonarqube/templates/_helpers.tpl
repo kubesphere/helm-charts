@@ -11,8 +11,11 @@ Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 */}}
 {{- define "sonarqube.fullname" -}}
-{{- $name := default .Chart.Name .Values.nameOverride -}}
-{{- printf "%s-%s" .Release.Name $name | trunc 63 | trimSuffix "-" -}}
+{{- if .Values.fullnameOverride -}}
+{{- .Values.fullnameOverride | trunc 63 -}}
+{{- else -}}
+{{- printf "%s-%s" .Release.Name (include "sonarqube.name" .) | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
 {{- end -}}
 
 {{/*
@@ -22,28 +25,38 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{- define "postgresql.fullname" -}}
 {{- printf "%s-%s" .Release.Name "postgresql" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
-{{- define "mysql.fullname" -}}
-{{- printf "%s-%s" .Release.Name "mysql" | trunc 63 | trimSuffix "-" -}}
-{{- end}}
 
 {{/*
   Determine the hostname to use for PostgreSQL/mySQL.
 */}}
 {{- define "postgresql.hostname" -}}
-{{- if eq .Values.database.type "postgresql" -}}
 {{- if .Values.postgresql.enabled -}}
 {{- printf "%s-%s" .Release.Name "postgresql" | trunc 63 | trimSuffix "-" -}}
 {{- else -}}
-{{- printf "%s" .Values.postgresql.postgresServer -}}
+{{- printf "%s" .Values.postgresql.postgresqlServer -}}
 {{- end -}}
 {{- end -}}
+
+{{/*
+Set postgresql.secret
+*/}}
+{{- define "postgresql.secret" -}}
+{{- if .Values.postgresql.existingSecret -}} 
+{{- .Values.postgresql.existingSecret -}}
+{{- else if .Values.postgresql.enabled -}} 
+{{- template "postgresql.fullname" . -}} 
+{{- else -}} 
+{{- template "sonarqube.fullname" . -}} 
 {{- end -}}
-{{- define "mysql.hostname" -}}
-{{- if eq .Values.database.type "mysql" -}}
-{{- if .Values.mysql.enabled -}}
-{{- printf "%s-%s" .Release.Name "mysql" | trunc 63 | trimSuffix "-" -}}
-{{- else -}}
-{{- printf "%s" .Values.mysql.mysqlServer -}}
 {{- end -}}
+
+{{/*
+Set postgresql.useInternalSecret
+*/}}
+{{- define "postgresql.useInternalSecret" -}}
+{{- if or .Values.postgresql.enabled .Values.postgresql.existingSecret -}} 
+false
+{{- else -}} 
+true
 {{- end -}}
 {{- end -}}
