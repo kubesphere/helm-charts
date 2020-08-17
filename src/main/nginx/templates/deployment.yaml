@@ -42,7 +42,7 @@ spec:
 
       containers:
         - name: {{ .Chart.Name }}
-          image: "{{ .Values.image.nginx.repository }}:{{ .Values.image.nginx.tag }}"
+          image: "{{ .Values.image.nginx.repository }}:{{ coalesce .Values.image.nginx.tag (printf "%s-alpine" .Chart.AppVersion) }}"
           imagePullPolicy: {{ .Values.image.nginx.pullPolicy }}
           ports:
             - name: http

@@ -3,11 +3,11 @@ replicaCount: 1
 image:
   # html:
   #   repository: nginx
-  #   tag: 1.16.0-alpine
+  #   tag:
   #   pullPolicy: IfNotPresent
   nginx:
     repository: nginx
-    tag: 1.17.5-alpine
+    # tag:
     pullPolicy: IfNotPresent
 
 nameOverride: ""
@@ -23,28 +23,29 @@ ingress:
   annotations: {}
     # kubernetes.io/ingress.class: nginx
     # kubernetes.io/tls-acme: "true"
-  paths: []
+  paths:
+  - /
   hosts:
-    - nginx.local
+  - nginx.local
   tls: []
   #  - secretName: nginx-tls
   #    hosts:
-  #      - nginx.local
+  #    - nginx.local
 
 extraVolumes: []
-  # - name: extra
-  #   emptyDir: {}
+# - name: extra
+#   emptyDir: {}
 
 extraVolumeMounts: []
-  # - name: extras
-  #   mountPath: /usr/share/nginx/html
-  #   readOnly: true
+# - name: extras
+#   mountPath: /usr/share/nginx/html
+#   readOnly: true
 
 extraInitContainers: []
-  # - name: do-something
-  #   image: busybox
-  #   imagePullPolicy: IfNotPresent
-  #   command: ['do', 'something']
+# - name: do-something
+#   image: busybox
+#   imagePullPolicy: IfNotPresent
+#   command: ['do', 'something']
 
 readinessProbe:
   path: "/"
