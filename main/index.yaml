@@ -135,6 +135,22 @@ entries:
     version: 1.2.8
   nginx:
   - apiVersion: v1
+    appVersion: 1.18.0
+    created: "2020-08-17T11:08:21.115004124Z"
+    description: nginx is an HTTP and reverse proxy server, a mail proxy server, and
+      a generic TCP/UDP proxy server, originally written by Igor Sysoev.
+    digest: c5698cbc4e01567cc81e7fb5e72a804647bccfeca351a178b176b9d46df5864c
+    icon: https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Nginx_logo.svg/500px-Nginx_logo.svg.png
+    maintainers:
+    - email: kubesphere@yunify.com
+      name: KubeSphere
+    name: nginx
+    sources:
+    - https://github.com/kubesphere/helm-charts/tree/master/src/main/nginx
+    urls:
+    - https://charts.kubesphere.io/main/nginx-1.3.2.tgz
+    version: 1.3.2
+  - apiVersion: v1
     appVersion: 1.17.5
     created: "2020-08-14T10:08:56.214664302Z"
     description: nginx is an HTTP and reverse proxy server, a mail proxy server, and
@@ -213,4 +229,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/main/tomcat-0.4.0-r1.tgz
     version: 0.4.0-r1
-generated: "2020-08-14T10:08:56.213096788Z"
+generated: "2020-08-17T11:08:21.113736418Z"
