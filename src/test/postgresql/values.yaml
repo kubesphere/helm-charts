@@ -55,3 +55,6 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+tests:
+  enabled: false
