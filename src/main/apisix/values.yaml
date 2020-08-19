@@ -70,7 +70,7 @@ gateway:
 # etcd configuration
 # use the FQDN address or the IP of the etcd
 etcd:
-  host: http://etcd-apisix.local:2379 # http://172.20.128.89:2379
+  #host: http://etcd-apisix.local:2379 # http://172.20.128.89:2379
   prefix: "/apisix"
   timeout: 3
   enabled: true
@@ -127,9 +127,17 @@ plugins:
 stream_plugins:
   - mqtt-proxy
 
+etcd:
+  resources:
+    limits:
+      # cpu, memory
+    requests:
+      cpu: 100m
+      memory: 128Mi
+
 resources: 
   limits:
-    cpu: '4'
+    # cpu: '4'
   requests:
     cpu: '50m'
   # We usually recommend not to specify default resources and to leave this as a conscious

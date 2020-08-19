@@ -139,7 +139,7 @@ data:
     etcd:
       host:
       {{- if .Values.etcd.enabled }}
-      - http://{{ include "apisix.fullname" . }}-etcd-0.{{ include "apisix.fullname" . }}-etcd:2379
+      - "http://{{ include "apisix.fullname" . }}-etcd-0.{{ include "apisix.fullname" . }}-etcd:2379"
       {{- else }}
       - {{ .Values.etcd.host }}
       {{- end }}
