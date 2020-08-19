@@ -38,7 +38,7 @@ Return the appropriate apiVersion for networkpolicy.
 {{- if semverCompare ">=1.4-0, <1.7-0" .Capabilities.KubeVersion.GitVersion -}}
 {{- print "extensions/v1beta1" -}}
 {{- else if semverCompare "^1.7-0" .Capabilities.KubeVersion.GitVersion -}}
-{{- print "networking.k8s.io/v1" -}}
+{{- print "networking.k8s.io/v1beta1" -}}
 {{- end -}}
 {{- end -}}
 
@@ -57,7 +57,7 @@ Return the appropriate apiVersion for deployment.
 Return the appropriate apiVersion for statefulset.
 */}}
 {{- define "minio.statefulset.apiVersion" -}}
-{{- if .Capabilities.APIVersions.Has "apps/v1beta2" -}}
+{{- if semverCompare "<1.17-0" .Capabilities.KubeVersion.GitVersion -}}
 {{- print "apps/v1beta2" -}}
 {{- else -}}
 {{- print "apps/v1" -}}
@@ -92,5 +92,30 @@ Properly format optional additional arguments to Minio binary
 {{- define "minio.extraArgs" -}}
 {{- range .Values.extraArgs -}}
 {{ " " }}{{ . }}
+{{- end -}}
+{{- end -}}
+
+{{/*
+Return the proper Docker Image Registry Secret Names
+*/}}
+{{- define "minio.imagePullSecrets" -}}
+{{/*
+Helm 2.11 supports the assignment of a value to a variable defined in a different scope,
+but Helm 2.9 and 2.10 does not support it, so we need to implement this if-else logic.
+Also, we can not use a single if because lazy evaluation is not an option
+*/}}
+{{- if .Values.global }}
+{{- if .Values.global.imagePullSecrets }}
+imagePullSecrets:
+{{- range .Values.global.imagePullSecrets }}
+  - name: {{ . }}
+{{- end }}
+{{- else if .Values.imagePullSecrets }}
+imagePullSecrets:
+    {{ toYaml .Values.imagePullSecrets }}
+{{- end -}}
+{{- else if .Values.imagePullSecrets }}
+imagePullSecrets:
+    {{ toYaml .Values.imagePullSecrets }}
 {{- end -}}
 {{- end -}}

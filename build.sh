@@ -16,12 +16,11 @@ helm() {
   ./helm $@
 }
 
-helmVersion=v2.14.3
+helmVersion=3.3.0
 prepareHelm() {
-  local helmUrl=https://storage.googleapis.com/kubernetes-helm/helm-$helmVersion-linux-amd64.tar.gz
+  local helmUrl=https://get.helm.sh/helm-v$helmVersion-linux-amd64.tar.gz
   echo "Downloading Helm Client from '$helmUrl' ..."
   curl -sL $helmUrl | tar --strip-components=1 -xzf - linux-amd64/helm
-  helm init --client-only
 }
 
 findUpdatedCharts() {
