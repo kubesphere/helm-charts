@@ -12,8 +12,8 @@ To install the chart with the release name `csi-qingcloud`:
 
 ```console
 helm repo add test https://charts.kubesphere.io/test
-helm install test/csi-qingcloud --name-template csi-qingcloud --namespace kube-system  \\ 
---set config.qy_access_key_id=key,config.qy_secret_access_key=secret,config.zone=zone,sc.enable=true,sc.type=0
+helm install test/csi-qingcloud --name-template csi-qingcloud --namespace kube-system  \
+--set config.qy_access_key_id=key,config.qy_secret_access_key=secret,config.zone=zone
 ```
 
 The command deploys the `csi-qingcloud` chart on the Kubernetes cluster in the default configuration. The configuration section lists the parameters that can be configured during installation.
@@ -45,7 +45,7 @@ Parameter | Description | Default
 `config.connection_timeout` | Retry time out of API| `30`
 `driver.name` | Name of the CSI driver | `disk.csi.qingcloud.com`
 `driver.repository` | Image of CSI plugin| `csiplugin/csi-qingcloud`
-`driver.tag` | Tag of CSI plugin | `v1.2.0-rc3 `
+`driver.tag` | Tag of CSI plugin | `v1.2.0-rc4 `
 `driver.pullPolicy` | Image pull policy of CSI plugin | `IfNotPresent`
 `driver.maxVolume` | Max volume of CSI plugin | `10`
 `driver.kubeletDir` | Directory of kubelet | `/var/lib/kubelet`
@@ -60,11 +60,12 @@ Parameter | Description | Default
 `snapshotter.tag` | Tag of csi-snapshotter | `v2.0.1`
 `registar.repository` | Image of csi-node-driver-registrar| `csiplugin/csi-node-driver-registrar`
 `registar.tag` | Tag of csi-node-driver-registrar | `v1.2.0`
-`sc.enable` | If storage class installed | `false`
+`sc.enable` | Whether to enable this StorageClass | `true`
+`sc.isDefaultClass` | Whether to set this StorageClass as the default StorageClass | `false`
 `sc.name` | Name of storage class | `csi-qingcloud`
-`sc.type` | Type parameter of storage class | `0`
-`sc.tags` | Tag parameter of storage class | ``
-`sc.fsType` | FsType parameter of storage class | `ext4`
+`sc.type` | [Type](https://github.com/yunify/qingcloud-csi/blob/master/docs/user-guide.md#type-maxsize-minsize-stepsize) parameter of storage class | ``
+`sc.tags` | [Tag](https://github.com/yunify/qingcloud-csi/blob/master/docs/user-guide.md#tags) parameter of storage class | ``
+`sc.fsType` | [FsType](https://github.com/yunify/qingcloud-csi/blob/master/docs/user-guide.md#fstype) parameter of storage class | `ext4`
 `sc.reclaimPolicy` | ReclaimPolicy parameter of storage class | `Delete`
 `sc.allowVolumeExpansion` | AllowVolumeExpansion parameter of storage class | `true`
-`sc.volumeBindingMode` | VolumeBindingMode parameter of storage class | `Immediate`
+`sc.volumeBindingMode` | [VolumeBindingMode](https://github.com/yunify/qingcloud-csi/blob/master/docs/user-guide.md#topology-awareness) parameter of storage class | `WaitForFirstConsumer`

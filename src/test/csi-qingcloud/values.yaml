@@ -27,7 +27,7 @@ config:
 driver:
   name: disk.csi.qingcloud.com
   repository: csiplugin/csi-qingcloud
-  tag: v1.2.0-rc.3
+  tag: v1.2.0-rc.4
   pullPolicy: IfNotPresent
   maxVolume: 10
   kubeletDir: /var/lib/kubelet
@@ -50,13 +50,14 @@ registrar:
   tag: v1.2.0
 
 sc:
-  enable: false
+  enable: true
+  isDefaultClass: false
   name: csi-qingcloud
-  type: 0
+  type: 
   replica: 2
   tags:
   fsType: ext4
   reclaimPolicy: Delete
   allowVolumeExpansion: true
-  volumeBindingMode: Immediate
+  volumeBindingMode: WaitForFirstConsumer
 
