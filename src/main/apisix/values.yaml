@@ -74,7 +74,12 @@ etcd:
   prefix: "/apisix"
   timeout: 3
   enabled: true
-
+  resources:
+    limits:
+      # cpu, memory
+    requests:
+      cpu: 100m
+      memory: 128Mi
 dns:
   #resolvers:
   #  - 127.0.0.1
@@ -126,14 +131,6 @@ plugins:
   - cors
 stream_plugins:
   - mqtt-proxy
-
-etcd:
-  resources:
-    limits:
-      # cpu, memory
-    requests:
-      cpu: 100m
-      memory: 128Mi
 
 resources: 
   limits:
