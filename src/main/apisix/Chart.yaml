@@ -16,11 +16,12 @@
 #
 apiVersion: v2
 description: Apache APISIX is a dynamic, real-time, high-performance API gateway, based on the Nginx library and etcd.
-icon: https://dashboard.apisix.dev/favicon.png
+icon: https://apisix.apache.org/img/logo.png
 maintainers:
 - email: liling@apache.org
   name: liling
 name: apisix
+home: https://apisix.apache.org/
 dependencies:
 - name: etcd
   version: 0.1.0
