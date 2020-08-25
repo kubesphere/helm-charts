@@ -16,7 +16,7 @@ helm() {
   ./helm $@
 }
 
-helmVersion=3.3.0
+helmVersion=3.2.4
 prepareHelm() {
   local helmUrl=https://get.helm.sh/helm-v$helmVersion-linux-amd64.tar.gz
   echo "Downloading Helm Client from '$helmUrl' ..."
