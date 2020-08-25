@@ -13,10 +13,10 @@
 #  limitations under the License.
 apiVersion: v2
 
-appVersion: 1.2.0
+appVersion: 1.2.0-rc.4
 name: csi-qingcloud
 description: A Helm chart for Qingcloud CSI Driver
-version: 1.2.2
+version: 1.2.3
 kubeVersion: ">=1.14.0-0"
 home: https://github.com/yunify/qingcloud-csi
 sources:
@@ -27,4 +27,6 @@ keywords:
 maintainers:
   - name: Min Zhang
     email: arminzhang@yunify.com
+  - name: Zhengyi Lai
+    email: zheng1@yunify.com
 icon: https://s3.qingcloud.com/static/assets/images/icons/common/nav_logo_white.svg?v=1510299508
