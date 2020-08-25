@@ -574,6 +574,29 @@ entries:
     - https://charts.kubesphere.io/test/redis-0.1.3.tgz
     version: 0.1.3
   skywalking:
+  - apiVersion: v2
+    appVersion: 8.1.0
+    created: "2020-08-25T03:58:58.328753443Z"
+    dependencies:
+    - condition: elasticsearch.enabled
+      name: elasticsearch
+      repository: https://helm.elastic.co/
+      version: ~7.5.1
+    description: Apache SkyWalking APM System
+    digest: adade1e4ad623b5f77683a2146074ef12e9ddae788edfa17da07b39c1494c4d2
+    home: https://skywalking.apache.org
+    icon: https://raw.githubusercontent.com/apache/skywalking-kubernetes/master/logo/sw-logo-for-chart.jpg
+    maintainers:
+    - email: hanahmily@gmail.com
+      name: hanahmily
+    - email: innerpeace.zhai@gmail.com
+      name: innerpeacez
+    name: skywalking
+    sources:
+    - https://github.com/apache/skywalking-kubernetes
+    urls:
+    - https://charts.kubesphere.io/test/skywalking-3.1.0.tgz
+    version: 3.1.0
   - apiVersion: v1
     appVersion: 6.5.0
     created: "2020-05-12T00:56:38.71811333Z"
@@ -613,4 +636,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/test/snapshot-controller-0.1.0.tgz
     version: 0.1.0
-generated: "2020-08-25T02:05:23.096267435Z"
+generated: "2020-08-25T03:58:58.32313224Z"
