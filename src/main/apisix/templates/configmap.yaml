@@ -119,7 +119,9 @@ data:
     nginx_config:                     # config for render the template to genarate nginx.conf
       error_log: "/dev/stderr"
       error_log_level: "warn"         # warn,error
+      worker_processes: auto
       worker_rlimit_nofile: 20480     # the number of files a worker process can open, should be larger than worker_connections
+      worker_shutdown_timeout: 240s   # timeout for a graceful shutdown of worker 
       event:
         worker_connections: 10620
       http:
@@ -143,6 +145,9 @@ data:
       {{- else }}
         - {{ .Values.etcd.host }}
       {{- end }}
+      prefix: {{ .Values.etcd.prefix | quote }} # apisix configurations prefix
+      timeout: {{ .Values.etcd.timeout }} # 3 seconds
+
 
     plugins:                          # plugin list
     {{- range $plugin := .Values.plugins }}
