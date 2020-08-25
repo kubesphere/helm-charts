@@ -19,9 +19,14 @@ metadata:
   name: {{ .Values.sc.name }}
   annotations:
     storageclass.kubesphere.io/supported-access-modes: '["ReadWriteOnce"]'
+    {{- if .Values.sc.isDefaultClass}}
+    storageclass.kubernetes.io/is-default-class: "true"
+    {{- end}}
 provisioner: {{ .Values.driver.name }}
 parameters:
+  {{- if kindIs "float64" .Values.sc.type }}
   type: "{{ .Values.sc.type }}"
+  {{- end}}
   fsType: {{ .Values.sc.fsType }}
   replica: "{{ .Values.sc.replica }}"
   {{- if .Values.sc.tags}}
