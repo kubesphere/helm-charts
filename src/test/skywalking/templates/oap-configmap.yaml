@@ -13,22 +13,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-{{- if not .Values.oap.envoy.als.enabled }}
-apiVersion: rbac.authorization.k8s.io/v1
-kind: RoleBinding
+{{- if .Values.oap.dynamicConfigEnabled }}
+apiVersion: v1
+kind: ConfigMap
 metadata:
-  name: {{ template "skywalking.fullname" . }}
+  name: skywalking-dynamic-config
   labels:
     app: {{ template "skywalking.name" . }}
-    chart: "{{ .Chart.Name }}-{{ .Chart.Version }}"
-    release: "{{ .Release.Name }}"
-    heritage: "{{ .Release.Service }}"
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: Role
-  name: {{ template "skywalking.fullname" . }}
-subjects:
-  - kind: ServiceAccount
-    name: {{ template "skywalking.serviceAccountName.oap" . }}
-    namespace: {{ .Release.Namespace }}
+    release: {{ .Release.Name }}
+    component: {{ .Values.oap.name }}
+data:
 {{- end }}
