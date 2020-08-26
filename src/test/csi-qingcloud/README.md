@@ -63,7 +63,7 @@ Parameter | Description | Default
 `sc.enable` | Whether to enable this StorageClass | `true`
 `sc.isDefaultClass` | Whether to set this StorageClass as the default StorageClass | `false`
 `sc.name` | Name of storage class | `csi-qingcloud`
-`sc.type` | [Type](https://github.com/yunify/qingcloud-csi/blob/master/docs/user-guide.md#type-maxsize-minsize-stepsize) parameter of storage class | ``
+`sc.type` | [Type](https://github.com/yunify/qingcloud-csi/blob/master/docs/user-guide.md#type-maxsize-minsize-stepsize) parameter of storage class. If set`auto`, disk type will be automatically set according to instance type| `auto`
 `sc.tags` | [Tag](https://github.com/yunify/qingcloud-csi/blob/master/docs/user-guide.md#tags) parameter of storage class | ``
 `sc.fsType` | [FsType](https://github.com/yunify/qingcloud-csi/blob/master/docs/user-guide.md#fstype) parameter of storage class | `ext4`
 `sc.reclaimPolicy` | ReclaimPolicy parameter of storage class | `Delete`
