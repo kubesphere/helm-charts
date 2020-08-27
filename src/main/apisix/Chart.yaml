@@ -24,7 +24,7 @@ name: apisix
 home: https://apisix.apache.org/
 dependencies:
 - name: etcd
-  version: 0.1.0
+  version: 0.1.1
   repository: https://charts.kubesphere.io/test
   condition: etcd.enabled
 
