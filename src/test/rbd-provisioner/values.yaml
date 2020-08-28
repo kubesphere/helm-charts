@@ -13,11 +13,14 @@ sc:
   isDefault: false
   provisioner: ceph.com/rbd
   reclaimPolicy: Delete
+  fsType: ext4
+  imageFormat: 2
+  imageFeatures: layering
 
 ceph:
   adminId: admin
-  adminKey: QVFBS1JkdGRvV0lySUJBQW5LaVpSKzBRY2tjWmd6UzRJdndmQ2c9PQ==
+  adminKey:
   userId: admin
-  userKey: QVFBS1JkdGRvV0lySUJBQW5LaVpSKzBRY2tjWmd6UzRJdndmQ2c9PQ==
-  mon: 192.168.0.12:6789
+  userKey:
+  mon:
   pool: rbd

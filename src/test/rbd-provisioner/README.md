@@ -5,7 +5,7 @@ The [rbd provisioner](https://github.com/kubernetes-incubator/external-storage/t
 ## TL;DR;
 
 ```console
-$ helm install --set ceph.mon=x.x.x.x,ceph.adminId=xxx,ceph.adminKey=xxx,ceph.userId=xxx,ceph.userKey=xxx -n=kube-system
+$ helm install test/rbd-provisioner -n kube-system --name-template=rbd-provisioner --set ceph.mon=,ceph.adminKey=,ceph.userKey=
 ```
 
 ## Prerequisites
@@ -18,7 +18,9 @@ $ helm install --set ceph.mon=x.x.x.x,ceph.adminId=xxx,ceph.adminKey=xxx,ceph.us
 To install the chart with the release name `my-release`:
 
 ```console
-$ helm install --set ceph.mon=x.x.x.x,ceph.adminId=xxx,ceph.adminKey=xxx,ceph.userId=xxx,ceph.userKey=xxx -n=kube-system
+helm repo add test https://charts.kubesphere.io/test
+helm install test/rbd-provisioner -n kube-system --name-template=rbd-provisioner --set ceph.mon=,ceph.adminKey=,ceph.userKey=
+
 ```
 
 > **Tip**: List all releases using `helm list -n kube-system`
@@ -47,6 +49,9 @@ The following tables lists the configurable parameters of this chart and their d
 | `sc.isDefault`                    | Set as the default StorageClass             | `false`	                                              |
 | `sc.reclaimPolicy`                | Method used to reclaim an obsoleted volume  | `Delete` 	                              |
 | `sc.provisioner`                  | Name of the provisioner                     |  `ceph.com/rbd`                                         |
+| `sc.fyType`                       | Filesystem type the StorageClass            |  `ext4`                                         |
+| `sc.imageFormat`                  | ImageFormat parameter of the StorageClass   |  `2`                             |
+| `sc.imageFeatures`                | ImageFeatures parameter of StorageClass      |  `layering`                                         |
 | `ceph.adminId`                    | Admin ID of ceph server                     | `admin`                                     |
 | `ceph.adminKey`                   | Admin Key of ceph server                    | null ( ceph auth get-key client.admin &#124; base64)   | 
 | `ceph.userId`                     | User ID of ceph server (can be admin)       | `admin` |
