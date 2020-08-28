@@ -27,7 +27,7 @@ spec:
         node-role.kubernetes.io/master: ""
       containers:
       - command:
-        - /manager
+        - manager
         env:
         - name: POD_NAMESPACE
           valueFrom:
