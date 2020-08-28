@@ -3,8 +3,8 @@
 
 manager:
   image:
-    repository: kubespheredev/porter
-    tag: v0.3-dev
+    repository: kubesphere/porter
+    tag: v0.3.1
     pullPolicy: IfNotPresent
   resources:
     limits:
@@ -22,8 +22,8 @@ manager:
 
 agent:
   image:
-    repository: kubespheredev/porter-agent
-    tag: v0.3-dev
+    repository: kubesphere/porter
+    tag: v0.3.1
     pullPolicy: IfNotPresent
   resources:
     limits:
