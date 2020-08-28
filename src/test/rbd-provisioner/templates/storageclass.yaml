@@ -37,7 +37,8 @@ parameters:
   userId: {{ .Values.ceph.userId }}
   userSecretNamespace: {{ .Release.Namespace }}
   userSecretName: ceph-secret
-  imageFormat: "2"
-  imageFeatures: layering
+  fsType: {{ .Values.sc.fsType }}
+  imageFormat: "{{ .Values.sc.imageFormat }}"
+  imageFeatures: {{ .Values.sc.imageFeatures }}
 reclaimPolicy: {{ .Values.sc.reclaimPolicy }}
 {{ end -}}
