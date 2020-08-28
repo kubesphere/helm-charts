@@ -23,15 +23,15 @@ Porter is an open source load balancer designed for bare metal Kubernetes cluste
 ```bash
 helm repo add test https://charts.kubesphere.io/test
 help repo update
-helm install myrelease-1 test/porter
+helm install porter test/porter
 ```
 
 ## Uninstalling the Chart
 
-To uninstall/delete the `myrelease-1` release:
+To uninstall/delete the `porter` release:
 
 ```bash
-helm del myrelease-1
+helm del porter
 ```
 
 The command removes all the Kubernetes components associated with the chart and deletes the release.
@@ -43,26 +43,26 @@ The following table lists the configurable parameters of the MSOMS chart and the
 
 | Parameter | Description  | Default |
 | -----------------------    | -----------------------| -----------------------|
-| `manager.image.repository`| `manager` image name.        | kubespheredev/porter |
-| `manager.image.tag`       | `manager` image tag.         | v0.3-dev  |
+| `manager.image.repository`| `manager` image name.        | kubesphere/porter |
+| `manager.image.tag`       | `manager` image tag.         | v0.3.1  |
 | `manager.image.pullPolicy`| `manager` image pull Policy. | IfNotPresent  |
 | `manager.resources`| manager pod resource requests & limits | limits:</br>&nbsp;&nbsp;cpu: 100m</br>&nbsp;&nbsp;memory: 30Mi</br>requests:</br>&nbsp;&nbsp;cpu: 100m</br>&nbsp;&nbsp;memory: 20Mi   |
 | `manager.nodeSelector`| node labels for pod assignment,porter manager pod must be deployed in master |  `node-role.kubernetes.io/master: ""`  |
 | `manager.terminationGracePeriodSeconds`| Data termination grace period (seconds) |   10  |
 | `manager.tolerations`| resource tolerations for manager pod | - key: CriticalAddonsOnly</br>&nbsp;&nbsp;operator: Exists</br>- effect: NoSchedule</br>&nbsp;&nbsp;key: node-role.kubernetes.io/master</br> |
-| `agent.image.repository`|  `agent` image name. | kubespheredev/porter-agent  |
-| `agent.image.tag`| `agent.image.tag` | v0.3-dev |
+| `agent.image.repository`|  `agent` image name. | kubesphere/porter  |
+| `agent.image.tag`| `agent.image.tag` | v0.3.1 |
 | `agent.image.pullPolicy`| `agent` image pull Policy. | IfNotPresent  |
 | `agent.resources`| manager pod resource requests & limits | limits:</br>&nbsp;&nbsp;cpu: 100m</br>&nbsp;&nbsp;memory: 30Mi</br>requests:</br>&nbsp;&nbsp;cpu: 100m</br>&nbsp;&nbsp;memory: 20Mi  |
 
 ```bash
-helm install myrelease-1 \
---set manager.image.tag=<tag> \
+helm install porter \
+-n kube-system \
 test/porter
 ```
 
 Alternatively, a YAML file that specifies the values for the parameters can be provided while installing the chart. For example,
 
 ```bash
-helm install myrelease-1 -f service.yaml test/porter
+helm install porter -n kube-system -f service.yaml test/porter
 ```
