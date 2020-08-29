@@ -38,7 +38,9 @@ securityContext: {}
   # runAsNonRoot: true
   # runAsUser: 1000
 
+
 gateway:
+  k8s_domain: cluster.local
   type: NodePort
   # type: LoadBalancer
   # annotations:
