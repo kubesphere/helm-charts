@@ -17,7 +17,7 @@ kind: CSIDriver
 metadata:
   name: {{ .Values.driver.name }}
 spec:
-  attachRequired: true
+  attachRequired: false
   podInfoOnMount: false
 {{- if semverCompare ">=1.16" .Capabilities.KubeVersion.GitVersion }}
   volumeLifecycleModes:
