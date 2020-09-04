@@ -1,0 +1,90 @@
+#  Copyright (C) 2018 Yunify, Inc.
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this work except in compliance with the License.
+#  You may obtain a copy of the License in the LICENSE file, or at:
+#
+#  http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+
+  {{- if .Values.sc.enable }}
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: {{ .Values.sc.name }}
+  annotations:
+    storageclass.kubesphere.io/supported-access-modes: '["ReadWriteOnce"]'
+    {{- if .Values.sc.isDefaultClass}}
+    storageclass.kubernetes.io/is-default-class: "true"
+    {{- end}}
+provisioner: {{ .Values.driver.name }}
+parameters:
+  fsType: {{ .Values.sc.fsType }}
+  pool_name: {{ .Values.sc.pool_name }}
+  rep_count: "{{ .Values.sc.rep_count }}"
+
+  {{- if .Values.sc.mrip }}
+  mrip: {{ .Values.sc.mrip }}
+  {{- end}}
+
+  {{- if .Values.sc.mrport }}
+  mrport: "{{ .Values.sc.mrport }}"
+  {{- end}}
+
+  {{- if .Values.sc.rpo}}
+  rpo: "{{ .Values.sc.rpo }}"
+  {{- end}}
+
+  {{- if .Values.sc.encrypte }}
+  encrypte: {{ .Values.sc.encrypte }}
+  {{- end}}
+
+  {{- if .Values.sc.key_name }}
+  key_name: {{ .Values.sc.key_name }}
+  {{- end}}
+
+  {{- if .Values.sc.rg }}
+  rg: {{ .Values.sc.rg }}
+  {{- end}}
+
+  {{- if .Values.sc.label }}
+  label: {{ .Values.sc.label }}
+  {{- end}}
+
+  {{- if .Values.sc.policy }}
+  policy: {{ .Values.sc.policy }}
+  {{- end}}
+
+  {{- if .Values.sc.dc }}
+  dc: {{ .Values.sc.dc }}
+  {{- end}}
+
+  {{- if .Values.sc.sample_volume }}
+  sample_volume: {{ .Values.sc.sample_volume }}
+  {{- end}}
+
+  {{- if .Values.sc.mutex_group }}
+  mutex_group: {{ .Values.sc.mutex_group }}
+  {{- end}}
+
+  {{- if .Values.sc.role }}
+  role: {{ .Values.sc.role }}
+  {{- end}}
+
+  {{- if .Values.sc.min_rep_count }}
+  min_rep_count: "{{ .Values.sc.min_rep_count }}"
+  {{- end}}
+
+  {{- if .Values.sc.max_bs }}
+  max_bs: "{{ .Values.sc.max_bs }}"
+  {{- end}}
+
+reclaimPolicy: {{ .Values.sc.reclaimPolicy }}
+allowVolumeExpansion: {{ .Values.sc.allowVolumeExpansion }}
+volumeBindingMode: {{ .Values.sc.volumeBindingMode }}
+  {{- end}}
