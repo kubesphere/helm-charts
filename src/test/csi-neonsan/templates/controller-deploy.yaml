@@ -24,28 +24,25 @@ spec:
       app: csi-neonsan
       role: controller
       owner: yunify
-      ver: v1.2.0
+      ver: {{ .Values.driver.tag }}
   template:
     metadata:
       labels:
         app: csi-neonsan
         role: controller
         owner: yunify
-        ver: v1.2.0
+        ver: {{ .Values.driver.tag }}
     spec:
       serviceAccount: csi-neonsan-controller
       containers:
         - name: csi-neonsan
           image: "{{ .Values.driver.repository }}:{{ .Values.driver.tag }}"
           resources:
-            limits:
-              memory: "50Mi"
-              cpu: "50m"
             requests:
               memory: "50Mi"
               cpu: "50m"
           args:
-            - "--config=/etc/neonsan/{{ .Values.driver.config.file }}"
+            - "--config=/etc/neonsan/qbd.conf"
             - "--drivername={{ .Values.driver.name}}"
             - "--endpoint=$(CSI_ENDPOINT)"
             - "--nodeid=$(NODE_ID)"
@@ -62,13 +59,10 @@ spec:
             - name: socket-dir
               mountPath: /csi
             - name: neonsan-config
-              mountPath: /etc/neonsan
+              mountPath: /etc/neonsan/qbd.conf
         - name: csi-provisioner
           image: "{{ .Values.provisioner.repository }}:{{ .Values.provisioner.tag }}"
           resources:
-            limits:
-              memory: "20Mi"
-              cpu: "20m"
             requests:
               memory: "20Mi"
               cpu: "20m"
@@ -93,9 +87,6 @@ spec:
         - name: csi-attacher
           image: "{{ .Values.attacher.repository }}:{{ .Values.attacher.tag }}"
           resources:
-            limits:
-              memory: "20Mi"
-              cpu: "20m"
             requests:
               memory: "20Mi"
               cpu: "20m"
@@ -122,9 +113,6 @@ spec:
         - name: csi-resizer
           image: "{{ .Values.resizer.repository }}:{{ .Values.resizer.tag }}"
           resources:
-            limits:
-              memory: "20Mi"
-              cpu: "20m"
             requests:
               memory: "20Mi"
               cpu: "20m"
@@ -144,9 +132,6 @@ spec:
         - name: csi-snapshotter
           image: "{{ .Values.snapshotter.repository }}:{{ .Values.snapshotter.tag }}"
           resources:
-            limits:
-              memory: "20Mi"
-              cpu: "20m"
             requests:
               memory: "20Mi"
               cpu: "20m"
@@ -167,4 +152,5 @@ spec:
           emptyDir:
         - name: neonsan-config
           hostPath:
-            path: /etc/neonsan
+            path: {{ .Values.driver.config }}
+            type: File

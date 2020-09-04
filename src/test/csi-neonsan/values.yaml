@@ -17,9 +17,12 @@ driver:
   repository: csiplugin/csi-neonsan
   tag: v1.2.0-rc2
   pullPolicy: IfNotPresent
-  config:
-    path: /etc/neonsan
-    file: qbd.conf
+  config: /etc/neonsan/qbd.conf
+  node:
+    repository: csiplugin/csi-neonsan-ubuntu
+    tag: v1.2.0-rc2
+    pullPolicy: IfNotPresent
+
 provisioner:
   repository: csiplugin/csi-provisioner
   tag: v1.5.0
@@ -36,3 +39,28 @@ snapshotter:
 registrar:
   repository: csiplugin/csi-node-driver-registrar
   tag: v1.2.0
+
+sc:
+  enable: true
+  isDefaultClass: false
+  name: csi-neonsan
+  fsType: ext4
+  reclaimPolicy: Delete
+  allowVolumeExpansion: true
+  volumeBindingMode: Immediate
+  pool_name: kube
+  rep_count: 1
+  mrip:
+  mrport:
+  rpo:
+  encrypte:
+  key_name:
+  rg:
+  label:
+  policy:
+  dc:
+  sample_volume:
+  mutex_group:
+  role:
+  min_rep_count:
+  max_bs:

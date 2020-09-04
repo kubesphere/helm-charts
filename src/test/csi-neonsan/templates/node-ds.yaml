@@ -21,21 +21,21 @@ metadata:
     app: csi-neonsan
     role: node
     owner: yunify
-    ver: v1.2.0
+    ver: {{ .Values.driver.tag }}
 spec:
   selector:
     matchLabels:
       app: csi-neonsan
       role: node
       owner: yunify
-      ver: v1.2.0
+      ver: {{ .Values.driver.tag }}
   template:
     metadata:
       labels:
         app: csi-neonsan
         role: node
         owner: yunify
-        ver: v1.2.0
+        ver: {{ .Values.driver.tag }}
     spec:
       serviceAccount: csi-neonsan-node
       tolerations:
@@ -50,34 +50,66 @@ spec:
         value: "true"
       hostNetwork: true
       containers:
-        - name: node-registrar
-          image: "{{ .Values.registrar.repository }}:{{ .Values.registrar.tag }}"
-          resources:
-            limits:
-              memory: "20Mi"
-              cpu: "10m"
+      - name: csi-neonsan
+        image: "{{ .Values.driver.node.repository }}:{{ .Values.driver.node.tag }}"
+        imagePullPolicy: {{ .Values.driver.node.pullPolicy }}
+        securityContext:
+          privileged: true
+        args:
+          - "--config=/etc/neonsan/qbd.conf"
+          - "--drivername={{ .Values.driver.name }}"
+          - "--endpoint=$(CSI_ENDPOINT)"
+          - "--maxvolume=100"
+          - "--nodeid=$(NODE_ID)"
+          - "--v=5"
+        env:
+          - name: NODE_ID
+            valueFrom:
+              fieldRef:
+                fieldPath: spec.nodeName
+          - name: CSI_ENDPOINT
+            value: unix://csi/csi.sock
+        volumeMounts:
+          - name: socket-dir
+            mountPath: /csi
+          - name: neonsan-config
+            mountPath: /etc/neonsan/qbd.conf
+          - name: qbd
+            mountPath: /usr/sbin/qbd
+          - name: dev-dir
+            mountPath: /dev
+          - name: plugin-dir
+            mountPath: /var/lib/kubelet/plugins
+            mountPropagation: "Bidirectional"
+          - name: mountpoint-dir
+            mountPath: /var/lib/kubelet/pods
+            mountPropagation: "Bidirectional"
+      - name: node-registrar
+        image: "{{ .Values.registrar.repository }}:{{ .Values.registrar.tag }}"
+        imagePullPolicy: "IfNotPresent"
+        resources:
             requests:
               memory: "20Mi"
               cpu: "10m"
-          args:
-            - "--csi-address=$(ADDRESS)"
-            - "--kubelet-registration-path=/var/lib/kubelet/plugins/{{ .Values.driver.name }}/csi.sock"
-            - "--v=5"
-          env:
-            - name: ADDRESS
-              value: /csi/csi.sock
-          lifecycle:
-            preStop:
-              exec:
-                command: [
-                  "/bin/sh", "-c",
-                  "rm -rf /registration/{{ .Values.driver.name | replace " " "" }} \
-                  /registration/{{ .Values.driver.name | replace " " "" }}-reg.sock"]
-          volumeMounts:
-            - name: socket-dir
-              mountPath: /csi
-            - name: registration-dir
-              mountPath: /registration
+        args:
+          - "--csi-address=$(ADDRESS)"
+          - "--kubelet-registration-path=/var/lib/kubelet/plugins/{{ .Values.driver.name }}/csi.sock"
+          - "--v=5"
+        env:
+          - name: ADDRESS
+            value: /csi/csi.sock
+        lifecycle:
+          preStop:
+            exec:
+              command: [
+                "/bin/sh", "-c",
+                "rm -rf /registration/{{ .Values.driver.name | replace " " "" }} \
+                 /registration/{{ .Values.driver.name | replace " " "" }}-reg.sock"]
+        volumeMounts:
+        - name: socket-dir
+          mountPath: /csi
+        - name: registration-dir
+          mountPath: /registration
       volumes:
         - name: socket-dir
           hostPath:
@@ -90,3 +122,19 @@ spec:
           hostPath:
             path: /dev
             type: Directory
+        - name: neonsan-config
+          hostPath:
+            path: {{ .Values.driver.config }}
+            type: File
+        - name: qbd
+          hostPath:
+            path: /usr/sbin/qbd
+            type: File
+        - name: plugin-dir
+          hostPath:
+            path: /var/lib/kubelet/plugins
+            type: Directory
+        - name: mountpoint-dir
+          hostPath:
+            path: /var/lib/kubelet/pods
+            type: DirectoryOrCreate
