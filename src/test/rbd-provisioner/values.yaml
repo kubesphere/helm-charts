@@ -1,0 +1,26 @@
+# Default values for rbd-provisioner.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+image:
+  repository: kubesphere/rbd-provisioner
+  tag: v2.1.1-k8s1.11
+  pullPolicy: IfNotPresent
+
+sc:
+  create: ture
+  name: rbd
+  isDefault: false
+  provisioner: ceph.com/rbd
+  reclaimPolicy: Delete
+  fsType: ext4
+  imageFormat: 2
+  imageFeatures: layering
+
+ceph:
+  adminId: admin
+  adminKey:
+  userId: admin
+  userKey:
+  mon:
+  pool: rbd

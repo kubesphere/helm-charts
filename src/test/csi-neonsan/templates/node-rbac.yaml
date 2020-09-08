@@ -21,7 +21,7 @@ metadata:
     app: csi-neonsan
     role: node
     owner: yunify
-    ver: v1.2.0
+    ver: {{ .Values.driver.tag }}
 ---
 kind: ClusterRole
 apiVersion: rbac.authorization.k8s.io/v1
@@ -31,7 +31,7 @@ metadata:
     app: csi-neonsan
     role: node
     owner: yunify
-    ver: v1.2.0
+    ver: {{ .Values.driver.tag }}
 rules:
   - apiGroups: [""]
     resources: ["events"]
@@ -45,7 +45,7 @@ metadata:
     app: csi-neonsan
     role: node
     owner: yunify
-    ver: v1.2.0
+    ver: {{ .Values.driver.tag }}
 subjects:
   - kind: ServiceAccount
     name: csi-neonsan-node

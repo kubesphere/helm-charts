@@ -1,0 +1,15 @@
+apiVersion: v1
+appVersion: 0.1.0
+description: rbd provisioner is an automatic provisioner that used your *already configured* ceph-rbd server, automatically creating Persistent Volumes.
+name: rbd-provisioner
+home: https://github.com/kubernetes-incubator/external-storage/tree/master/ceph/rbd
+version: 0.1.1
+sources:
+  - https://github.com/kubernetes-incubator/external-storage/tree/master/ceph/rbd
+maintainers:
+  - name: Min Zhang
+    email: arminzhang@yunify.com
+keywords:
+  - ceph
+  - rbd
+  - storage

@@ -6,6 +6,11 @@
 helm install test/csi-neonsan
 ```
 
+## Prerequisite
+- **qbd** installed on each node
+- **qbd** modules (**qbd**&**qbd_tcp**&**qbd_rdma**) loaded
+
+
 ## Installing
 
 To install the chart with the release name `csi-neonsan`:
@@ -29,16 +34,18 @@ The command removes all the Kubernetes components associated with the chart and 
 
 ## Configuration
 
-The following table lists the configurable parameters of the redis chart and their default values.
+The following table lists the configurable parameters of the csi-neonsan chart and their default values.
 
 Parameter | Description | Default
 --- | --- | ---
 `driver.name` | Name of the CSI driver | `neonsan.csi.qingstor.com`
 `driver.repository` | Image of CSI plugin| `csiplugin/csi-neonsan`
-`driver.tag` | Tag of CSI plugin | `v1.2.0-rc1 `
+`driver.tag` | Tag of CSI plugin | `v1.2.0-rc2 `
 `driver.pullPolicy` | Image pull policy of CSI plugin | `IfNotPresent`
-`driver.config.path` | Config path of NeonSAN | `/etc/neonsan`
-`driver.config.file` | Config file name of NeonSAN | `qbd.conf`
+`driver.config` | Config of NeonSAN | `/etc/neonsan/qbd.conf`
+`driver.node.repository` | Image of node DaemonSet| `csiplugin/csi-neonsan-ubuntu`
+`driver.node.tag` | Tag of node DaemonSet | `v1.2.0-rc2`
+`driver.node.pullPolicy` | Config file name of NeonSAN | `qbd.conf`
 `provisioner.repository` | Image of csi-provisioner | `csiplugin/k8scsi/csi-provisioner`
 `provisioner.tag` | Tag of csi-provisioner | `v1.5.0`
 `provisioner.volumeNamePrefix` | Prefix of volume name created by the driver | `pvc`
@@ -50,4 +57,32 @@ Parameter | Description | Default
 `snapshotter.tag` | Tag of csi-snapshotter | `v2.0.1`
 `registar.repository` | Image of csi-node-driver-registrar| `csiplugin/csi-node-driver-registrar`
 `registar.tag` | Tag of csi-node-driver-registrar | `v1.2.0`
+`sc.enable` | Whether to enable this StorageClass | `true`
+`sc.isDefaultClass` | Whether to set this StorageClass as the default StorageClass | `false`
+`sc.name` | Name of storage class | `csi-neonsan`
+`sc.reclaimPolicy` | ReclaimPolicy parameter of storage class | `Delete`
+`sc.allowVolumeExpansion` | AllowVolumeExpansion parameter of storage class | `true`
+`sc.volumeBindingMode` | [VolumeBindingMode](https://github.com/yunify/qingcloud-csi/blob/master/docs/user-guide.md#topology-awareness) parameter of storage class | `WaitForFirstConsumer`
+`sc.fsType` | [FsType](https://github.com/yunify/qingcloud-csi/blob/master/docs/user-guide.md#fstype) parameter of storage class | `ext4`
+
+The following table lists the parameters of NeonSAN api in StorageClass's parameter. See NeonSAN api document for detail.
+
+Parameter | Type | Default
+--- | --- | ---
+`sc.pool_name`| string | `kube`
+`sc.rep_count`| int| `1`
+`sc.mrip` | string |
+`sc.mrport` | int |  
+`sc.rpo` | int | 
+`sc.encrypte` | string |  
+`sc.key_name` | string | 
+`sc.rg` | string | 
+`sc.label` | string | 
+`sc.policy` | string| 
+`sc.dc` | string
+`sc.sample_volume` | string| 
+`sc.mutex_group` | string | 
+`sc.role` | string | 
+`sc.min_rep_count` | int| 
+`sc.max_bs` | int | 
 

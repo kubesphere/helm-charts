@@ -24,7 +24,7 @@ metadata:
     {{- end}}
 provisioner: {{ .Values.driver.name }}
 parameters:
-  {{- if kindIs "float64" .Values.sc.type }}
+  {{- if ne (.Values.sc.type | toString) "auto" }}
   type: "{{ .Values.sc.type }}"
   {{- end}}
   fsType: {{ .Values.sc.fsType }}

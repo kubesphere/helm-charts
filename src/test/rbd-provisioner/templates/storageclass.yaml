@@ -1,0 +1,44 @@
+{{ if .Values.sc.create -}}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ceph-secret-admin
+type: "kubernetes.io/rbd"
+data:
+  # ceph auth get-key client.admin | base64
+  key: {{ .Values.ceph.adminKey }}
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: ceph-secret
+type: "kubernetes.io/rbd"
+data:
+  # ceph auth add client.kube mon 'allow r' osd 'allow rwx pool=kube'
+  # ceph auth get-key client.kube | base64
+  key: {{ .Values.ceph.userKey }}
+---
+kind: StorageClass
+apiVersion: storage.k8s.io/v1
+metadata:
+  name: {{ .Values.sc.name }}
+  {{- if .Values.sc.isDefault}}
+  annotations:
+    storageclass.kubernetes.io/is-default-class: "true"
+  {{- end }}
+#provisioner: ceph.com/rbd
+provisioner: {{ .Values.sc.provisioner }}
+parameters:
+  monitors: {{ .Values.ceph.mon }}
+  pool: {{ .Values.ceph.pool }}
+  adminId: {{ .Values.ceph.adminId }}
+  adminSecretNamespace: {{ .Release.Namespace }}
+  adminSecretName: ceph-secret-admin
+  userId: {{ .Values.ceph.userId }}
+  userSecretNamespace: {{ .Release.Namespace }}
+  userSecretName: ceph-secret
+  fsType: {{ .Values.sc.fsType }}
+  imageFormat: "{{ .Values.sc.imageFormat }}"
+  imageFeatures: {{ .Values.sc.imageFeatures }}
+reclaimPolicy: {{ .Values.sc.reclaimPolicy }}
+{{ end -}}

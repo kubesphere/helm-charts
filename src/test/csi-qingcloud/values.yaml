@@ -53,7 +53,7 @@ sc:
   enable: true
   isDefaultClass: false
   name: csi-qingcloud
-  type: 
+  type: auto
   replica: 2
   tags:
   fsType: ext4
