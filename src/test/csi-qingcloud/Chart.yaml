@@ -16,7 +16,7 @@ apiVersion: v2
 appVersion: 1.2.0
 name: csi-qingcloud
 description: A Helm chart for Qingcloud CSI Driver
-version: 1.2.5
+version: 1.2.6
 kubeVersion: ">=1.14.0-0"
 home: https://github.com/yunify/qingcloud-csi
 sources:
