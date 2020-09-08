@@ -18,7 +18,7 @@ metadata:
   labels:
     app: csi-qingcloud
     owner: yunify
-    ver: {{ .Values.driver.tag }}
+    ver: {{ .Chart.AppVersion }}
   name: csi-qingcloud
   namespace: {{ .Release.Namespace }}
 data:
@@ -32,6 +32,3 @@ data:
     uri: {{ .Values.config.uri }}
     connection_retries: {{ .Values.config.connection_retries }}
     connection_timeout: {{ .Values.config.connection_timeout }}
-
-
-

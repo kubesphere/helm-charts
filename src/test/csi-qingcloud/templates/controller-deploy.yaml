@@ -21,7 +21,7 @@ metadata:
     app: csi-qingcloud
     role: controller
     owner: yunify
-    ver: {{ .Values.driver.tag }}
+    ver: {{ include "driver.version" . }}
 spec:
   replicas: 1
   selector:
@@ -29,14 +29,14 @@ spec:
       app: csi-qingcloud
       role: controller
       owner: yunify
-      ver: {{ .Values.driver.tag }}
+      ver: {{ include "driver.version" . }}
   template:
     metadata:
       labels:
         app: csi-qingcloud
         role: controller
         owner: yunify
-        ver: {{ .Values.driver.tag }}
+        ver: {{ include "driver.version" . }}
     spec:
       serviceAccount: csi-qingcloud-controller
       containers:
@@ -140,7 +140,7 @@ spec:
             mountPath: /csi
 {{- end }}
       - name: csi-qingcloud
-        image: "{{ .Values.driver.repository }}:{{ .Values.driver.tag }}"
+        image: "{{ .Values.driver.repository }}:{{ include "driver.version" . }}"
         resources:
           limits:
             memory: "50Mi"
