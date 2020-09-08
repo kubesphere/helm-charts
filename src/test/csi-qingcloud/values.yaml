@@ -47,7 +47,7 @@ snapshotter:
   tag: v2.0.1
 registrar:
   repository: csiplugin/csi-node-driver-registrar
-  # tag:
+  tag: v1.2.0
 
 sc:
   enable: true

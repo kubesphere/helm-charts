@@ -45,7 +45,7 @@ Parameter | Description | Default
 `config.connection_timeout` | Retry time out of API| `30`
 `driver.name` | Name of the CSI driver | `disk.csi.qingcloud.com`
 `driver.repository` | Image of CSI plugin| `csiplugin/csi-qingcloud`
-`driver.tag` | Tag of CSI plugin | `v1.2.0-rc4 `
+`driver.tag` | Tag of CSI plugin, defaults to chart appVersion | `""`
 `driver.pullPolicy` | Image pull policy of CSI plugin | `IfNotPresent`
 `driver.maxVolume` | Max volume of CSI plugin | `10`
 `driver.kubeletDir` | Directory of kubelet | `/var/lib/kubelet`
