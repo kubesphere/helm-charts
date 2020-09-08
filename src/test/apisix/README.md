@@ -49,7 +49,7 @@ helm install test/apisix
 To install the chart with the release name `my-release`:
 
 ```console
-helm install --name my-release ks-test/apisix
+helm install --name my-release test/apisix
 ```
 
 The command deploys the apisix chart on the Kubernetes cluster in the default configuration. The configuration section lists the parameters that can be configured during installation.
