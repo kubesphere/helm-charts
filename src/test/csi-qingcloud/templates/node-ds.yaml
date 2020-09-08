@@ -51,7 +51,7 @@ spec:
       hostNetwork: true
       containers:
         - name: node-registrar
-          image: "{{ .Values.registrar.repository }}:{{ include "registrar.version" . }}"
+          image: "{{ .Values.registrar.repository }}:{{ .Values.registrar.tag }}"
           resources:
             limits:
               memory: "20Mi"
