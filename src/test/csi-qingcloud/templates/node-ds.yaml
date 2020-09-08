@@ -21,21 +21,21 @@ metadata:
     app: csi-qingcloud
     role: node
     owner: yunify
-    ver: {{ .Values.driver.tag }}
+    ver: {{ include "driver.version" . }}
 spec:
   selector:
     matchLabels:
       app: csi-qingcloud
       role: node
       owner: yunify
-      ver: {{ .Values.driver.tag }}
+      ver: {{ include "driver.version" . }}
   template:
     metadata:
       labels:
         app: csi-qingcloud
         role: node
         owner: yunify
-        ver: {{ .Values.driver.tag }}
+        ver: {{ include "driver.version" . }}
     spec:
       serviceAccount: csi-qingcloud-node
       tolerations:
@@ -51,7 +51,7 @@ spec:
       hostNetwork: true
       containers:
         - name: node-registrar
-          image: "{{ .Values.registrar.repository }}:{{ .Values.registrar.tag }}"
+          image: "{{ .Values.registrar.repository }}:{{ include "registrar.version" . }}"
           resources:
             limits:
               memory: "20Mi"
@@ -84,7 +84,7 @@ spec:
             capabilities:
               add: ["SYS_ADMIN"]
             allowPrivilegeEscalation: true
-          image: "{{ .Values.driver.repository }}:{{ .Values.driver.tag }}"
+          image: "{{ .Values.driver.repository }}:{{ include "driver.version" . }}"
           resources:
             limits:
               memory: "50Mi"
