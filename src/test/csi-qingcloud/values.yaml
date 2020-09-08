@@ -27,7 +27,7 @@ config:
 driver:
   name: disk.csi.qingcloud.com
   repository: csiplugin/csi-qingcloud
-  tag: v1.2.0-rc.4
+  # tag:
   pullPolicy: IfNotPresent
   maxVolume: 10
   kubeletDir: /var/lib/kubelet
@@ -47,7 +47,7 @@ snapshotter:
   tag: v2.0.1
 registrar:
   repository: csiplugin/csi-node-driver-registrar
-  tag: v1.2.0
+  # tag:
 
 sc:
   enable: true
@@ -60,4 +60,3 @@ sc:
   reclaimPolicy: Delete
   allowVolumeExpansion: true
   volumeBindingMode: WaitForFirstConsumer
-
