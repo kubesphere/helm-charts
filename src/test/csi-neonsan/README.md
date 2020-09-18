@@ -22,6 +22,11 @@ helm install test/csi-neonsan --name-template csi-neonsan --namespace kube-syste
 
 The command deploys the csi-neonsan chart on the Kubernetes cluster in the default configuration. The configuration section lists the parameters that can be configured during installation.
 
+If node os is **centos**, `driver.node.repository`(default `csiplugin/csi-neonsan-ubuntu`) should be set `csiplugin/csi-neonsan-centos`
+```bash
+helm install test/csi-neonsan --name-template csi-neonsan --namespace kube-system --set driver.node.repository=csiplugin/csi-neonsan-centos
+```
+
 ## Uninstalling
 
 To uninstall/delete the `csi-neonsan` deployment:
@@ -40,11 +45,11 @@ Parameter | Description | Default
 --- | --- | ---
 `driver.name` | Name of the CSI driver | `neonsan.csi.qingstor.com`
 `driver.repository` | Image of CSI plugin| `csiplugin/csi-neonsan`
-`driver.tag` | Tag of CSI plugin | `v1.2.0-rc2 `
+`driver.tag` | Tag of CSI plugin | `v1.2.0`
 `driver.pullPolicy` | Image pull policy of CSI plugin | `IfNotPresent`
 `driver.config` | Config of NeonSAN | `/etc/neonsan/qbd.conf`
 `driver.node.repository` | Image of node DaemonSet| `csiplugin/csi-neonsan-ubuntu`
-`driver.node.tag` | Tag of node DaemonSet | `v1.2.0-rc2`
+`driver.node.tag` | Tag of node DaemonSet | `v1.2.0`
 `driver.node.pullPolicy` | Config file name of NeonSAN | `qbd.conf`
 `provisioner.repository` | Image of csi-provisioner | `csiplugin/k8scsi/csi-provisioner`
 `provisioner.tag` | Tag of csi-provisioner | `v1.5.0`
