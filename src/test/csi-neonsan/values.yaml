@@ -15,12 +15,12 @@
 driver:
   name: neonsan.csi.qingstor.com
   repository: csiplugin/csi-neonsan
-  tag: v1.2.0-rc2
+  tag: v1.2.0
   pullPolicy: IfNotPresent
   config: /etc/neonsan/qbd.conf
   node:
     repository: csiplugin/csi-neonsan-ubuntu
-    tag: v1.2.0-rc2
+    tag: v1.2.0
     pullPolicy: IfNotPresent
 
 provisioner:
