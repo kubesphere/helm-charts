@@ -121,7 +121,7 @@ data:
       error_log_level: "warn"         # warn,error
       worker_processes: auto
       worker_rlimit_nofile: 20480     # the number of files a worker process can open, should be larger than worker_connections
-      worker_shutdown_timeout: 240s   # timeout for a graceful shutdown of worker 
+      worker_shutdown_timeout: 240s   # timeout for a graceful shutdown of worker
       event:
         worker_connections: 10620
       http:
@@ -141,7 +141,7 @@ data:
     etcd:
       host:
       {{- if .Values.etcd.enabled }}
-        - "http://{{ include "apisix.fullname" . }}-etcd-0.{{ include "apisix.fullname" . }}-etcd.{{ .Release.Namespace }}.svc.{{ .Values.gateway.k8s_domain }}:2379"
+        - "http://{{ .Release.Name }}-etcd-0.{{ .Release.Name }}-etcd.{{ .Release.Namespace }}.svc.{{ .Values.gateway.k8s_domain }}:2379"
       {{- else }}
         - {{ .Values.etcd.host }}
       {{- end }}

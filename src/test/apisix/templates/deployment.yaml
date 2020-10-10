@@ -77,7 +77,11 @@ spec:
               subPath: config.yaml
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
-        # - name: dnsmasq
+      initContainers:
+      - name: init-apisix
+        image: busybox:1.28
+        command: ['sh', '-c', "until nslookup {{ .Release.Name }}-etcd-0.{{ .Release.Name }}-etcd.{{ .Release.Namespace }}.svc.{{ .Values.gateway.k8s_domain }}; do echo waiting for etcd; sleep 2; done"]
+            # - name: dnsmasq
         #   image: "janeczku/go-dnsmasq:release-1.0.7"
         #   args:
         #     - --listen
