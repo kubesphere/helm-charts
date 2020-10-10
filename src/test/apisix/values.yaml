@@ -75,6 +75,7 @@ etcd:
   #host: http://etcd-apisix.local:2379 # http://172.20.128.89:2379
   prefix: "/apisix"
   timeout: 3
+  port: 2379
   enabled: true
   resources:
     limits:
