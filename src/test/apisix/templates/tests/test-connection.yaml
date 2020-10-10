@@ -13,7 +13,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-
+{{- if .Values.tests.enabled }}
 apiVersion: v1
 kind: Pod
 metadata:
@@ -29,3 +29,4 @@ spec:
       command: ['wget']
       args: ['{{ include "apisix.fullname" . }}:{{ .Values.gateway.http.containerPort }}']
   restartPolicy: Never
+{{- end }}

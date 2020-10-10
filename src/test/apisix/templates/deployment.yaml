@@ -78,7 +78,7 @@ spec:
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
       initContainers:
-      - name: init-apisix
+      - name: wait-etcd
         image: busybox:1.28
         command: ['sh', '-c', "until nc -z {{ .Release.Name }}-etcd-0.{{ .Release.Name }}-etcd.{{ .Release.Namespace }}.svc.{{ .Values.gateway.k8s_domain }} {{ .Values.etcd.port }}; do echo waiting for etcd `date`; sleep 2; done;"]
         # - name: dnsmasq
