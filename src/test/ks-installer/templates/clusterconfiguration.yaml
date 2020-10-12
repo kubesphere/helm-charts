@@ -1,0 +1,66 @@
+apiVersion: installer.kubesphere.io/v1alpha1
+kind: ClusterConfiguration
+metadata:
+  name: ks-installer
+  namespace: kubesphere-system
+  labels:
+    version: {{ .Chart.AppVersion }}
+spec:
+  persistence:
+    storageClass: ""
+  authentication:
+    jwtSecret: {{ .Values.authentication.jwtSecret }}
+  etcd:
+    monitoring: {{ .Values.etcd.monitoring }}
+    endpointIps: {{ .Values.etcd.endpointIps }}
+    port: 2379
+    tlsEnable: {{ .Values.etcd.tlsEnable }}
+  common:
+    mysqlVolumeSize: {{ .Values.common.mysqlVolumeSize }}
+    minioVolumeSize: {{ .Values.common.minioVolumeSize }}
+    etcdVolumeSize: {{ .Values.common.etcdVolumeSize }}
+    openldapVolumeSize: {{ .Values.common.openldapVolumeSize }}
+    redisVolumSize: {{ .Values.common.redisVolumSize }}
+    es:
+      elasticsearchMasterVolumeSize: {{ .Values.common.es.elasticsearchMasterVolumeSize }}
+      elasticsearchDataVolumeSize: {{ .Values.common.es.elasticsearchDataVolumeSize }}
+      logMaxAge: {{ .Values.common.es.logMaxAge }}
+      elkPrefix: {{ .Values.common.es.elkPrefix }}
+  console:
+    enableMultiLogin: {{ .Values.console.enableMultiLogin }}
+    port: {{ .Values.console.port }}
+  alerting:
+    enabled: {{ .Values.alerting.enabled }}
+  auditing:
+    enabled: {{ .Values.auditing.enabled }}
+  devops:
+    enabled: {{ .Values.devops.enabled }}
+    jenkinsMemoryLim: {{ .Values.devops.jenkinsMemoryLim }}
+    jenkinsMemoryReq: {{ .Values.devops.jenkinsMemoryReq }}
+    jenkinsVolumeSize: {{ .Values.devops.jenkinsVolumeSize }}
+    jenkinsJavaOpts_Xms: {{ .Values.devops.jenkinsJavaOpts_Xms }}
+    jenkinsJavaOpts_Xmx: {{ .Values.devops.jenkinsJavaOpts_Xmx }}
+    jenkinsJavaOpts_MaxRAM: {{ .Values.devops.jenkinsJavaOpts_MaxRAM }}
+  events:
+    enabled: {{ .Values.events.enabled }}
+    ruler:
+      enabled: {{ .Values.events.ruler.enabled }}
+      replicas: {{ .Values.events.ruler.replicas }}
+  logging:
+    enabled: {{ .Values.logging.enabled }}
+    logsidecarReplicas: {{ .Values.logging.logsidecarReplicas }}
+  metrics_server:
+    enabled: {{ .Values.logging.enabled }}
+  monitoring:
+    prometheusMemoryRequest: {{ .Values.monitoring.prometheusMemoryRequest }}
+    prometheusVolumeSize: {{ .Values.monitoring.prometheusVolumeSize }}
+  multicluster:
+    clusterRole: {{ .Values.multicluster.clusterRole }}
+  networkpolicy:
+    enabled: {{ .Values.networkpolicy.enabled }}
+  notification:
+    enabled: {{ .Values.notification.enabled }}
+  openpitrix:
+    enabled: {{ .Values.openpitrix.enabled }}
+  servicemesh:
+    enabled: {{ .Values.servicemesh.enabled }}

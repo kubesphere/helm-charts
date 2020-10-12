@@ -6,16 +6,16 @@ The helm chart of KubeSphere, supports installing KubeSphere on existing Kuberne
 
 ## Prerequisites
 
- - Kubernetes v1.14.x、v1.15.x、v1.16.x、v1.17.3
+ - Kubernetes v1.15.x、v1.16.x、v1.17.x、v1.18.x
  - PV dynamic provisioning support on the underlying infrastructure (StorageClass)
- - Helm 2
+ - Helm3
 
 ## Installing
 
 Check out configuration in `values.yaml` and install the chart with the release name `my-release`:
 
 ```console
-helm install --name my-release ks-installer
+helm install --name my-release ks-installer --namespace=kubesphere-system --create-namespace
 ```
 
 The command deploys the kubesphere installer chart on the Kubernetes cluster.
@@ -30,7 +30,7 @@ helm list
 To uninstall/delete all charts related to kubesphere:
 
 ```console
-helm delete --purge my-release
+helm delete my-release
 ```
 
 The command removes ks-installer with the chart and deletes the release.
@@ -42,7 +42,7 @@ The following table lists the configurable parameters of the ks-installer chart 
 Parameter | Description | Default
 --- | --- | ---
 `image.repository` | The image of ks-installer container | `kubesphere/ks-installer`
-`image.tag` | The tag of the ks-installer image | `v2.1.1`
+`image.tag` | The tag of the ks-installer image | `v3.0.0`
 `image.pullPolicy` | The pull policy of the ks-installer image | `Always`
 
 ## KubeSphere Configuration
@@ -52,43 +52,43 @@ You can set the configuration of kubespher in `values.yaml`,`etcd.endpointIps` m
 Parameter | Description | Default
 --- | --- | ---
 `persistence.storageClass` | Installer will use the default StorageClass, you can also designate another StorageClass| `""`
-`etcd.monitoring `| Whether to enable etcd monitoring|`False`
-`etcd.endpointIps`|etcd address（for etcd cluster,see an example value like `192.168.0.7,192.168.0.8,192.168.0.9`）|`192.168.0.7,192.168.0.8,192.168.0.9` 
+`authentication.jwtSecret `| Keep the jwtSecret consistent with the host cluster. | `""`
+`etcd.monitoring `| Whether to enable etcd monitoring|`false`
+`etcd.endpointIps`|etcd address（for etcd cluster,see an example value like `192.168.0.7,192.168.0.8,192.168.0.9`）|`localhost` 
 `etcd.port`|etcd port (Default port: 2379, you can appoint any other port) | `2379` 
-`etcd.tlsEnable`|Whether to enable etcd TLS certificate authentication.（True / False）| `True`
+`etcd.tlsEnable`|Whether to enable etcd TLS certificate authentication.（true / false）| `true`
 `common.mysqlVolumeSize`|MySQL volume size (cannot be modified after set)|`20Gi`
 `common.minioVolumeSize`|Minio volume size (cannot be modified after set)|`20Gi`
 `common.etcdVolumeSize`|etcd volume size (cannot be modified after set) |`20Gi`
 `common.openldapVolumeSize`|openldap volume size (cannot be modified after set)|`2Gi`
 `common.redisVolumSize`|redis volume size (cannot be modified after set)|`2Gi`
-`console.enableMultiLogin`|Whether to enable multiple point login of one account（True / False）|`False`
+`common.es.elasticsearchMasterVolumeSize`|Volume size of Elasticsearch master nodes (cannot be modified after set)|`4Gi`
+`common.es.elasticsearchDataVolumeSize`|Volume size of Elasticsearch data nodes (cannot be modified after set)|`20Gi`
+`common.es.logMaxAge`|Log retention time in built-in Elasticsearch (days)|`7`
+`common.es.elkPrefix`|redis volume size (cannot be modified after set)|`2Gi`
+`console.enableMultiLogin`|Whether to enable multiple point login of one account（true / false）|`false`
 `console.port`|Console Port（NodePort）|`30880`
-`monitoring.prometheusReplicas`|Prometheus replicas|`1`
-`monitoring.prometheusMemoryRequest`|Prometheus memory request|`400Mi`
-`monitoring.prometheusVolumeSize`|Prometheus volume size|`20Gi`
-`monitoring.grafana.enabled`|Whether to enable Grafana installation（True / False）|`False`
-`openpitrix.enable`|App store and app templates are based on OpenPitrix, it's recommended to enable OpenPitrix installation（True / False）,it need at least 0.3 core, 300 MiB|`False`
-`logging.enabled`|Whether to enable logging system installation   （True / False）|`False`
-`logging.elasticsearchMasterReplicas`|Elasticsearch master replicas|`1`
-`logging.elasticsearchDataReplicas`|Elasticsearch data replicas|`1`
-`logging.logsidecarReplicas`|Logsidecar replicas|`2`
-`logging.elasticsearchVolumeSize`|ElasticSearch volume size|`20Gi`
-`logging.logMaxAge`|How many days the logs are remained|`7`
-`logging.elkPrefix`|Log index |`logstash `
-`logging.containersLogMountedPath`|The mounting path of container logs|`""`
-`logging.kibana.enabled`|Whether to enable Kibana installation（True / False）|`False`
-`devops.enabled`|Whether to enable DevOps system installation（True / False）`False`
+`alerting.enabled`|Whether to install KubeSphere alerting system. It enables Users to customize alerting policies to send messages to receivers in time with different time intervals and alerting levels to choose from. （true / false）|`false`
+`auditing.enabled`|Whether to install KubeSphere audit log system. It provides a security-relevant chronological set of records，recording the sequence of activities happened in platform, initiated by different tenants. （true / false）|`false`
+`devops.enabled`|Whether to install KubeSphere DevOps System. It provides out-of-box CI/CD system based on Jenkins, and automated workflow tools including Source-to-Image & Binary-to-Image. （true / false） | `false`
 `devops.jenkinsMemoryLim`|Jenkins Memory Limit|`2Gi`
 `devops.jenkinsMemoryReq`|Jenkins Memory Request|`1500Mi`
 `devops.jenkinsVolumeSize`|Jenkins volume size|`8Gi`
 `devops.jenkinsJavaOpts_Xms`|Jenkins JVM parameter（Xms）|`512m`
 `devops.jenkinsJavaOpts_Xmx`|Jenkins  JVM parameter（Xmx）|`512m`
 `devops.jenkinsJavaOpts_MaxRAM`|Jenkins  JVM parameter（MaxRAM）|`2Gi`
-`devops.sonarqube.enabled`|Whether to install SonarQube（True / False）|`False`
-`metrics_server.enabled`|Whether to install metrics_serverTrue / False）| `False`
-`servicemesh.enabled`|Whether to install Istio（True / False）|`False`
-`notification.enable`|Whether to install Notification sysytem （True / False）|`False`
-`alerting.enabled`|Whether to install Alerting sysytem （True / False）|`False`
+`events.enabled`|Whether to install KubeSphere events system. It provides a graphical web console for Kubernetes Events exporting, filtering and alerting in multi-tenant Kubernetes clusters. （true / false）|`false`
+`logging.enabled`|Whether to install KubeSphere logging system. Flexible logging functions are provided for log query, collection and management in a unified console. Additional log collectors can be added, such as Elasticsearch, Kafka and Fluentd.  （true / false）|`false`
+`logging.logsidecarReplicas`|Logsidecar replicas|`2`
+`metrics_server.enabled`|Whether to install metrics_servertrue / false）| `false`
+`monitoring.prometheusMemoryRequest`|Prometheus memory request|`400Mi`
+`monitoring.prometheusVolumeSize`|Prometheus volume size|`20Gi`
+`multicluster.clusterRole`|You can install a solo cluster, or specify it as the role of host or member cluster. （host / member / none）|`none`
+`networkpolicy.enabled`|Network policies allow network isolation within the same cluster, which means firewalls can be set up between certain instances (Pods). （true / false）|`false`
+`notification.enable`|Email Notification support for the legacy alerting system, should be enabled/disabled together with the above alerting option. （true / false）|`false`
+`openpitrix.enable`|Whether to install KubeSphere Application Store. It provides an application store for Helm-based applications, and offer application lifecycle management. （true / false）|`false`
+`servicemesh.enabled`|Whether to install KubeSphere Service Mesh (Istio-based). It provides fine-grained traffic management, observability and tracing, and offer visualization for traffic topology. （true / false）|`false`
+
 
 Specify each parameter using the `--set key=value[,key=value]` argument to `helm install`. For example:
 
