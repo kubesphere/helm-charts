@@ -1,5 +1,27 @@
 apiVersion: v1
 entries:
+  apisix:
+  - apiVersion: v2
+    appVersion: 1.15.0
+    created: "2020-10-12T02:08:37.922699782Z"
+    dependencies:
+    - condition: etcd.enabled
+      name: etcd
+      repository: https://charts.kubesphere.io/test
+      version: 0.1.1
+    description: Apache APISIX is a dynamic, real-time, high-performance API gateway,
+      based on the Nginx library and etcd.
+    digest: 07849ba52164a82037db3e3720b31ba8c213ae1017d77ff7ae754e798ff63d50
+    home: https://apisix.apache.org/
+    icon: https://apisix.apache.org/img/logo.png
+    maintainers:
+    - email: liling@apache.org
+      name: liling
+    name: apisix
+    type: application
+    urls:
+    - https://charts.kubesphere.io/test/apisix-0.1.5.tgz
+    version: 0.1.5
   aws-ebs-csi-driver:
   - apiVersion: v1
     appVersion: 0.5.0
@@ -798,4 +820,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/test/snapshot-controller-0.1.0.tgz
     version: 0.1.0
-generated: "2020-09-24T02:55:08.608261821Z"
+generated: "2020-10-12T02:08:37.919961889Z"
