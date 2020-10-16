@@ -57,7 +57,7 @@ Parameter | Description | Default
 `attacher.repository` | Image of csi-attacher | `csiplugin/k8scsi/csi-attacher`
 `attacher.tag` | Tag of csi-attacher | `v2.1.1`
 `resizer.repository` | Image of csi-resizer | `csiplugin/k8scsi/csi-resizer`
-`resizere.tag` | Tag of csi-resizer | `v0.4.0`
+`resizere.tag` | Tag of csi-resizer | `v0.5.1`
 `snapshotter.repository` | Image of csi-snapshotter | `csiplugin/csi-snapshotter`
 `snapshotter.tag` | Tag of csi-snapshotter | `v2.0.1`
 `registar.repository` | Image of csi-node-driver-registrar| `csiplugin/csi-node-driver-registrar`
