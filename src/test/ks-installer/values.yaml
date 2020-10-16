@@ -4,6 +4,7 @@
 
 replicaCount: 1
 
+registry: ""
 image:
   repository: kubesphere/ks-installer
   pullPolicy: Always
@@ -36,6 +37,9 @@ nodeSelector: {}
 tolerations: []
 
 affinity: {}
+
+persistence:
+  storageClass: ""
 
 # Keep the jwtSecret consistent with the host cluster. Retrive the jwtSecret by executing
 # "kubectl -n kubesphere-system get cm kubesphere-config -o yaml | grep -v "apiVersion" | grep jwtSecret"
