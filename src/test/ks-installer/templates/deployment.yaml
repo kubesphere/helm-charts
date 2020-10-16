@@ -17,7 +17,11 @@ spec:
       serviceAccountName: ks-installer
       containers:
         - name: {{ .Chart.Name }}
+{{- if .Values.registry }}
+          image: "{{ .Values.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+{{- else }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+{{- end}}
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           resources:
             {{- toYaml .Values.resources | nindent 12 }}
