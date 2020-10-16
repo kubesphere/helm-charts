@@ -12,7 +12,7 @@ spec:
   persistence:
     storageClass: "{{ .Values.persistence.storageClass}}"
   authentication:
-    jwtSecret: {{ .Values.authentication.jwtSecret }}
+    jwtSecret: "{{ .Values.authentication.jwtSecret }}"
   etcd:
     monitoring: {{ .Values.etcd.monitoring }}
     endpointIps: {{ .Values.etcd.endpointIps }}
