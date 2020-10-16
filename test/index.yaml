@@ -374,6 +374,21 @@ entries:
   ks-installer:
   - apiVersion: v2
     appVersion: 3.0.0
+    created: "2020-10-16T12:08:26.635623569Z"
+    description: The helm chart of KubeSphere, supports installing KubeSphere on existing
+      Kubernetes.
+    digest: 488ddce0fce383adbde854c6ae456d940e4344d25cfd811c30b2f710ede3a941
+    icon: https://kubesphere.io/static/logo.16097928.svg
+    keywords:
+    - kubesphere
+    - installer
+    name: ks-installer
+    type: application
+    urls:
+    - https://charts.kubesphere.io/test/ks-installer-0.2.1.tgz
+    version: 0.2.1
+  - apiVersion: v2
+    appVersion: 3.0.0
     created: "2020-10-16T09:38:45.245989619Z"
     description: The helm chart of KubeSphere, supports installing KubeSphere on existing
       Kubernetes.
@@ -835,4 +850,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/test/snapshot-controller-0.1.0.tgz
     version: 0.1.0
-generated: "2020-10-16T09:38:45.244359061Z"
+generated: "2020-10-16T12:08:26.633959662Z"
