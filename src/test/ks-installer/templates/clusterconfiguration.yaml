@@ -6,8 +6,11 @@ metadata:
   labels:
     version: {{ .Chart.AppVersion }}
 spec:
+{{- if .Values.registry}}
+  local_registry: {{ .Values.registry }}
+{{- end}}
   persistence:
-    storageClass: ""
+    storageClass: "{{ .Values.persistence.storageClass}}"
   authentication:
     jwtSecret: {{ .Values.authentication.jwtSecret }}
   etcd:
