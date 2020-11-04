@@ -143,10 +143,10 @@ pushRemote() {
 
 adjustRemote() {
   ensureVars BASE_URL BASE_URL_CN
-  for repo in $(ls -d *); do
-    sed -i "s#$BASE_URL#$BASE_URL_CN#g" $repo/index.yaml
-    git add $repo/index.yaml
-  done
+  rm -rf src/ build/
+  files="$(find . -type f -name index.html -or -name index.yaml)"
+  sed -i "s#$BASE_URL#$BASE_URL_CN#g" $files
+  git add $files
   git commit -m "Update" --author="KubeSphere CI Bot <ks-ci-bot@users.noreply.github.com>"
 }
 
