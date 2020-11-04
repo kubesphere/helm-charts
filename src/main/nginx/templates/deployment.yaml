@@ -20,10 +20,10 @@ spec:
         app.kubernetes.io/instance: {{ .Release.Name }}
     spec:
       initContainers:
-      {{- if .Values.image.html }}
+      {{- if .Values.image.html.repository }}
       - name: copy-html
-        image: {{ .Values.image.html.repository }}:{{ .Values.image.html.tag }}
-        imagePullPolicy: {{ .Values.image.html.pullPolicy }}
+        image: {{ .Values.image.html.repository }}:{{ coalesce .Values.image.html.tag "latest" }}
+        imagePullPolicy: {{ coalesce .Values.image.html.pullPolicy "IfNotPresent" }}
         command:
         - sh
         - -c
