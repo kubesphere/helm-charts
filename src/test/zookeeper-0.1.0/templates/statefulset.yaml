@@ -1,0 +1,213 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ template "zookeeper.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels: {{- include "zookeeper.labels" . | nindent 4 }}
+    main.kubesphere.io/component: zookeeper
+    {{- if .Values.commonLabels }}
+    {{- include "zookeeper.tplValue" ( dict "value" .Values.commonLabels "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "zookeeper.tplValue" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
+spec:
+  serviceName: {{ template "zookeeper.fullname" . }}-headless
+  replicas: {{ .Values.replicaCount }}
+  podManagementPolicy: {{ .Values.podManagementPolicy }}
+  updateStrategy:
+    type: {{ .Values.updateStrategy }}
+  selector:
+    matchLabels:
+      {{- include "zookeeper.matchLabels" . | nindent 6 }}
+      main.kubesphere.io/component: zookeeper
+  template:
+    metadata:
+      name: {{ template "zookeeper.fullname" . }}
+      labels:
+        {{- include "zookeeper.labels" . | nindent 8 }}
+        main.kubesphere.io/component: zookeeper
+        {{- if .Values.commonLabels }}
+        {{- include "zookeeper.tplValue" ( dict "value" .Values.commonLabels "context" $ ) | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- if .Values.schedulerName }}
+      schedulerName: {{ .Values.schedulerName }}
+      {{- end }}
+      {{ .Values.image.pullSecrets | quote }}
+      {{- if .Values.affinity }}
+      affinity: {{- include "zookeeper.tplValue" (dict "value" .Values.affinity "context" $) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.nodeSelector }}
+      nodeSelector: {{- include "zookeeper.tplValue" (dict "value" .Values.nodeSelector "context" $) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.tolerations }}
+      tolerations: {{- include "zookeeper.tplValue" (dict "value" .Values.tolerations "context" $) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.priorityClassName }}
+      priorityClassName: {{ .Values.priorityClassName }}
+      {{- end }}
+      containers:
+        - name: zookeeper
+          image: {{ template "zookeeper.image" . }}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command: 
+            - bash 
+            - -c
+            - |
+                export ZOO_MY_ID=$((${POD_NAME##*-} + 1)); \
+                mkdir -p ${ZOO_DATA_DIR}/${ZOO_MY_ID}/{{ .Values.dataLogDir }}; \
+                export ZOO_DATA_DIR=${ZOO_DATA_DIR}/${ZOO_MY_ID}; \
+                export ZOO_DATA_LOG_DIR=${ZOO_DATA_DIR}/${ZOO_DATA_LOG_DIR}; \
+                /docker-entrypoint.sh zkServer.sh start-foreground
+          {{- if .Values.resources }}
+          resources: {{- toYaml .Values.resources | nindent 12 }}
+          {{- end }}
+          env:
+            - name: RELEASE_NAME
+              value: {{ template "zookeeper.fullname" . }}
+            - name: ZOO_DATA_LOG_DIR
+              value: {{ .Values.dataLogDir | quote }}
+            - name: ZOO_DATA_DIR
+              value: {{ .Values.dataDir | quote }}
+            - name: ZOO_PORT_NUMBER
+              value: {{ .Values.service.port | quote }}
+            - name: ZOO_TICK_TIME
+              value: {{ .Values.tickTime | quote }}
+            - name: ZOO_INIT_LIMIT
+              value: {{ .Values.initLimit | quote }}
+            - name: ZOO_SYNC_LIMIT
+              value: {{ .Values.syncLimit | quote }}
+            - name: ZOO_MAX_CLIENT_CNXNS
+              value: {{ .Values.maxClientCnxns | quote }}
+            - name: ZOO_4LW_COMMANDS_WHITELIST
+              value: {{ .Values.fourlwCommandsWhitelist | quote }}
+            - name: ZOO_LISTEN_ALLIPS_ENABLED
+              value: {{ ternary "yes" "no" .Values.listenOnAllIPs | quote }}
+            - name: ZOO_AUTOPURGE_INTERVAL
+              value: {{ .Values.autopurge.purgeInterval | quote }}
+            - name: ZOO_AUTOPURGE_RETAIN_COUNT
+              value: {{ .Values.autopurge.snapRetainCount | quote }}
+            - name: ZOO_MAX_SESSION_TIMEOUT
+              value: {{ .Values.maxSessionTimeout | quote }}
+            - name: ZOO_SERVERS
+              {{- $replicaCount := int .Values.replicaCount }}
+              {{- $followerPort := int .Values.service.followerPort }}
+              {{- $clientPort := int .Values.service.port }}
+              {{- $electionPort := int .Values.service.electionPort }}
+              {{- $releaseNamespace := .Release.Namespace }}
+              {{- $zookeeperFullname := include "zookeeper.fullname" . }}
+              {{- $zookeeperHeadlessServiceName := printf "%s-%s" $zookeeperFullname "headless" | trunc 63 }}
+              {{- $clusterDomain := .Values.clusterDomain }}
+              value: {{ range $i, $e := until $replicaCount }}server.{{ add $i 1 }}={{ $zookeeperFullname }}-{{ $e }}.{{ $zookeeperHeadlessServiceName }}.{{ $releaseNamespace }}.svc.{{ $clusterDomain }}:{{ $followerPort }}:{{ $electionPort }};{{ $clientPort }} {{ end }}
+            - name: ZOO_ENABLE_AUTH
+              value: {{ ternary "yes" "no" .Values.auth.enabled | quote }}
+            {{- if .Values.auth.enabled }}
+            - name: ZOO_CLIENT_USER
+              value: {{ .Values.auth.clientUser | quote }}
+            - name: ZOO_CLIENT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ if .Values.auth.existingSecret }}{{ .Values.auth.existingSecret }}{{ else }}{{ template "zookeeper.fullname" . }}{{ end }}
+                  key: client-password
+            - name: ZOO_SERVER_USERS
+              value: {{ .Values.auth.serverUsers | quote }}
+            - name: ZOO_SERVER_PASSWORDS
+              valueFrom:
+                secretKeyRef:
+                  name: {{ if .Values.auth.existingSecret }}{{ .Values.auth.existingSecret }}{{ else }}{{ template "zookeeper.fullname" . }}{{ end }}
+                  key: server-password
+            {{- end }}
+            - name: ZOO_LOG4J_PROP
+              value: {{ .Values.logLevel | quote }}
+            - name: ALLOW_ANONYMOUS_LOGIN
+              value: {{ ternary "yes" "no" .Values.allowAnonymousLogin | quote }}
+            {{- if .Values.metrics.enabled }}
+            - name: ZOO_CFG_EXTRA
+              value: "metricsProvider.className=org.apache.zookeeper.metrics.prometheus.PrometheusMetricsProvider metricsProvider.httpPort={{ .Values.metrics.port }}"
+            {{- end }}
+            {{- if .Values.service.tls.enabled }}
+            - name: ZOO_TLS_CLIENT_ENABLE
+              value: {{ .Values.service.tls.client_enable | quote }}
+            - name: ZOO_TLS_CLIENT_KEYSTORE_FILE
+              value: {{ .Values.service.tls.client_keystore_path | quote }}
+            - name: ZOO_TLS_CLIENT_KEYSTORE_PASSWORD
+              value: {{ .Values.service.tls.client_keystore_password | quote }}
+            - name: ZOO_TLS_CLIENT_TRUSTSTORE_FILE
+              value: {{ .Values.service.tls.client_truststore_path | quote }}
+            - name: ZOO_TLS_CLIENT_TRUSTSTORE_PASSWORD
+              value: {{ .Values.service.tls.client_truststore_password | quote }}
+            {{ end }}
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: metadata.name
+            {{- if .Values.extraEnvVars }}
+            {{- toYaml .Values.extraEnvVars | nindent 12 }}
+            {{- end }}
+          ports:
+            {{- if not .Values.service.tls.enabled }}
+            - name: client-2181
+              containerPort: 2181
+            {{- end }}
+            - name: follower-2888
+              containerPort: 2888
+            - name: election-3888
+              containerPort: 3888
+          {{- if .Values.livenessProbe.enabled }}
+          livenessProbe:
+            exec:
+              {{- if not .Values.service.tls.enabled }}
+              command: ['/bin/bash', '-c', 'echo "ruok" | timeout {{ .Values.livenessProbe.probeCommandTimeout }} nc -w {{ .Values.livenessProbe.probeCommandTimeout }} localhost {{ .Values.service.port }} | grep imok']
+              {{- else }}
+              command: ['/bin/bash', '-c', 'echo "ruok" | timeout {{ .Values.livenessProbe.probeCommandTimeout }} openssl s_client -quiet -crlf -connect localhost:{{ .Values.service.tls.client_port }} | grep imok']
+              {{- end }}
+            initialDelaySeconds: {{ .Values.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.livenessProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.livenessProbe.successThreshold }}
+            failureThreshold: {{ .Values.livenessProbe.failureThreshold }}
+          {{- end }}
+          {{- if .Values.readinessProbe.enabled }}
+          readinessProbe:
+            exec:
+              {{- if not .Values.service.tls.enabled }}
+              command: ['/bin/bash', '-c', 'echo "ruok" | timeout {{ .Values.readinessProbe.probeCommandTimeout }} nc -w {{ .Values.readinessProbe.probeCommandTimeout }} localhost {{ .Values.service.port }} | grep imok']
+              {{- else }}
+              command: ['/bin/bash', '-c', 'echo "ruok" | timeout {{ .Values.readinessProbe.probeCommandTimeout }} openssl s_client -quiet -crlf -connect localhost:{{ .Values.service.tls.client_port }} | grep imok']
+              {{- end }}
+            initialDelaySeconds: {{ .Values.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.readinessProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.readinessProbe.successThreshold }}
+            failureThreshold: {{ .Values.readinessProbe.failureThreshold }}
+          {{- end }}
+          volumeMounts:
+            - name: {{ template "zookeeper.fullname" . }}-data
+              mountPath: {{ .Values.dataDir | quote }}
+      volumes:
+        - name: {{ template "zookeeper.fullname" . }}-data
+        {{- if and .Values.persistence.enabled }}
+          persistentVolumeClaim:
+            claimName: {{ or .Values.persistence.existingClaim ( printf "%s-%s" $zookeeperFullname "data" ) }}
+        {{- else if not .Values.persistence.enabled }}
+          emptyDir: {}
+        {{- end }}
+#  {{- if and .Values.persistence.enabled (not .Values.persistence.existingClaim )}}
+#  volumeClaimTemplates:
+#    - metadata:
+#        name: data
+#        annotations:
+#        {{- range $key, $value := .Values.persistence.annotations }}
+#          {{ $key }}: {{ $value }}
+#        {{- end }}
+#      spec:
+#        accessModes:
+#        {{- range .Values.persistence.accessModes }}
+#          - {{ . | quote }}
+#        {{- end }}
+#        resources:
+#          requests:
+#            storage: {{ .Values.persistence.size | quote }}
+#  {{- end }}
