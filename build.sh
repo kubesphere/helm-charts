@@ -134,12 +134,29 @@ pushUpdates() {
   git push origin HEAD:gh-pages
 }
 
+pushRemote() {
+  ensureVars GITEE_USER GITEE_TOKEN
+  git remote add gitee https://$GITEE_USER:$GITEE_TOKEN@gitee.com/kubesphere/helm-charts.git
+  git push gitee HEAD:${1:-master} ${@:2}
+  git remote rm gitee
+}
+
+adjustRemote() {
+  ensureVars BASE_URL BASE_URL_CN
+  rm -rf src/ build/
+  files="$(find . -type f -name index.html -or -name index.yaml)"
+  sed -i "s#$BASE_URL#$BASE_URL_CN#g" $files
+  git add $files
+  git commit -m "Update" --author="KubeSphere CI Bot <ks-ci-bot@users.noreply.github.com>"
+}
+
 verify() {
   prepareHelm
   updateRepos
 }
 
 deploy() {
+  pushRemote
   verify
 
   [ -z "$updatedRepos" ] || {
@@ -150,6 +167,8 @@ deploy() {
       mkdir -p $repo && mv $buildDir/$repo/* $repo/ && git add $repo
     done
     pushUpdates
+    adjustRemote
+    pushRemote gh-pages -f
   }
 }
 
