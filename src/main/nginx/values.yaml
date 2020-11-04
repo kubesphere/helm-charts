@@ -1,10 +1,10 @@
 replicaCount: 1
 
 image:
-  # html:
-  #   repository: nginx
-  #   tag:
-  #   pullPolicy: IfNotPresent
+  html: {}
+  # repository: nginx
+  # tag:
+  # pullPolicy: IfNotPresent
   nginx:
     repository: nginx
     # tag:
