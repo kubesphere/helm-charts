@@ -708,6 +708,22 @@ entries:
     version: 0.1.0
   redis:
   - apiVersion: v1
+    appVersion: 6.0.9
+    created: "2020-11-06T11:42:17.725359733Z"
+    description: Redis is an open source (BSD licensed), in-memory data structure
+      store, used as a database, cache and message broker.
+    digest: b1cedbf06caa07c813466b5340ec240b864e3829eade41c8960c4390c418bf1a
+    icon: https://upload.wikimedia.org/wikipedia/en/6/6b/Redis_Logo.svg
+    maintainers:
+    - email: kubesphere@yunify.com
+      name: KubeSphere
+    name: redis
+    sources:
+    - https://github.com/kubesphere/helm-charts/tree/master/src/test/redis
+    urls:
+    - https://charts.kubesphere.io/test/redis-0.3.3.tgz
+    version: 0.3.3
+  - apiVersion: v1
     appVersion: 5.0.5
     created: "2020-08-14T10:20:14.446342411Z"
     description: Redis is an open source (BSD licensed), in-memory data structure
@@ -850,4 +866,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/test/snapshot-controller-0.1.0.tgz
     version: 0.1.0
-generated: "2020-10-16T12:08:26.633959662Z"
+generated: "2020-11-06T11:42:17.72376233Z"
