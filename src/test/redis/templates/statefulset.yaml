@@ -43,7 +43,7 @@ spec:
             mountPath: /tmp/conf
           - name: data
             mountPath: /data/redis
-          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          image: "{{ .Values.image.repository }}:{{ coalesce .Values.image.tag (printf "%s-alpine" .Chart.AppVersion) }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           command:
           - /bin/sh

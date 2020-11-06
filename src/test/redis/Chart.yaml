@@ -1,7 +1,7 @@
 apiVersion: v1
 name: redis
-version: 0.3.2
-appVersion: "5.0.5"
+version: 0.3.3
+appVersion: "6.0.9"
 description: Redis is an open source (BSD licensed), in-memory data structure store, used as a database, cache and message broker.
 icon: https://upload.wikimedia.org/wikipedia/en/6/6b/Redis_Logo.svg
 sources:
