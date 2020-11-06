@@ -141,13 +141,26 @@ pushRemote() {
   git remote rm gitee
 }
 
-adjustRemote() {
-  ensureVars BASE_URL BASE_URL_CN
+installQsctl() {
+  ensureVars QSCTL_URL
+  curl -L $QSCTL_URL -o /tmp/qsctl.tgz
+  tar --transform="s|^.*$|qsctl|" -xzf /tmp/qsctl.tgz
+  ./qsctl --version
+}
+
+pushRemoteDeployment() {
+  ensureVars BASE_URL BASE_URL_CN QS_ACCESS_KEY_ID QS_SECRET_KEY_ID QS_ZONE QS_BUCKET
   rm -rf src/ build/
   files="$(find . -type f -name index.html -or -name index.yaml)"
   sed -i "s#$BASE_URL#$BASE_URL_CN#g" $files
-  git add $files
-  git commit -m "Update" --author="KubeSphere CI Bot <ks-ci-bot@users.noreply.github.com>"
+
+  installQsctl
+  mkdir ~/.qingstor
+  echo -e "access_key_id: $QS_ACCESS_KEY_ID\nsecret_access_key: $QS_SECRET_KEY_ID\nzone: $QS_ZONE" > ~/.qingstor/config.yaml
+  for updatedRepo in $updatedRepos; do
+    ./qsctl sync $updatedRepo/ qs://$QS_BUCKET/$updatedRepo/ -r --update
+  done
+  rm -rf ~/.qingstor/config.yaml
 }
 
 verify() {
@@ -167,8 +180,8 @@ deploy() {
       mkdir -p $repo && mv $buildDir/$repo/* $repo/ && git add $repo
     done
     pushUpdates
-    adjustRemote
-    pushRemote gh-pages -f
+    pushRemote gh-pages
+    pushRemoteDeployment
   }
 }
 
