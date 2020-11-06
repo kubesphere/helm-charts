@@ -157,8 +157,8 @@ pushRemoteDeployment() {
   installQsctl
   mkdir ~/.qingstor
   echo -e "access_key_id: $QS_ACCESS_KEY_ID\nsecret_access_key: $QS_SECRET_KEY_ID\nzone: $QS_ZONE" > ~/.qingstor/config.yaml
-  for updatedRepo in $updatedRepos; do
-    ./qsctl sync $updatedRepo/ qs://$QS_BUCKET/$updatedRepo/ -r --update
+  for updatedRepo in ${updatedRepos//:/ }; do
+    ./qsctl sync $updatedRepo/ qs://$QS_BUCKET/$updatedRepo/ --update
   done
   rm -rf ~/.qingstor/config.yaml
 }
