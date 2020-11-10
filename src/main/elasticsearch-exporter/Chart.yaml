@@ -1,0 +1,20 @@
+apiVersion: v1
+appVersion: 1.1.0
+description: Elasticsearch stats exporter for Prometheus
+home: https://github.com/justwatchcom/elasticsearch_exporter
+keywords:
+- metrics
+- elasticsearch
+- monitoring
+kubeVersion: '>=1.10.0-0'
+maintainers:
+- email: sven.mueller@commercetools.com
+  name: svenmueller
+- email: carlos@carlosbecker.com
+  name: caarlos0
+- email: cedric@desaintmartin.fr
+  name: desaintmartin
+name: elasticsearch-exporter
+sources:
+- https://github.com/justwatchcom/elasticsearch_exporter
+version: 3.3.1
