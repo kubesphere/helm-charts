@@ -1,0 +1,48 @@
+{{- if .Values.cmak.enabled }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: cmak-{{ include "kafka.fullname" . }}
+  labels: {{- include "kafka.labels" . | nindent 4 }}
+    main.kubesphere.io/component: metrics
+    {{- if .Values.commonLabels }}
+    {{- include "kafka.tplValue" ( dict "value" .Values.commonLabels "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "kafka.tplValue" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels: {{- include "kafka.selectorLabels" . | nindent 6 }}
+      main.kubesphere.io/component: metrics
+  template:
+    metadata:
+      labels: {{- include "kafka.labels" . | nindent 8 }}
+        main.kubesphere.io/component: metrics
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: cmak
+          image: {{ .Values.cmak.image | quote }}
+          imagePullPolicy: {{ .Values.image.pullPolicy | quote }}
+          env:
+            - name: ZK_HOSTS
+              value: {{ if not .Values.zookeeper.enabled }}{{ .Values.zookeeper.externalZk | quote }}{{ else }}{{ .Release.Name }}-zookeeper-0.{{ .Release.Name }}-zookeeper-headless.{{ .Release.Namespace }}.svc.cluster.local:2181/kafka/{{ .Release.Name }}{{ end }}
+            - name: MY_POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: KAFKA_MANAGER_AUTH_ENABLED
+              value: {{ .Values.cmak.auth.enabled | quote }}
+            - name: KAFKA_MANAGER_USERNAME
+              value: {{ .Values.cmak.auth.user | quote }}
+            - name: KAFKA_MANAGER_PASSWORD
+              value: {{ .Values.cmak.auth.password | quote }}
+          ports:
+            - name: cmak-9000
+              containerPort: 9000
+{{- end }}
