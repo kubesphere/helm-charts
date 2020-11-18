@@ -238,7 +238,7 @@ persistence:
   enabled: true
   # storageClass: "-"
   accessModes:
-    - ReadWriteMany
+    - ReadWriteOnce
   size: 8Gi
   annotations: {}
   dataLogDir:
@@ -287,8 +287,8 @@ affinity: {}
 ##
 resources:
   requests:
-    memory: 56Mi
-    cpu: 50m
+    memory: 256Mi
+    cpu: 150m
 
 ## Configure extra options for liveness and readiness probes
 ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/#configure-probes)
