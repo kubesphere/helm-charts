@@ -1,0 +1,36 @@
+# Default values for sample-bookinfo.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+productpage:
+  name: productpage
+  version: v1
+  image:
+    repository: kubesphere/examples-bookinfo-productpage-v1:1.13.0
+    pullPolicy: IfNotPresent
+
+reviews:
+  name: reviews
+  version: v2
+  image:
+    repository: kubesphere/examples-bookinfo-reviews-v2:1.13.0
+    pullPolicy: IfNotPresent
+
+ratings:
+  name: ratings
+  version: v1
+  image:
+    repository: kubesphere/examples-bookinfo-ratings-v1:1.13.0
+    pullPolicy: IfNotPresent
+
+details:
+  name: details
+  version: v1
+  image:
+    repository: kubesphere/examples-bookinfo-details-v1:1.13.0
+    pullPolicy: IfNotPresent
+
+ingress:
+  host: productpage.servicemesh.10.160.19.23.nip.io
+
+
