@@ -1,0 +1,17 @@
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  annotations: 
+    nginx.ingress.kubernetes.io/upstream-vhost: productpage.{{ .Release.Namespace }}.svc.cluster.local
+  labels:
+    {{ include "common.label" . | nindent 4 }}
+  name: bookinfo-ingress
+spec:
+  rules:
+    - http:
+        paths:
+          - path: /
+            backend:
+              serviceName: {{ .Values.productpage.name }}
+              servicePort: 9080
+      host: {{ .Values.ingress.host }}
