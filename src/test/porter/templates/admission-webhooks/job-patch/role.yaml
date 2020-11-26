@@ -1,0 +1,15 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  labels:
+    {{- include "porter.admission.labels" . | nindent 4 }}
+  name: {{ template "porter.admission.fullname" . }}
+  namespace: {{ template "porter.namespace" . }}
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - secrets
+    verbs:
+      - get
+      - create
