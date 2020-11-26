@@ -1,0 +1,15 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  labels:
+  {{- include "porter.admission.labels" . | nindent 4 }}
+  name: {{ template "porter.admission.fullname" . }}
+  namespace: {{ template "porter.namespace" . }}
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ template "porter.admission.fullname" . }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ template "porter.admission.serviceAccountName" . }}
+    namespace: {{ template "porter.namespace" . }}
