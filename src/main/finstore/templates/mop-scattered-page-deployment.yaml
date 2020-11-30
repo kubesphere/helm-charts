@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: migration parse
+    kompose.version: 1.16.0 (0c01309)
+  labels:
+    io.kompose.service: mop-scattered-page
+  name: mop-scattered-page
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: mop-scattered-page
+  template:
+    metadata:
+      labels:
+        io.kompose.service: mop-scattered-page
+    spec:
+      containers:
+      - env:
+        - name: API_URL
+          value: 'http://gateway:8000/'
+        - name: NGINX_PORT
+          value: "80"
+        image: {{ .Values.images.mop_scattered_page }}
+        imagePullPolicy: IfNotPresent
+        name: mop-scattered-page
+        resources: {}
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: {{ .Values.images.pullSecrets }}

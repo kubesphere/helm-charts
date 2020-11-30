@@ -1,0 +1,62 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: migration parse
+    kompose.version: 1.16.0 (0c01309)
+  labels:
+    io.kompose.service: mop-netdisk-proxy
+  name: mop-netdisk-proxy
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: mop-netdisk-proxy
+  template:
+    metadata:
+      labels:
+        io.kompose.service: mop-netdisk-proxy
+    spec:
+      containers:
+        - env:
+            - name: REDIS_MODE
+              value: 'single'
+            - name: PUBLISH_ENV
+              value: 'private'
+            - name: HTTP_PORT
+              value: '8080'
+            - name: ROUTE_MODE
+              value: 'debug'
+            - name: LOG_MODE
+              value: 'debug'
+            - name: MONGO_URL
+              value: {{ .Values.mongodb.uri | quote }}
+            - name: DB_NAME
+              value: 'mop-netdisk-proxy-private'
+            - name: REDIS_MAX_CLIENT_NUM
+              value: '20'
+            - name: REDIS_ADDR
+              value: {{ .Values.redis.uri | quote }}
+            - name: REDIS_URL
+              value: {{ .Values.redis.uri | quote }}
+            - name: REDIS_PASSWORD
+              value: {{ .Values.redis.password | quote }}
+            - name: NETDISK_HOST
+              value: 'http://netdisk:9999'
+            - name: NETDISK_UPLOAD_URL
+              value: '/api/v1/netdisk/upload/self'
+            - name: NETDISK_DOWNLOAD_URL
+              value: '/api/v1/netdisk/download/'
+            - name: NETDISK_DOWNLOAD_THU_URL
+              value: '/api/v1/netdisk/thumbnail/'
+            - name: AUTH_EXPIRED_SEC
+              value: '10'
+            - name: ZIPKIN_URL
+              value: {{ .Values.ZIPKIN_URL }}
+          image: {{ .Values.images.mop_netdisk_proxy }}
+          imagePullPolicy: IfNotPresent
+          name: mop-netdisk-proxy
+          resources: {}
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: {{ .Values.images.pullSecrets }}

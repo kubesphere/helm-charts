@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -c
+    kompose.version: 1.16.0 (0c01309)
+  labels:
+    io.kompose.service: mop-data-report
+  name: mop-data-report
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: mop-data-report
+  template:
+    metadata:
+      labels:
+        io.kompose.service: mop-data-report
+    spec:
+      containers:
+      - env:
+        - name: CONSUL_HTTP_IP
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: status.hostIP
+        - name: CONSUL_TAG
+          value: mop-finstore
+        - name: KAFKA_ADDESS
+          value: {{ .Values.kafka.addr }}
+        - name: KAFKA_GROUP
+          value: "mop-data-report-private"
+        - name: MONGO_URL
+          value: {{ .Values.mongodb.uri | quote }}
+        - name: DB_NAME
+          value: 'mop-data-report-private'
+        - name: DATA_REPORT_TOPIC
+          value: 'mop_private_data_report'
+        - name: OPERATE_LOG_TOPIC
+          value: 'mop_private_operation_log'
+        - name: COMMONDATA_REPORT_TOPIC
+          value: 'topic_mop_common_data_report'
+        - name: ES_URL
+          value: {{ .Values.es.url }}
+        - name: PRIVATE_DATA_INDEX
+          value: 'mop_data_private_runtime_private'
+        - name: PRIVATE_DEVICE_DATA_INDEX
+          value: 'mop_data_private_device_private'
+        - name: FINSTORE_GET_URL
+          value: http://mop-app-manage-svr:8080/api/v1/mop/finstore/admin/apps/
+        image: {{ .Values.images.mop_data_report }}
+        imagePullPolicy: IfNotPresent
+        name: mop-data-report
+        resources: {}
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: {{ .Values.images.pullSecrets }}

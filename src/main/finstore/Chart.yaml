@@ -1,0 +1,17 @@
+apiVersion: v2
+name: mop-finstore-private
+kubeVersion: ">= 1.16.0"
+description: mop-finstore-private
+version: 2.10.4
+sources: 
+home: https://https://www.finogeeks.com
+
+dependencies:
+  - name: consul
+    version: 0.27.0
+    repository: https://helm.releases.hashicorp.com
+    enabled: true
+maintainers:
+  - name: yaohang
+    email: yaohang@finogeeks.com
+appVersion: 2.10.4

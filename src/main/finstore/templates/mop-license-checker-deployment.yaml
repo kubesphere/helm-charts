@@ -1,0 +1,41 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: migration parse
+    kompose.version: 1.16.0 (0c01309)
+  labels:
+    io.kompose.service: mop-license-checker
+  name: mop-license-checker
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: mop-license-checker
+  template:
+    metadata:
+      labels:
+        io.kompose.service: mop-license-checker
+    spec:
+      containers:
+      - env:
+        - name: CONSUL_HTTP_IP
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: status.hostIP
+        - name: CONSUL_TAG
+          value: mop-finstore
+        - name: HTTP_PORT
+          value: '8080'
+        - name: LICENSE
+          value: {{required "A valid License entry required!" .Values.finclip_license | quote }}
+        - name: ORGAN_NAME
+          value: {{required "A valid Organ Name entry required!" .Values.organ_name | quote }}
+        image: {{ .Values.images.mop_license_checker }}
+        imagePullPolicy: IfNotPresent
+        name: mop-license-checker
+        resources: {}
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: {{ .Values.images.pullSecrets }}

@@ -1,0 +1,97 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -c
+    kompose.version: 1.16.0 (0c01309)
+  labels:
+    io.kompose.service: mop-app-manage-svr
+  name: mop-app-manage-svr
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: mop-app-manage-svr
+  template:
+    metadata:
+      labels:
+        io.kompose.service: mop-app-manage-svr
+    spec:
+      containers:
+      - env:
+        - name: CONSUL_HTTP_IP
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: status.hostIP
+        - name: CONSUL_TAG
+          value: mop-finstore
+        - name: REDIS_MODE
+          value: "single"
+        - name: CHECK_MARKET
+          value: "false"
+        - name: SPECIFY_APPID
+          value: "false"
+        - name: OPEN_PURCH_AUTH
+          value: 'false'
+        - name: OPEN_FIX_OLD
+          value: 'false'
+        - name: DB_NAME
+          value: mop-private-finstore-backend
+        - name: HTTP_PORT
+          value: "8080"
+        - name: IS_PRIVATE
+          value: "true"
+        - name: MONGO_URL
+          value: {{ .Values.mongodb.uri | quote }}
+        - name: NETDISK_HOST
+          value: http://netdisk:9999
+        - name: IAM_ENABLED
+          value: "false"
+        - name: ACCOUNT_PROVIDER_URL
+          value: "http://mop-account-system:8080/api/v1/mop/applets-ecol-account/organ/platform/account/organInfo/"
+        - name: NOTIFICATION_PROVIDER_URL
+          value: "http://mop-account-system:8080/api/v1/mop/applets-ecol-account/operation/organ/addAppidNum"
+        - name: GET_ROLE_URL
+          value: "http://mop-account-system:8080/api/v1/mop/applets-ecol-account/organ/platform/account/power/"
+        - name: MOP_DOMAIN_URL
+          value: "http://mop-domain-manager:8080/api/v1/mop/applets-ecol-domain/internal/all/"
+        - name: NETDISK_DOWNLOAD_URL_PREFIX
+          value: "/api/v1/mop/netdisk/download/"
+        - name: IS_MOP
+          value: "true"
+        - name: KAFKA_ADDR
+          value: {{ .Values.kafka.addr }}
+        - name: REDIS_URL
+          value: {{ .Values.redis.uri | quote }}
+        - name: REDIS_ADDR
+          value: {{ .Values.redis.uri | quote }}
+        - name: REDIS_PASSWORD
+          value: {{ .Values.redis.password | quote }}
+        - name: REDIS_PWD
+          value: {{ .Values.redis.password | quote }}
+        - name: REDIS_EXPIRE_TIME
+          value: "180"
+        - name: APP_SECRET_SALT
+          value: "18e87dc98acfb44e"
+        - name: GROUP_INFO_PROVIDER_URL
+          value: "http://mop-account-system:8080/api/v1/mop/applets-ecol-account/organ/business/info/"
+        - name: ACCOUNT_INFO_URL
+          value: "http://mop-account-system:8080/api/v1/mop/applets-ecol-account/organ/account/info/"
+        - name: ADMIN_ACCOUNT_INFO_URL
+          value: "http://mop-account-system:8080/api/v1/mop/applets-ecol-account/operation/worker/detail/"
+        - name: OPERATE_LOG_TOPIC
+          value: 'mop_private_operation_log'
+        - name: NOTIFY_DATA_TOPIC
+          value: 'mop_private_notify_data_topic'
+        - name: ZIPKIN_URL
+          value: ''
+        - name: PUBLISH_ENV
+          value: 'mop-private'
+        image: {{ .Values.images.mop_app_manage_svr }}
+        imagePullPolicy: IfNotPresent
+        name: mop-app-manage-svr
+        resources: {}
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: {{ .Values.images.pullSecrets }}

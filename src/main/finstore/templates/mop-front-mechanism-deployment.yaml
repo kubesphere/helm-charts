@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: migration parse
+    kompose.version: 1.16.0 (0c01309)
+  labels:
+    io.kompose.service: mop-front-mechanism
+  name: mop-front-mechanism
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: mop-front-mechanism
+  template:
+    metadata:
+      labels:
+        io.kompose.service: mop-front-mechanism
+    spec:
+      containers:
+      - env:
+        - name: API_URL
+          value: 'http://gateway:8000/'
+        - name: NGINX_PORT
+          value: "80"
+        image: {{ .Values.images.mop_front_mechanism }}
+        imagePullPolicy: IfNotPresent
+        name: mop-front-mechanism
+        resources: {}
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: {{ .Values.images.pullSecrets }}

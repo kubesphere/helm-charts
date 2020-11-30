@@ -1,0 +1,73 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: migration parse
+    kompose.version: 1.16.0 (0c01309)
+  labels:
+    io.kompose.service: mop-basic-pack-svr
+  name: mop-basic-pack-svr
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: mop-basic-pack-svr
+  template:
+    metadata:
+      labels:
+        io.kompose.service: mop-basic-pack-svr
+    spec:
+      containers:
+        - env:
+            - name: CONSUL_HTTP_IP
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: status.hostIP
+            - name: CONSUL_TAG
+              value: mop-finstore
+            - name: REDIS_MODE
+              value: "single"
+            - name: PUBLISH_ENV
+              value: 'ol'
+            - name: HTTP_PORT
+              value: '8080'
+            - name: ROUTE_MODE
+              value: 'debug'
+            - name: LOG_MODE
+              value: 'debug'
+            - name: MONGO_URL
+              value: {{ .Values.mongodb.uri | quote }}
+            - name: DB_NAME
+              value: 'mop-basic-pack-private'
+            - name: REDIS_URL
+              value: {{ .Values.redis.uri | quote }}
+            - name: REDIS_PASSWORD
+              value: {{ .Values.redis.password | quote }}
+            - name: BASIC_SEQ_KEY
+              value: 'mop_basic_pack_sequence_key_private'
+            - name: BASIC_LATEST_VER_KEY
+              value: 'mop_latest_basic_pack_key_private'
+            - name: KAFKA_ADDR
+              value: {{ .Values.kafka.addr }}
+            - name: NOTIFY_TOPIC
+              value: 'mop_private_notify_data_topic'
+            - name: NOTIFY_URL
+              value: 'http://mop-notify:8080'
+            - name: NETDISK_HOST
+              value: 'http://netdisk:9999'
+            - name: NETDISK_UPLOAD_URL
+              value: '/api/v1/netdisk/upload/self?type=file&content={}'
+            - name: ENTRY_URL
+              value: ''
+            - name: NETDISK_DOWNLOAD_URL_PRE
+              value: '/api/v1/mop/netdisk/download/'
+            - name: ZIPKIN_URL
+              value: ''
+          image: {{ .Values.images.mop_basic_pack_svr }}
+          imagePullPolicy: IfNotPresent
+          name: mop-basic-pack-svr
+          resources: {}
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: {{ .Values.images.pullSecrets }}

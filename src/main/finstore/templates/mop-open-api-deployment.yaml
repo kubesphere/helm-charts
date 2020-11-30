@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: migration parse
+    kompose.version: 1.16.0 (0c01309)
+  labels:
+    io.kompose.service: mop-open-api
+  name: mop-open-api
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: mop-open-api
+  template:
+    metadata:
+      labels:
+        io.kompose.service: mop-open-api
+    spec:
+      containers:
+        - env:
+            - name: CONSUL_HTTP_IP
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: status.hostIP
+            - name: CONSUL_TAG
+              value: mop-finstore
+            - name: REQ_TYPE
+              value: 'http'
+            - name: REDIS_MODE
+              value: 'single'
+            - name: PUB_ENV
+              value: 'mop-private'
+            - name: HTTP_PORT
+              value: '8080'
+            - name: MONGO_URL
+              value: {{ .Values.mongodb.uri | quote }}
+            - name: MONGO_DB_NAME
+              value: 'mop-mop-open-api-private'
+            - name: REDIS_ADDR
+              value: {{ .Values.redis.uri | quote }}
+            - name: REDIS_PASSWORD
+              value: {{ .Values.redis.password | quote }}
+            - name: REDIS_PWD
+              value: {{ .Values.redis.password | quote }}
+          image: {{ .Values.images.mop_open_api }}
+          imagePullPolicy: IfNotPresent
+          name: mop-open-api
+          resources: {}
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: {{ .Values.images.pullSecrets }}

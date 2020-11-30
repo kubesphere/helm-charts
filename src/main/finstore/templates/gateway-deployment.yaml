@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app.kubernetes.io/instance: gateway
+    app.kubernetes.io/name: gateway
+    deployment-env: fdep
+  name: gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/instance: gateway
+      app.kubernetes.io/name: gateway
+      deployment-env: fdep
+  template:
+    metadata:
+      annotations:
+        prometheus.io/path: /metrics
+        prometheus.io/port: "8001"
+        prometheus.io/scrape: "true"
+      labels:
+        app.kubernetes.io/instance: gateway
+        app.kubernetes.io/name: gateway
+        deployment-env: fdep
+    spec:
+      containers:
+      - env:
+        - name: KONG_ADMIN_LISTEN
+          value: 0.0.0.0:8001 reuseport backlog=16384, 0.0.0.0:8444 http2 ssl reuseport backlog=16384
+        - name: KONG_DATABASE
+          value: "off"
+        - name: KONG_DECLARATIVE_CONFIG
+          value: /etc/kong/gateway-configmap.yaml
+        - name: KONG_MEM_CACHE_SIZE
+          value: 512m
+        - name: KONG_PLUGINS
+          value: bundled,prometheus,jwt-claims-to-headers
+        image: docker.finogeeks.club/mop-infra/kong:2.1.3-alpine
+        imagePullPolicy: IfNotPresent
+        name: gateway
+        ports:
+        - containerPort: 8000
+          name: http
+          protocol: TCP
+        - containerPort: 8443
+          name: https
+          protocol: TCP
+        - containerPort: 8001
+          name: admin-http
+          protocol: TCP
+        - containerPort: 8444
+          name: admin-https
+          protocol: TCP
+        resources:
+          requests:
+            cpu: 100m
+            memory: 128Mi
+        securityContext: {}
+        volumeMounts:
+        - mountPath: /etc/kong
+          name: gateway-configmap-yaml
+      imagePullSecrets:
+      - name: registrykey-docker-finogeeks-club
+      - name: registrykey
+      securityContext: {}
+      volumes:
+      - configMap:
+          name: gateway-configmap-yaml-658ghb8d4k
+        name: gateway-configmap-yaml

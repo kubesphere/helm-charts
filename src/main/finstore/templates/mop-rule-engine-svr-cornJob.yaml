@@ -1,0 +1,22 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: mop-rule-engine-svr-cronjob
+spec:
+  schedule: "*/1 * * * *"
+  successfulJobsHistoryLimit: 1
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+            - name: mop-rule-engine-svr-cronjob
+              image: docker.finogeeks.club/tool/curl-alpine
+              imagePullPolicy: IfNotPresent
+              args:
+              - /bin/sh
+              - -c
+              - curl -X PATCH 'http://mop-rule-engine-svr:8080/api/v1/mop/rule-engine/gray/cron'; echo 'cron end !!!'
+          restartPolicy: OnFailure
+          imagePullSecrets:
+            - name: {{ .Values.images.pullSecrets }}

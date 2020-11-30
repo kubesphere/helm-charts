@@ -1,0 +1,11 @@
+apiVersion: v1
+appVersion: 1.9.0
+description: Official HashiCorp Consul Chart
+home: https://www.consul.io
+icon: https://raw.githubusercontent.com/hashicorp/consul-helm/master/assets/icon.png
+name: consul
+sources:
+- https://github.com/hashicorp/consul
+- https://github.com/hashicorp/consul-helm
+- https://github.com/hashicorp/consul-k8s
+version: 0.27.0

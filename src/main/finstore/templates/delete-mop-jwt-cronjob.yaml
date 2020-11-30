@@ -1,0 +1,20 @@
+apiVersion: batch/v1beta1
+kind: CronJob
+metadata:
+  name: delete-mop-jwt
+spec:
+  schedule: "0 1 * * *"
+  jobTemplate:
+    spec:
+      template:
+        spec:
+          containers:
+          - name: delete-mop-jwt
+            image: {{ .Values.images.mop_device_security }}
+            imagePullPolicy: Always
+            env:
+            - name: ROLE
+              value: 'script'
+          restartPolicy: OnFailure
+          imagePullSecrets:
+            - name: {{ .Values.images.pullSecrets }}

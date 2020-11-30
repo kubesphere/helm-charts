@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: migration parse
+    kompose.version: 1.16.0 (0c01309)
+  labels:
+    io.kompose.service: mop-domain-manager
+  name: mop-domain-manager
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: mop-domain-manager
+  template:
+    metadata:
+      labels:
+        io.kompose.service: mop-domain-manager
+    spec:
+      containers:
+      - env:
+        - name: CONSUL_HTTP_IP
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: status.hostIP
+        - name: CONSUL_TAG
+          value: mop-finstore
+        - name: HTTP_PORT
+          value: '8080'
+        - name: MONGO_URL
+          value: {{ .Values.mongodb.uri | quote }}
+        - name: DB_NAME
+          value: 'mop-applets-ecol-domain-private'
+        - name: SERVICE_DOMAIN_MAX_MODIFY_NUM
+          value: '10'
+        - name: BUSINESS_DOMAIN_MAX_MODIFY_NUM
+          value: '50'
+        - name: BUSINESS_DOMAIN_MAX_NUM
+          value: '20'
+        - name: WHITELIST_DOMAIN_MAX_NUM
+          value: '999999'
+        - name: SERVICE_DOMAIN_MAX_NUM
+          value: '20'
+        - name: KAFKA_ADDR
+          value: {{ .Values.kafka.addr }}
+        - name: OPERATE_LOG_TOPIC
+          value: 'mop_private_operation_log'
+        - name: ZIPKIN_URL
+          value: ''
+        - name: CHECK_BUSINESS_DOMAIN
+          value: 'false'
+        image: {{ .Values.images.mop_domain_manager }}
+        imagePullPolicy: IfNotPresent
+        name: mop-domain-manager
+        resources: {}
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: {{ .Values.images.pullSecrets }}
