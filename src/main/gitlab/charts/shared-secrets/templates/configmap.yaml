@@ -28,11 +28,11 @@ data:
   template: |-
     {{- include (print $.Template.BasePath "/_jobspec.yaml") . | nindent 4 }}
   role: |-
-    {{- include (print $.Template.BasePath "/_rbac-manager-role.yaml") . | nindent 4 }}
+    {{- include (print $.Template.BasePath "/_rbac-role.yaml") . | nindent 4 }}
   serviceAccount: |-
-    {{- include (print $.Template.BasePath "/_rbac-manager-serviceaccount.yaml") . | nindent 4 }}
+    {{- include (print $.Template.BasePath "/_rbac-serviceaccount.yaml") . | nindent 4 }}
   roleBinding: |-
-    {{- include (print $.Template.BasePath "/_rbac-manager-rolebinding.yaml") . | nindent 4 }}
+    {{- include (print $.Template.BasePath "/_rbac-rolebinding.yaml") . | nindent 4 }}
   selfSignedCertTemplate: |-
     {{- include (print $.Template.BasePath "/_self-signed-cert-job.yml") . | nindent 4 }}
 {{- end -}}
