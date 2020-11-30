@@ -34,6 +34,17 @@ If release name contains chart name it will be used as a full name.
 {{- end -}}
 {{- end -}}
 
+{{/*
+Create a default fully qualified manager name.
+We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
+*/}}
+{{- define "porter.manager.fullname" -}}
+{{- printf "%s-%s" (include "porter.fullname" .) "manager" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
+{{- define "porter.admission.fullname" -}}
+{{- printf "%s-%s" (include "porter.fullname" .) "admission" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
 
 {{/*
 Common labels
@@ -52,22 +63,20 @@ app.kubernetes.io/managed-by: {{ .Release.Service }}
 {{/*
 Selector labels
 */}}
-{{- define "manager.selectorLabels" -}}
-app.kubernetes.io/name: porter-manager
-app.kubernetes.io/instance: {{ .Release.Name }}
-app: porter-manager
+{{- define "porter.manager.labels" -}}
+{{- include "porter.labels" . }}
+app.kubernetes.io/component: {{ include "porter.manager.fullname" . }}
 {{- end -}}
 
-{{- define "agent.selectorLabels" -}}
-app.kubernetes.io/name: porter-agent
-app.kubernetes.io/instance: {{ .Release.Name }}
-app: porter-agent
+{{- define "porter.admission.labels" -}}
+{{- include "porter.labels" . }}
+app.kubernetes.io/component: {{ include "porter.admission.fullname" . }}
 {{- end -}}
 
-{{- define "porter.serviceAccountName" -}}
-{{- if .Values.serviceAccount.create -}}
-    {{ default (include "porter.fullname" .) .Values.serviceAccount.name }}
-{{- else -}}
-    {{ default "default" .Values.serviceAccount.name }}
+{{- define "porter.manager.serviceAccountName" -}}
+    {{ default "default" .Values.manager.serviceAccount.name }}
 {{- end -}}
+
+{{- define "porter.admission.serviceAccountName" -}}
+    {{ default "default" .Values.admission.serviceAccount.name }}
 {{- end -}}

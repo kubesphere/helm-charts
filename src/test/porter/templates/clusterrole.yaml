@@ -3,108 +3,109 @@ kind: ClusterRole
 metadata:
   labels:
     {{- include "porter.labels" . | nindent 4 }}
-  name: {{ template "porter.fullname" . }}-clusterrole
+  name: {{ template "porter.fullname" . }}
 rules:
-- apiGroups:
-  - ""
-  resources:
-  - events
-  verbs:
-  - create
-  - patch
-- apiGroups:
-  - ""
-  resources:
-  - endpoints
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - ""
-  resources:
-  - nodes
-  verbs:
-  - get
-  - list
-  - watch
-- apiGroups:
-  - ""
-  resources:
-  - services
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - ""
-  resources:
-  - services/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - network.kubesphere.io
-  resources:
-  - bgpconfs
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - network.kubesphere.io
-  resources:
-  - bgpconfs/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - network.kubesphere.io
-  resources:
-  - bgppeers
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - network.kubesphere.io
-  resources:
-  - bgppeers/status
-  verbs:
-  - get
-  - patch
-  - update
-- apiGroups:
-  - network.kubesphere.io
-  resources:
-  - eips
-  verbs:
-  - create
-  - delete
-  - get
-  - list
-  - patch
-  - update
-  - watch
-- apiGroups:
-  - network.kubesphere.io
-  resources:
-  - eips/status
-  verbs:
-  - get
-  - patch
-  - update
+  - apiGroups:
+      - ""
+    resources:
+      - endpoints
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - events
+    verbs:
+      - create
+      - patch
+      - update
+  - apiGroups:
+      - ""
+    resources:
+      - nodes
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - services
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - services/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - network.kubesphere.io
+    resources:
+      - bgpconfs
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - network.kubesphere.io
+    resources:
+      - bgpconfs/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - network.kubesphere.io
+    resources:
+      - bgppeers
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - network.kubesphere.io
+    resources:
+      - bgppeers/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - network.kubesphere.io
+    resources:
+      - eips
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - network.kubesphere.io
+    resources:
+      - eips/status
+    verbs:
+      - get
+      - patch
+      - update
