@@ -50,10 +50,6 @@ The following table lists the configurable parameters of the MSOMS chart and the
 | `manager.nodeSelector`| node labels for pod assignment,porter manager pod must be deployed in master |  `node-role.kubernetes.io/master: ""`  |
 | `manager.terminationGracePeriodSeconds`| Data termination grace period (seconds) |   10  |
 | `manager.tolerations`| resource tolerations for manager pod | - key: CriticalAddonsOnly</br>&nbsp;&nbsp;operator: Exists</br>- effect: NoSchedule</br>&nbsp;&nbsp;key: node-role.kubernetes.io/master</br> |
-| `agent.image.repository`|  `agent` image name. | kubesphere/porter  |
-| `agent.image.tag`| `agent.image.tag` | v0.3.1 |
-| `agent.image.pullPolicy`| `agent` image pull Policy. | IfNotPresent  |
-| `agent.resources`| manager pod resource requests & limits | limits:</br>&nbsp;&nbsp;cpu: 100m</br>&nbsp;&nbsp;memory: 30Mi</br>requests:</br>&nbsp;&nbsp;cpu: 100m</br>&nbsp;&nbsp;memory: 20Mi  |
 
 ```bash
 helm install porter \
