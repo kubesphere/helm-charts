@@ -471,6 +471,24 @@ entries:
     version: 0.1.3
   porter:
   - apiVersion: v2
+    appVersion: 0.4.0
+    created: "2020-11-30T03:21:49.585688892Z"
+    description: Bare Metal Load-balancer for Kubernetes Cluster
+    digest: ee2345921842565aab3bdcc8eb3b5dc486d6c032fee813bb7e44195ab04ac186
+    icon: https://raw.githubusercontent.com/cncf/landscape/master/hosted_logos/porter.svg
+    maintainers:
+    - email: kubesphere@gmail.com
+      name: KubeSphere
+    - email: jian.zhang@jhlinux.com
+      name: chinazj
+    name: porter
+    sources:
+    - https://github.com/kubesphere/porter
+    type: application
+    urls:
+    - https://charts.kubesphere.io/test/porter-0.2.0.tgz
+    version: 0.2.0
+  - apiVersion: v2
     appVersion: 0.3.1
     created: "2020-08-28T08:40:01.223863081Z"
     description: Bare Metal Load-balancer for Kubernetes Cluster
@@ -866,4 +884,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/test/snapshot-controller-0.1.0.tgz
     version: 0.1.0
-generated: "2020-11-06T11:42:17.72376233Z"
+generated: "2020-11-30T03:21:49.584299471Z"
