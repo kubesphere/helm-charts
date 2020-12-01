@@ -10,7 +10,7 @@ Porter is an open source load balancer designed for bare metal Kubernetes cluste
 
 ## Prerequistes
 
-- kubernetes version:1.17.3
+- kubernetes >= 1.15
 
 - helm3
 
@@ -38,27 +38,29 @@ The command removes all the Kubernetes components associated with the chart and 
 
 ## Configuration
 
-
 The following table lists the configurable parameters of the MSOMS chart and their default values.
 
 | Parameter | Description  | Default |
 | -----------------------    | -----------------------| -----------------------|
-| `manager.image.repository`| `manager` image name.        | kubesphere/porter |
-| `manager.image.tag`       | `manager` image tag.         | v0.3.1  |
-| `manager.image.pullPolicy`| `manager` image pull Policy. | IfNotPresent  |
-| `manager.resources`| manager pod resource requests & limits | limits:</br>&nbsp;&nbsp;cpu: 100m</br>&nbsp;&nbsp;memory: 30Mi</br>requests:</br>&nbsp;&nbsp;cpu: 100m</br>&nbsp;&nbsp;memory: 20Mi   |
-| `manager.nodeSelector`| node labels for pod assignment,porter manager pod must be deployed in master |  `node-role.kubernetes.io/master: ""`  |
-| `manager.terminationGracePeriodSeconds`| Data termination grace period (seconds) |   10  |
-| `manager.tolerations`| resource tolerations for manager pod | - key: CriticalAddonsOnly</br>&nbsp;&nbsp;operator: Exists</br>- effect: NoSchedule</br>&nbsp;&nbsp;key: node-role.kubernetes.io/master</br> |
+| `manager.image.repository`| `manager` image name.        | `kubespheredev/porter` |
+| `manager.image.tag`       | `manager` image tag.         | `v0.4`  |
+| `manager.image.pullPolicy`| `manager` image pull Policy. | `IfNotPresent`  |
+| `manager.resources`       | porter manager resource requests and limits      | `{}`   |
+| `manager.nodeSelector`     | Node labels for pod assignment             | `{}`   |
+| `manager.terminationGracePeriodSeconds`  | Wait up to this many seconds for a broker to shut down gracefully, after which it is killed   | `10`       |
+| `manager.tolerations` | List of node tolerations for the pods. https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/  | `[]`       |
+| `manager.serviceAccount.name`    | Name of Kubernetes serviceAccount.   | `default`          |
+| `manager.serviceAccount.create`    | Whether to create a serviceaccount   | `false`      |
+| `manager.apiHosts`    | GoBGP will listen to the address.   | `:50051`      |
+| `manager.readinessPort`    | The porter manager readinessprobe listens to addresses.   | `8000`      |
+
+Specify parameters using `--set key=value[,key=value]` argument to `helm install`
+
+Alternatively a YAML file that specifies the values for the parameters can be provided like this:
 
 ```bash
-helm install porter \
--n kube-system \
-test/porter
+$ helm install --name my-porter -f values.yaml test/porter
 ```
 
-Alternatively, a YAML file that specifies the values for the parameters can be provided while installing the chart. For example,
 
-```bash
-helm install porter -n kube-system -f service.yaml test/porter
-```
+
