@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kubesphere.io/isElasticReplicas: 'false'
+    servicemesh.kubesphere.io/enabled: 'true'
+  labels:
+    app: {{ .Values.reviews.name }}
+    version: {{ .Values.reviews.version }}
+    {{ include "common.label" . | nindent 4 }}
+  name: {{ .Values.reviews.name }}-{{ .Values.reviews.version}}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: {{ .Values.reviews.name }}
+      version: {{ .Values.reviews.version }}
+      {{ include "common.label" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.reviews.name }}
+        version: {{ .Values.reviews.version }}
+        {{ include "common.label" . | nindent 8 }}
+      annotations:
+        sidecar.istio.io/inject: 'true'
+    spec:
+      containers:
+        - name: {{ .Values.reviews.name }}
+          resources:
+            requests:
+              cpu: 10m
+              memory: 10Mi
+            limits:
+              cpu: '1'
+              memory: 1000Mi
+          imagePullPolicy: Always
+          image: {{ .Values.reviews.image.repository }}
+          ports:
+            - name: http-web
+              protocol: TCP
+              containerPort: 9080
+      serviceAccount: default
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 25%
+      maxSurge: 25%
