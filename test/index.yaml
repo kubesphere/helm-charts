@@ -821,6 +821,17 @@ entries:
     urls:
     - https://charts.kubesphere.io/test/redis-0.1.3.tgz
     version: 0.1.3
+  sample-bookinfo:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2020-12-09T07:30:21.275718777Z"
+    description: A Helm chart for Kubernetes
+    digest: 37485b572d8925a1566650e46b2f084180b8a5fe816906c7aa8b3fc29f8d59c7
+    name: sample-bookinfo
+    type: application
+    urls:
+    - https://charts.kubesphere.io/test/sample-bookinfo-1.0.0.tgz
+    version: 1.0.0
   skywalking:
   - apiVersion: v2
     appVersion: 8.1.0
@@ -884,4 +895,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/test/snapshot-controller-0.1.0.tgz
     version: 0.1.0
-generated: "2020-11-30T03:21:49.584299471Z"
+generated: "2020-12-09T07:30:21.274556025Z"
