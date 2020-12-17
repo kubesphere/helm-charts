@@ -92,6 +92,26 @@ entries:
     version: 0.1.0
   csi-neonsan:
   - apiVersion: v2
+    appVersion: 1.2.1
+    created: "2020-12-17T09:12:10.605297423Z"
+    description: A Helm chart for NeonSAN CSI Driver
+    digest: 47c62dce45d3906db8c1f7616e80b41eb94b164ffc682b3f21dc40eaf8237b2a
+    home: https://github.com/yunify/qingstor-csi
+    icon: https://s3.qingcloud.com/files/2020/01/qing-stor-neon-san.png
+    keywords:
+    - neonsan
+    - csi
+    kubeVersion: '>=1.14.0-0'
+    maintainers:
+    - email: arminzhang@yunify.com
+      name: Min Zhang
+    name: csi-neonsan
+    sources:
+    - https://github.com/yunify/qingstor-csi
+    urls:
+    - https://charts.kubesphere.io/test/csi-neonsan-1.2.3.tgz
+    version: 1.2.3
+  - apiVersion: v2
     appVersion: 1.2.0
     created: "2020-09-24T02:55:08.609635852Z"
     description: A Helm chart for NeonSAN CSI Driver
@@ -190,6 +210,28 @@ entries:
     - https://charts.kubesphere.io/test/csi-neonsan-1.2.0-rc1.tgz
     version: 1.2.0-rc1
   csi-qingcloud:
+  - apiVersion: v2
+    appVersion: 1.2.1
+    created: "2020-12-17T09:12:10.605875266Z"
+    description: A Helm chart for Qingcloud CSI Driver
+    digest: beca470ded1242b33160f6652fa20639aa10991f9a279e24f5daa228ceae821a
+    home: https://github.com/yunify/qingcloud-csi
+    icon: https://s3.qingcloud.com/static/assets/images/icons/common/nav_logo_white.svg?v=1510299508
+    keywords:
+    - qingcloud
+    - csi
+    kubeVersion: '>=1.14.0-0'
+    maintainers:
+    - email: arminzhang@yunify.com
+      name: Min Zhang
+    - email: zheng1@yunify.com
+      name: Zhengyi Lai
+    name: csi-qingcloud
+    sources:
+    - https://github.com/yunify/qingcloud-csi
+    urls:
+    - https://charts.kubesphere.io/test/csi-qingcloud-1.2.7.tgz
+    version: 1.2.7
   - apiVersion: v2
     appVersion: 1.2.0
     created: "2020-09-08T03:37:04.571619766Z"
@@ -895,4 +937,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/test/snapshot-controller-0.1.0.tgz
     version: 0.1.0
-generated: "2020-12-09T07:30:21.274556025Z"
+generated: "2020-12-17T09:12:10.603885816Z"
