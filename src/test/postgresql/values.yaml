@@ -29,7 +29,7 @@ securityContext: {}
 persistence:
   enabled: true
   size: 5Gi
-  subPath:
+  subPath: pgdata
 
 rootUsername: postgres
 rootPassword: password
