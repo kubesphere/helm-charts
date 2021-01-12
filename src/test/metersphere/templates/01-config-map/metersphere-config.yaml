@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: metersphere-config
+data:
+  metersphere.properties: |-
+    {{ tpl .Values.server.properties . | nindent 4 }}
+
+  data-streaming.properties: |-
+    {{ tpl .Values.dataStreaming.properties . | nindent 4 }}
+
+

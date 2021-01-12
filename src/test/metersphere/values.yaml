@@ -1,0 +1,109 @@
+ingress:
+  enabled: false
+  host: ms-dev.apps.metersphere.com
+
+common:
+  imagePrefix: "registry.cn-qingdao.aliyuncs.com/metersphere/"
+  imagePullSecrets: nil
+  imageTag: master
+  imagePullPolicy: Always
+  mysql: 
+    host: metersphere-mysql
+    port: 3306
+    username: root
+    password: Password123@mysql
+  kafka:
+    host: metersphere-kafka 
+    port: 9092
+    metricTopic: JMETER_METRICS
+    logTopic: JMETER_LOGS
+
+server:
+  enabled: true
+  image: metersphere
+  replicas: 1
+  properties: |-
+    ## DATABASE
+    spring.datasource.url=jdbc:mysql://{{.Values.common.mysql.host}}:{{.Values.common.mysql.port}}/metersphere?autoReconnect=false&useUnicode=true&characterEncoding=UTF-8&characterSetResults=UTF-8&zeroDateTimeBehavior=convertToNull&useSSL=false
+    spring.datasource.username={{.Values.common.mysql.username}}
+    spring.datasource.password={{.Values.common.mysql.password}}
+
+    ## KAFKA
+    kafka.partitions=1
+    kafka.replicas=1
+    kafka.topic={{.Values.common.kafka.metricTopic}}
+    kafka.bootstrap-servers={{.Values.common.kafka.host}}.{{.Release.Namespace}}:{{.Values.common.kafka.port}}
+    kafka.log.topic={{.Values.common.kafka.logTopic}}
+
+    ## JMETER
+    jmeter.image={{ .Values.common.imagePrefix }}{{.Values.jmeter.image}}:{{.Values.jmeter.imageTag}}
+    jmeter.pod.threads.limit=500
+
+    logger.sql.level=info
+    
+dataStreaming:
+  enabled: true
+  image: ms-data-streaming
+  replicas: 1
+  properties: |-
+    ## DATABASE
+    spring.datasource.url=jdbc:mysql://{{.Values.common.mysql.host}}:{{.Values.common.mysql.port}}/metersphere?autoReconnect=false&useUnicode=true&characterEncoding=UTF-8&characterSetResults=UTF-8&zeroDateTimeBehavior=convertToNull&useSSL=false
+    spring.datasource.username={{.Values.common.mysql.username}}
+    spring.datasource.password={{.Values.common.mysql.password}}
+
+    ## KAFKA
+    kafka.partitions=1
+    kafka.replicas=1
+    kafka.topic={{.Values.common.kafka.metricTopic}}
+    kafka.bootstrap-servers={{.Values.common.kafka.host}}:{{.Values.common.kafka.port}}
+    kafka.log.topic={{.Values.common.kafka.logTopic}}
+    jmeter.report.granularity=5000
+
+jmeter:
+  image: jmeter-master
+  imageTag: 5.3-ms14
+
+logPersistence:
+  enabled: false
+  accessModes: ReadWriteOnce
+  size: 10Gi
+
+mysql:
+  enabled: true
+  image: mysql
+  imageTag: "5.7.25"
+  password: Password123@mysql
+  persistence:
+    enabled: true
+    accessModes: ReadWriteOnce
+    size: 20Gi
+kafka:
+  enabled: true
+  image:
+    registry: registry.cn-qingdao.aliyuncs.com/metersphere
+    repository: kafka
+    tag: 2
+  fullnameOverride: metersphere-kafka
+  persistence:
+    enabled: false
+  logPersistence:
+    enabled: false
+  logFlushIntervalMessages: 10000
+  logFlushIntervalMs: 1000
+  logRetentionBytes: _1073741824
+  logRetentionCheckIntervalMs: 300000
+  logRetentionHours: 168
+  logSegmentBytes: _1073741824
+  maxMessageBytes: _1000012
+  zookeeper:
+    enabled: true
+    logLevel: ERROR
+    persistence:
+      enabled: false
+    fullnameOverride: metersphere-zookeeper
+    image:
+      registry: registry.cn-qingdao.aliyuncs.com/metersphere
+      repository: zookeeper
+      tag: 3
+zookeeper:
+  enabled: true

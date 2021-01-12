@@ -1,0 +1,13 @@
+{{ if and .Values.mysql.enabled .Values.mysql.persistence.enabled}}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: mysql-data-pvc
+spec:
+  accessModes:
+    - {{.Values.mysql.persistence.accessModes}}
+  resources:
+    requests:
+      storage: {{.Values.mysql.persistence.size}}
+  storageClassName: {{.Values.common.storageClass}}
+{{end}}  

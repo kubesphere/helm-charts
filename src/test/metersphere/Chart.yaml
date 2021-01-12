@@ -1,0 +1,20 @@
+apiVersion: v2
+appVersion: 1.6.0
+version: 1.0.0
+description: A Helm chart for deploying MeterSphere
+engine: gotpl
+home: https://metersphere.io
+icon: https://metersphere.io/images/logo/favicon.ico
+maintainers:
+- name: KubeSphere
+  email: kubesphere@yunify.com
+- email: metersphere@fit2cloud.com
+  name: metersphere
+name: metersphere-chart
+sources:
+- https://github.com/kubesphere/helm-charts/tree/master/src/test/metersphere
+dependencies:
+- name: kafka
+  repository: https://charts.bitnami.com/bitnami
+  condition: kafka.enabled
+  version: 11.3.1
