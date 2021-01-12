@@ -1,0 +1,13 @@
+{{ if .Values.logPersistence.enabled }}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: metersphere-logs-pvc
+spec:
+  accessModes:
+    - {{.Values.logPersistence.accessModes}}
+  resources:
+    requests:
+      storage: {{.Values.logPersistence.size}}
+  storageClassName: {{.Values.common.storageClass}}
+{{end}}

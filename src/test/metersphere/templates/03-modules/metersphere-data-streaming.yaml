@@ -1,0 +1,101 @@
+{{if .Values.dataStreaming.enabled | default true }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: metersphere-data-streaming
+spec:
+  replicas: {{.Values.dataStreaming.replicas | default 1}}
+  selector:
+    matchLabels:
+      app: metersphere-data-streaming
+  template:
+    metadata:
+      labels:
+        app: metersphere-data-streaming
+    spec:
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            podAffinityTerm:
+              labelSelector:
+                matchExpressions:
+                - key: app
+                  operator: In
+                  values:
+                  - metersphere-data-streaming
+              topologyKey: kubernetes.io/hostname
+      initContainers:
+        - name: wait-mysql
+          image: busybox:latest
+          imagePullPolicy: IfNotPresent
+          command:
+            - sh
+            - -c
+            - |
+              set -ex
+              until nc -zv {{ .Values.common.mysql.host }} {{ .Values.common.mysql.port }}; do sleep 5; done
+              sleep 10
+        - name: wait-kafka
+          image: busybox:latest
+          imagePullPolicy: IfNotPresent
+          command:
+            - sh
+            - -c
+            - |
+              set -ex
+              until nc -zv {{ .Values.common.kafka.host }} {{ .Values.common.kafka.port }}; do sleep 5; done
+              sleep 10
+      containers:
+        - name: metersphere-data-streaming
+          image: {{.Values.common.imagePrefix}}{{.Values.dataStreaming.image}}:{{.Values.common.imageTag}}
+          imagePullPolicy: {{.Values.common.imagePullPolicy}}
+          resources:
+            limits:
+              memory: 1Gi
+            requests:
+              memory: 300Mi
+              cpu: 0.1
+          ports:
+            - name: http
+              containerPort: 8084
+          volumeMounts:
+            - mountPath: /opt/metersphere/conf
+              name: opt-metersphere-config
+            - mountPath: /opt/metersphere/logs
+              name: metersphere-logs
+      {{if ne (.Values.common.imagePullSecret | default "nil") "nil"}}
+      imagePullSecrets:
+        - name: {{.Values.common.imagePullSecret}}
+      {{ end }}
+      volumes:
+        - configMap:
+            defaultMode: 420
+            name: metersphere-config
+            items:
+            - key: data-streaming.properties
+              path: metersphere.properties
+          name: opt-metersphere-config
+        - name: metersphere-logs
+          {{if .Values.logPersistence.enabled}}
+          persistentVolumeClaim:
+            claimName: metersphere-logs-pvc
+          {{ else }}
+          emptyDir: {}
+          {{ end }}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: metersphere-data-streaming
+  labels:
+    app: metersphere-data-streaming
+spec:
+  sessionAffinity: ClientIP
+  selector:
+    app: metersphere-data-streaming
+  ports:
+    - name: http
+      port: 8084
+      protocol: TCP
+{{end}}
