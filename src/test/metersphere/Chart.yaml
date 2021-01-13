@@ -10,7 +10,7 @@ maintainers:
   email: kubesphere@yunify.com
 - email: metersphere@fit2cloud.com
   name: metersphere
-name: metersphere-chart
+name: metersphere
 sources:
 - https://github.com/kubesphere/helm-charts/tree/master/src/test/metersphere
 dependencies:

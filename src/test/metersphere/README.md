@@ -5,7 +5,7 @@
 ```bash
 # for China users: helm repo add test https://charts.kubesphere.com.cn/test
 helm repo add test https://charts.kubesphere.io/test
-helm install metersphere -n metersphere -f values.yaml test/metersphere
+helm install metersphere -n metersphere test/metersphere
 ```
 
 ## How to install locally
