@@ -186,14 +186,14 @@ deploy() {
 }
 
 mirror() {
-  local original=https://kubernetes-charts.storage.googleapis.com
+  local original=https://charts.helm.sh/stable
   local mirrored=https://helm-chart-repo.pek3a.qingstor.com/kubernetes-charts
   git fetch
   git checkout --track origin/gh-pages
   mkdir -p mirror
   cd mirror
   curl -L $original/index.yaml -o index.yaml
-  sed -i "s#$original#$mirrored#g" index.yaml
+  sed -i "s#$original/packages#$mirrored#g" index.yaml
   git add index.yaml
 
   pushUpdates
