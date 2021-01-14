@@ -5,8 +5,8 @@ ingress:
 common:
   imagePrefix: "registry.cn-qingdao.aliyuncs.com/metersphere/"
   imagePullSecrets: nil
-  imageTag: master
-  imagePullPolicy: Always
+  imageTag: v1.6
+  imagePullPolicy: IfNotPresent
   mysql: 
     host: metersphere-mysql
     port: 3306
