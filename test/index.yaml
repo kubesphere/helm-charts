@@ -462,6 +462,30 @@ entries:
     urls:
     - https://charts.kubesphere.io/test/ks-installer-0.1.0.tgz
     version: 0.1.0
+  metersphere:
+  - apiVersion: v2
+    appVersion: 1.6.0
+    created: "2021-01-14T05:18:40.586931315Z"
+    dependencies:
+    - condition: kafka.enabled
+      name: kafka
+      repository: https://charts.bitnami.com/bitnami
+      version: 11.3.1
+    description: A Helm chart for deploying MeterSphere
+    digest: 6059c4fe275e54f3245006817a55cf13e46bd26bf8ee212c4a5f83f3e9154dca
+    home: https://metersphere.io
+    icon: https://metersphere.io/images/logo/favicon.ico
+    maintainers:
+    - email: kubesphere@yunify.com
+      name: KubeSphere
+    - email: metersphere@fit2cloud.com
+      name: metersphere
+    name: metersphere
+    sources:
+    - https://github.com/kubesphere/helm-charts/tree/master/src/test/metersphere
+    urls:
+    - https://charts.kubesphere.io/test/metersphere-1.0.0.tgz
+    version: 1.0.0
   metersphere-chart:
   - apiVersion: v2
     appVersion: 1.6.0
@@ -978,4 +1002,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/test/snapshot-controller-0.1.0.tgz
     version: 0.1.0
-generated: "2021-01-12T09:04:38.634017011Z"
+generated: "2021-01-14T05:18:40.581310689Z"
