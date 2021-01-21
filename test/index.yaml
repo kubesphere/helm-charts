@@ -559,6 +559,18 @@ entries:
     urls:
     - https://charts.kubesphere.io/test/mongodb-0.1.3.tgz
     version: 0.1.3
+  nacos:
+  - apiVersion: v1
+    appVersion: 1.4.1
+    created: "2021-01-21T12:24:55.236288582Z"
+    description: A Helm chart for Nacos
+    digest: efa2601011abb83ed44be26e5a319bc2c3c33fccf83e0845b24951baf641da20
+    maintainers:
+    - name: arrowfeng
+    name: nacos
+    urls:
+    - https://charts.kubesphere.io/test/nacos-0.1.1.tgz
+    version: 0.1.1
   porter:
   - apiVersion: v2
     appVersion: 0.4.0
@@ -1002,4 +1014,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/test/snapshot-controller-0.1.0.tgz
     version: 0.1.0
-generated: "2021-01-14T05:18:40.581310689Z"
+generated: "2021-01-21T12:24:55.234545865Z"
