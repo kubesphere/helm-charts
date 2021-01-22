@@ -16,4 +16,4 @@ maintainers:
 name: sonarqube
 sources:
 - https://github.com/SonarSource/docker-sonarqube
-version: 6.6.0
+version: 6.6.1
