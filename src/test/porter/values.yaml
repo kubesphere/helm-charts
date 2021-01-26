@@ -2,17 +2,20 @@
 # This is a YAML-formatted file.
 
 admission:
+  image:
+    repository: docker.io/jettech/kube-webhook-certgen
+    tag: v1.5.0
+    pullPolicy: IfNotPresent
   serviceAccount:
     create: false
     name: default
 
 manager:
-  metricsAddr: "0"
-  readinessPort: "8000"
   apiHosts: ":50051"
+  webhookPort: 443
   image:
     repository: kubespheredev/porter
-    tag: v0.4
+    tag: v0.4.1
     pullPolicy: IfNotPresent
   resources:
     limits:
@@ -29,6 +32,7 @@ manager:
       key: node-role.kubernetes.io/master
   nodeSelector:
     kubernetes.io/os: linux
+    #lb.kubesphere.io/v1alpha1: porter
   serviceAccount:
     create: false
     name: default
