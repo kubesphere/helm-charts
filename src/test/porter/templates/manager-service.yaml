@@ -9,7 +9,7 @@ spec:
   ports:
     - name: https-webhook
       port: 443
-      targetPort: 443
+      targetPort: webhook
   selector:
   {{- include "porter.manager.labels" . | nindent 4 }}
   type: ClusterIP
