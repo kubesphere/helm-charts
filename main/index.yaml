@@ -112,6 +112,33 @@ entries:
     urls:
     - https://charts.kubesphere.io/main/harbor-1.2.1.tgz
     version: 1.2.1
+  memcached:
+  - annotations:
+      app.kubesphere.io/category: Database
+    apiVersion: v1
+    appVersion: 1.5.20
+    created: "2021-04-09T08:10:26.544183185Z"
+    description: Free & open source, high-performance, distributed memory object caching
+      system.
+    digest: 63d11b780a396bde4c328572503548c68830fafc359e550ac510259cbb3dace7
+    home: http://memcached.org/
+    icon: https://upload.wikimedia.org/wikipedia/en/thumb/2/27/Memcached.svg/1024px-Memcached.svg.png
+    keywords:
+    - memcached
+    - cache
+    maintainers:
+    - email: gtaylor@gc-taylor.com
+      name: gtaylor
+    - email: o.with@sportradar.com
+      name: olemarkus
+    - email: k.aasan@sportradar.com
+      name: kennethaasan
+    name: memcached
+    sources:
+    - https://github.com/docker-library/memcached
+    urls:
+    - https://charts.kubesphere.io/main/memcached-3.2.3.tgz
+    version: 3.2.3
   minio:
   - apiVersion: v1
     appVersion: RELEASE.2020-08-08T04-50-06Z
@@ -156,6 +183,33 @@ entries:
     urls:
     - https://charts.kubesphere.io/main/minio-5.0.26.tgz
     version: 5.0.26
+  mysql:
+  - annotations:
+      app.kubesphere.io/category: Database
+    apiVersion: v1
+    appVersion: 5.7.30
+    created: "2021-04-09T08:10:26.545144375Z"
+    description: Fast, reliable, scalable, and easy to use open-source relational
+      database system.
+    digest: 380c408b78f051d45b4a6f3baf4ecd3e9ebdb06d45604b2def5132d0c63bfcc7
+    home: https://www.mysql.com/
+    icon: https://www.mysql.com/common/logos/logo-mysql-170x115.png
+    keywords:
+    - mysql
+    - database
+    - sql
+    maintainers:
+    - email: o.with@sportradar.com
+      name: olemarkus
+    - email: viglesias@google.com
+      name: viglesiasce
+    name: mysql
+    sources:
+    - https://github.com/kubernetes/charts
+    - https://github.com/docker-library/mysql
+    urls:
+    - https://charts.kubesphere.io/main/mysql-1.6.6.tgz
+    version: 1.6.6
   mysql-exporter:
   - apiVersion: v1
     appVersion: v0.11.0
@@ -354,4 +408,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/main/tomcat-0.4.0-r1.tgz
     version: 0.4.0-r1
-generated: "2020-11-10T03:50:44.523568209Z"
+generated: "2021-04-09T08:10:26.543211519Z"
