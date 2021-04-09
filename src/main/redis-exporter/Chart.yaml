@@ -12,3 +12,5 @@ name: redis-exporter
 sources:
 - https://github.com/oliver006/redis_exporter
 version: 3.4.2
+annotations:
+  "app.kubesphere.io/category": "Database"
