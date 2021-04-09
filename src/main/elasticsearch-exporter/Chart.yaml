@@ -18,3 +18,5 @@ name: elasticsearch-exporter
 sources:
 - https://github.com/justwatchcom/elasticsearch_exporter
 version: 3.3.1
+annotations:
+  "app.kubesphere.io/category": "Big Data"
