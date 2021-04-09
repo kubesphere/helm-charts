@@ -9,3 +9,5 @@ sources:
 maintainers:
 - name: KubeSphere
   email: kubesphere@yunify.com
+annotations:
+  "app.kubesphere.io/category": "Container"

@@ -14,3 +14,5 @@ sources:
 maintainers:
 - name: Minio
   email: dev@minio.io
+annotations:
+  "app.kubesphere.io/category": "Storage"

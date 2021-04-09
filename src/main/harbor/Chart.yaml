@@ -20,3 +20,5 @@ maintainers:
 - name: Qian Deng
   email: dengq@vmware.com
 engine: gotpl
+annotations:
+  "app.kubesphere.io/category": "Container"
