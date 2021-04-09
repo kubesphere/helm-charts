@@ -8,3 +8,5 @@ home: https://github.com/yahavb
 maintainers:
   - name: yahavb
     email: ybiran@ananware.systems
+annotations:
+  "app.kubesphere.io/category": "HTTP Service"

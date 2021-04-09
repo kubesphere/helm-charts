@@ -11,3 +11,5 @@ name: mysql-exporter
 sources:
 - https://github.com/prometheus/mysqld_exporter
 version: 0.5.4
+annotations:
+  "app.kubesphere.io/category": "Database"
