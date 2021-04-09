@@ -1,6 +1,29 @@
 apiVersion: v1
 entries:
   apisix:
+  - annotations:
+      app.kubesphere.io/category: HTTP Service
+    apiVersion: v2
+    appVersion: 1.15.0
+    created: "2021-04-09T08:44:59.051376018Z"
+    dependencies:
+    - condition: etcd.enabled
+      name: etcd
+      repository: https://charts.kubesphere.io/test
+      version: 0.1.1
+    description: Apache APISIX is a dynamic, real-time, high-performance API gateway,
+      based on the Nginx library and etcd.
+    digest: 8058acb0f357c2498b60313a6c5c23d2a5a06533fde176e7926ab7e11a40095a
+    home: https://apisix.apache.org/
+    icon: https://apisix.apache.org/img/logo.png
+    maintainers:
+    - email: liling@apache.org
+      name: liling
+    name: apisix
+    type: application
+    urls:
+    - https://charts.kubesphere.io/test/apisix-0.1.6.tgz
+    version: 0.1.6
   - apiVersion: v2
     appVersion: 1.15.0
     created: "2020-10-12T02:08:37.922699782Z"
@@ -381,6 +404,24 @@ entries:
     - https://charts.kubesphere.io/test/csi-qingcloud-1.2.0.tgz
     version: 1.2.0
   etcd:
+  - annotations:
+      app.kubesphere.io/category: Container
+    apiVersion: v1
+    appVersion: 3.3.12
+    created: "2021-04-09T08:44:59.051758085Z"
+    description: etcd is a distributed reliable key-value store for the most critical
+      data of a distributed system.
+    digest: af3844b2f876f5ff10c21930552a577ff66fefcfb1d01a907b86ff1f11a6fa78
+    icon: https://github.com/etcd-io/etcd/raw/master/logos/etcd-glyph-color.svg
+    maintainers:
+    - email: kubesphere@yunify.com
+      name: KubeSphere
+    name: etcd
+    sources:
+    - https://github.com/kubesphere/helm-charts/tree/master/src/test/etcd
+    urls:
+    - https://charts.kubesphere.io/test/etcd-0.1.2.tgz
+    version: 0.1.2
   - apiVersion: v1
     appVersion: 3.3.12
     created: "2020-08-14T10:13:09.526999676Z"
@@ -511,6 +552,24 @@ entries:
     - https://charts.kubesphere.io/test/metersphere-chart-1.0.0.tgz
     version: 1.0.0
   mongodb:
+  - annotations:
+      app.kubesphere.io/category: Database
+    apiVersion: v1
+    appVersion: 4.2.1
+    created: "2021-04-09T08:44:59.052292537Z"
+    description: MongoDB is a general purpose, document-based, distributed database
+      built for modern application developers and for the cloud era.
+    digest: 5d6fbe6539d9d8f18b313eeca43a55357fd6212df2c537fdb87c36b27d7ce9f5
+    icon: https://upload.wikimedia.org/wikipedia/en/thumb/4/45/MongoDB-Logo.svg/250px-MongoDB-Logo.svg.png
+    maintainers:
+    - email: kubesphere@yunify.com
+      name: KubeSphere
+    name: mongodb
+    sources:
+    - https://github.com/kubesphere/helm-charts/tree/master/src/test/mongodb
+    urls:
+    - https://charts.kubesphere.io/test/mongodb-0.3.1.tgz
+    version: 0.3.1
   - apiVersion: v1
     appVersion: 4.2.1
     created: "2020-07-09T02:22:10.693767578Z"
@@ -669,6 +728,25 @@ entries:
     - https://charts.kubesphere.io/test/porter-0.1.1.tgz
     version: 0.1.1
   postgresql:
+  - annotations:
+      app.kubesphere.io/category: Database
+    apiVersion: v1
+    appVersion: "12.0"
+    created: "2021-04-09T08:44:59.052732178Z"
+    description: PostgreSQL is a powerful, open source object-relational database
+      system with over 30 years of active development that has earned it a strong
+      reputation for reliability, feature robustness, and performance.
+    digest: bdfd5215e2caad6b735e4eaadb6512833041a553a0456e2704038ebe2dacd502
+    icon: https://wiki.postgresql.org/images/a/a4/PostgreSQL_logo.3colors.svg
+    maintainers:
+    - email: kubesphere@yunify.com
+      name: KubeSphere
+    name: postgresql
+    sources:
+    - https://github.com/kubesphere/helm-charts/tree/master/src/test/postgresql
+    urls:
+    - https://charts.kubesphere.io/test/postgresql-0.4.1.tgz
+    version: 0.4.1
   - apiVersion: v1
     appVersion: "12.0"
     created: "2021-01-09T03:13:45.013012763Z"
@@ -772,6 +850,24 @@ entries:
     - https://charts.kubesphere.io/test/postgresql-0.1.2.tgz
     version: 0.1.2
   rabbitmq:
+  - annotations:
+      app.kubesphere.io/category: Big Data
+    apiVersion: v1
+    appVersion: 3.8.1
+    created: "2021-04-09T08:44:59.053118361Z"
+    description: RabbitMQ is the most widely deployed open source message broker.
+      It supports multiple messaging protocols.
+    digest: 80047dbad49fc7c99a9c020649b96062bec9054ae03b99c943b12069baba8ba0
+    icon: https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/RabbitMQ_logo.svg/120px-RabbitMQ_logo.svg.png
+    maintainers:
+    - email: kubesphere@yunify.com
+      name: KubeSphere
+    name: rabbitmq
+    sources:
+    - https://github.com/kubesphere/helm-charts/tree/master/src/test/rabbitmq
+    urls:
+    - https://charts.kubesphere.io/test/rabbitmq-0.3.1.tgz
+    version: 0.3.1
   - apiVersion: v1
     appVersion: 3.8.1
     created: "2020-07-09T02:22:10.695282077Z"
@@ -862,6 +958,24 @@ entries:
     - https://charts.kubesphere.io/test/rbd-provisioner-0.1.0.tgz
     version: 0.1.0
   redis:
+  - annotations:
+      app.kubesphere.io/category: Database
+    apiVersion: v1
+    appVersion: 6.0.9
+    created: "2021-04-09T08:44:59.05354198Z"
+    description: Redis is an open source (BSD licensed), in-memory data structure
+      store, used as a database, cache and message broker.
+    digest: 6758bd1190c2bfc7db9928a3c7708161d9f69372d7a912484e5c532261030f2d
+    icon: https://upload.wikimedia.org/wikipedia/en/6/6b/Redis_Logo.svg
+    maintainers:
+    - email: kubesphere@yunify.com
+      name: KubeSphere
+    name: redis
+    sources:
+    - https://github.com/kubesphere/helm-charts/tree/master/src/test/redis
+    urls:
+    - https://charts.kubesphere.io/test/redis-0.3.4.tgz
+    version: 0.3.4
   - apiVersion: v1
     appVersion: 6.0.9
     created: "2020-11-06T11:42:17.725359733Z"
@@ -1032,4 +1146,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/test/snapshot-controller-0.1.0.tgz
     version: 0.1.0
-generated: "2021-01-26T13:25:15.211875755Z"
+generated: "2021-04-09T08:44:59.049245116Z"
