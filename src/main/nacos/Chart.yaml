@@ -1,0 +1,11 @@
+apiVersion: v1
+appVersion: "1.4.1"
+description: A Helm chart for Kubernetes
+home: https://nacos.io/
+name: nacos
+version: 0.1.1
+maintainers:
+- email: kubesphere@yunify.com
+  name: KubeSphere
+sources:
+-  https://github.com/nacos-group/nacos-k8s
