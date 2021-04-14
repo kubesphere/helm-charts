@@ -17,7 +17,7 @@ This project is based on the Helm Chart packaged by [nacos-k8s](https://github.c
 To install the chart with `release name`:
 
 ```shell
-$ helm install `release name` ./nacos
+$ helm install --name my-release  main/nacos
 ```
 
 The command deploys Nacos on the Kubernetes cluster in the default configuration. It will run without a mysql chart and persistent volume. The [configuration](#configuration) section lists the parameters that can be configured during installation. 
@@ -51,7 +51,7 @@ curl -X GET "http://$NODE_IP:$NODE_PORT/nacos/v1/cs/configs?dataId=nacos.cfg.dat
 To uninstall/delete `release name`:
 
 ```shell
-$ helm uninstall `release name`
+$ helm uninstall my-release
 ```
 The command removes all the Kubernetes components associated with the chart and deletes the release.
 
@@ -117,33 +117,34 @@ The following table lists the configurable parameters of the Skywalking chart an
 
 
 ## Example
-![img](../images/nacos.png)
+![nacos](http://image.z5689.com/blog/nacos-1618363862111.png)
+
 #### quickstart mode(without mysql)
 ```console
-$ helm install `release name` ./ --set global.mode=quickstart
+$ helm install my-release main/nacos --set global.mode=quickstart
 ```
-![img](../images/quickstart.png)
+![quickstart](http://image.z5689.com/blog/quickstart.png)
 
 #### standalone mode(without pv)
 ```console
-$ helm install `release name` ./ --set global.mode=standalone
+$ helm install my-release main/nacos --set global.mode=standalone
 ```
-![img](../images/standalone.png)
+![standalone](http://image.z5689.com/blog/standalone.png)
 
 
 > **Tip**: if the logs of nacos pod throws exception, you may need to delete the pod. Because mysql pod is not ready, nacos pod has been started.
 
 #### cluster mode(without pv)
 ```console
-$ helm install `release name` ./ --set global.mode=cluster
+$ helm install my-release main/nacos --set global.mode=cluster
 ```
-![img](../images/cluster1.png)
+![cluster1](http://image.z5689.com/blog/cluster1.png)
 
 ```console
-$ kubectl scale sts `release name`-nacos --replicas=3
+$ kubectl scale sts my-release-nacos --replicas=3
 ```
-![img](../images/cluster2.png)
+![cluster2](http://image.z5689.com/blog/cluster2.png)
 
  * Use kubectl exec to get the cluster config of the Pods in the nacos StatefulSet after scale StatefulSets
- 
-![img](../images/cluster3.png)
+
+![cluster3](http://image.z5689.com/blog/cluster3.png)
