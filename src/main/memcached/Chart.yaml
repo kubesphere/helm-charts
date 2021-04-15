@@ -18,6 +18,6 @@ maintainers:
 name: memcached
 sources:
 - https://github.com/docker-library/memcached
-version: 3.2.4
+version: 3.2.5
 annotations:
-  "app.kubesphere.io/category": "Database"
+  "app.kubesphere.io/category": "Database & Cache"
