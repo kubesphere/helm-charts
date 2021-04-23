@@ -1,54 +1,185 @@
-
 # XenonDB
+XenonDB is a open-source, cloud-native, highly available cluster solutions that is based on database. 
 
-English | 中文 
+# Github
 
-## 什么是 XenonDB？
+https://github.com/radondb/xenondb
+# Features
+- High availability MySQL database
+    - Non-centralized automatic leader election
+    - Second level switch leader to follower 
+    - Strongly consistent data for cluster switching
+- Cluster management
+- Monitoring and alerting
+- Logs
+- Account management
 
-XenonDB 是基于 MySQL 的开源、高可用、云原生集群解决方案。支持一主多从高可用架构，并具备安全、自动备份、监控告警、自动扩容等全套管理功能。
+# Introduction
 
-目前已支持 Kubernetes 和 KubeSphere 平台的部署。
+This chart bootstraps a single leader and multiple followers [MySQL](https://MySQL.org) deployment on a [Kubernetes](http://kubernetes.io) cluster using the [Helm](https://helm.sh) package manager.
 
-如果您想在以上的两个平台部署 MySQL 高可用集群，XenonDB 可以成为您的选择。 
-## 架构图
+# Prerequisites
 
-![](docs/images/XenonDB_Architecture_1.png)
+- Kubernetes 1.10+ with Beta APIs enabled
+- PV provisioner support in the underlying infrastructure
+- Helm 2.11+ or Helm 3.0-beta3+
 
-- 通过 Raft 协议实现无中心化选主
-- 通过 Semi-Sync 基于 GTID 模式同步数据
-## 核心功能
-- MySQL高可用
-    - 无中心化自动选主
-    - 主从秒级别切换
-    - 集群切换的数据强一致性
-- 集群部署/销毁
-- 集群配置变更
-- 监控告警
-- 查看集群日志
-- 账户管理
-## 快速部署
-- [Kubernetes 平台部署](docs/Kubernetes/deploy_xenondb_on_kubernetes.md)
-- [KubeSphere 应用商店部署](docs/KubeSphere/deploy_xenondb_on_kubesphere.md)
-## 文档
-待补充
-## 产品路线
+# Installing the Chart
 
-| 版本 | 1.0  | 2.0  | 3.0   |
-|------|--------|--------|---------|
-|  实<br>现<br>方<br>式  | Helm  | Operator | Operator |
-| 实<br>现<br>功<br>能  | MySQL 高可用<br>     无中心化自动选主<br>     主从秒级别切换<br>     集群切换的数据强一致性<br>集群部署 / 销毁<br>集群配置变更<br>监控告警<br>查看集群日志<br>账户管理 |  增删节点<br>集群扩缩容（手动 / 自动）<br>升级集群 / Operator<br>集群备份<br>备份恢复<br>集群故障自动转移、重建节点、重启服务（所有节点 / 单节点）<br>账户管理（提供接口）<br>在线迁移<br>配置变更细化  |自动化运维<br>多节点角色支持（ Proxy 实例 / 主实例 / 只读实例）<br>灾备集群<br>SSL 传输加密 |
+To install the chart with the release name `my-release`:
 
-## 客户
+```bash
+## For Helm v2
+$ helm install . --name my-release
 
-![](docs/images/users.png)
-## 协议
+## For Helm v3
+$ helm install --name my-release .
+```
 
-XenonDB 基于 Apache 2.0 协议。具体详见 [LICENSE](./LICENSE) 文件。
+The command deploys MySQL cluster on the Kubernetes cluster in the default configuration. The [configuration](#configuration) section lists the parameters that can be configured during installation.
 
-## 欢迎加入社区话题互动
-XenonDB 
+# Uninstall
 
-- 论坛：【KubeSphere 开发者社区 | XenonDB 专题 】
-- 微信群
+To uninstall/delete the `my-release` deployment:
 
-![](docs/images/wechat_group.png)
+```bash
+$ helm delete my-release
+```
+
+To delete the pvc:
+
+```
+kubectl delete pvc data-my-release-xenondb-0
+kubectl delete pvc data-my-release-xenondb-1
+kubectl delete pvc data-my-release-xenondb-2
+```
+
+The commands remove all the Kubernetes components associated with the chart and deletes the release completely.
+
+# Configuration
+
+The following table lists the configurable parameters of the xenondb chart and their default values.
+
+
+| Parameter                                    | Description                                                                                       | Default                                     |
+| -------------------------------------------- | ------------------------------------------------------------------------------------------------- | ------------------------------------------- |
+| `imagePullPolicy`                            | Image pull policy                                                                                 | `IfNotPresent`                              |
+| `fullnameOverride`                           | Custom fullname override for the chart                                                            |                                             |
+| `nameOverride`                               | Custom name override for the chart                                                                |                                             |
+| `replicaCount`                               | The number of pods                                                                                | `3`                                         |
+| `busybox.image`                              | `busybox` image repository.                                                                       | `busybox`                                   |
+| `busybox.tag`                                | `busybox` image tag.                                                                              | `1.32`                                      |
+| `mysql.image`                                | `mysql` image repository.                                                                         | `xenondb/percona`                           |
+| `mysql.tag`                                  | `mysql` image tag.                                                                                | `5.7.33`                                    |
+| `mysql.allowEmptyRootPassword`               | If set true, allow a empty root password.                                                         | `true`                                      |
+| `mysql.mysqlRootPassword`                    | Password for the `root` user.                                                                     |                                             |
+| `mysql.mysqlReplicationPassword`             | Password for the `qc_repl` user.                                                                  | `Repl_123`, random 12 characters if not set |
+| `mysql.mysqlUser`                            | Username of new user to create.                                                                   | `qingcloud`                                 |
+| `mysql.mysqlPassword`                        | Password for the new user.                                                                        | `Qing@123`, random 12 characters if not set |
+| `mysql.mysqlDatabase`                        | Name for new database to create.                                                                  | `qingcloud`                                 |
+| `mysql.initTokudb`                           | Install tokudb engine.                                                                            | `false`                                     |
+| `mysql.args`                                 | Additional arguments to pass to the MySQL container.                                              | `[]`                                        |
+| `mysqlconfigFiles.node.cnf`                  | Mysql configuration file                                                                          | See `values.yaml`                           |
+| `mysql.livenessProbe.initialDelaySeconds`    | Delay before mysql liveness probe is initiated                                                    | 30                                          |
+| `mysql.livenessProbe.periodSeconds`          | How often to perform the mysql probe                                                              | 10                                          |
+| `mysql.livenessProbe.timeoutSeconds`         | When the mysql probe times out                                                                    | 5                                           |
+| `mysql.livenessProbe.successThreshold`       | Minimum consecutive successes for the mysql probe to be considered successful after having failed.| 1                                           |
+| `mysql.livenessProbe.failureThreshold`       | Minimum consecutive failures for the mysql probe to be considered failed after having succeeded.  | 3                                           |
+| `mysql.readinessProbe.initialDelaySeconds`   | Delay before mysql readiness probe is initiated                                                   | 10                                          |
+| `mysql.readinessProbe.periodSeconds`         | How often to perform the mysql probe                                                              | 10                                          |
+| `mysql.readinessProbe.timeoutSeconds`        | When the mysql probe times out                                                                    | 1                                           |
+| `mysql.readinessProbe.successThreshold`      | Minimum consecutive successes for the mysql probe to be considered successful after having failed.| 1                                           |
+| `mysql.readinessProbe.failureThreshold`      | Minimum consecutive failures for the mysql probe to be considered failed after having succeeded.  | 3                                           |
+| `mysql.extraEnvVars`                         | Additional environment variables as a string to be passed to the `tpl` function                   |                                             |
+| `mysql.resources`                            | CPU/Memory resource requests/limits for mysql.                                                    | Memory: `256Mi`, CPU: `100m`                |
+| `xenon.image`                                | `xenon` image repository.                                                                         | `xenondb/xenon`                             |
+| `xenon.tag`                                  | `xenon` image tag.                                                                                | `1.1.5-alpha`                               |
+| `xenon.args`                                 | Additional arguments to pass to the xenon container.                                              | `[]`                                        |
+| `xenon.extraEnvVars`                         | Additional environment variables as a string to be passed to the `tpl` function                   |                                             |
+| `xenon.livenessProbe.initialDelaySeconds`    | Delay before xenon liveness probe is initiated                                                    | 30                                          |
+| `xenon.livenessProbe.periodSeconds`          | How often to perform the xenon probe                                                              | 10                                          |
+| `xenon.livenessProbe.timeoutSeconds`         | When the xenon probe times out                                                                    | 5                                           |
+| `xenon.livenessProbe.successThreshold`       | Minimum consecutive successes for xenon probe to be considered successful after having failed.    | 1                                           |
+| `xenon.livenessProbe.failureThreshold`       | Minimum consecutive failures for the xenon probe to be considered failed after having succeeded.  | 3                                           |
+| `xenon.readinessProbe.initialDelaySeconds`   | Delay before xenon readiness probe is initiated                                                   | 10                                          |
+| `xenon.readinessProbe.periodSeconds`         | How often to perform the xenon probe                                                              | 10                                          |
+| `xenon.readinessProbe.timeoutSeconds`        | When the xenon probe times out                                                                    | 1                                           |
+| `xenon.readinessProbe.successThreshold`      | Minimum consecutive successes for xenon probe to be considered successful after having failed.    | 1                                           |
+| `xenon.readinessProbe.failureThreshold`      | Minimum consecutive failures for the xenon probe to be considered failed after having succeeded.  | 3                                           |
+| `xenon.resources`                            | CPU/Memory resource requests/limits for xenon.                                                    | Memory: `128Mi`, CPU: `50m`                 |
+| `metrics.enabled`                            | Start a side-car prometheus exporter                                                              | `true`                                      |
+| `metrics.image`                              | Exporter image                                                                                    | `prom/mysqld-exporter`                      |
+| `metrics.tag`                                | Exporter image                                                                                    | `v0.12.1`                                   |
+| `metrics.annotations`                        | Exporter annotations                                                                              | `{}`                                        |
+| `metrics.livenessProbe.initialDelaySeconds`  | Delay before metrics liveness probe is initiated                                                  | 15                                          |
+| `metrics.livenessProbe.timeoutSeconds`       | When the probe times out                                                                          | 5                                           |
+| `metrics.readinessProbe.initialDelaySeconds` | Delay before metrics readiness probe is initiated                                                 | 5                                           |
+| `metrics.readinessProbe.timeoutSeconds`      | When the probe times out                                                                          | 1                                           |
+| `metrics.serviceMonitor.enabled`             | Set this to `true` to create ServiceMonitor for Prometheus operator                               | `true`                                      |
+| `metrics.serviceMonitor.namespace`           | Optional namespace in which to create ServiceMonitor                                              | `nil`                                       |
+| `metrics.serviceMonitor.interval`            | Scrape interval. If not set, the Prometheus default scrape interval is used                       | 10s                                         |
+| `metrics.serviceMonitor.scrapeTimeout`       | Scrape timeout. If not set, the Prometheus default scrape timeout is used                         | `nil`                                       |
+| `metrics.serviceMonitor.selector`            | Default to kube-prometheus install, but should be set according to Prometheus install             | `{ prometheus: kube-prometheus }`           |
+| `slowLogTail`                                | If set to `true` runs a container to tail mysql-slow.log in the pod                               | `true`                                      |
+| `resources`                                  | Resource requests/limit                                                                           | Memory: `32Mi`, CPU: `10m`                  |
+| `service.annotations`                        | Kubernetes annotations for service                                                                | {}                                          |
+| `service.type`                               | Kubernetes service type                                                                           | NodePort                                    |
+| `service.loadBalancerIP`                     | The service loadBalancer IP                                                                       | `""`                                        |
+| `service.nodePort`                           | The service nodePort                                                                              | `""`                                        |
+| `service.clusterIP`                          | The service clusterIP                                                                             | `""`                                        |
+| `service.port`                               | The service port                                                                                  | `3306`                                      |
+| `rbac.create`                                | If true, create & use RBAC resources                                                              | `true`                                      |
+| `serviceAccount.create`                      | Specifies whether a ServiceAccount should be created                                              | `true`                                      |
+| `serviceAccount.name`                        | The name of the ServiceAccount to use                                                             |                                             |
+| `persistence.enabled`                        | Create a volume to store data                                                                     | true                                        |
+| `persistence.storageClass`                   | Type of persistent volume claim                                                                   | nil                                         |
+| `persistence.accessMode`                     | Access mode                                                                                       | ReadWriteOnce                               |
+| `persistence.size`                           | Size of persistent volume claim                                                                   | 10Gi                                        |
+| `persistence.annotations`                    | Persistent Volume annotations                                                                     | {}                                          |
+| `priorityClassName`                          | Set pod priorityClassName                                                                         | `{}`                                        |
+| `schedulerName`                              | Name of the k8s scheduler (other than default)                                                    | `nil`                                       |
+| `statefulsetAnnotations`		                 | Map of annotations for statefulset							                                                   | `{}`			                			             |
+| `podAnnotations`                             | Map of annotations to add to the pods                                                             | `{}`                                        |
+| `podLabels`                                  | Map of labels to add to the pods                                                                  | `{}`                                        |
+
+Specify each parameter using the `--set key=value[,key=value]` argument to `helm install`. For example,
+
+```bash
+$ cd charts
+$ helm install my-release \
+  --set mysql.mysqlUser=my-user,mysql.mysqlPassword=my-password,mysql.database=my-database .
+```
+
+The above command creates a standard database user named `my-user`, with the password `my-password`, who has access to a database named `my-database`.
+
+Alternatively, a YAML file that specifies the values for the parameters can be provided while installing the chart. For example,
+
+```bash
+$ cd charts
+$ helm install my-release -f values.yaml .
+```
+
+# Persistence
+
+The [MySQL](https://hub.docker.com/repository/docker/zhyass/percona57) image stores the MySQL data and configurations at the `/var/lib/mysql` path of the container.
+
+By default a PersistentVolumeClaim is created and mounted into the directory. In order to disable this functionality, you can change the `values.yaml` to disable persistence and use an emptyDir instead.
+
+> *"An emptyDir volume is first created when a Pod is assigned to a Node, and exists as long as that Pod is running on that node. When a Pod is removed from a node for any reason, the data in the emptyDir is deleted forever."*
+
+**Notice**: You may need to increase the value of `livenessProbe.initialDelaySeconds` when enabling persistence by using PersistentVolumeClaim from PersistentVolume with varying properties. Since its IO performance has impact on the database initialization performance. The default limit for database initialization is `60` seconds (`livenessProbe.initialDelaySeconds` + `livenessProbe.periodSeconds` * `livenessProbe.failureThreshold`). Once such initialization process takes more time than this limit, kubelet will restart the database container, which will interrupt database initialization then causing persisent data in an unusable state.
+
+# Custom MySQL configuration
+
+You can add or modify the mysql configuration on the `mysql.configFiles`.
+
+```yaml
+  configFiles:
+    node.cnf: |
+      [mysqld]
+      default_storage_engine=InnoDB
+      max_connections=65535
+
+      # custom mysql configuration.
+      expire_logs_days=7
+```
