@@ -1260,4 +1260,42 @@ entries:
     urls:
     - https://charts.kubesphere.io/test/snapshot-controller-0.1.0.tgz
     version: 0.1.0
-generated: "2021-04-15T14:28:27.031774169Z"
+  xenondb:
+  - annotations:
+      app.kubesphere.io/category: Database & Cache
+    apiVersion: v2
+    appVersion: 5.7.33
+    created: "2021-04-25T07:56:48.899378909Z"
+    description: XenonDB is a High-Availability MySQL cluster, open source.
+    digest: e50d6f677201c13552e4e0c39dc2ee21c859977473c9e2ef035f4317b8c38c4d
+    home: https://github.com/radondb/xenondb.git
+    icon: https://xenondb.pek3b.qingstor.com/icons/XenonDB-shape.svg
+    keywords:
+    - xenondb
+    - MySQL HA
+    - database
+    - kubernetes
+    kubeVersion: '>=1.17.0-0'
+    maintainers:
+    - email: andyli@yunify.com
+      name: andy
+    - email: changlongguan@yunify.com
+      name: guanchanglong
+    - email: zuqianzhang@yunify.com
+      name: zhangzuqian
+    - email: jasongao@yunify.com
+      name: jason
+    - email: runkecheng@yunify.com
+      name: rinker
+    - email: molliezhang@yunify.com
+      name: molliezhang
+    - email: dingyuan@yunify.com
+      name: dingyuan
+    name: xenondb
+    sources:
+    - https://github.com/radondb/xenondb
+    type: application
+    urls:
+    - https://charts.kubesphere.io/test/xenondb-1.0.0.tgz
+    version: 1.0.0
+generated: "2021-04-25T07:56:48.897531024Z"
