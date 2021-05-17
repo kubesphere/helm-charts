@@ -6,7 +6,7 @@ The helm chart of KubeSphere, supports installing KubeSphere on existing Kuberne
 
 ## Prerequisites
 
- - Kubernetes v1.15.x、v1.16.x、v1.17.x、v1.18.x
+ - Kubernetes v1.17.x、v1.18.x、v1.19.x、v1.20.x
  - PV dynamic provisioning support on the underlying infrastructure (StorageClass)
  - Helm3
 
@@ -27,7 +27,7 @@ show ks-installer chart
 helm list 
 ```
 
-To uninstall/delete all charts related to kubesphere:
+To uninstall/delete all charts related to ks-installer:
 
 ```console
 helm delete my-release
@@ -47,7 +47,7 @@ Parameter | Description | Default
 
 ## KubeSphere Configuration
 
-You can set the configuration of kubespher in `values.yaml`,`etcd.endpointIps` must be set your etcd ip
+You can set the configuration of kubesphere in `values.yaml`
 
 Parameter | Description | Default
 --- | --- | ---
@@ -57,9 +57,9 @@ Parameter | Description | Default
 `etcd.endpointIps`|etcd address（for etcd cluster,see an example value like `192.168.0.7,192.168.0.8,192.168.0.9`）|`localhost` 
 `etcd.port`|etcd port (Default port: 2379, you can appoint any other port) | `2379` 
 `etcd.tlsEnable`|Whether to enable etcd TLS certificate authentication.（true / false）| `true`
-`common.mysqlVolumeSize`|MySQL volume size (cannot be modified after set)|`20Gi`
+`common.redis.enabled`|Whether to install redis|`false`
+`common.redis.openldap`|Whether to install openldap|`false`
 `common.minioVolumeSize`|Minio volume size (cannot be modified after set)|`20Gi`
-`common.etcdVolumeSize`|etcd volume size (cannot be modified after set) |`20Gi`
 `common.openldapVolumeSize`|openldap volume size (cannot be modified after set)|`2Gi`
 `common.redisVolumSize`|redis volume size (cannot be modified after set)|`2Gi`
 `common.es.elasticsearchMasterVolumeSize`|Volume size of Elasticsearch master nodes (cannot be modified after set)|`4Gi`
@@ -79,16 +79,18 @@ Parameter | Description | Default
 `devops.jenkinsJavaOpts_MaxRAM`|Jenkins  JVM parameter（MaxRAM）|`2Gi`
 `events.enabled`|Whether to install KubeSphere events system. It provides a graphical web console for Kubernetes Events exporting, filtering and alerting in multi-tenant Kubernetes clusters. （true / false）|`false`
 `logging.enabled`|Whether to install KubeSphere logging system. Flexible logging functions are provided for log query, collection and management in a unified console. Additional log collectors can be added, such as Elasticsearch, Kafka and Fluentd.  （true / false）|`false`
-`logging.logsidecarReplicas`|Logsidecar replicas|`2`
-`metrics_server.enabled`|Whether to install metrics_servertrue / false）| `false`
+`logging.logsidecar.replicas`|Logsidecar replicas|`2`
+`metrics_server.enabled`|Whether to install metrics_servertrue (true / false)| `false`
+`monitoring.endpoint`|Prometheus endpoint to get metrics data|`http://prometheus-operated.kubesphere-monitoring-system.svc:9090`
+`monitoring.storageClass`|If there is an independent StorageClass you need for Prometheus, you can specify it here| `""`
 `monitoring.prometheusMemoryRequest`|Prometheus memory request|`400Mi`
 `monitoring.prometheusVolumeSize`|Prometheus volume size|`20Gi`
-`multicluster.clusterRole`|You can install a solo cluster, or specify it as the role of host or member cluster. （host / member / none）|`none`
-`networkpolicy.enabled`|Network policies allow network isolation within the same cluster, which means firewalls can be set up between certain instances (Pods). （true / false）|`false`
-`notification.enable`|Email Notification support for the legacy alerting system, should be enabled/disabled together with the above alerting option. （true / false）|`false`
-`openpitrix.enable`|Whether to install KubeSphere Application Store. It provides an application store for Helm-based applications, and offer application lifecycle management. （true / false）|`false`
-`servicemesh.enabled`|Whether to install KubeSphere Service Mesh (Istio-based). It provides fine-grained traffic management, observability and tracing, and offer visualization for traffic topology. （true / false）|`false`
-
+`multicluster.clusterRole`|You can install a solo cluster, or specify it as the role of host or member cluster. (host / member / none) |`none`
+`network.networkpolicy.enabled` |Network policies allow network isolation within the same cluster, which means firewalls can be set up between certain instances (Pods).  (true / false) |`false`
+`network.ippool.type` |Specify "calico" for this field if Calico is used as your CNI plugin. "none" means that Pod IP Pools are disabled.|`none`
+`network.topology.type` | Specify "weave-scope" for this field to enable Service Topology. "none" means that Service Topology is disabled.|`none`
+`openpitrix.store.enabled `|Enable or disable the KubeSphere App Store. (true / false) |`false`
+`servicemesh.enabled`|Whether to install KubeSphere Service Mesh (Istio-based). It provides fine-grained traffic management, observability and tracing, and offer visualization for traffic topology. (true / false) |`false`
 
 Specify each parameter using the `--set key=value[,key=value]` argument to `helm install`. For example:
 
