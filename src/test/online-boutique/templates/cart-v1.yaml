@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.cart.name }}-{{ .Values.cart.version }} 
+  annotations:
+    servicemesh.kubesphere.io/enabled: "true"
+  labels:
+    {{ include "common.label" . | nindent 4 }}
+    app: {{ .Values.cart.name }}
+    version: {{ .Values.cart.version }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Values.cart.name }}
+      version: {{ .Values.cart.version }}
+      {{ include "common.label" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        sidecar.istio.io/inject: "true"
+      labels:
+        app: {{ .Values.cart.name }}
+        version: {{ .Values.cart.version }}
+        {{ include "common.label" . | nindent 8 }}
+    spec:
+      serviceAccountName: default
+      terminationGracePeriodSeconds: 5
+      containers:
+      - name: server
+        image: {{ .Values.cart.image.repository }}
+        imagePullPolicy: {{ .Values.cart.image.pullPolicy }}
+        ports:
+        - containerPort: 7070
+        env:
+        - name: REDIS_ADDR
+          value: "redis-cart:6379"
+        resources:
+          requests:
+            cpu: 200m
+            memory: 64Mi
+          limits:
+            cpu: 300m
+            memory: 128Mi
+        readinessProbe:
+          initialDelaySeconds: 15
+          exec:
+            command: ["/bin/grpc_health_probe", "-addr=:7070", "-rpc-timeout=5s"]
+        livenessProbe:
+          initialDelaySeconds: 15
+          periodSeconds: 10
+          exec:
+            command: ["/bin/grpc_health_probe", "-addr=:7070", "-rpc-timeout=5s"]
