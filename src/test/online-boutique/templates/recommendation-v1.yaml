@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.recommendation.name }}-{{ .Values.recommendation.version }} 
+  annotations:
+    servicemesh.kubesphere.io/enabled: "true"
+  labels:
+    {{ include "common.label" . | nindent 4 }}
+    app: {{ .Values.recommendation.name }}
+    version: {{ .Values.recommendation.version }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Values.recommendation.name }}
+      version: {{ .Values.recommendation.version }}
+      {{ include "common.label" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        sidecar.istio.io/inject: "true"
+      labels:
+        app: {{ .Values.recommendation.name }}
+        version: {{ .Values.recommendation.version }}
+        {{ include "common.label" . | nindent 8 }}
+    spec:
+      serviceAccountName: default
+      terminationGracePeriodSeconds: 5
+      containers:
+      - name: server
+        image: {{ .Values.recommendation.image.repository }}
+        #image: gcr.io/google-samples/microservices-demo/recommendationservice:v0.2.3
+        imagePullPolicy: {{ .Values.recommendation.image.pullPolicy }}
+        ports:
+        - containerPort: 8080
+        readinessProbe:
+          periodSeconds: 5
+          exec:
+            command: ["/bin/grpc_health_probe", "-addr=:8080"]
+        livenessProbe:
+          periodSeconds: 5
+          exec:
+            command: ["/bin/grpc_health_probe", "-addr=:8080"]
+        env:
+        - name: PORT
+          value: "8080"
+        - name: PRODUCT_CATALOG_SERVICE_ADDR
+          value: "productcatalogservice:3550"
+        - name: DISABLE_TRACING
+          value: "1"
+        - name: DISABLE_PROFILER
+          value: "1"
+        - name: DISABLE_DEBUGGER
+          value: "1"
+        resources:
+          requests:
+            cpu: 100m
+            memory: 220Mi
+          limits:
+            cpu: 200m
+            memory: 450Mi
