@@ -1,0 +1,27 @@
+annotations:
+  category: Database
+apiVersion: v2
+appVersion: 11.11.0
+dependencies:
+description: Chart for PostgreSQL with HA architecture (using Replication Manager
+  (repmgr) and Pgpool).
+home: https://github.com/radondb/radondb-postgresql-kubernetes.git
+icon: https://github.com/radondb/radondb-postgresql-kubernetes/blob/main/docs/images/logo_radondb.png
+keywords:
+- postgresql
+- repmgr
+- pgpool
+- postgres
+- database
+- sql
+- replication
+- cluster
+- high availability
+maintainers:
+- email: hualongzhong@qingcloud.com
+  name: Qingcloud
+name: radondb
+sources:
+- https://github.com/radondb/radondb-postgresql-kubernetes.git
+- https://www.postgresql.org/
+version: 1.0.0

@@ -1,0 +1,26 @@
+{{- if .Values.metrics.enabled }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "radondb.postgresql" . }}-metrics
+  labels: {{- include "common.labels.standard" . | nindent 4 }}
+    app.kubernetes.io/component: postgresql
+    {{- if .Values.commonLabels }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 4 }}
+    {{- end }}
+  annotations:
+  {{- if .Values.metrics.annotations }}
+  {{- include "common.tplvalues.render" (dict "value" .Values.metrics.annotations "context" $) | nindent 4 }}
+  {{- end }}
+  {{- if .Values.commonAnnotations }}
+  {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
+spec:
+  type: ClusterIP
+  ports:
+    - name: metrics
+      port: 9187
+      targetPort: metrics
+  selector: {{- include "common.labels.matchLabels" . | nindent 4 }}
+    app.kubernetes.io/component: postgresql
+{{- end }}
