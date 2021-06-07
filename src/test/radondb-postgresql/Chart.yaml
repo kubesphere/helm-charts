@@ -6,7 +6,7 @@ dependencies:
 description: Chart for PostgreSQL with HA architecture (using Replication Manager
   (repmgr) and Pgpool).
 home: https://github.com/radondb/radondb-postgresql-kubernetes.git
-icon: https://github.com/radondb/radondb-postgresql-kubernetes/blob/main/docs/images/logo_radondb.png
+icon: https://xenondb.pek3b.qingstor.com/icons/radondb-mysql.svg
 keywords:
 - postgresql
 - repmgr
@@ -20,7 +20,7 @@ keywords:
 maintainers:
 - email: hualongzhong@qingcloud.com
   name: Qingcloud
-name: radondb
+name: radondb-postgresql
 sources:
 - https://github.com/radondb/radondb-postgresql-kubernetes.git
 - https://www.postgresql.org/
