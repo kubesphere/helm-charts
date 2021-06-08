@@ -1,3 +1,6 @@
+{{ if (lookup "installer.kubesphere.io/v1alpha1" "ClusterConfiguration" "kubesphere-system" "ks-installer") -}}
+{{ lookup "installer.kubesphere.io/v1alpha1" "ClusterConfiguration" "kubesphere-system" "ks-installer" | toYaml }}
+{{ else -}}
 apiVersion: installer.kubesphere.io/v1alpha1
 kind: ClusterConfiguration
 metadata:
@@ -19,9 +22,11 @@ spec:
     port: 2379
     tlsEnable: {{ .Values.etcd.tlsEnable }}
   common:
-    mysqlVolumeSize: {{ .Values.common.mysqlVolumeSize }}
+    redis:
+      enabled: {{ .Values.common.redis.enabled }}
+    openldap:
+      enabled: {{ .Values.common.openldap.enabled }}
     minioVolumeSize: {{ .Values.common.minioVolumeSize }}
-    etcdVolumeSize: {{ .Values.common.etcdVolumeSize }}
     openldapVolumeSize: {{ .Values.common.openldapVolumeSize }}
     redisVolumSize: {{ .Values.common.redisVolumSize }}
     es:
@@ -29,6 +34,12 @@ spec:
       elasticsearchDataVolumeSize: {{ .Values.common.es.elasticsearchDataVolumeSize }}
       logMaxAge: {{ .Values.common.es.logMaxAge }}
       elkPrefix: {{ .Values.common.es.elkPrefix }}
+      basicAuth:
+        enabled: {{ .Values.common.es.basicAuth.enabled }}
+        username: "{{ .Values.common.es.basicAuth.username }}"
+        password: "{{ .Values.common.es.basicAuth.password }}"
+      externalElasticsearchUrl: "{{ .Values.common.es.externalElasticsearchUrl }}"
+      externalElasticsearchPort: "{{ .Values.common.es.externalElasticsearchPort }}"
   console:
     enableMultiLogin: {{ .Values.console.enableMultiLogin }}
     port: {{ .Values.console.port }}
@@ -51,19 +62,29 @@ spec:
       replicas: {{ .Values.events.ruler.replicas }}
   logging:
     enabled: {{ .Values.logging.enabled }}
-    logsidecarReplicas: {{ .Values.logging.logsidecarReplicas }}
+    logsidecar:
+      enabled: {{ .Values.logging.logsidecar.enabled }}
+      replicas: {{ .Values.logging.logsidecar.replicas }}
   metrics_server:
     enabled: {{ .Values.logging.enabled }}
   monitoring:
+    storageClass: "{{ .Values.monitoring.storageClass }}"
     prometheusMemoryRequest: {{ .Values.monitoring.prometheusMemoryRequest }}
     prometheusVolumeSize: {{ .Values.monitoring.prometheusVolumeSize }}
   multicluster:
     clusterRole: {{ .Values.multicluster.clusterRole }}
-  networkpolicy:
-    enabled: {{ .Values.networkpolicy.enabled }}
-  notification:
-    enabled: {{ .Values.notification.enabled }}
+  network:
+    networkpolicy:
+      enabled: {{ .Values.network.networkpolicy.enabled }}
+    ippool:
+      type: {{ .Values.network.ippool.type }}
+    topology:
+      type: {{ .Values.network.topology.type }}
   openpitrix:
-    enabled: {{ .Values.openpitrix.enabled }}
+    store:
+      enabled: {{ .Values.openpitrix.store.enabled }}
   servicemesh:
     enabled: {{ .Values.servicemesh.enabled }}
+  kubeedge:
+{{ toYaml .Values.kubeedge | indent 4 }}
+{{ end -}}

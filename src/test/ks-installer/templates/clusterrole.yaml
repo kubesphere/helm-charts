@@ -159,3 +159,39 @@ rules:
       - '*'
     verbs:
       - '*'
+  - apiGroups:
+    - security.istio.io
+    resources:
+    - '*'
+    verbs:
+    - '*'
+  - apiGroups:
+    - monitoring.kiali.io
+    resources:
+    - '*'
+    verbs:
+    - '*'
+  - apiGroups:
+    - kiali.io
+    resources:
+    - '*'
+    verbs:
+    - '*'
+  - apiGroups:
+    - networking.k8s.io
+    resources:
+    - '*'
+    verbs:
+    - '*'
+  - apiGroups:
+    - kubeedge.kubesphere.io
+    resources:
+    - '*'
+    verbs:
+    - '*'
+  - apiGroups:
+    - types.kubefed.io
+    resources:
+    - '*'
+    verbs:
+    - '*'
