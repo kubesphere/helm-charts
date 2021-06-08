@@ -1,0 +1,160 @@
+# This file is part of the ClickHouse Helm Chart
+#    https://github.com/radondb/clickhouse-cluster-helm
+#
+# Copyright 2021 TCeason <tai_chong@foxmail.com>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+{{ $namespace := .Release.Namespace }}
+{{ $releasename := .Release.Name }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "defaultObjectName" . }}-configuration
+  labels:
+    {{- include "defaultLabels" . | nindent 4 }}
+data:
+  config.xml: |
+    <?xml version="1.0"?>
+    <yandex>
+      {{ if $.Values.clickhouse.ipv4 }}<listen_host>0.0.0.0</listen_host>{{ end }}
+      {{ if $.Values.clickhouse.ipv6 }}<listen_host>::</listen_host>{{ end }}
+
+      <logger>
+        <level>error</level>
+        <log></log>
+        <errorlog></errorlog>
+        <console>1</console>
+      </logger>
+
+      <default_on_cluster_name>{{ .Values.clickhouse.clusterName }}</default_on_cluster_name>
+      <!-- <display_name>clickhouse-cluster</display_name> -->
+      <http_port>{{ .Values.clickhouse.ports.http }}</http_port>
+      <tcp_port>{{ .Values.clickhouse.ports.native }}</tcp_port>
+      <interserver_http_port>9009</interserver_http_port>
+
+      <mark_cache_size>5368709120</mark_cache_size>
+
+      <compression incl="clickhouse_compression">
+        <case>
+          <method>lz4</method>
+        </case>
+      </compression>
+
+      <distributed_ddl>
+        <path>/clickhouse/{{ include "defaultObjectName" $ }}/task_queue/ddl</path>
+      </distributed_ddl>
+
+      <remote_servers>
+        <{{ $.Values.clickhouse.clusterName }}>
+          {{- range $shardIndex, $shard := .Values.clickhouse.shards }}
+          <shard>
+            <weight>{{ default $shard.weight "1" }}</weight>
+            {{- range $replicaIndex, $replica := .replicas }}
+            <replica>
+              {{- range untilStep 0 1 1 -}}
+                {{ $args := printf "%d" . }}
+                  <host>{{ include "defaultObjectName" $ }}-s{{ $shardIndex }}-r{{ $replicaIndex }}-{{ $args }}.{{ include "defaultObjectName" $ }}.{{ $namespace }}.svc.cluster.local</host>
+                  <port>{{ $.Values.clickhouse.ports.native }}</port>
+                  <user>{{ (index $.Values.clickhouse.users 0).username }}</user>
+                  <password>{{ (index $.Values.clickhouse.users 0).password }}</password>
+              {{- end }}
+            </replica>
+            {{- end }}
+          </shard>
+          {{- end }}
+        </{{ $.Values.clickhouse.clusterName }}>
+        <logical_consistency_cluster>
+          {{- range $shardIndex, $shard := .Values.clickhouse.shards }}
+          <shard>
+            <weight>{{ default $shard.weight "1" }}</weight>
+            {{- range $replicaIndex, $replica := .replicas }}
+            <replica>
+              {{- range untilStep 0 1 1 -}}
+                {{ $args := printf "%d" . }}
+                  <host>{{ include "defaultObjectName" $ }}-s{{ $shardIndex }}-r{{ $replicaIndex }}-{{ $args }}.{{ include "defaultObjectName" $ }}.{{ $namespace }}.svc.cluster.local</host>
+                  <port>{{ $.Values.clickhouse.ports.native }}</port>
+                  <user>{{ (index $.Values.clickhouse.users 0).username }}</user>
+                  <password>{{ (index $.Values.clickhouse.users 0).password }}</password>
+              {{- end }}
+            </replica>
+            {{- end }}
+          </shard>
+          {{- end }}
+        </logical_consistency_cluster>
+        <physical_consistency_cluster>
+          {{- range $shardIndex, $shard := .Values.clickhouse.shards }}
+          <shard>
+            <internal_replication>true</internal_replication>
+            {{- range $replicaIndex, $replica := .replicas }}
+            <replica>
+              {{- range untilStep 0 1 1 -}}
+                {{ $args := printf "%d" . }}
+                  <host>{{ include "defaultObjectName" $ }}-s{{ $shardIndex }}-r{{ $replicaIndex }}-{{ $args }}.{{ include "defaultObjectName" $ }}.{{ $namespace }}.svc.cluster.local</host>
+                  <port>{{ $.Values.clickhouse.ports.native }}</port>
+                  <user>{{ (index $.Values.clickhouse.users 0).username }}</user>
+                  <password>{{ (index $.Values.clickhouse.users 0).password }}</password>
+              {{- end }}
+            </replica>
+            {{- end }}
+          </shard>
+          {{- end }}
+        </physical_consistency_cluster>
+      </remote_servers>
+
+      <profiles>
+        <default>
+
+        </default>
+      </profiles>
+
+      <users>
+        {{- range $userIndex, $user := .Values.clickhouse.users }}
+          <{{ $user.username }}>
+            {{- if $user.sha256Password }}
+            <password_sha256_hex>{{ $user.sha256Password }}</password_sha256_hex>
+            {{- else }}
+            <password_sha256_hex>{{ default $user.password "" | sha256sum}}</password_sha256_hex>
+            {{- end }}
+            <networks>
+              {{ if $.Values.clickhouse.ipv4 }}<ip>0.0.0.0/0</ip>{{ end }}
+              {{ if $.Values.clickhouse.ipv6 }}<ip>::/0</ip>{{ end }}
+            </networks>
+            <profile>default</profile>
+            <quota>default</quota>
+          </{{ $user.username }}>
+        {{- end }}
+      </users>
+
+      <quotas>
+        <default>
+          <interval>
+            <duration>3600</duration>
+            <queries>0</queries>
+            <errors>0</errors>
+            <result_rows>0</result_rows>
+            <read_rows>0</read_rows>
+            <execution_time>0</execution_time>
+          </interval>
+        </default>
+      </quotas>
+
+      <zookeeper>
+        <node>
+          <host>zk-server-{{ $releasename }}</host>
+          <port>2181</port>
+        </node>
+      </zookeeper>
+    </yandex>
+# For shard configuration see https://clickhouse.tech/docs/en/operations/table_engines/distributed/
