@@ -346,14 +346,13 @@ postgresql:
   ## PostgreSQL configuration parameters
   ##
   username: postgres
-  # password:
+  password: Qing@123
   # database:
 
   ## PostgreSQL password using existing secret
   # existingSecret: secret
 
   ## PostgreSQL admin password (used when `postgresql.username` is not `postgres`)
-  ## ref: https://github.com/qingcloud/qingcloud-docker-postgresql/blob/master/README.md#creating-a-database-user-on-first-run (see note!)
   # postgresPassword:
 
   ## Mount PostgreSQL secret as a file instead of passing environment variable
@@ -382,7 +381,7 @@ postgresql:
   ## Repmgr configuration parameters
   ##
   repmgrUsername: repmgr
-  # repmgrPassword:
+  repmgrPassword: Repmgr_123
   repmgrDatabase: repmgr
   repmgrLogLevel: NOTICE
   repmgrConnectTimeout: 5
@@ -390,7 +389,6 @@ postgresql:
   repmgrReconnectInterval: 5
 
   ## Audit settings
-  ## https://github.com/qingcloud/qingcloud-docker-postgresql#auditing
   ##
   audit:
     ## Log client hostnames
@@ -468,8 +466,6 @@ postgresql:
   ## Repmgr configuration
   ## You can use this parameter to specify the content for repmgr.conf
   ## Otherwise, a repmgr.conf will be generated based on the environment variables
-  ## ref: https://github.com/qingcloud/qingcloud-docker-postgresql-repmgr#configuration
-  ## ref: https://github.com/qingcloud/qingcloud-docker-postgresql-repmgr#configuration-file
   ## Example:
   ## repmgrConfiguration: |-
   ##   ssh_options='-o "StrictHostKeyChecking no" -v'
@@ -481,8 +477,6 @@ postgresql:
   ## PostgreSQL configuration
   ## You can use this parameter to specify the content for postgresql.conf
   ## Otherwise, a repmgr.conf will be generated based on the environment variables
-  ## ref: https://github.com/qingcloud/qingcloud-docker-postgresql-repmgr#configuration
-  ## ref: https://github.com/qingcloud/qingcloud-docker-postgresql-repmgr#configuration-file
   ## Example:
   ## configuration: |-
   ##   listen_addresses = '*'
@@ -494,8 +488,6 @@ postgresql:
   ## PostgreSQL client authentication configuration
   ## You can use this parameter to specify the content for pg_hba.conf
   ## Otherwise, a repmgr.conf will be generated based on the environment variables
-  ## ref: https://github.com/qingcloud/qingcloud-docker-postgresql-repmgr#configuration
-  ## ref: https://github.com/qingcloud/qingcloud-docker-postgresql-repmgr#configuration-file
   ## Example:
   ## pgHbaConfiguration: |-
   ##   host     all            repmgr    0.0.0.0/0    md5
@@ -511,7 +503,6 @@ postgresql:
 
   ## PostgreSQL extended configuration
   ## Similar to postgresql.configuration, but _appended_ to the main configuration
-  ## ref: https://github.com/qingcloud/qingcloud-docker-postgresql-repmgr#allow-settings-to-be-loaded-from-files-other-than-the-default-postgresqlconf
   ## Example:
   ## extendedConf: |-
   ##   deadlock_timeout = 1s
@@ -528,7 +519,6 @@ postgresql:
   ## initdb scripts
   ## Specify dictionary of scripts to be run at first boot
   ## The allowed extensions are `.sh`, `.sql` and `.sql.gz`
-  ## ref: https://github.com/qingcloud/charts/tree/master/qingcloud/radondb#initialize-a-fresh-instance
   ##
   # initdbScripts:
   #   my_init_script.sh: |
@@ -785,62 +775,62 @@ pgpool:
   ## Credentials for the pgpool administrator
   ##
   adminUsername: admin
-  # adminPassword:
+  adminPassword: Pgpool@123
 
   ## Log all client connections (PGPOOL_ENABLE_LOG_CONNECTIONS)
-  ## ref: https://github.com/qingcloud/qingcloud-docker-pgpool#configuration
+  
   ##
   logConnections: false
 
   ## Log the client hostname instead of IP address (PGPOOL_ENABLE_LOG_HOSTNAME)
-  ## ref: https://github.com/qingcloud/qingcloud-docker-pgpool#configuration
+  
   ##
   logHostname: true
 
   ## Log every SQL statement for each DB node separately (PGPOOL_ENABLE_LOG_PER_NODE_STATEMENT)
-  ## ref: https://github.com/qingcloud/qingcloud-docker-pgpool#configuration
+  
   ##
   logPerNodeStatement: false
 
   ## Format of the log entry lines (PGPOOL_LOG_LINE_PREFIX)
-  ## ref: https://github.com/qingcloud/qingcloud-docker-pgpool#configuration
+  
   ## ref: https://www.pgpool.net/docs/latest/en/html/runtime-config-logging.html
   ##
   logLinePrefix:
 
   ## Log level for clients
-  ## ref: https://github.com/qingcloud/qingcloud-docker-pgpool#configuration
+  
   ##
   clientMinMessages: error
 
   ## The number of preforked Pgpool-II server processes. It is also the concurrent
   ## connections limit to Pgpool-II from clients. Must be a positive integer. (PGPOOL_NUM_INIT_CHILDREN)
-  ## ref: https://github.com/qingcloud/qingcloud-docker-pgpool#configuration
+  
   ##
   numInitChildren:
 
   ## The maximum number of cached connections in each child process (PGPOOL_MAX_POOL)
-  ## ref: https://github.com/qingcloud/qingcloud-docker-pgpool#configuration
+  
   ##
   maxPool:
 
   ## The maximum number of client connections in each child process (PGPOOL_CHILD_MAX_CONNECTIONS)
-  ## ref: https://github.com/qingcloud/qingcloud-docker-pgpool#configuration
+  
   ##
   childMaxConnections:
 
   ## The time in seconds to terminate a Pgpool-II child process if it remains idle (PGPOOL_CHILD_LIFE_TIME)
-  ## ref: https://github.com/qingcloud/qingcloud-docker-pgpool#configuration
+  
   ##
   childLifeTime:
 
   ## The time in seconds to disconnect a client if it remains idle since the last query (PGPOOL_CLIENT_IDLE_LIMIT)
-  ## ref: https://github.com/qingcloud/qingcloud-docker-pgpool#configuration
+  
   ##
   clientIdleLimit:
 
   ## The time in seconds to terminate the cached connections to the PostgreSQL backend (PGPOOL_CONNECTION_LIFE_TIME)
-  ## ref: https://github.com/qingcloud/qingcloud-docker-pgpool#configuration
+  
   ##
   connectionLifeTime:
 
@@ -851,8 +841,8 @@ pgpool:
   ## Pgpool configuration
   ## You can use this parameter to specify the content for pgpool.conf
   ## Otherwise, a repmgr.conf will be generated based on the environment variables
-  ## ref: https://github.com/qingcloud/qingcloud-docker-pgpool#configuration
-  ## ref: https://github.com/qingcloud/qingcloud-docker-pgpool#configuration-file
+  
+  
   ## Example:
   ## configuration: |-
   ##   listen_addresses = '*'
@@ -869,7 +859,7 @@ pgpool:
   ## initdb scripts
   ## Specify dictionary of scripts to be run every time Pgpool container is initialized
   ## The allowed extension is `.sh`
-  ## ref: https://github.com/qingcloud/charts/tree/master/qingcloud/radondb#initialize-a-fresh-instance
+  
   ##
   # initdbScripts:
   #   my_init_script.sh: |

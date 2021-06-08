@@ -3,8 +3,7 @@ annotations:
 apiVersion: v2
 appVersion: 11.11.0
 dependencies:
-description: Chart for PostgreSQL with HA architecture (using Replication Manager
-  (repmgr) and Pgpool).
+description: Chart for PostgreSQL with HA architecture.
 home: https://github.com/radondb/radondb-postgresql-kubernetes.git
 icon: https://xenondb.pek3b.qingstor.com/icons/radondb-mysql.svg
 keywords:
