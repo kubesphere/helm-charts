@@ -136,6 +136,29 @@ entries:
     urls:
     - https://charts.kubesphere.io/test/biz-engine-0.1.0.tgz
     version: 0.1.0
+  clickhouse:
+  - annotations:
+      category: Database
+    apiVersion: v2
+    appVersion: "21.1"
+    created: "2021-06-10T09:19:50.417110146Z"
+    description: Helm Chart for deploying a ClickHouse cluster with Zookeeper.
+    digest: 8e9851b3d78c84c737391a89a55fe39875833220d5881546c7e6aca06b428ddf
+    home: https://github.com/radondb/clickhouse-cluster-helm
+    icon: https://xenondb.pek3b.qingstor.com/icons/radondb.svg
+    keywords:
+    - clickhouse
+    maintainers:
+    - email: tai_chong@foxmail.com
+      name: TCeason
+      url: https://tceason.github.io/
+    name: clickhouse
+    sources:
+    - https://github.com/radondb/clickhouse-cluster-helm
+    type: application
+    urls:
+    - https://charts.kubesphere.io/test/clickhouse-0.1.0.tgz
+    version: 0.1.0
   csi-neonsan:
   - apiVersion: v2
     appVersion: 1.2.1
@@ -1381,4 +1404,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/test/xenondb-1.0.0.tgz
     version: 1.0.0
-generated: "2021-06-08T05:57:07.023732443Z"
+generated: "2021-06-10T09:19:50.415825659Z"
