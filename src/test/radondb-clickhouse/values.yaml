@@ -1,0 +1,68 @@
+# Configuration for the ClickHouse cluster to be started
+clickhouse:
+
+  # default cluster name
+  clusterName: cluster
+
+  ## the limit and require of resources
+  resources:
+    memory: "1Gi"
+    cpu: "0.5"
+
+  # User Configuration
+  users:
+    - username: default
+      password: C1ickh0use
+  # Port configuration, see https://clickhouse.tech/docs/en/interfaces/
+  ports:
+    # Port for the native CLI interface, see https://clickhouse.tech/docs/en/interfaces/tcp/
+    native: 9000
+
+    # Port for HTTP/REST interface, see https://clickhouse.tech/docs/en/interfaces/http/
+    http: 8123
+
+  # Shart configuration, see https://clickhouse.tech/docs/en/operations/table_engines/distributed/
+  shards:
+    - name: shard0
+      replicas:
+        - name: shard0-replica0
+        - name: shard0-replica1
+
+  # ClickHouse server image configuration
+  image: radondb/clickhouse-server:v21.1.3.32-stable
+  imagePullPolicy: IfNotPresent
+
+  # By default, this helm chart will create a service for getting access to the cluster.
+  # Using this configuration it is possible to adjust the service settings.
+  service:
+    # Default create service by the helm chart.
+    enabled: true
+
+    # Type of the service. Use ClusterIP for internal access, LoadBalancer for external access.
+    type: ClusterIP
+
+    # Define the loadBalancerIP if type is set to LoadBalancer and you want to request a special IP address.
+    loadBalancerIP:
+
+  ipv4: true
+  ipv6: false
+
+  livenessProbe:
+    initialDelaySeconds: "30"
+    periodSeconds: "30"
+    timeoutSeconds: "5"
+    failureThreshold: "3"
+    successThreshold: "1"
+
+# zookeeper configuration
+zookeeper:
+  replicas: 3
+
+  # configuration for zookeeper instance
+  image: radondb/zookeeper:3.6.2
+  imagePullPolicy: IfNotPresent
+
+  resources:
+    memory: "1Gi"
+    cpu: "0.5"
+
