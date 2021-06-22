@@ -1,0 +1,47 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: ks-installer
+  labels:
+    app: ks-install
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      app: ks-install
+  template:
+    metadata:
+      labels:
+        app: ks-install
+    spec:
+      serviceAccountName: ks-installer
+      containers:
+        - name: {{ .Chart.Name }}
+{{- if .Values.registry }}
+          image: "{{ .Values.registry }}/{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+{{- else }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+{{- end}}
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - mountPath: /etc/localtime
+              name: host-time
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        - hostPath:
+            path: /etc/localtime
+            type: ""
+          name: host-time

@@ -1,0 +1,6 @@
+1. Get the application URL by running these commands:
+{{- if .Values.console.port }}
+  export NODE_PORT=$(kubectl get --namespace kubesphere-system -o jsonpath="{.spec.ports[0].nodePort}" services ks-console)
+  export NODE_IP=$(kubectl get nodes --namespace kubesphere-system-o jsonpath="{.items[0].status.addresses[0].address}")
+  echo http://$NODE_IP:$NODE_PORT
+{{- end }}
