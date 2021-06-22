@@ -1,0 +1,3 @@
+## qingcloud/common
+## It is required by CI/CD tools and processes.
+exampleValue: common-chart

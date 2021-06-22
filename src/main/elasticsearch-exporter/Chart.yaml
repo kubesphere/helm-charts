@@ -17,6 +17,6 @@ maintainers:
 name: elasticsearch-exporter
 sources:
 - https://github.com/justwatchcom/elasticsearch_exporter
-version: 3.3.2
+version: 3.3.3
 annotations:
-  "app.kubesphere.io/category": "Big Data"
+  "app.kubesphere.io/category": "Prometheus Exporter"
