@@ -192,6 +192,22 @@ entries:
     urls:
     - https://charts.kubesphere.io/main/harbor-1.2.1.tgz
     version: 1.2.1
+  ks-installer:
+  - apiVersion: v2
+    appVersion: 3.1.0
+    created: "2021-06-23T07:01:31.082186494Z"
+    description: The helm chart of KubeSphere, supports installing KubeSphere on existing
+      Kubernetes.
+    digest: 7e5a0cf809a248b6e8e527db907262194c6a96917a7d638c8d2022f452d93f86
+    icon: https://kubesphere.io/static/logo.16097928.svg
+    keywords:
+    - kubesphere
+    - installer
+    name: ks-installer
+    type: application
+    urls:
+    - https://charts.kubesphere.io/main/ks-installer-0.2.2.tgz
+    version: 0.2.2
   memcached:
   - annotations:
       app.kubesphere.io/category: Database & Cache
@@ -781,4 +797,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/main/tomcat-0.4.0-r1.tgz
     version: 0.4.0-r1
-generated: "2021-06-21T03:45:22.404486345Z"
+generated: "2021-06-23T07:01:31.080347615Z"
