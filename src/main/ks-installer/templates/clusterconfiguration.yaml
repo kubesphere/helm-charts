@@ -1,0 +1,90 @@
+{{ if (lookup "installer.kubesphere.io/v1alpha1" "ClusterConfiguration" "kubesphere-system" "ks-installer") -}}
+{{ lookup "installer.kubesphere.io/v1alpha1" "ClusterConfiguration" "kubesphere-system" "ks-installer" | toYaml }}
+{{ else -}}
+apiVersion: installer.kubesphere.io/v1alpha1
+kind: ClusterConfiguration
+metadata:
+  name: ks-installer
+  namespace: kubesphere-system
+  labels:
+    version: {{ .Chart.AppVersion }}
+spec:
+{{- if .Values.registry}}
+  local_registry: {{ .Values.registry }}
+{{- end}}
+  persistence:
+    storageClass: "{{ .Values.persistence.storageClass}}"
+  authentication:
+    jwtSecret: "{{ .Values.authentication.jwtSecret }}"
+  etcd:
+    monitoring: {{ .Values.etcd.monitoring }}
+    endpointIps: {{ .Values.etcd.endpointIps }}
+    port: 2379
+    tlsEnable: {{ .Values.etcd.tlsEnable }}
+  common:
+    redis:
+      enabled: {{ .Values.common.redis.enabled }}
+    openldap:
+      enabled: {{ .Values.common.openldap.enabled }}
+    minioVolumeSize: {{ .Values.common.minioVolumeSize }}
+    openldapVolumeSize: {{ .Values.common.openldapVolumeSize }}
+    redisVolumSize: {{ .Values.common.redisVolumSize }}
+    es:
+      elasticsearchMasterVolumeSize: {{ .Values.common.es.elasticsearchMasterVolumeSize }}
+      elasticsearchDataVolumeSize: {{ .Values.common.es.elasticsearchDataVolumeSize }}
+      logMaxAge: {{ .Values.common.es.logMaxAge }}
+      elkPrefix: {{ .Values.common.es.elkPrefix }}
+      basicAuth:
+        enabled: {{ .Values.common.es.basicAuth.enabled }}
+        username: "{{ .Values.common.es.basicAuth.username }}"
+        password: "{{ .Values.common.es.basicAuth.password }}"
+      externalElasticsearchUrl: "{{ .Values.common.es.externalElasticsearchUrl }}"
+      externalElasticsearchPort: "{{ .Values.common.es.externalElasticsearchPort }}"
+  console:
+    enableMultiLogin: {{ .Values.console.enableMultiLogin }}
+    port: {{ .Values.console.port }}
+  alerting:
+    enabled: {{ .Values.alerting.enabled }}
+  auditing:
+    enabled: {{ .Values.auditing.enabled }}
+  devops:
+    enabled: {{ .Values.devops.enabled }}
+    jenkinsMemoryLim: {{ .Values.devops.jenkinsMemoryLim }}
+    jenkinsMemoryReq: {{ .Values.devops.jenkinsMemoryReq }}
+    jenkinsVolumeSize: {{ .Values.devops.jenkinsVolumeSize }}
+    jenkinsJavaOpts_Xms: {{ .Values.devops.jenkinsJavaOpts_Xms }}
+    jenkinsJavaOpts_Xmx: {{ .Values.devops.jenkinsJavaOpts_Xmx }}
+    jenkinsJavaOpts_MaxRAM: {{ .Values.devops.jenkinsJavaOpts_MaxRAM }}
+  events:
+    enabled: {{ .Values.events.enabled }}
+    ruler:
+      enabled: {{ .Values.events.ruler.enabled }}
+      replicas: {{ .Values.events.ruler.replicas }}
+  logging:
+    enabled: {{ .Values.logging.enabled }}
+    logsidecar:
+      enabled: {{ .Values.logging.logsidecar.enabled }}
+      replicas: {{ .Values.logging.logsidecar.replicas }}
+  metrics_server:
+    enabled: {{ .Values.logging.enabled }}
+  monitoring:
+    storageClass: "{{ .Values.monitoring.storageClass }}"
+    prometheusMemoryRequest: {{ .Values.monitoring.prometheusMemoryRequest }}
+    prometheusVolumeSize: {{ .Values.monitoring.prometheusVolumeSize }}
+  multicluster:
+    clusterRole: {{ .Values.multicluster.clusterRole }}
+  network:
+    networkpolicy:
+      enabled: {{ .Values.network.networkpolicy.enabled }}
+    ippool:
+      type: {{ .Values.network.ippool.type }}
+    topology:
+      type: {{ .Values.network.topology.type }}
+  openpitrix:
+    store:
+      enabled: {{ .Values.openpitrix.store.enabled }}
+  servicemesh:
+    enabled: {{ .Values.servicemesh.enabled }}
+  kubeedge:
+{{ toYaml .Values.kubeedge | indent 4 }}
+{{ end -}}
