@@ -727,6 +727,17 @@ entries:
     urls:
     - https://charts.kubesphere.io/test/nacos-0.1.1.tgz
     version: 0.1.1
+  online-boutique:
+  - apiVersion: v2
+    appVersion: 1.16.0
+    created: "2021-06-24T09:37:15.915890786Z"
+    description: A Helm chart for Kubernetes
+    digest: f1ec372351c13fcea927feab16577cc8ef304b62650c96905afd566817040c79
+    name: online-boutique
+    type: application
+    urls:
+    - https://charts.kubesphere.io/test/online-boutique-0.1.0.tgz
+    version: 0.1.0
   porter:
   - apiVersion: v2
     appVersion: 0.4.1
@@ -1404,4 +1415,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/test/xenondb-1.0.0.tgz
     version: 1.0.0
-generated: "2021-06-10T09:19:50.415825659Z"
+generated: "2021-06-24T09:37:15.910777281Z"
