@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: loadgenerator
+  labels:
+    {{ include "common.label" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      app: loadgenerator
+      {{ include "common.label" . | nindent 6 }}
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: {{ .Values.loadgenerator.name }}
+        {{ include "common.label" . | nindent 8 }}
+      annotations:
+        sidecar.istio.io/rewriteAppHTTPProbers: "true"
+    spec:
+      serviceAccountName: default
+      terminationGracePeriodSeconds: 5
+      restartPolicy: Always
+      containers:
+      - name: main
+        image: {{ .Values.loadgenerator.image.repository }}
+        imagePullPolicy: {{ .Values.loadgenerator.image.pullPolicy }}
+        env:
+        - name: FRONTEND_ADDR
+          value: "frontend:80"
+        - name: USERS
+          value: "10"
+        resources:
+          requests:
+            cpu: 300m
+            memory: 256Mi
+          limits:
+            cpu: 500m
+            memory: 512Mi
