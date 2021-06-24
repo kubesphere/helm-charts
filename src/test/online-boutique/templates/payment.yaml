@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.payment.name }}
+  labels:
+    {{ include "common.label" . | nindent 4 }}
+    app: {{ .Values.payment.name }}
+  annotations:
+    servicemesh.kubesphere.io/enabled: "true"
+spec:
+  type: ClusterIP
+  selector:
+    app: {{ .Values.payment.name }}
+    {{ include "common.label" . | nindent 4 }}
+  ports:
+  - name: grpc
+    port: 50051
+    targetPort: 50051
