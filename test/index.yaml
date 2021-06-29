@@ -1101,6 +1101,36 @@ entries:
     version: 1.0.0
   radondb-postgresql:
   - annotations:
+      app.kubesphere.io/category: Database & Cache
+      app.kubesphere.io/display-name: RadonDB PostgreSQL
+    apiVersion: v2
+    appVersion: 11.11.0
+    created: "2021-06-29T08:28:11.920131244Z"
+    description: Chart for PostgreSQL with HA architecture.
+    digest: 24a1f15416e1c52047ced7e55b29e78060815182c5ae9a5b267b5591de039c82
+    home: https://github.com/radondb/radondb-postgresql-kubernetes.git
+    icon: https://xenondb.pek3b.qingstor.com/icons/radondb-mysql.svg
+    keywords:
+    - postgresql
+    - repmgr
+    - pgpool
+    - postgres
+    - database
+    - sql
+    - replication
+    - cluster
+    - high availability
+    maintainers:
+    - email: hualongzhong@qingcloud.com
+      name: Qingcloud
+    name: radondb-postgresql
+    sources:
+    - https://github.com/radondb/radondb-postgresql-kubernetes.git
+    - https://www.postgresql.org/
+    urls:
+    - https://charts.kubesphere.io/test/radondb-postgresql-1.0.1.tgz
+    version: 1.0.1
+  - annotations:
       category: Database
     apiVersion: v2
     appVersion: 11.11.0
@@ -1415,4 +1445,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/test/xenondb-1.0.0.tgz
     version: 1.0.0
-generated: "2021-06-24T09:37:15.910777281Z"
+generated: "2021-06-29T08:28:11.91645015Z"
