@@ -32,22 +32,74 @@ driver:
   maxVolume: 10
   kubeletDir: /var/lib/kubelet
 
+controller:
+  resources:
+    limits:
+      memory: 50Mi
+      cpu: 100m
+    requests:
+      memory: 50Mi
+      cpu: 100m
 provisioner:
   repository: csiplugin/csi-provisioner
   tag: v1.5.0
   volumeNamePrefix: pvc
+  resources:
+    limits:
+      memory: 80Mi
+      cpu: 80m
+    requests:
+      memory: 80Mi
+      cpu: 80m
 attacher:
   repository: csiplugin/csi-attacher
   tag: v2.1.1
+  resources:
+    limits:
+      memory: 80Mi
+      cpu: 80m
+    requests:
+      memory: 80Mi
+      cpu: 80m
 resizer:
   repository: csiplugin/csi-resizer
   tag: v0.4.0
+  resources:
+    limits:
+      memory: 20Mi
+      cpu: 20m
+    requests:
+      memory: 20Mi
+      cpu: 20m
 snapshotter:
   repository: csiplugin/csi-snapshotter
   tag: v2.0.1
+  resources:
+    limits:
+      memory: 20Mi
+      cpu: 20m
+    requests:
+      memory: 20Mi
+      cpu: 20m
+
 registrar:
   repository: csiplugin/csi-node-driver-registrar
   tag: v1.2.0
+  resources:
+    limits:
+      memory: 20Mi
+      cpu: 10m
+    requests:
+      memory: 20Mi
+      cpu: 10m
+node:
+  resources:
+    limits:
+      memory: 50Mi
+      cpu: 100m
+    requests:
+      memory: 50Mi
+      cpu: 100m
 
 sc:
   enable: true
