@@ -16,7 +16,7 @@ apiVersion: v2
 appVersion: 1.2.1
 name: csi-qingcloud
 description: A Helm chart for Qingcloud CSI Driver
-version: 1.2.7
+version: 1.2.8
 kubeVersion: ">=1.14.0-0"
 home: https://github.com/yunify/qingcloud-csi
 sources:
@@ -25,8 +25,8 @@ keywords:
   - qingcloud
   - csi
 maintainers:
-  - name: Min Zhang
-    email: arminzhang@yunify.com
+  - name: Yonghong Shi
+    email: stoneshi@yunify.com
   - name: Zhengyi Lai
     email: zheng1@yunify.com
 icon: https://s3.qingcloud.com/static/assets/images/icons/common/nav_logo_white.svg?v=1510299508
