@@ -1410,6 +1410,26 @@ entries:
     version: 0.6.0
   snapshot-controller:
   - apiVersion: v2
+    appVersion: 4.0.0
+    created: "2021-07-09T06:12:25.098901951Z"
+    description: A Helm chart for snapshot-controller
+    digest: f45018a82d5d683d3200309083267969250feba67bfa0d5e5109a65a1b7acfa7
+    home: https://github.com/kubernetes-csi/external-snapshotter
+    keywords:
+    - snapshot
+    - controller
+    - csi
+    kubeVersion: '>=1.17.0-0'
+    maintainers:
+    - email: yangzhou@yunify.com
+      name: Yang Zhou
+    name: snapshot-controller
+    sources:
+    - https://github.com/kubesphere/helm-charts
+    urls:
+    - https://charts.kubesphere.io/test/snapshot-controller-0.2.0.tgz
+    version: 0.2.0
+  - apiVersion: v2
     appVersion: 2.1.1
     created: "2020-07-07T13:36:53.991745574Z"
     description: A Helm chart for snapshot-controller
@@ -1467,4 +1487,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/test/xenondb-1.0.0.tgz
     version: 1.0.0
-generated: "2021-07-08T09:21:42.151631909Z"
+generated: "2021-07-09T06:12:25.098053696Z"
