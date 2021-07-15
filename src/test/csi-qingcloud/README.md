@@ -50,16 +50,16 @@ Parameter | Description | Default
 `driver.maxVolume` | Max volume of CSI plugin | `10`
 `driver.kubeletDir` | Directory of kubelet | `/var/lib/kubelet`
 `provisioner.repository` | Image of csi-provisioner | `csiplugin/csi-provisioner`
-`provisioner.tag` | Tag of csi-provisioner | `v1.5.0`
+`provisioner.tag` | Tag of csi-provisioner | `v2.2.2`
 `provisioner.volumeNamePrefix` | Prefix of volume name created by the driver | `pvc`
 `attacher.repository` | Image of csi-attacher | `csiplugin/csi-attacher`
-`attacher.tag` | Tag of csi-attacher | `v2.1.1`
+`attacher.tag` | Tag of csi-attacher | `v3.2.1`
 `resizer.repository` | Image of csi-resizer | `csiplugin/csi-resizer`
-`resizere.tag` | Tag of csi-resizer | `v0.4.0`
+`resizere.tag` | Tag of csi-resizer | `v1.2.0`
 `snapshotter.repository` | Image of csi-snapshotter | `csiplugin/csi-snapshotter`
-`snapshotter.tag` | Tag of csi-snapshotter | `v2.0.1`
+`snapshotter.tag` | Tag of csi-snapshotter | `v4.0.0`
 `registar.repository` | Image of csi-node-driver-registrar| `csiplugin/csi-node-driver-registrar`
-`registar.tag` | Tag of csi-node-driver-registrar | `v1.2.0`
+`registar.tag` | Tag of csi-node-driver-registrar | `v2.2.0`
 `sc.enable` | Whether to enable this StorageClass | `true`
 `sc.isDefaultClass` | Whether to set this StorageClass as the default StorageClass | `false`
 `sc.name` | Name of storage class | `csi-qingcloud`
