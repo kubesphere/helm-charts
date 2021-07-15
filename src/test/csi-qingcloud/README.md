@@ -35,7 +35,7 @@ User can specify chart value `snapshotter.tag=v2.0.1` with helm to use csi-snaps
 
 ## Support matrix　
 
-Chart Version | snapshot CRDs version | Min K8s Version 
+Chart Version | Snapshot CRDs Version | Min K8s Version 
 --- | --- | --- 
  &lt;= 1.2.8 | only v1beta1 | 1.14 
  &gt;= 1.2.9 | both v1beta1 and v1, only v1 | 1.17 
