@@ -32,6 +32,17 @@ driver:
   maxVolume: 10
   kubeletDir: /var/lib/kubelet
 
+tolerations:
+  - key: CriticalAddonsOnly
+    operator: Exists
+  - key: dedicated
+    operator: Exists
+  - effect: NoSchedule
+    key: node-role.kubernetes.io/master
+  - effect: NoSchedule
+    key: node.cloudprovider.kubernetes.io/uninitialized
+    value: "true"
+
 controller:
   resources:
     limits:
