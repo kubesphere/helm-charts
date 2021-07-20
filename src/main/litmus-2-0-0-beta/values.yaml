@@ -1,0 +1,158 @@
+# Default values for litmus.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+portalScope: cluster
+
+# -- Additional labels
+customLabels: {}
+
+adminConfig:
+  DBUSER: "admin"
+  DBPASSWORD: "1234"
+  JWTSecret: "litmus-portal@123"
+  # -- leave empty if uses Mongo DB deployed by this chart
+  DB_SERVER: ""
+  DB_PORT: "27017"
+
+image:
+  imageRegistryName: litmuschaos
+  # Optional pod imagePullSecrets
+  imagePullSecrets: []
+
+ingress:
+  enabled: false
+  name: litmus-ingress
+  annotations:
+    {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+    # nginx.ingress.kubernetes.io/rewrite-target: /$1
+
+  host: ""
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts: []
+
+portal:
+  frontend:
+    replicas: 1
+    image:
+      repository: litmusportal-frontend
+      tag: 2.0.0-Beta8
+      pullPolicy: "Always"
+    containerPort: 8080
+    resources: {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 200m
+    #   memory: 400Mi
+    # requests:
+    #   cpu: 200m
+    #   memory: 400Mi
+    service:
+      type: NodePort
+      port: 9091
+      targetPort: 8080
+
+  server:
+    replicas: 1
+    serviceAccountName: litmus-server-account
+    graphqlServer:
+      image:
+        repository: litmusportal-server
+        tag: 2.0.0-Beta8
+        pullPolicy: "Always"
+      containerPort: 8080
+      imageEnv:
+        SUBSCRIBER_IMAGE: "litmusportal-subscriber:2.0.0-Beta8"
+        EVENT_TRACKER_IMAGE: "litmusportal-event-tracker:2.0.0-Beta8"
+        ARGO_WORKFLOW_CONTROLLER_IMAGE: "workflow-controller:v2.9.3"
+        ARGO_WORKFLOW_EXECUTOR_IMAGE: "argoexec:v2.9.3"
+        LITMUS_CHAOS_OPERATOR_IMAGE: "chaos-operator:1.13.5"
+        LITMUS_CHAOS_RUNNER_IMAGE: "chaos-runner:1.13.5"
+        LITMUS_CHAOS_EXPORTER_IMAGE: "chaos-exporter:1.13.5"
+      genericEnv:
+        SELF_CLUSTER: "true"
+        SERVER_SERVICE_NAME: "litmusportal-server-service"
+        PORTAL_ENDPOINT: "http://litmusportal-server-service:9002"
+        CONTAINER_RUNTIME_EXECUTOR: "k8sapi"
+        HUB_BRANCH_NAME: "v1.13.x"
+      resources: {}
+      # We usually recommend not to specify default resources and to leave this as a conscious
+      # choice for the user. This also increases chances charts run on environments with little
+      # resources, such as Minikube. If you do want to specify resources, uncomment the following
+      # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+      # limits:
+      #   cpu: 200m
+      #   memory: 400Mi
+      # requests:
+      #   cpu: 200m
+      #   memory: 400Mi
+    authServer:
+      image:
+        repository: litmusportal-auth-server
+        tag: 2.0.0-Beta8
+        pullPolicy: "Always"
+      containerPort: 3000
+      env:
+        ADMIN_USERNAME: "admin"
+        ADMIN_PASSWORD: "litmus"
+      resources: {}
+      # We usually recommend not to specify default resources and to leave this as a conscious
+      # choice for the user. This also increases chances charts run on environments with little
+      # resources, such as Minikube. If you do want to specify resources, uncomment the following
+      # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+      # limits:
+      #   cpu: 200m
+      #   memory: 250Mi
+      # requests:
+      #   cpu: 200m
+      #   memory: 250Mi
+    service:
+      type: NodePort
+      graphqlServer:
+        port: 9002
+        targetPort: 8080
+      authServer:
+        port: 9003
+        targetPort: 3000
+
+mongo:
+  replicas: 1
+  image:
+    repository: mongo
+    tag: 4.2.8
+    pullPolicy: "Always"
+  containerPort: 27017
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 200m
+  #   memory: 400Mi
+  # requests:
+  #   cpu: 200m
+  #   memory: 400Mi
+  resources: {}
+  persistence:
+    size: 20Gi
+    accessMode: ReadWriteOnce
+    # storageClass: ""
+  service:
+    type: ClusterIP
+    port: 27017
+    targetPort: 27017
+
+# OpenShift specific configuration
+openshift:
+  # If service should be exposed using an OpenShift route
+  route:
+    enabled: false
+    name: litmus-portal
+    annotations: {}
+    host: ""

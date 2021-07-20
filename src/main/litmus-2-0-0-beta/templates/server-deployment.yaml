@@ -1,0 +1,122 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "litmus-portal.fullname" . }}-server
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/component: {{ include "litmus-portal.name" . }}-server
+    {{- include "litmus-portal.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.portal.server.replicas }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: {{ include "litmus-portal.name" . }}-server
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: {{ include "litmus-portal.name" . }}-server
+        {{- include "litmus-portal.labels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ .Values.portal.server.serviceAccountName }}
+      {{- if .Values.image.imagePullSecrets }}
+      imagePullSecrets:
+        {{ toYaml .Values.image.imagePullSecrets | indent 8 }}
+      {{- end }}
+      containers:
+        - name: graphql-server
+          image: {{ .Values.image.imageRegistryName }}/{{ .Values.portal.server.graphqlServer.image.repository }}:{{ .Values.portal.server.graphqlServer.image.tag }}
+          imagePullPolicy: {{ .Values.portal.server.graphqlServer.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.portal.server.graphqlServer.containerPort }}
+              name: graphql-srver
+          resources:
+            {{- toYaml .Values.portal.server.graphqlServer.resources | nindent 12 }}
+          env:
+            - name: DB_SERVER
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "litmus-portal.fullname" . }}-admin-config
+                  key: DB_SERVER
+            - name: JWT_SECRET
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "litmus-portal.fullname" . }}-admin-config
+                  key: JWTSecret
+            - name: LITMUS_PORTAL_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: PORTAL_SCOPE
+              value: {{ .Values.portalScope }}
+            {{- if eq .Values.portalScope "namespace" }}
+            - name: PORTAL_ENDPOINT
+              value: "http://{{ .Values.portal.server.graphqlServer.genericEnv.SERVER_SERVICE_NAME }}:{{ .Values.portal.server.service.graphqlServer.port }}"
+            {{- end }}
+            - name: AGENT_SCOPE
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "litmus-portal.fullname" . }}-admin-config
+                  key: AgentScope
+            - name: AGENT_NAMESPACE
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "litmus-portal.fullname" . }}-admin-config
+                  key: AgentNamespace
+            - name: DB_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "litmus-portal.fullname" . }}-admin-config
+                  key: DB_USER
+            - name: DB_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "litmus-portal.fullname" . }}-admin-config
+                  key: DB_PASSWORD
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            {{- $imageRegistry := .Values.image.imageRegistryName -}}
+            {{- range $key, $val := .Values.portal.server.graphqlServer.imageEnv }}
+            - name: {{ $key }}
+              value: {{ $imageRegistry }}/{{ $val }}
+            {{- end }}
+            {{- range $key, $val := .Values.portal.server.graphqlServer.genericEnv }}
+            - name: {{ $key }}
+              value: {{ $val | quote }}
+            {{- end }}
+            - name: INGRESS
+              value: "{{ .Values.ingress.enabled }}"
+            - name: INGRESS_NAME
+              value: "{{ .Values.ingress.name }}"
+        - name: auth-server
+          image: {{ .Values.image.imageRegistryName }}/{{ .Values.portal.server.authServer.image.repository }}:{{ .Values.portal.server.authServer.image.tag }}
+          imagePullPolicy: {{ .Values.portal.server.authServer.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.portal.server.authServer.containerPort }}
+              name: auth-server
+          env:
+            - name: DB_SERVER
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "litmus-portal.fullname" . }}-admin-config
+                  key: DB_SERVER
+            - name: JWT_SECRET
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "litmus-portal.fullname" . }}-admin-config
+                  key: JWTSecret
+            - name: DB_USER
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "litmus-portal.fullname" . }}-admin-config
+                  key: DB_USER
+            - name: DB_PASSWORD
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "litmus-portal.fullname" . }}-admin-config
+                  key: DB_PASSWORD
+            {{- range $key, $val := .Values.portal.server.authServer.env }}
+            - name: {{ $key }}
+              value: {{ $val | quote }}
+            {{- end }}
