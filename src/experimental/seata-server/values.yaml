@@ -1,0 +1,11 @@
+env:
+  seataPort: "8091"
+image:
+  pullPolicy: IfNotPresent
+  repository: seataio/seata-server
+  tag: latest
+namespace: default
+replicaCount: 1
+service:
+  port: 8091
+  type: NodePort
