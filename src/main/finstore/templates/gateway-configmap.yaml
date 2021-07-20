@@ -1,0 +1,597 @@
+apiVersion: v1
+data:
+  gateway-configmap.yaml: |-
+    _format_version: "2.1"
+    _transform: true
+
+    consumers:
+    - username: authuser
+    - username: anonymous
+
+    jwt_secrets:
+    - consumer: authuser
+      secret: NFUyMjFXNFdCWkRIZi9WK1VxSjI1Ti9pWUxxYi8zaW1NZHlySlk1ZHFyYz0K
+      key: mopmoopmooop
+
+    services:
+    - name: mop-app-manage-svr
+      url: http://mop-app-manage-svr.{{ .Release.Namespace }}:8080/api/v1/mop/finstore
+      routes:
+      - name: mop-app-manage-svr
+        paths:
+        - /api/v1/mop/finstore
+        - /api/v1/mop/pc
+        - /api/v1/mop/widget
+        
+    - name: finstore-front
+      url: http://finstore-front.{{ .Release.Namespace }}:80/
+      routes: 
+      - name: finstore-front
+        paths:
+        - /finstore
+        
+    - name: finstore-dev
+      url: http://mop-app-manage-svr.{{ .Release.Namespace }}:8080/api/v1/mop/finstore/dev
+      routes:
+      - name: finstore-dev
+        paths:
+        - /api/v1/mop/finstore/dev
+        
+    - name: finstore-admin
+      url: http://mop-app-manage-svr.{{ .Release.Namespace }}:8080/api/v1/mop/finstore/admin
+      routes:
+      - name: finstore-admin
+        paths:
+        - /api/v1/mop/finstore/admin
+        
+    - name: finstore-client
+      url: http://mop-app-manage-svr.{{ .Release.Namespace }}:8080/api/v1/mop/finstore/client
+      routes:
+      - name: finstore-client
+        paths:
+        - /api/v1/mop/finstore/client
+        
+    - name: finstore-runtime
+      url: http://mop-app-manage-svr.{{ .Release.Namespace }}:8080/api/v1/mop/finstore/runtime
+      routes:
+      - name: finstore-runtime
+        paths:
+        - /api/v1/mop/finstore/runtime
+        
+    - name: finstore-internal
+      url: http://mop-app-manage-svr.{{ .Release.Namespace }}:8080/internal/api/v1/mop/finstore
+      routes:
+      - name: finstore-internal
+        paths:
+        - /internal/api/v1/mop/finstore
+        
+    - name: mop-app-manage-svr-no-auth
+      url: http://mop-app-manage-svr.{{ .Release.Namespace }}:8080
+      routes:
+      - name: mop-app-manage-svr-no-auth
+        strip_path: false
+        paths:
+        - /api/v1/mop/finstore/runtime
+
+    - name: mop-applet-build-manager
+      url: http://mop-applet-build-manager.{{ .Release.Namespace }}:8080/api/v1/mop/mop-applet-build-manager
+      routes:
+      - name: mop-applet-build-manager
+        paths:
+        - /api/v1/mop/mop-applet-build-manager
+      connect_timeout: 600000
+      write_timeout: 600000
+      read_timeout: 600000
+
+    - name: mop-applet-build
+      url: http://mop-applet-build.{{ .Release.Namespace }}:8080/api/v1/mop/build
+      routes:
+      - name: mop-applet-build
+        paths:
+        - /api/v1/mop/build
+      connect_timeout: 600000
+      write_timeout: 600000
+      read_timeout: 600000
+
+    - name: mop-data-report-no-auth
+      url: http://mop-data-report.{{ .Release.Namespace }}:8080
+      routes:
+      - name: mop-data-report-no-auth
+        strip_path: false
+        paths:
+        - /api/v1/mop/data-report/reportmsg/report
+        methods:
+        - POST
+
+    - name: mop-front-mechanism
+      url: http://mop-front-mechanism.{{ .Release.Namespace }}:80/mop/mechanism
+      routes:
+      - name: mop-front-mechanism
+        paths:
+        - /mop/mechanism
+
+    - name: mop-front-operate
+      url: http://mop-front-operate.{{ .Release.Namespace }}:80/mop/operate
+      routes:
+      - name: mop-front-operate
+        paths:
+        - /mop/operate
+
+    - name: mop-account-system
+      url: http://mop-account-system.{{ .Release.Namespace }}:8080/api/v1/mop/applets-ecol-account
+      routes:
+      - name: mop-account-system
+        paths:
+        - /api/v1/mop/applets-ecol-account
+
+    - name: mop-account-system-no-auth
+      url: http://mop-account-system.{{ .Release.Namespace }}:8080
+      routes:
+      - name: mop-account-system-no-auth
+        strip_path: false
+        paths:
+        - /api/v1/mop/applets-ecol-account/organ/phone/verifyCode
+        - /api/v1/mop/applets-ecol-account/organ/phone/verify-code
+        - /api/v1/mop/applets-ecol-account/organ/register
+        - /api/v1/mop/applets-ecol-account/organ/login
+        - /api/v1/mop/applets-ecol-account/organ/phone/verifyCode/check
+        - /api/v1/mop/applets-ecol-account/organ/phone/verify-code/check
+        - /api/v1/mop/applets-ecol-account/operation/login
+        - /api/v1/mop/applets-ecol-account/organ/account/password/forget
+        - /api/v1/mop/applets-ecol-account/operation/worker/phone/verifyCode
+        - /api/v1/mop/applets-ecol-account/operation/worker/phone/verify-code
+        - /api/v1/mop/applets-ecol-account/operation/worker/forgot/password
+        - /api/v1/mop/applets-ecol-account/operation/organ/addAppidNum
+        - /api/v1/mop/applets-ecol-account/operation/organ/add-appid-num
+        - /api/v1/mop/applets-ecol-account/operation/ftHelper/testUrl
+        - /api/v1/mop/applets-ecol-account/operation/ft-helper/test-url
+        - /api/v1/mop/applets-ecol-account/organ/email/active
+        - /api/v1/mop/applets-ecol-account/organ/auth/get-evn
+
+    - name: mop-notify
+      url: http://mop-notify.{{ .Release.Namespace }}:8080/api/v1/mop/applets-ecol-notify
+      routes:
+      - name: mop-notify
+        paths:
+        - /api/v1/mop/applets-ecol-notify
+
+    - name: netdisk
+      url: http://netdisk.{{ .Release.Namespace }}:9999/api/v1/netdisk
+      routes:
+      - name: netdisk
+        paths:
+        - /cust/api/v1/netdisk
+        - /emp/api/v1/netdisk
+        - /api/v1/netdisk
+
+    - name: netdisk-authless
+      url: http://netdisk.{{ .Release.Namespace }}:9999
+      routes:
+      - name: netdisk-authless
+        strip_path: false
+        paths:
+        - /api/v1/netdisk/download
+        - /authless/api/v1/netdisk/download
+        - /api/v1/netdisk/thumbnail
+        - /api/v1/netdisk/upload/self
+
+    - name: oauth-service
+      url: http://oauth-service.{{ .Release.Namespace }}:8080
+      routes:
+      - name: oauth-service
+        strip_path: false
+        paths:
+        - /api/v1/mop/oauth-service
+
+    - name: oauth-service-no-auth
+      url: http://oauth-service.{{ .Release.Namespace }}:8080
+      routes:
+      - name: oauth-service-no-auth
+        strip_path: false
+        paths:
+        - /api/v1/mop/oauth-service/login
+        - /api/v1/mop/oauth-service/refresh
+
+    - name: mop-netdisk-no-auth
+      url: http://netdisk.{{ .Release.Namespace }}:9999/api/v1/netdisk
+      routes:
+      - name: mop-netdisk-no-auth
+        paths:
+        - /api/v1/mop/netdisk
+
+    - name: mop-domain-manager
+      url: http://mop-domain-manager.{{ .Release.Namespace }}:8080/api/v1/mop/applets-ecol-domain
+      routes:
+      - name: mop-domain-manager
+        paths:
+        - /api/v1/mop/applets-ecol-domain
+
+    - name: mop-data-report
+      url: http://mop-data-report.{{ .Release.Namespace }}:8080
+      routes:
+      - name: mop-data-report
+        strip_path: false
+        paths:
+        - /api/v1/mop/data-report
+
+
+    - name: mop-article-pub-center
+      url: http://mop-article-pub-center.{{ .Release.Namespace }}:8080/api/v1/mop/mop-article-pub-center/article
+      routes:
+      - name: mop-article-pub-center
+        paths:
+        - /api/v1/mop/mop-article-pub-center/article
+
+    - name: mop-article-pub-center-no-auth
+      url: http://mop-article-pub-center.{{ .Release.Namespace }}:8080
+      routes:
+      - name: mop-article-pub-center-no-auth
+        strip_path: false
+        paths:
+        - /api/v1/mop/mop-article-pub-center/article/list
+        - /api/v1/mop/mop-article-pub-center/article/detail
+        - /api/v1/mop/mop-article-pub-center/article/rotation
+        - /api/v1/mop/mop-article-pub-center/article/rotation/list
+        - /api/v1/mop/mop-article-pub-center/article/wechat/appCode
+        - /api/v1/mop/mop-article-pub-center/article/wechat/app-code
+
+    - name: mop-scattered-page
+      url: http://mop-scattered-page.{{ .Release.Namespace }}:80/mop/mop-scattered-page
+      routes:
+      - name: mop-scattered-page
+        paths:
+        - /mop/scattered-page
+        - /mop/mop-scattered-page
+
+    - name: mop-basic-pack-svr
+      url: http://mop-basic-pack-svr.{{ .Release.Namespace }}:8080/api/v1/mop/mop-basic-pack-svr
+      routes:
+      - name: mop-basic-pack-svr
+        paths:
+        - /api/v1/mop/mop-basic-pack-svr
+        
+    - name: mop-basic-pack-svr-no-auth
+      url: http://mop-basic-pack-svr.{{ .Release.Namespace }}:8080
+      routes:
+      - name: mop-basic-pack-svr-no-auth
+        strip_path: false
+        paths:
+        - /api/v1/mop/mop-basic-pack-svr/FTHelper/latest
+        - /api/v1/mop/mop-basic-pack-svr/ft-helper/latest
+        - /api/v1/mop/mop-basic-pack-svr/latestBasic
+        - /api/v1/mop/mop-basic-pack-svr/latest-basic
+
+    - name: mop-feedback-svr
+      url: http://mop-feedback-svr.{{ .Release.Namespace }}:8080/api/v1/mop/mop-feedback-svr
+      routes:
+      - name: mop-feedback-svr
+        paths:
+        - /api/v1/mop/mop-feedback-svr
+
+    - name: mop-feedback-svr-no-auth
+      url: http://mop-feedback-svr.{{ .Release.Namespace }}:8080
+      routes:
+      - name: mop-feedback-svr-no-auth
+        strip_path: false
+        paths:
+        - /api/v1/mop/mop-feedback-svr/data
+
+    - name: mop-netdisk-proxy
+      url: http://mop-netdisk-proxy.{{ .Release.Namespace }}:8080
+      routes:
+      - name: mop-netdisk-proxy
+        strip_path: false
+        paths:
+        - /api/v1/mop/netDiskProxy/normal
+        - /api/v1/mop/netdisk-proxy/normal
+
+    - name: mop-netdisk-proxy-no-auth
+      url: http://mop-netdisk-proxy.{{ .Release.Namespace }}:8080
+      routes:
+      - name: mop-netdisk-proxy-no-auth
+        strip_path: false
+        paths:
+        - /api/v1/mop/netDiskProxy/needCheckAuth
+        - /api/v1/mop/netdisk-proxy/need-check-auth
+
+    - name: mop-fast-trial-manager
+      url: http://mop-fast-trial-manager.{{ .Release.Namespace }}:8080/api/v1/mop/mop-fast-trial-manager
+      routes:
+      - name: mop-fast-trial-manager
+        paths:
+        - /api/v1/mop/mop-fast-trial-manager
+
+    - name: mop-open-api-no-auth
+      url: http://mop-open-api.{{ .Release.Namespace }}:8080
+      routes:
+      - name: mop-open-api-no-auth
+        strip_path: false
+        paths:
+        - /api/v1/mop/mop-open-api
+        - /api/v1/mop/openapi
+        - /api/v1/mop/runtime
+        - /api/v1/mop/open-api
+
+    - name: mop-control-manager
+      url: http://mop-control-manager.{{ .Release.Namespace }}:8080/api/v1/mop/mop-control-manager
+      routes:
+      - name: mop-control-manager
+        paths:
+        - /api/v1/mop/mop-control-manager
+
+    - name: mop-control-manager-no-auth
+      url: http://mop-control-manager.{{ .Release.Namespace }}:8080
+      routes:
+      - name: mop-control-manager-no-auth
+        strip_path: false
+        paths:
+        - /api/v1/mop/mop-control-manager/mopHelper/ios/version/auditing
+        - /api/v1/mop/mop-control-manager/mop-helper/ios/version/auditing
+        - /api/v1/mop/mop-control-manager/mopSDK/config/info
+        - /api/v1/mop/mop-control-manager/mop-sdk/config/info
+
+    - name: mop-fast-trial-manager-no-auth
+      url: http://mop-fast-trial-manager.{{ .Release.Namespace }}:8080
+      routes:
+      - name: mop-fast-trial-manager-no-auth
+        strip_path: false
+        paths:
+        - /api/v1/mop/mop-fast-trial-manager/verifyCode
+        - /api/v1/mop/mop-fast-trial-manager/verify-code
+        - /api/v1/mop/mop-fast-trial-manager/info/apply
+        - /api/v1/mop/mop-fast-trial-manager/send/account
+
+    - name: mop-fast-trial-manager
+      url: http://mop-fast-trial-manager.{{ .Release.Namespace }}:8080/api/v1/mop/mop-fast-trial-manager
+      routes:
+      - name: mop-fast-trial-manager
+        paths:
+        - /api/v1/mop/mop-fast-trial-manager
+
+    - name: mop-device-security
+      url: http://mop-device-security.{{ .Release.Namespace }}:8080/api/v1/mop/applets-ecol-device-security
+      routes:
+      - name: mop-device-security
+        paths:
+        - /api/v1/mop/applets-ecol-device-security
+
+    - name: mop-device-security-no-auth
+      url: http://mop-device-security.{{ .Release.Namespace }}:8080
+      routes:
+      - name: mop-device-security-no-auth
+        strip_path: false
+        paths:
+        - /api/v1/mop/applets-ecol-device-security/refresh/token
+
+    - name: mop-rule-engine-svr
+      url: http://mop-rule-engine-svr.{{ .Release.Namespace }}:8080
+      routes:
+      - name: mop-rule-engine-svr
+        strip_path: false
+        paths:
+        - /api/v1/mop/ruleEngine
+        - /api/v1/mop/rule-engine
+
+    - name: mop-help-center-svr
+      url: http://mop-help-center-svr.{{ .Release.Namespace }}:8080/api/v1/mop/help-center
+      routes:
+      - name: mop-help-center-svr
+        paths:
+        - /api/v1/mop/help-center
+
+    - name: mop-app-gray-statistics-center
+      url: http://mop-app-gray-statistics-center.{{ .Release.Namespace }}:8080/api/v1/mop/mop-app-gray-statistics-center
+      routes:
+      - name: mop-app-gray-statistics-center
+        paths:
+        - /api/v1/mop/mop-app-gray-statistics-center
+
+    - name: mop-sdk-manager
+      url: http://mop-sdk-manager.{{ .Release.Namespace }}:8080/api/v1/mop/mop-sdk-manager
+      routes:
+      - name: mop-sdk-manager
+        paths:
+        - /api/v1/mop/mop-sdk-manager
+
+    - name: mop-audit-manage-svr
+      url: http://mop-audit-manage-svr.{{ .Release.Namespace }}:8080/api/v1/mop/mop-audit-manage-svr
+      routes:
+      - name: mop-audit-manage-svr
+        paths:
+        - /api/v1/mop/mop-audit-manage-svr
+
+    - name: mop-front-document
+      url: http://mop-front-document.{{ .Release.Namespace }}:80/mop/document
+      routes:
+      - name: mop-front-document
+        paths:
+        - /mop/document
+
+    - name: applets-docs
+      url: http://applet-doc.docs:80
+      routes:
+      - name: applets-docs
+        paths:
+        - /docs
+
+    - name: headers
+      url: http://headers.{{ .Release.Namespace }}:8080
+      routes:
+      - name: headers
+        paths:
+        - /headers
+
+
+    plugins:
+    - name: prometheus
+
+    - name: jwt
+      config:
+        secret_is_base64: true
+        claims_to_verify:
+        - exp
+        uri_param_names:
+        - jwt
+        maximum_expiration: 86400
+
+    - name: jwt-claims-to-headers
+      config:
+        header_prefix: x-mop-
+
+    #authless
+    - name: jwt
+      config:
+        anonymous: anonymous
+      route: applets-docs
+    - name: jwt
+      config:
+        anonymous: anonymous
+      route: mop-account-system-no-auth
+    - name: jwt
+      config:
+        anonymous: anonymous
+      route: mop-article-pub-center-no-auth
+    - name: jwt
+      config:
+        anonymous: anonymous
+      route: mop-basic-pack-svr
+    - name: jwt
+      config:
+        anonymous: anonymous
+      route: mop-app-manage-svr-no-auth
+    - name: jwt
+      config:
+        anonymous: anonymous
+      route: mop-app-manage-svr
+    - name: jwt
+      config:
+        anonymous: anonymous
+      route: finstore-dev
+    - name: jwt
+      config:
+        anonymous: anonymous
+      route: finstore-admin
+    - name: jwt
+      config:
+        anonymous: anonymous
+      route: mop-control-manager-no-auth
+    - name: jwt
+      config:
+        anonymous: anonymous
+      route: mop-data-report-no-auth
+    - name: jwt
+      config:
+        anonymous: anonymous
+      route: mop-device-security-no-auth
+    - name: jwt
+      config:
+        anonymous: anonymous
+      route: mop-fast-trial-manager-no-auth
+    - name: jwt
+      config:
+        anonymous: anonymous
+      route: mop-feedback-svr-no-auth
+    - name: jwt
+      config:
+        anonymous: anonymous
+      route: mop-front-mechanism
+    - name: jwt
+      config:
+        anonymous: anonymous
+      route: mop-front-operate
+
+    - name: jwt
+      config:
+        anonymous: anonymous
+      route: mop-help-center-svr
+    - name: jwt
+      config:
+        anonymous: anonymous
+      route: mop-netdisk-no-auth
+    - name: jwt
+      config:
+        anonymous: anonymous
+      route: mop-netdisk-proxy-no-auth
+    - name: jwt
+      config:
+        anonymous: anonymous
+      route: mop-open-api-no-auth
+    - name: jwt
+      config:
+        anonymous: anonymous
+      route: mop-scattered-page
+    - name: jwt
+      config:
+        anonymous: anonymous
+      route: netdisk-authless
+    - name: jwt
+      config:
+        anonymous: anonymous
+      route: mop-notify
+    - name: jwt
+      config:
+        anonymous: anonymous
+      route: netdisk
+    - name: jwt
+      config:
+        anonymous: anonymous
+      route: mop-domain-manager
+    - name: jwt
+      config:
+        anonymous: anonymous
+      route: finstore-client
+    - name: jwt
+      config:
+        anonymous: anonymous
+      route: mop-applet-build
+    - name: jwt
+      config:
+        anonymous: anonymous
+      route: mop-applet-build-manager
+    - name: jwt
+      config:
+        anonymous: anonymous
+      route: mop-article-pub-center
+    - name: jwt
+      config:
+        anonymous: anonymous
+      route: mop-data-report
+    - name: jwt
+      config:
+        anonymous: anonymous
+      route: mop-netdisk-proxy
+    - name: jwt
+      config:
+        anonymous: anonymous
+      route: mop-device-security
+    - name: jwt
+      config:
+        anonymous: anonymous
+      route: mop-rule-engine-svr
+    - name: jwt
+      config:
+        anonymous: anonymous
+      route: mop-control-manager
+    - name: jwt
+      config:
+        anonymous: anonymous
+      route: mop-app-gray-statistics-center
+    - name: jwt
+      config:
+        anonymous: anonymous
+      route: mop-feedback-svr
+    - name: jwt
+      config:
+        anonymous: anonymous
+      route: mop-basic-pack-svr
+    - name: jwt
+      config:
+        anonymous: anonymous
+      route: mop-audit-manage-svr
+    - name: jwt
+      config:
+        anonymous: anonymous
+      route: mop-front-document
+kind: ConfigMap
+metadata:
+  name: gateway-configmap-yaml-658ghb8d4k

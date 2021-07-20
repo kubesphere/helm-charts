@@ -1,0 +1,38 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: migration parse
+    kompose.version: 1.16.0 (0c01309)
+  labels:
+    io.kompose.service: mop-verify-code-gateway
+  name: mop-verify-code-gateway
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: mop-verify-code-gateway
+  template:
+    metadata:
+      labels:
+        io.kompose.service: mop-verify-code-gateway
+    spec:
+      containers:
+      - env:
+        - name: ZIPKIN_STOS
+          value: 'false'
+        - name: FINOGEEKS_TYPES
+          value: 'mop,mop-fast-trial,mop-register'
+        - name: PROVIDER_PHONE_URL
+          value: ''
+        - name: PROVIDER_EMAIL_URL
+          value: ''
+        - name: ZIPKIN_URL
+          value: ''
+        image: {{ .Values.images.mop_verify_code_gateway }}
+        imagePullPolicy: IfNotPresent
+        name: mop-verify-code-gateway
+        resources: {}
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: {{ .Values.images.pullSecrets }}

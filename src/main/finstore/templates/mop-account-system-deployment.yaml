@@ -1,0 +1,87 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: migration parse
+    kompose.version: 1.16.0 (0c01309)
+  labels:
+    io.kompose.service: mop-account-system
+  name: mop-account-system
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: mop-account-system
+  template:
+    metadata:
+      labels:
+        io.kompose.service: mop-account-system
+    spec:
+      containers:
+      - env:
+        - name: CONSUL_HTTP_IP
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: status.hostIP
+        - name: CONSUL_TAG
+          value: mop-finstore
+        - name: HTTP_PORT
+          value: '8080'
+        - name: MONGO_URL
+          value: {{ .Values.mongodb.uri | quote }}
+        - name: DB_NAME
+          value: 'mop-account-system-private'
+        - name: HTTP_MODE
+          value: 'debug'
+        - name: LOG_MODE
+          value: 'debug'
+        - name: KONG_URL_PREFIX
+          value: 'http://gateway.mop-gateway:8001'
+        - name: ORGAN_EXPIRED_MONTH
+          value: '1200'
+        - name: ALLOW_APPLY_ID_NUM
+          value: '10'
+        - name: COMMON_VERIFY_CODE
+          value: '850822'
+        - name: REDIS_URL
+          value: {{ .Values.redis.uri | quote }}
+        - name: REDIS_ADDR
+          value: {{ .Values.redis.uri | quote }}
+        - name: REDIS_PASSWORD
+          value: {{ .Values.redis.password | quote }}
+        - name: RESET_PASSWORD
+          value: '123Abc'
+        - name: OPER_ADMIN_NAME
+          value: 'admin'
+        - name: OPER_ADMIN_ACCOUNT
+          value: 'admin'
+        - name: OPER_ADMIN_PHONE
+          value: '18220595937'
+        - name: OPER_ADMIN_PASSWORD
+          value: '123Abc'
+        - name: MAX_REDIS_CLIENT_NUM
+          value: '100'
+        - name: KAFKA_ADDR
+          value: {{ .Values.kafka.addr }}
+        - name: DEVELOP_LEVEL
+          value: 'debug'
+        - name: VERIFY_CODE_URL_PREFIX
+          value: 'http://mop-verify-code-gateway:8080'
+        - name: OPERATE_LOG_TOPIC
+          value: 'mop_private_operation_log'
+        - name: NOTIFY_DATA_TOPIC
+          value: 'mop_private_notify_data_topic'
+        - name: ZIPKIN_URL
+          value: ''
+        - name: VERIFY_CODE_TYPE
+          value: 'mop'
+        - name: ENV
+          value: 'mop-private'
+        image: {{ .Values.images.mop_account_system }}
+        imagePullPolicy: IfNotPresent
+        name: mop-account-system
+        resources: {}
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: {{ .Values.images.pullSecrets }}

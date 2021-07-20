@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: migration parse
+    kompose.version: 1.16.0 (0c01309)
+  labels:
+    io.kompose.service: mop-feedback-svr
+  name: mop-feedback-svr
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: mop-feedback-svr
+  template:
+    metadata:
+      labels:
+        io.kompose.service: mop-feedback-svr
+    spec:
+      containers:
+        - env:
+            - name: PUBLISH_ENV
+              value: 'private'
+            - name: HTTP_PORT
+              value: '8080'
+            - name: ROUTE_MODE
+              value: 'debug'
+            - name: LOG_MODE
+              value: 'debug'
+            - name: MONGO_URL
+              value: {{ .Values.mongodb.uri | quote }}
+            - name: DB_NAME
+              value: 'mop-feedback-svr-private'
+            - name: GET_ORGAN_ID_URL
+              value: 'http://mop-app-manage-svr:8080/api/v1/mop/finstore/organId/'
+            - name: GET_ORGAN_INFO_URL
+              value: 'http://mop-account-system:8080/api/v1/mop/applets-ecol-account/organ/business/info/'
+            - name: ZIPKIN_URL
+              value: ''
+          image: {{ .Values.images.mop_feedback_svr }}
+          imagePullPolicy: IfNotPresent
+          name: mop-feedback-svr
+          resources: {}
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: {{ .Values.images.pullSecrets }}

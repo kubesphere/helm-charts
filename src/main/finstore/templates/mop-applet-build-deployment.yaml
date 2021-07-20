@@ -1,0 +1,68 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: kompose convert -c
+    kompose.version: 1.16.0 (0c01309)
+  labels:
+    io.kompose.service: mop-applet-build
+  name: mop-applet-build
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: mop-applet-build
+  template:
+    metadata:
+      labels:
+        io.kompose.service: mop-applet-build
+    spec:
+      containers:
+      - env:
+        - name: FINSTORE_SERVER
+          value: 'http://mop-app-manage-svr:8080'
+        - name: ACCOUNT_SERVER
+          value: 'http://mop-account-system:8080'
+        - name: MONGO_DOMAIN
+          value: {{ .Values.mongodb.mongo_domain }}
+        - name: MONGO_URL
+          value: ''
+        - name: MONGO_PORT
+          value: {{ .Values.mongodb.mongo_port | quote }}
+        - name: MONGO_AUTH
+          value: {{ .Values.mongodb.mongo_auth | quote }}
+        - name: MONGO_OPTION
+          value: {{ .Values.mongodb.mongo_option | quote }}
+        - name: PORT
+          value: '8080'
+        - name: MONGO_DB
+          value: 'mop-applets-build-private'
+        - name: MONGO_USERNAME
+          value: ''
+        - name: MONGO_PASSWORD
+          value: ''
+        - name: UPDATE_APPINFO_HOST
+          value: 'http://mop-app-manage-svr:8080'
+        - name: ENTRY_URL
+          value: ''
+        - name: IS_COMMUNITY
+          value: 'false'
+        image: {{ .Values.images.mop_applet_build }}
+        imagePullPolicy: IfNotPresent
+        name: mop-applet-build
+        resources: {}
+        volumeMounts:
+        - mountPath: /workspace/app/applet
+          name: applets-build-claim0
+        - mountPath: /workspace/app/uploads
+          name: applets-build-claim1
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: {{ .Values.images.pullSecrets }}
+      volumes:
+      - name: applets-build-claim0
+        hostPath:
+          path: /mnt/data/dendrite/applets-build/applet
+      - name: applets-build-claim1
+        hostPath:
+          path: /mnt/data/dendrite/applets-build/uploads

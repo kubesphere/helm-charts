@@ -1,0 +1,52 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: migration parse
+    kompose.version: 1.16.0 (0c01309)
+  labels:
+    io.kompose.service: mop-device-security
+  name: mop-device-security
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: mop-device-security
+  template:
+    metadata:
+      labels:
+        io.kompose.service: mop-device-security
+    spec:
+      containers:
+      - env:
+        - name: REDIS_MODE
+          value: "single"
+        - name: HTTP_PORT
+          value: '8080'
+        - name: ACTIVE_MIN
+          value: '60'
+        - name: MAX_COROUTINES_NUM
+          value: '1000'
+        - name: REDIS_ADDR
+          value: {{ .Values.redis.uri | quote }}
+        - name: REDIS_URL
+          value: {{ .Values.redis.uri | quote }}
+        - name: REDIS_PASSWORD
+          value: {{ .Values.redis.password | quote }}
+        - name: MAX_INACTIVE_EXIST_TIME
+          value: '1209600'
+        - name: MONGO_URL
+          value: {{ .Values.mongodb.uri | quote }}
+        - name: DB_NAME
+          value: 'mop-applets-ecol-device-security-private'
+        - name: KONG_URL_PREFIX
+          value: 'http://gateway:8001'
+        - name: ZIPKIN_URL
+          value: ''
+        image: {{ .Values.images.mop_device_security }}
+        imagePullPolicy: IfNotPresent
+        name: mop-device-security
+        resources: {}
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: {{ .Values.images.pullSecrets }}

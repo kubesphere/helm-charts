@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: migration parse
+    kompose.version: 1.16.0 (0c01309)
+  labels:
+    io.kompose.service: mop-audit-manage-svr
+  name: mop-audit-manage-svr
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: mop-audit-manage-svr
+  template:
+    metadata:
+      labels:
+        io.kompose.service: mop-audit-manage-svr
+    spec:
+      containers:
+      - env:
+        - name: CONSUL_HTTP_IP
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: status.hostIP
+        - name: CONSUL_TAG
+          value: mop-finstore
+        - name: HTTP_PORT
+          value: '8080'
+        - name: MONGO_URL
+          value: {{ .Values.mongodb.uri | quote }}
+        - name: HTTP_MODE
+          value: 'release'
+        - name: LOG_MODE
+          value: 'debug'
+        - name: REDIS_URL
+          value: {{ .Values.redis.uri | quote }}
+        - name: REDIS_ADDR
+          value: {{ .Values.redis.uri | quote }}
+        - name: REDIS_PASSWORD
+          value: {{ .Values.redis.password | quote }}
+        - name: REDIS_EXPIRE_TIME
+          value: '180'
+        - name: OPERATE_LOG_TOPIC
+          value: 'mop_private_operation_log'
+        - name: NOTIFY_DATA_TOPIC
+          value: 'mop_private_notify_data_topic'
+        - name: NETDISK_DOWNLOAD_URL_PREFIX
+          value: /api/v1/mop/netdisk/download/
+        - name: PUBLISH_ENV
+          value: 'mop-private'
+        - name: DB_NAME
+          value: 'mop-audit-manage-svr-private'
+        image: {{ .Values.images.mop_audit_manage_svr }}
+        imagePullPolicy: IfNotPresent
+        name: mop-audit-manage-svr
+        resources: {}
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: {{ .Values.images.pullSecrets }}

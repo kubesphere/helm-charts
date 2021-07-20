@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: migration parse
+    kompose.version: 1.16.0 (0c01309)
+  labels:
+    io.kompose.service: netdisk
+  name: netdisk
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: netdisk
+  template:
+    metadata:
+      labels:
+        io.kompose.service: netdisk
+    spec:
+      containers:
+      - env:
+        - name: ENABLE_MONITOR
+          value: "true"
+        - name: enableKafka
+          value: {{ .Values.enable_kafka | quote }}
+        - name: minioAccessKeyID
+          value: {{ .Values.minio.accesskeyid | quote }}
+        - name: minioEndpoint
+          value: {{ .Values.minio.addr | quote }}
+        - name: minioSecretAccessKey
+          value: {{ .Values.minio.accesskey | quote }}
+        - name: storageFrom
+          value: minio
+        - name: mongoUrl
+          value: {{ .Values.mongodb.uri | quote }}
+        - name: emoteUploadDir
+          value: "/opt/emote_upload"
+        image: {{ .Values.images.netdisk }}
+        imagePullPolicy: IfNotPresent
+        name: netdisk
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: {{ .Values.images.pullSecrets }}

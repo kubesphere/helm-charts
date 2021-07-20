@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: netdisk
+  labels:
+    io.kompose.service: netdisk
+spec:
+  ports:
+  - port: 9999
+    name: port
+  - name: "monitor"
+    port: 9092
+    targetPort: 9092
+  selector:
+    io.kompose.service: netdisk

@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  annotations:
+    kompose.cmd: migration parse
+    kompose.version: 1.16.0 (0c01309)
+  labels:
+    io.kompose.service: mop-control-manager
+  name: mop-control-manager
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: mop-control-manager
+  template:
+    metadata:
+      labels:
+        io.kompose.service: mop-control-manager
+    spec:
+      containers:
+      - env:
+        - name: CONSUL_HTTP_IP
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: status.hostIP
+        - name: REQ_TYPE
+          value: http
+        - name: CONSUL_TAG
+          value: mop-finstore
+        - name: HTTP_PORT
+          value: '8080'
+        - name: DB_NAME
+          value: 'mop-control-manager-private'
+        - name: MONGO_URL
+          value: {{ .Values.mongodb.uri | quote }}
+        - name: COMMON_APM_URL
+          value: ''
+        image: {{ .Values.images.mop_control_manager }}
+        imagePullPolicy: IfNotPresent
+        name: mop-control-manager
+        resources: {}
+      restartPolicy: Always
+      imagePullSecrets:
+        - name: {{ .Values.images.pullSecrets }}

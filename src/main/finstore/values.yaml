@@ -1,0 +1,50 @@
+# images
+
+images:
+    pullSecrets: registrykey-docker-finogeeks-club
+    mop_app_manage_svr: docker.finogeeks.club/mop/mop-app-manage-svr:2.11.16
+    mop_account_system: docker.finogeeks.club/mop/mop-account-system:2.11.17
+    mop_notify: docker.finogeeks.club/mop/mop-notify:2.10.0
+    mop_domain_manager: docker.finogeeks.club/mop/mop-domain-manager:2.10.0
+    mop_device_security: docker.finogeeks.club/mop/mop-device-security:2.10.0
+    mop_front_mechanism: docker.finogeeks.club/mop/mop-front-mechanism:2.2.75-private
+    mop_front_operate: docker.finogeeks.club/mop/mop-front-operate:2.2.74-private
+    mop_applet_build: docker.finogeeks.club/mop/mop-applet-build:2.13.9
+    mop_scattered_page: docker.finogeeks.club/mop/mop-scattered-page:2.0.4
+    mop_article_pub_center: docker.finogeeks.club/mop/mop-article-pub-center:2.10.0
+    mop_feedback_svr: docker.finogeeks.club/mop/mop-feedback-svr:2.10.2
+    mop_basic_pack_svr: docker.finogeeks.club/mop/mop-basic-pack-svr:2.10.0
+    netdisk: docker.finogeeks.club/finochat/netdisk:1.6.11
+    mop_verify_code_gateway: docker.finogeeks.club/mop/mop-verify-code-gateway:2.10.0
+    mop_license_checker: docker.finogeeks.club/mop/mop-license-checker:2.10.0
+    mop_private_init_server: docker.finogeeks.club/mop/mop-private-init-server:2.10.0
+    mop_data_report: docker.finogeeks.club/mop/mop-data-report:2.11.4
+    mop_netdisk_proxy: docker.finogeeks.club/mop/mop-netdisk-proxy:2.10.1
+    mop_control_manager: docker.finogeeks.club/mop/mop-control-manager:2.10.1
+    mop_rule_engine_svr: docker.finogeeks.club/mop/mop-rule-engine-svr:2.10.0
+    mop_open_api: docker.finogeeks.club/mop/mop-open-api:2.11.9
+    mop_app_gray_statistics_center: docker.finogeeks.club/mop/mop-app-gray-statistics-center:2.10.0
+    mop_audit_manage_svr: docker.finogeeks.club/mop/mop-audit-manage-svr:2.12.0
+
+redis:
+    uri: "redis://redis-1606714249-master.default.svc.cluster.local:6379/0"
+    host: "redis-1606714249-master.default.svc.cluster.local"
+    port: "6379"
+    password: "0cw6sDgqjs"
+mongodb:
+    uri: "mongodb://mongodb-1606713885.default.svc.cluster.local:27017/"
+    mongo_domain: 'mongodb-1606713885'
+    mongo_port: '27017'
+    mongo_auth: ''
+    mongo_option: ''
+minio:
+    addr: "minio-1606714795.default.svc.cluster.local:9000"
+    accesskeyid: i1NhIoEPYi
+    accesskey: bP4PD47Y6tqRKCxiEHZeOfUqNyxUGKR9z3xTH7Rb
+es:
+    url: 'http://elasticsearch-1606713842-elasticsearch-master.default.svc.cluster.local:9200'
+kafka:
+    addr: 'kafka-1606713571-headless.default.svc.cluster.local:9092'
+
+finclip_license: gyxXK0fvBxoS5Tdx6srr/nX8vTC6wyKyDI4WjsbRQLNVZ50qHtDfFf1fCx4A7ExfPzzQj4eg3tZNQf1hmL7+lwGh4tMQgB8kFiuqc9wbjWaC5CzJn1JLalPEJldxamwSYrGasbZyZvYQPRRLZznFeufMuuCoDF/soNTto7BVAQoitDHb23wp3DaK7WqqVMMe5+yUnSK6e2YSl4MiKuLkZ5Ac4/BUlvFUaXWFE8eX2Mw/wIS1Jes0KOS4eAwj24nAEEKZnZBN9XyHO4DQkVB3lMQx4i8oV5y44xArzt3gcEEvNt04dwrdGv+7dfRLxZB0zocdalbd81Hiwfy5t60e6w8c/04g131p8gi3d/gsZAkvtAwrb84QsF6b8e/p8FqXPi9vLcgnIYiHDSQmAmTEXqeLN8pMXZ14yx+Sv6f+z0wu8CCs6Cq9n6XOnrW6OrEInhtOeJfSosIsyzhWYBA3eurIpurSsQ3Aq9RAm0f90BEYMdmIsNGyOtl7oezdmOP5W/RVpKDKLicQODsiLE3tw37SAhgR96OtN/2mX4FcfoWlSlgtfYIARKXkf+wrTSGrHQcZhdkfNd1Mi4ggFJUBcozYgrdl7aYCA7ac4AHf6OEAUr4so6AsH1HNsUVIWpENefKA5FoocliZewYemuumMgOO37h2qX4uQct/Fnr3/iom3C4pNmMVUPkXX/car7LJ6n50bYihyKWrf9iE7SoPZyReS434h0/iiOWZem88HlTgZLs/I9w7huxQ+l+WlcOJDAosp8si/aFZC0Zno9iRl4agbQCrwwwd0vWf5O6Z9Y5/qgT8v5YUrZic1qE1yQuJ+trXyAN450kBGruQo8uyjpKe0ZVAGzRT8xhQ+xIp2ZNRa++A7ztC+XjkmBheDmRF9/iHwjJESG3ETJZfIuLm4EDnFCRrN2CpOKgEiXoFdVHnPjPIYlGvxQcY3xELKrTbOc9eWuqSyAtd1+SZhIFJg7FuLlUfLU5EEYoAbKnNg0S/YG073XjFghoiNe2YVEDDrf1Q2u0Hr9ssiOfGnDqiR3UybAyPSYhJhlWm0tO4iR5ff0Y1+8510/8uCFpfT5byB+233JfhUd3gdH9P26/5OY+bRPter7SemBjqXQLyKGOFlG1RnahT87rIE3+BrX/R1mDjAS27auiVdlla3PDevVTi7uis8J4XgZuClfGMnNmi43ECIcz5bClBtwDQFxmv
+organ_name: 社区版

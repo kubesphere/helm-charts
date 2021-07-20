@@ -1,0 +1,35 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app.kubernetes.io/instance: gateway
+    app.kubernetes.io/name: gateway
+    deployment-env: fdep
+  name: gateway
+spec:
+  ports:
+  - name: http
+    nodePort: 30000
+    port: 8000
+    protocol: TCP
+    targetPort: http
+  - name: https
+    nodePort: 30001
+    port: 8443
+    protocol: TCP
+    targetPort: https
+  - name: admin-http
+    nodePort: 30002
+    port: 8001
+    protocol: TCP
+    targetPort: admin-http
+  - name: admin-https
+    nodePort: 30003
+    port: 8444
+    protocol: TCP
+    targetPort: admin-https
+  selector:
+    app.kubernetes.io/instance: gateway
+    app.kubernetes.io/name: gateway
+    deployment-env: fdep
+  type: NodePort
