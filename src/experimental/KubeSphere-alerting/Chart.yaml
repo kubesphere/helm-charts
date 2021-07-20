@@ -1,0 +1,14 @@
+apiVersion: v1
+name: KubeSphere-alerting
+version: 2.1.0
+description: A Helm chart for alerting
+keywords:
+  - KubeSphere
+  - alerting
+sources:
+  - https://github.com/kubesphere/alert
+home: https://kubesphere.com.cn/
+maintainers:
+  - name: KubeSphere
+    email: kubesphere@yunify.com
+

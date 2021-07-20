@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: alerting-client
+  name: "{{ .Chart.Name }}"
+  namespace: "{{ .Values.namespace }}"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: alerting-client
+  template:
+    metadata:
+      labels:
+        app: alerting-client
+    spec:
+      containers:
+      - command:
+        - /alerting/alert
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: "{{ .Values.image.pullPolicy }}"
+        name: alerting-client
+        env:
+        - name: ALERT_APP_RUN_MODE
+          value: "client"
+        - name: ALERT_MYSQL_HOST
+          value: "{{ .Values.dbHost }}"
+        - name: ALERT_ETCD_ENDPOINTS
+          value: "{{ .Values.etcdEndpoint }}"
+        - name: ALERT_APP_HOST
+          value: "alerting-manager-server.kubesphere-alerting-system"
+        ports:
+        - containerPort: "{{ .Values.alertingClient.containerPort }}"
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 500m
+            memory: 500Mi
+          requests:
+            cpu: "{{ .Values.resources.request.cpu }}"
+            memory: "{{ .Values.resources.request.memory }}"

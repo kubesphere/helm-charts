@@ -1,0 +1,61 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: alerting-manager
+  name: "{{ .Chart.Name }}"
+  namespace: "{{ .Values.namespace }}"
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: alerting-manager
+  template:
+    metadata:
+      labels:
+        app: alerting-manager
+    spec:
+      initContainers:
+      - name: wait-mysql
+        image: "{{ .Values.busyboxImage.repository }}:{{ .Values.busyboxImage.tag }}"
+        imagePullPolicy: "{{ .Values.busyboxImage.pullPolicy }}"
+        command: ['sh', '-c', 'until nc -z {{ .Values.dbHost }} {{ .Values.dbPort }}; do echo "waiting for mysql"; sleep 2; done;']
+      - name: wait-etcd
+        image: "{{ .Values.busyboxImage.repository }}:{{ .Values.busyboxImage.tag }}"
+        imagePullPolicy: "{{ .Values.busyboxImage.pullPolicy }}"
+        command: ['sh', '-c', 'until nc -z {{ .Values.etcdHost }} {{ .Values.etcdPort }}; do echo "waiting for etcd"; sleep 2; done;']
+      containers:
+      - command:
+        - /alerting/alert
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: "{{ .Values.image.pullPolicy }}"
+        name: alerting-manager
+        env:
+        - name: ALERT_APP_RUN_MODE
+          value: "manager"
+        - name: ALERT_MYSQL_HOST
+          value: "{{ .Values.dbHost }}"
+        - name: ALERT_ETCD_ENDPOINTS
+          value: "{{ .Values.etcdEndpoint }}"
+        - name: ALERT_QUEUE_TYPE
+          value: "redis"
+        - name: ALERT_QUEUE_ADDR
+          value: "redis://{{ .Values.redisEndpoint }}"
+        - name: ALERT_APP_NOTIFICATION_HOST
+          value: "notification.kubesphere-alerting-system.svc:9201"
+        - name: ALERT_LOG_LEVEL
+          value: "info"
+        - name: ALERT_MYSQL_LOG_MODE
+          value: "false"
+        ports:
+        - containerPort: "{{ .Values.alertingManager.containerPortB }}"
+          protocol: TCP
+        - containerPort: "{{ .Values.alertingManager.containerPortA }}"
+          protocol: TCP
+        resources:
+          limits:
+            cpu: 500m
+            memory: 500Mi
+          requests:
+            cpu: "{{ .Values.resources.request.cpu }}"
+            memory: "{{ .Values.resources.request.memory }}"
