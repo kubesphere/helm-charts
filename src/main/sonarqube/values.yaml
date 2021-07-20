@@ -29,6 +29,7 @@ service:
   internalPort: 9000
   labels:
   annotations: {}
+  # nodePort: 31708
   # May be used in example for internal load balancing in GCP:
   # cloud.google.com/load-balancer-type: Internal
   # loadBalancerSourceRanges:
