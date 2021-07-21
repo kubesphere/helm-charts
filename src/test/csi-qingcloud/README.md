@@ -28,6 +28,18 @@ helm delete csi-qingcloud --namespace kube-system
 
 The command removes all the Kubernetes components associated with the chart and deletes the release.
 
+## Upgrade Notes
+The qingcloud-csi chart uses csi-snapshotter v4.0.0 by default starting from chart v1.2.9, v1 snapshot CRDs are required for csi-snapshotter v4.0.0 and above, therefore user must install v1 snapshot CRDs prior to the upgrade, otherwise the snapshot operation will fail.
+csi-snapshotter v4.0.0 supports both v1 and v1beta1 snapshot objects.
+User can specify chart value `snapshotter.tag=v2.0.1` with helm to use csi-snapshotter v2.0.1 which does not require v1 snapshot CRDs to be installed.
+
+## Support matrix　
+
+Chart Version | Snapshot CRDs Version | Min K8s Version 
+--- | --- | --- 
+ &lt;= 1.2.8 | only v1beta1 | 1.14 
+ &gt;= 1.2.9 | both v1beta1 and v1, only v1 | 1.17 
+
 ## Configuration
 
 The following table lists the configurable parameters of the chart and their default values.
@@ -50,16 +62,16 @@ Parameter | Description | Default
 `driver.maxVolume` | Max volume of CSI plugin | `10`
 `driver.kubeletDir` | Directory of kubelet | `/var/lib/kubelet`
 `provisioner.repository` | Image of csi-provisioner | `csiplugin/csi-provisioner`
-`provisioner.tag` | Tag of csi-provisioner | `v1.5.0`
+`provisioner.tag` | Tag of csi-provisioner | `v2.2.2`
 `provisioner.volumeNamePrefix` | Prefix of volume name created by the driver | `pvc`
 `attacher.repository` | Image of csi-attacher | `csiplugin/csi-attacher`
-`attacher.tag` | Tag of csi-attacher | `v2.1.1`
+`attacher.tag` | Tag of csi-attacher | `v3.2.1`
 `resizer.repository` | Image of csi-resizer | `csiplugin/csi-resizer`
-`resizere.tag` | Tag of csi-resizer | `v0.4.0`
+`resizere.tag` | Tag of csi-resizer | `v1.2.0`
 `snapshotter.repository` | Image of csi-snapshotter | `csiplugin/csi-snapshotter`
-`snapshotter.tag` | Tag of csi-snapshotter | `v2.0.1`
+`snapshotter.tag` | Tag of csi-snapshotter | `v4.0.0`
 `registar.repository` | Image of csi-node-driver-registrar| `csiplugin/csi-node-driver-registrar`
-`registar.tag` | Tag of csi-node-driver-registrar | `v1.2.0`
+`registar.tag` | Tag of csi-node-driver-registrar | `v2.2.0`
 `sc.enable` | Whether to enable this StorageClass | `true`
 `sc.isDefaultClass` | Whether to set this StorageClass as the default StorageClass | `false`
 `sc.name` | Name of storage class | `csi-qingcloud`
