@@ -37,6 +37,19 @@ helm delete csi-neonsan --namespace kube-system
 
 The command removes all the Kubernetes components associated with the chart and deletes the release.
 
+
+## Upgrade Notes
+The csi-neonsan chart uses csi-snapshotter v4.0.0 by default starting from chart v1.2.4, v1 snapshot CRDs are required for csi-snapshotter v4.0.0 and above, therefore user must install v1 snapshot CRDs prior to the upgrade, otherwise the snapshot operation will fail.
+csi-snapshotter v4.0.0 supports both v1 and v1beta1 snapshot objects.
+User can specify chart value `snapshotter.tag=v2.0.1` with helm to use csi-snapshotter v2.0.1 which does not require v1 snapshot CRDs to be installed.
+
+## Support matrix　
+
+Chart Version | Snapshot CRDs Version | Min K8s Version
+--- | --- | --- 
+&lt;= 1.2.3 | only v1beta1 | 1.14
+&gt;= 1.2.4 | both v1beta1 and v1, only v1 | 1.17
+
 ## Configuration
 
 The following table lists the configurable parameters of the csi-neonsan chart and their default values.
