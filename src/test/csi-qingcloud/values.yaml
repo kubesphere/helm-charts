@@ -29,7 +29,7 @@ driver:
   repository: csiplugin/csi-qingcloud
   # tag:
   pullPolicy: IfNotPresent
-  maxVolume: 10
+  maxVolume: 9
   kubeletDir: /var/lib/kubelet
 
 tolerations:
@@ -46,10 +46,10 @@ tolerations:
 controller:
   resources:
     limits:
-      memory: 50Mi
+      memory: 100Mi
       cpu: 100m
     requests:
-      memory: 50Mi
+      memory: 100Mi
       cpu: 100m
 provisioner:
   repository: csiplugin/csi-provisioner
@@ -57,40 +57,40 @@ provisioner:
   volumeNamePrefix: pvc
   resources:
     limits:
-      memory: 80Mi
-      cpu: 80m
+      memory: 100Mi
+      cpu: 100m
     requests:
-      memory: 80Mi
-      cpu: 80m
+      memory: 100Mi
+      cpu: 100m
 attacher:
   repository: csiplugin/csi-attacher
   tag: v3.2.1
   resources:
     limits:
-      memory: 80Mi
-      cpu: 80m
+      memory: 100Mi
+      cpu: 100m
     requests:
-      memory: 80Mi
-      cpu: 80m
+      memory: 100Mi
+      cpu: 100m
 resizer:
   repository: csiplugin/csi-resizer
   tag: v1.2.0
   resources:
     limits:
-      memory: 20Mi
+      memory: 40Mi
       cpu: 20m
     requests:
-      memory: 20Mi
+      memory: 40Mi
       cpu: 20m
 snapshotter:
   repository: csiplugin/csi-snapshotter
   tag: v4.0.0
   resources:
     limits:
-      memory: 20Mi
+      memory: 40Mi
       cpu: 20m
     requests:
-      memory: 20Mi
+      memory: 40Mi
       cpu: 20m
 
 registrar:
@@ -106,10 +106,10 @@ registrar:
 node:
   resources:
     limits:
-      memory: 50Mi
+      memory: 100Mi
       cpu: 100m
     requests:
-      memory: 50Mi
+      memory: 100Mi
       cpu: 100m
 
 sc:
