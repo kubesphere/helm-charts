@@ -9,6 +9,6 @@ metadata:
   labels:
     {{- include "gitlab.standardLabels" . | nindent 4 }}
 data:
-  {{ $port }}: "{{ .Release.Namespace }}/{{ template "fullname" . }}:{{ $port }}"
+  "{{ $port }}": "{{ .Release.Namespace }}/{{ template "fullname" . }}:{{ $port }}"
 {{- end -}}
 {{- end -}}
