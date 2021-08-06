@@ -12,8 +12,9 @@ ensureVars() {
   done
 }
 
+currentDir=$(pwd)
 helm() {
-  ./helm $@
+  "${currentDir}/helm" $@
 }
 
 helmVersion=3.6.3
@@ -41,6 +42,11 @@ addDependencyRepos() {
       local depRepos="$(awk '$1=="repository:" {print $2}' $reqFile | uniq)" depRepo
       [ -z "$depRepos" ] || for depRepo in $depRepos; do
         depRepo=${depRepo%/}
+		    schema=$(echo $depRepo |  awk -F:  '{printf("%s", $1)}' )
+        if [ "${schema}" == "file" ]; then
+            echo "skip ${depRepo}"
+            continue
+        fi
         echo $knownRepos | grep -q $depRepo || helm repo add ${depRepo//[.:\/]/-} $depRepo
       done
     fi
@@ -48,8 +54,10 @@ addDependencyRepos() {
 }
 
 updateDependencies() {
-  for chartDir in $@; do
-    helm dependency update $chartDir
+  for chartDir in "$@"; do
+    pushd ${chartDir}
+    helm dependency update .
+    popd
   done
 }
 
