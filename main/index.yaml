@@ -80,6 +80,68 @@ entries:
   gitlab:
   - apiVersion: v1
     appVersion: 13.2.2
+    created: "2021-08-09T14:53:27.94268187Z"
+    dependencies:
+    - alias: certmanager
+      condition: certmanager.install
+      name: cert-manager
+      repository: https://charts.jetstack.io/
+      version: 0.10.1
+    - condition: prometheus.install
+      name: prometheus
+      repository: https://charts.helm.sh/stable/
+      version: 10.0.0
+    - condition: postgresql.install
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: 8.9.4
+    - condition: gitlab-runner.install
+      name: gitlab-runner
+      repository: https://charts.gitlab.io/
+      version: 0.19.1
+    - condition: global.grafana.enabled
+      name: grafana
+      repository: https://charts.helm.sh/stable
+      version: 4.0.1
+    - condition: redis.install
+      name: redis
+      repository: https://charts.bitnami.com/bitnami
+      version: 10.3.4
+    - name: minio
+      repository: ""
+      version: 0.4.3
+    - name: certmanager-issuer
+      repository: ""
+      version: 0.1.0
+    - name: shared-secrets
+      repository: ""
+      version: 0.1.0
+    - name: nginx-ingress
+      repository: ""
+      version: 0.30.0-1
+    - name: registry
+      repository: ""
+      version: 0.5.0
+    - name: gitlab
+      repository: ""
+      version: 0.1.0
+    description: Web-based Git-repository manager with wiki and issue-tracking features.
+    digest: da3f2bb355b8f897c4cfddde57cfc188063f2225f59e3ed88dad584d707493b0
+    home: https://about.gitlab.com/
+    icon: https://gitlab.com/gitlab-com/gitlab-artwork/raw/master/logo/logo-square.png
+    keywords:
+    - gitlab
+    maintainers:
+    - email: support@gitlab.com
+      name: GitLab Inc.
+    name: gitlab
+    sources:
+    - https://gitlab.com/gitlab-org/charts/gitlab
+    urls:
+    - https://charts.kubesphere.io/main/gitlab-4.2.3.tgz
+    version: 4.2.3
+  - apiVersion: v1
+    appVersion: 13.2.2
     created: "2020-08-03T14:36:29.574424388Z"
     description: Web-based Git-repository manager with wiki and issue-tracking features.
     digest: b2a224ea068046f99568567a7508f2e314f4be575b9d10d9ff8b1b598131ab9f
@@ -169,7 +231,8 @@ entries:
     urls:
     - https://charts.kubesphere.io/main/harbor-1.4.0.tgz
     version: 1.4.0
-  - appVersion: 1.9.1
+  - apiVersion: v1
+    appVersion: 1.9.1
     created: "2020-05-12T00:56:27.26956401Z"
     description: An open source trusted cloud native registry that stores, signs,
       and scans content
@@ -797,4 +860,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/main/tomcat-0.4.0-r1.tgz
     version: 0.4.0-r1
-generated: "2021-06-23T07:01:31.080347615Z"
+generated: "2021-08-09T14:53:27.912337Z"
