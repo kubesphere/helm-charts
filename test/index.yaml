@@ -162,6 +162,28 @@ entries:
   csi-neonsan:
   - apiVersion: v2
     appVersion: 1.2.1
+    created: "2021-08-09T14:53:28.55047316Z"
+    description: A Helm chart for NeonSAN CSI Driver
+    digest: 4c2ea24074d1bee38fa418eb83d364c0e8fe248631ecadd23c3ce10a49d47901
+    home: https://github.com/yunify/qingstor-csi
+    icon: https://s3.qingcloud.com/files/2020/01/qing-stor-neon-san.png
+    keywords:
+    - neonsan
+    - csi
+    kubeVersion: '>=1.17.0-0'
+    maintainers:
+    - email: arminzhang@yunify.com
+      name: Min Zhang
+    - email: yangzhou@yunify.com
+      name: Yang Zhou
+    name: csi-neonsan
+    sources:
+    - https://github.com/yunify/qingstor-csi
+    urls:
+    - https://charts.kubesphere.io/test/csi-neonsan-1.2.4.tgz
+    version: 1.2.4
+  - apiVersion: v2
+    appVersion: 1.2.1
     created: "2020-12-17T09:12:10.605297423Z"
     description: A Helm chart for NeonSAN CSI Driver
     digest: 47c62dce45d3906db8c1f7616e80b41eb94b164ffc682b3f21dc40eaf8237b2a
@@ -279,6 +301,30 @@ entries:
     - https://charts.kubesphere.io/test/csi-neonsan-1.2.0-rc1.tgz
     version: 1.2.0-rc1
   csi-qingcloud:
+  - apiVersion: v2
+    appVersion: 1.2.1
+    created: "2021-08-09T14:53:28.551325867Z"
+    description: A Helm chart for Qingcloud CSI Driver
+    digest: 7e293ca4f53b56a7c9cfc50db387c60488aea6ce6c007cbabf7c19111dee92fd
+    home: https://github.com/yunify/qingcloud-csi
+    icon: https://s3.qingcloud.com/static/assets/images/icons/common/nav_logo_white.svg?v=1510299508
+    keywords:
+    - qingcloud
+    - csi
+    kubeVersion: '>=1.17.0-0'
+    maintainers:
+    - email: stoneshi@yunify.com
+      name: Yonghong Shi
+    - email: zheng1@yunify.com
+      name: Zhengyi Lai
+    - email: yangzhou@yunify.com
+      name: Yang Zhou
+    name: csi-qingcloud
+    sources:
+    - https://github.com/yunify/qingcloud-csi
+    urls:
+    - https://charts.kubesphere.io/test/csi-qingcloud-1.2.11.tgz
+    version: 1.2.11
   - apiVersion: v2
     appVersion: 1.2.1
     created: "2021-07-20T08:25:02.184254351Z"
@@ -1535,4 +1581,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/test/xenondb-1.0.0.tgz
     version: 1.0.0
-generated: "2021-07-20T08:25:02.182886952Z"
+generated: "2021-08-09T14:53:28.549727452Z"
