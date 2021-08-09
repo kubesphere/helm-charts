@@ -143,10 +143,10 @@ pushUpdates() {
 }
 
 pushRemote() {
-  ensureVars GITEE_USER GITEE_TOKEN
-  git remote add gitee https://$GITEE_USER:$GITEE_TOKEN@gitee.com/kubesphere/helm-charts.git
-  git push gitee HEAD:${1:-master} ${@:2}
-  git remote rm gitee
+  # ensureVars GITEE_USER GITEE_TOKEN
+  # git remote add gitee https://$GITEE_USER:$GITEE_TOKEN@gitee.com/kubesphere/helm-charts.git
+  # git push gitee HEAD:${1:-master} ${@:2}
+  # git remote rm gitee
 }
 
 installQsctl() {
