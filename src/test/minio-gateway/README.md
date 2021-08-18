@@ -1,7 +1,7 @@
 # NOTICE
-This chart is made based on bitnami/minio chart version 7.1.7 app version 2021.6.17. The major difference is this chart is using official minio image and the gateway supports external etcd as data store.
+This chart is made based on bitnami/minio chart version 7.1.7 app version 2021.6.17. The major difference is this chart is using official minio image and the gateway supports external etcd as data store to persist IAM data.
 
-If you don't install a minio gateway or don't need a external data store, please use the official [bitnami minio chart](https://charts.bitnami.com/bitnami) instead.
+If you don't install a minio gateway or don't need an external data store, please use the official [bitnami minio chart](https://charts.bitnami.com/bitnami) instead.
 
 # Bitnami Object Storage Helm Chart based on MinIO&reg;
 
