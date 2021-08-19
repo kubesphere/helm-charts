@@ -44,16 +44,15 @@ spec:
         image: "{{ .Values.provisioner.repository }}:{{ .Values.provisioner.tag }}"
         resources:
           limits:
-            memory: "80Mi"
-            cpu: "80m"
+            memory: "{{ .Values.provisioner.resources.limits.memory }}"
+            cpu: "{{ .Values.provisioner.resources.limits.cpu }}"
           requests:
-            memory: "80Mi"
-            cpu: "80m"
+            memory: "{{ .Values.provisioner.resources.requests.memory }}"
+            cpu: "{{ .Values.provisioner.resources.requests.cpu }}"
         args:
         - "--csi-address=$(ADDRESS)"
-        - "--enable-leader-election"
+        - "--leader-election"
         - "--feature-gates=Topology=true"
-        - "--leader-election-type=leases"
         - "--retry-interval-max=5m"
         - "--retry-interval-start=5s"
         - "--timeout=90s"
@@ -71,11 +70,11 @@ spec:
         image: "{{ .Values.attacher.repository }}:{{ .Values.attacher.tag }}"
         resources:
           limits:
-            memory: "80Mi"
-            cpu: "80m"
+            memory: "{{ .Values.attacher.resources.limits.memory }}"
+            cpu: "{{ .Values.attacher.resources.limits.cpu }}"
           requests:
-            memory: "80Mi"
-            cpu: "80m"
+            memory: "{{ .Values.attacher.resources.requests.memory }}"
+            cpu: "{{ .Values.attacher.resources.requests.cpu }}"
         args:
         - "--csi-address=$(ADDRESS)"
         - "--leader-election"
@@ -100,11 +99,11 @@ spec:
         image: "{{ .Values.snapshotter.repository }}:{{ .Values.snapshotter.tag }}"
         resources:
           limits:
-            memory: "20Mi"
-            cpu: "20m"
+            memory: "{{ .Values.snapshotter.resources.limits.memory }}"
+            cpu: "{{ .Values.snapshotter.resources.limits.cpu }}"
           requests:
-            memory: "20Mi"
-            cpu: "20m"
+            memory: "{{ .Values.snapshotter.resources.requests.memory }}"
+            cpu: "{{ .Values.snapshotter.resources.requests.cpu }}"
         args:
           - "--csi-address=$(ADDRESS)"
           - "--leader-election=false"
@@ -122,11 +121,11 @@ spec:
         image: "{{ .Values.resizer.repository }}:{{ .Values.resizer.tag }}"
         resources:
           limits:
-            memory: "20Mi"
-            cpu: "20m"
+            memory: "{{ .Values.resizer.resources.limits.memory }}"
+            cpu: "{{ .Values.resizer.resources.limits.cpu }}"
           requests:
-            memory: "20Mi"
-            cpu: "20m"
+            memory: "{{ .Values.resizer.resources.requests.memory }}"
+            cpu: "{{ .Values.resizer.resources.requests.cpu }}"
         args:
           - "--csi-address=$(ADDRESS)"
           - "--leader-election"
@@ -143,11 +142,11 @@ spec:
         image: "{{ .Values.driver.repository }}:{{ include "driver.version" . }}"
         resources:
           limits:
-            memory: "50Mi"
-            cpu: "50m"
+            memory: "{{ .Values.controller.resources.limits.memory }}"
+            cpu: "{{ .Values.controller.resources.limits.cpu }}"
           requests:
-            memory: "50Mi"
-            cpu: "50m"
+            memory: "{{ .Values.controller.resources.requests.memory }}"
+            cpu: "{{ .Values.controller.resources.requests.cpu }}"
         args :
           - "--config=/etc/config/config.yaml"
           - "--drivername={{ .Values.driver.name }}"
