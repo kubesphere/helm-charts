@@ -77,6 +77,16 @@ entries:
     urls:
     - https://charts.kubesphere.io/main/elasticsearch-exporter-3.3.1.tgz
     version: 3.3.1
+  fluentbit-operator:
+  - apiVersion: v2
+    appVersion: 0.9.0
+    created: "2021-08-19T02:44:53.777289146Z"
+    description: A Helm chart for Kubernetes
+    digest: bba667475dbb88870bde889caec9e5b96ab873c60f72a342be141d548b23daa1
+    name: fluentbit-operator
+    urls:
+    - https://charts.kubesphere.io/main/fluentbit-operator-0.1.0.tgz
+    version: 0.1.0
   gitlab:
   - apiVersion: v1
     appVersion: 13.2.2
@@ -860,4 +870,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/main/tomcat-0.4.0-r1.tgz
     version: 0.4.0-r1
-generated: "2021-08-09T14:53:27.912337Z"
+generated: "2021-08-19T02:44:53.775443813Z"
