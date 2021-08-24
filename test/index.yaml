@@ -746,6 +746,40 @@ entries:
     urls:
     - https://charts.kubesphere.io/test/metersphere-chart-1.0.0.tgz
     version: 1.0.0
+  minio-gateway:
+  - annotations:
+      category: Infrastructure
+    apiVersion: v2
+    appVersion: 0.1.0
+    created: "2021-08-24T14:54:38.848986098Z"
+    dependencies:
+    - name: common
+      repository: https://charts.bitnami.com/bitnami
+      tags:
+      - bitnami-common
+      version: 1.x.x
+    description: This chart is made based on bitnami/minio chart version 7.1.7 app
+      version 2021.6.17. The major difference is this chart is using official minio
+      image and the gateway supports external etcd as data store.
+    digest: c6d57bba929ba33c12cdc4a057956457dca0f854ef074aab65f76e15d80f7f18
+    home: https://github.com/kubesphere/helm-charts
+    icon: https://bitnami.com/assets/stacks/minio/img/minio-stack-220x234.png
+    keywords:
+    - minio
+    - gateway
+    - storage
+    - object-storage
+    - s3
+    - cluster
+    maintainers:
+    - email: stoneshi@yunify.com
+      name: Yonghong Shi
+    name: minio-gateway
+    sources:
+    - https://min.io
+    urls:
+    - https://charts.kubesphere.io/test/minio-gateway-0.1.0.tgz
+    version: 0.1.0
   mongodb:
   - annotations:
       app.kubesphere.io/category: Database & Cache
@@ -1581,4 +1615,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/test/xenondb-1.0.0.tgz
     version: 1.0.0
-generated: "2021-08-09T14:53:28.549727452Z"
+generated: "2021-08-24T14:54:38.84518238Z"
