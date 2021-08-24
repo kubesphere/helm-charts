@@ -23,7 +23,7 @@ name: radondb-postgresql
 sources:
 - https://github.com/radondb/radondb-postgresql-kubernetes.git
 - https://www.postgresql.org/
-version: 1.0.1
+version: 1.0.2
 annotations:
   "app.kubesphere.io/category": "Database & Cache"
   "app.kubesphere.io/display-name": "RadonDB PostgreSQL"
