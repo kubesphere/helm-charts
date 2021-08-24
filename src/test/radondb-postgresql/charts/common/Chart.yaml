@@ -1,7 +1,7 @@
 annotations:
   category: Infrastructure
 apiVersion: v2
-appVersion: 1.4.2
+appVersion: 1.4.3
 description: A Library Helm Chart for grouping common logic between qingcloud charts. This chart is not deployable by itself.
 home: https://github.com/radondb/radondb-postgresql-kubernetes.git
 icon: https://github.com/radondb/radondb-postgresql-kubernetes/blob/main/docs/images/logo_radondb.png
@@ -19,4 +19,4 @@ sources:
 - https://github.com/radondb/radondb-postgresql-kubernetes.git
 - http://www.qingcloud.com/
 type: library
-version: 1.4.2
+version: 1.4.3
