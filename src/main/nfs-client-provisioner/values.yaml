@@ -31,7 +31,7 @@ storageClass:
   name: nfs-client
 
   # Allow volume to be expanded dynamically
-  allowVolumeExpansion: true
+  allowVolumeExpansion: false
 
   # Method used to reclaim an obsoleted volume
   reclaimPolicy: Delete
