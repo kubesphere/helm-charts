@@ -54,7 +54,7 @@ The following tables lists the configurable parameters of this chart and their d
 | `image.pullPolicy`                | Image pull policy                           | `IfNotPresent`                                            |
 | `storageClass.name`               | Name of the storageClass                    | `nfs-client`                                              |
 | `storageClass.defaultClass`       | Set as the default StorageClass             | `false`	                                              |
-| `storageClass.allowVolumeExpansion`       | Allow expanding the volume          | `true`	                                              |
+| `storageClass.allowVolumeExpansion`       | Allow expanding the volume          | `false`	                                              |
 | `storageClass.reclaimPolicy`    | Method used to reclaim an obsoleted volume                 | `Delete` 	                              |
 | `storageClass.provisionerName`    | Name of the provisionerName                 | null 	                                              |
 | `storageClass.archiveOnDelete`    | Archive pvc when deleting                   | `true` 	                                              |
