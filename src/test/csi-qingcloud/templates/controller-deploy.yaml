@@ -152,6 +152,7 @@ spec:
           - "--drivername={{ .Values.driver.name }}"
           - "--endpoint=$(CSI_ENDPOINT)"
           - "--maxvolume={{ .Values.driver.maxVolume }}"
+          - "--retry-detach-times-max={{ .Values.driver.retryDetachTimesMax }}"
           - "--nodeid=$(NODE_ID)"
           - "--v=5"
         env:
