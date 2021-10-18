@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.currency.name }}-{{ .Values.currency.version }} 
+  annotations:
+    servicemesh.kubesphere.io/enabled: "true"
+  labels:
+    {{ include "common.label" . | nindent 4 }}
+    app: {{ .Values.currency.name }}
+    version: {{ .Values.currency.version }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Values.currency.name }}
+      version: {{ .Values.currency.version }}
+      {{ include "common.label" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        sidecar.istio.io/inject: "true"
+      labels:
+        app: {{ .Values.currency.name }}
+        version: {{ .Values.currency.version }}
+        {{ include "common.label" . | nindent 8 }}
+    spec:
+      serviceAccountName: default
+      terminationGracePeriodSeconds: 5
+      containers:
+      - name: server
+        image: {{ .Values.currency.image.repository }}
+        #image: gcr.io/google-samples/microservices-demo/currencyservice:v0.2.3
+        imagePullPolicy: {{ .Values.currency.image.pullPolicy }}
+        ports:
+        - name: grpc
+          containerPort: 7000
+        env:
+        - name: PORT
+          value: "7000"
+        # - name: DISABLE_TRACING
+        #   value: "1"
+        # - name: DISABLE_PROFILER
+        #   value: "1"
+        # - name: DISABLE_DEBUGGER
+        #   value: "1"
+        readinessProbe:
+          exec:
+            command: ["/bin/grpc_health_probe", "-addr=:7000"]
+        livenessProbe:
+          exec:
+            command: ["/bin/grpc_health_probe", "-addr=:7000"]
+        resources:
+          requests:
+            cpu: 100m
+            memory: 64Mi
+          limits:
+            cpu: 200m
+            memory: 128Mi

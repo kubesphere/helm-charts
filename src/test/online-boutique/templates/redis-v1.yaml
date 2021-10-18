@@ -1,0 +1,53 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.redis.name }}-{{ .Values.redis.version }} 
+  annotations:
+    servicemesh.kubesphere.io/enabled: "true"
+  labels:
+    {{ include "common.label" . | nindent 4 }}
+    app: {{ .Values.redis.name }}
+    version: {{ .Values.redis.version }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Values.redis.name }}
+      version: {{ .Values.redis.version }}
+      {{ include "common.label" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        sidecar.istio.io/inject: "true"
+      labels:
+        app: {{ .Values.redis.name }}
+        version: {{ .Values.redis.version }}
+        {{ include "common.label" . | nindent 8 }}
+    spec:
+      containers:
+      - name: redis
+        image: {{ .Values.redis.image.repository }}
+        #image: redis:alpine
+        imagePullPolicy: {{ .Values.redis.image.pullPolicy }}
+        ports:
+        - containerPort: 6379
+        readinessProbe:
+          periodSeconds: 5
+          tcpSocket:
+            port: 6379
+        livenessProbe:
+          periodSeconds: 5
+          tcpSocket:
+            port: 6379
+        volumeMounts:
+        - mountPath: /data
+          name: redis-data
+        resources:
+          limits:
+            memory: 256Mi
+            cpu: 125m
+          requests:
+            cpu: 70m
+            memory: 200Mi
+      volumes:
+      - name: redis-data
+        emptyDir: {}

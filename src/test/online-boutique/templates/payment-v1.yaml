@@ -1,0 +1,50 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.payment.name }}-{{ .Values.payment.version }} 
+  annotations:
+    servicemesh.kubesphere.io/enabled: "true"
+  labels:
+    {{ include "common.label" . | nindent 4 }}
+    app: {{ .Values.payment.name }}
+    version: {{ .Values.payment.version }}
+spec:
+  selector:
+    matchLabels:
+      app: {{ .Values.payment.name }}
+      version: {{ .Values.payment.version }}
+      {{ include "common.label" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        sidecar.istio.io/inject: "true"
+      labels:
+        app: {{ .Values.payment.name }}
+        version: {{ .Values.payment.version }}
+        {{ include "common.label" . | nindent 8 }}
+    spec:
+      serviceAccountName: default
+      terminationGracePeriodSeconds: 5
+      containers:
+      - name: server
+        image: {{ .Values.payment.image.repository }}
+        #image: gcr.io/google-samples/microservices-demo/paymentservice:v0.2.3
+        imagePullPolicy: {{ .Values.payment.image.pullPolicy }}
+        ports:
+        - containerPort: 50051
+        env:
+        - name: PORT
+          value: "50051"
+        readinessProbe:
+          exec:
+            command: ["/bin/grpc_health_probe", "-addr=:50051"]
+        livenessProbe:
+          exec:
+            command: ["/bin/grpc_health_probe", "-addr=:50051"]
+        resources:
+          requests:
+            cpu: 100m
+            memory: 64Mi
+          limits:
+            cpu: 200m
+            memory: 128Mi

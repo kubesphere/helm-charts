@@ -1,0 +1,18 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.email.name }}
+  labels:
+    {{ include "common.label" . | nindent 4 }}
+    app: {{ .Values.email.name }}
+  annotations:
+    servicemesh.kubesphere.io/enabled: "true"
+spec:
+  type: ClusterIP
+  selector:
+    app: {{ .Values.email.name }}
+    {{ include "common.label" . | nindent 4 }}
+  ports:
+  - name: grpc
+    port: 5000
+    targetPort: 8080

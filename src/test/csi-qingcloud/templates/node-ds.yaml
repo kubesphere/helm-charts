@@ -39,26 +39,20 @@ spec:
     spec:
       serviceAccount: csi-qingcloud-node
       tolerations:
-      - key: CriticalAddonsOnly
-        operator: Exists
-      - key: dedicated
-        operator: Exists
-      - effect: NoSchedule
-        key: node-role.kubernetes.io/master
-      - effect: NoSchedule
-        key: node.cloudprovider.kubernetes.io/uninitialized
-        value: "true"
+      {{- range .Values.tolerations }}
+      - {{- . | toYaml | nindent 8 -}}
+      {{- end }}
       hostNetwork: true
       containers:
         - name: node-registrar
           image: "{{ .Values.registrar.repository }}:{{ .Values.registrar.tag }}"
           resources:
             limits:
-              memory: "20Mi"
-              cpu: "10m"
+              memory: "{{ .Values.registrar.resources.limits.memory }}"
+              cpu: "{{ .Values.registrar.resources.limits.cpu }}"
             requests:
-              memory: "20Mi"
-              cpu: "10m"
+              memory: "{{ .Values.registrar.resources.requests.memory }}"
+              cpu: "{{ .Values.registrar.resources.requests.cpu }}"
           args:
             - "--csi-address=$(ADDRESS)"
             - "--kubelet-registration-path=/var/lib/kubelet/plugins/{{ .Values.driver.name }}/csi.sock"
@@ -87,11 +81,11 @@ spec:
           image: "{{ .Values.driver.repository }}:{{ include "driver.version" . }}"
           resources:
             limits:
-              memory: "50Mi"
-              cpu: "50m"
+              memory: "{{ .Values.node.resources.limits.memory }}"
+              cpu: "{{ .Values.node.resources.limits.cpu }}"
             requests:
-              memory: "50Mi"
-              cpu: "50m"
+              memory: "{{ .Values.node.resources.requests.memory }}"
+              cpu: "{{ .Values.node.resources.requests.cpu }}"
           args :
             - "--config=/etc/config/config.yaml"
             - "--drivername={{ .Values.driver.name }}"

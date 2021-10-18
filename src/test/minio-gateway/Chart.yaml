@@ -1,0 +1,28 @@
+annotations:
+  category: Infrastructure
+apiVersion: v2
+appVersion: 0.1.0
+dependencies:
+  - name: common
+    repository: https://charts.bitnami.com/bitnami
+    tags:
+      - bitnami-common
+    version: 1.x.x
+description: This chart is made based on bitnami/minio chart version 7.1.7 app version 2021.6.17. The major difference is this chart is using official minio image and the gateway supports external etcd as data store.
+engine: gotpl
+home: https://github.com/kubesphere/helm-charts
+icon: https://bitnami.com/assets/stacks/minio/img/minio-stack-220x234.png
+keywords:
+  - minio
+  - gateway
+  - storage
+  - object-storage
+  - s3
+  - cluster
+maintainers:
+  - email: stoneshi@yunify.com
+    name: Yonghong Shi
+name: minio-gateway
+sources:
+  - https://min.io
+version: 0.1.0

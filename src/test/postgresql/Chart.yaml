@@ -1,6 +1,6 @@
 apiVersion: v1
 name: postgresql
-version: 0.4.0
+version: 0.4.2
 appVersion: "12.0"
 description: PostgreSQL is a powerful, open source object-relational database system with over 30 years of active development that has earned it a strong reputation for reliability, feature robustness, and performance.
 icon: https://wiki.postgresql.org/images/a/a4/PostgreSQL_logo.3colors.svg
@@ -9,3 +9,5 @@ sources:
 maintainers:
 - name: KubeSphere
   email: kubesphere@yunify.com
+annotations:
+  "app.kubesphere.io/category": "Database & Cache"

@@ -1,6 +1,6 @@
 apiVersion: v1
 name: etcd
-version: 0.1.1
+version: 0.1.3
 appVersion: "3.3.12"
 description: etcd is a distributed reliable key-value store for the most critical data of a distributed system.
 icon: https://github.com/etcd-io/etcd/raw/master/logos/etcd-glyph-color.svg
@@ -9,3 +9,5 @@ sources:
 maintainers:
 - name: KubeSphere
   email: kubesphere@yunify.com
+annotations:
+  "app.kubesphere.io/category": "Database & Cache"
