@@ -1,0 +1,35 @@
+apiVersion: v1
+entries:
+  nocalhost:
+  - annotations:
+      category: App Definition and Development
+    apiVersion: v2
+    appVersion: v0.5.7
+    created: "2021-10-18T11:59:21.804409957Z"
+    dependencies:
+    - name: mariadb
+      repository: https://nocalhost-helm.pkg.coding.net/nocalhost/helm
+      version: 9.0.1
+    description: Nocalhost is Cloud Native Dev Environment.
+    digest: 5faa71d6b34b018662b2b553ec721762a32aa1786a330baee8efd526e15c6aab
+    home: https://nocalhost.dev
+    icon: https://nocalhost.dev/img/favicon.ico
+    keywords:
+    - nocalhost
+    - nhctl
+    - kubernetes
+    - develop
+    - telepresence
+    - skaffold
+    kubeVersion: '>= 1.16.0-0'
+    maintainers:
+    - name: Nocalhost
+      url: https://github.com/nocalhost/nocalhost
+    name: nocalhost
+    sources:
+    - https://github.com/nocalhost/nocalhost
+    type: application
+    urls:
+    - https://charts.kubesphere.io/stable/nocalhost-0.5.7.tgz
+    version: 0.5.7
+generated: "2021-10-18T11:59:21.795593784Z"
