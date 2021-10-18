@@ -30,6 +30,7 @@ driver:
   # tag:
   pullPolicy: IfNotPresent
   maxVolume: 9
+  retryDetachTimesMax: 100
   kubeletDir: /var/lib/kubelet
 
 tolerations:
