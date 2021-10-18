@@ -29,25 +29,89 @@ driver:
   repository: csiplugin/csi-qingcloud
   # tag:
   pullPolicy: IfNotPresent
-  maxVolume: 10
+  maxVolume: 9
+  retryDetachTimesMax: 100
   kubeletDir: /var/lib/kubelet
 
+tolerations:
+  - key: CriticalAddonsOnly
+    operator: Exists
+  - key: dedicated
+    operator: Exists
+  - effect: NoSchedule
+    key: node-role.kubernetes.io/master
+  - effect: NoSchedule
+    key: node.cloudprovider.kubernetes.io/uninitialized
+    value: "true"
+
+controller:
+  resources:
+    limits:
+      memory: 100Mi
+      cpu: 100m
+    requests:
+      memory: 100Mi
+      cpu: 100m
 provisioner:
   repository: csiplugin/csi-provisioner
-  tag: v1.5.0
+  tag: v2.2.2
   volumeNamePrefix: pvc
+  resources:
+    limits:
+      memory: 100Mi
+      cpu: 100m
+    requests:
+      memory: 100Mi
+      cpu: 100m
 attacher:
   repository: csiplugin/csi-attacher
-  tag: v2.1.1
+  tag: v3.2.1
+  resources:
+    limits:
+      memory: 100Mi
+      cpu: 100m
+    requests:
+      memory: 100Mi
+      cpu: 100m
 resizer:
   repository: csiplugin/csi-resizer
-  tag: v0.4.0
+  tag: v1.2.0
+  resources:
+    limits:
+      memory: 40Mi
+      cpu: 20m
+    requests:
+      memory: 40Mi
+      cpu: 20m
 snapshotter:
   repository: csiplugin/csi-snapshotter
-  tag: v2.0.1
+  tag: v4.0.0
+  resources:
+    limits:
+      memory: 40Mi
+      cpu: 20m
+    requests:
+      memory: 40Mi
+      cpu: 20m
+
 registrar:
   repository: csiplugin/csi-node-driver-registrar
-  tag: v1.2.0
+  tag: v2.2.0
+  resources:
+    limits:
+      memory: 20Mi
+      cpu: 10m
+    requests:
+      memory: 20Mi
+      cpu: 10m
+node:
+  resources:
+    limits:
+      memory: 100Mi
+      cpu: 100m
+    requests:
+      memory: 100Mi
+      cpu: 100m
 
 sc:
   enable: true

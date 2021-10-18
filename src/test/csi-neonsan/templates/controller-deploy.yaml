@@ -68,9 +68,8 @@ spec:
               cpu: "20m"
           args:
             - "--csi-address=$(ADDRESS)"
-            - "--enable-leader-election"
+            - "--leader-election"
             - "--feature-gates=Topology=true"
-            - "--leader-election-type=leases"
             - "--retry-interval-max=5m"
             - "--retry-interval-start=5s"
             - "--timeout=90s"

@@ -17,4 +17,6 @@ maintainers:
 name: elasticsearch-exporter
 sources:
 - https://github.com/justwatchcom/elasticsearch_exporter
-version: 3.3.1
+version: 3.3.3
+annotations:
+  "app.kubesphere.io/category": "Prometheus Exporter"

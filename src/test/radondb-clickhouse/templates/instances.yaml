@@ -1,0 +1,163 @@
+# This file is part of the ClickHouse Helm Chart
+#    https://github.com/radondb/clickhouse-cluster-helm
+#
+# Copyright 2021 TCeason <tai_chong@foxmail.com>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+{{- range $shardIndex, $shard := .Values.clickhouse.shards }}
+{{- range $replicaIndex, $replica := .replicas }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "defaultObjectName" $ }}-s{{ $shardIndex }}-r{{ $replicaIndex }}-configuration
+  labels:
+    {{- include "defaultLabels" $ | nindent 4 }}
+data:
+  macros.xml: |
+    <yandex>
+      <macros>
+        <shard>{{ include "defaultObjectName" $ }}s{{ $shardIndex }}</shard>
+        <replica>r{{ $replicaIndex }}</replica>
+      </macros>
+    </yandex>
+---
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "defaultObjectName" $ }}-s{{ $shardIndex }}-r{{ $replicaIndex }}
+  labels:
+    {{- include "defaultLabels" $ | nindent 4 }}
+spec:
+  replicas: 1
+  serviceName: {{ include "defaultObjectName" $ }}
+  selector:
+    matchLabels:
+      {{- include "defaultMatchLabels" $ | nindent 6 }}
+      clickhouse/component: clickhouse
+      clickhouse/shard-index: "{{ $shardIndex }}"
+      clickhouse/replica-index: "{{ $replicaIndex }}"
+  template:
+    metadata:
+      labels:
+        {{- include "defaultLabels" $ | nindent 8 }}
+        clickhouse/component: clickhouse
+        clickhouse/shard-index: "{{ $shardIndex }}"
+        clickhouse/replica-index: "{{ $replicaIndex }}"
+      annotations:
+        clickhouse/config-checksum: {{ include (print $.Template.BasePath "/configuration.yaml") $ | sha256sum }}
+    spec:
+      hostname: {{ include "defaultObjectName" $ }}-s{{ $shardIndex }}-r{{ $replicaIndex }}
+      containers:
+        - name: clickhouse
+          image: {{ $.Values.clickhouse.image }}
+          imagePullPolicy: {{ $.Values.clickhouse.imagePullPolicy }}
+          livenessProbe:
+            exec:
+              command:
+                - bash
+                - -c
+                - "OK=$(/usr/bin/clickhouse client --user={{ (index $.Values.clickhouse.users 0).username }} --password={{ (index $.Values.clickhouse.users 0).password }} --port={{ $.Values.clickhouse.ports.native }} --query='SELECT 1'); if [[ \"$OK\" == \"1\" ]]; then exit 0; else exit 1; fi"
+            initialDelaySeconds: {{ $.Values.clickhouse.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ $.Values.clickhouse.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ $.Values.clickhouse.livenessProbe.timeoutSeconds }}
+            failureThreshold: {{ $.Values.clickhouse.livenessProbe.failureThreshold }}
+            successThreshold: {{ $.Values.clickhouse.livenessProbe.successThreshold }}
+          resources:
+            requests:
+              memory: {{ $.Values.clickhouse.resources.memory }}
+              cpu: {{ $.Values.clickhouse.resources.cpu }}
+            limits:
+              memory: {{ $.Values.clickhouse.resources.memory }}
+              cpu: {{ $.Values.clickhouse.resources.cpu }}
+          ports:
+            - containerPort: {{ $.Values.clickhouse.ports.native }}
+            - containerPort: {{ $.Values.clickhouse.ports.http }}
+          volumeMounts:
+            - name: common-configuration
+              subPath: config.xml
+              mountPath: /etc/clickhouse-server/config.xml
+            - name: instance-configuration
+              subPath: macros.xml
+              mountPath: /etc/clickhouse-server/config.d/macros.xml
+            - name: ck-datadir
+              mountPath: /var/lib/clickhouse
+      volumes:
+        - name: common-configuration
+          configMap:
+            name: {{ include "defaultObjectName" $ }}-configuration
+        - name: instance-configuration
+          configMap:
+            name: {{ include "defaultObjectName" $ }}-s{{ $shardIndex }}-r{{ $replicaIndex }}-configuration
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    {{- include "defaultMatchLabels" $ | nindent 20 }}
+                    clickhouse/component: clickhouse
+                    clickhouse/shard-index: "{{ $shardIndex }}"
+                topologyKey: kubernetes.io/hostname
+              weight: 20
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    {{- include "defaultMatchLabels" $ | nindent 20 }}
+                    clickhouse/component: clickhouse
+                    clickhouse/replica-index: "{{ $replicaIndex }}"
+                topologyKey: kubernetes.io/hostname
+              weight: 10
+            - podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    {{- include "defaultMatchLabels" $ | nindent 20 }}
+                    clickhouse/component: clickhouse
+                topologyKey: kubernetes.io/hostname
+              weight: 5
+      securityContext:
+        runAsUser: 101
+        fsGroup: 101
+  volumeClaimTemplates:
+    - metadata:
+        name: ck-datadir
+      spec:
+        accessModes:
+          - ReadWriteOnce
+        resources:
+          requests:
+            storage: 1Gi
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "defaultObjectName" $ }}-s{{ $shardIndex }}-r{{ $replicaIndex }}
+  labels:
+    {{- include "defaultLabels" $ | nindent 4 }}
+    clickhouse/component: clickhouse
+spec:
+  selector:
+    {{- include "defaultMatchLabels" $ | nindent 4 }}
+    clickhouse/shard-index: "{{ $shardIndex }}"
+    clickhouse/replica-index: "{{ $replicaIndex }}"
+    clickhouse/component: clickhouse
+  ports:
+    - name: native
+      protocol: TCP
+      port: {{ $.Values.clickhouse.ports.native }}
+    - name: http
+      protocol: TCP
+      port: {{ $.Values.clickhouse.ports.http }}
+{{- end }}
+{{- end }}

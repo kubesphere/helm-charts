@@ -1,0 +1,27 @@
+apiVersion: app.k8s.io/v1beta1
+kind: Application
+metadata:
+  name: {{ .Chart.Name }}
+  labels:
+    {{ include "common.label" . | nindent 4 }}
+  annotations:
+    servicemesh.kubesphere.io/enabled: 'true'
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/version: {{ .Chart.Version }}
+      app.kubernetes.io/name: {{ .Chart.Name }}
+  addOwnerRef: true
+  componentKinds:
+    - group: ''
+      kind: Service
+    - group: apps
+      kind: Deployment
+    - group: apps
+      kind: StatefulSet
+    - group: extensions
+      kind: Ingress
+    - group: servicemesh.kubesphere.io
+      kind: Strategy
+    - group: servicemesh.kubesphere.io
+      kind: ServicePolicy

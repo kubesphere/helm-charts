@@ -6,6 +6,10 @@ metadata:
   labels:
     {{- include "porter.manager.labels" . | nindent 4 }}
 spec:
+  strategy:
+    rollingUpdate:
+      maxUnavailable: 1
+    type: RollingUpdate
   selector:
     matchLabels:
       {{- include "porter.manager.labels" . | nindent 6 }}
@@ -25,10 +29,9 @@ spec:
       {{- toYaml .Values.manager.nodeSelector | nindent 8 }}
       containers:
       - command:
-          - /manager
+          - porter-manager
         args:
-          - --metrics-addr={{ .Values.manager.metricsAddr }}
-          - --readiness-addr=:{{ .Values.manager.readinessPort }}
+          - --webhook-port={{ .Values.manager.webhookPort }}
           - --api-hosts={{ .Values.manager.apiHosts }}
         env:
           - name: NODE_NAME
@@ -41,13 +44,22 @@ spec:
                 fieldPath: metadata.namespace
         image: {{ .Values.manager.image.repository }}:{{ .Values.manager.image.tag }}
         imagePullPolicy: {{ .Values.manager.image.pullPolicy }}
-        name: manager
+        name: porter-manager
+        ports:
+          - containerPort: {{ .Values.manager.webhookPort }}
+            name: webhook
+            protocol: TCP
         readinessProbe:
-          httpGet:
-            path: /hello
-            port: {{ .Values.manager.readinessPort }}
-          initialDelaySeconds: 5
-          periodSeconds: 3
+          exec:
+            command:
+              - sh
+              - -c
+              - |
+                gobgp -p 50051 global
+          failureThreshold: 3
+          periodSeconds: 10
+          successThreshold: 1
+          timeoutSeconds: 1
         resources: {{- toYaml .Values.manager.resources | nindent 10 }}
         securityContext:
           capabilities:

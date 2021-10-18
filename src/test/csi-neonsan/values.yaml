@@ -25,20 +25,20 @@ driver:
 
 provisioner:
   repository: csiplugin/csi-provisioner
-  tag: v1.5.0
+  tag: v2.2.2
   volumeNamePrefix: pvc
 attacher:
   repository: csiplugin/csi-attacher
-  tag: v2.1.1
+  tag: v3.2.1
 resizer:
   repository: csiplugin/csi-resizer
-  tag: v0.5.1
+  tag: v1.2.0
 snapshotter:
   repository: csiplugin/csi-snapshotter
-  tag: v2.0.1
+  tag: v4.0.0
 registrar:
   repository: csiplugin/csi-node-driver-registrar
-  tag: v1.2.0
+  tag: v2.2.0
 
 sc:
   enable: true
