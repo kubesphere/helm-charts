@@ -1,0 +1,48 @@
+{{- if .Values.dashboard.ingress.enabled -}}
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  namespace: {{ .Release.Namespace | quote }}
+  name: {{ template "chaos-dashboard.svc" . }}
+  labels:
+    {{- include "chaos-mesh.labels" . | nindent 4 }}
+    app.kubernetes.io/component: chaos-dashboard
+{{- if .Values.dashboard.ingress.labels }}
+{{ toYaml .Values.dashboard.ingress.labels | indent 4 }}
+{{- end }}
+  annotations:
+    {{- if .Values.dashboard.ingress.certManager }}
+    kubernetes.io/tls-acme: "true"
+    {{- end }}
+    {{- with .Values.dashboard.ingress.annotations }}
+    {{- toYaml . | nindent 4 }}
+    {{- end }}
+spec:
+  rules:
+  {{- range .Values.dashboard.ingress.hosts }}
+    - host: {{ .name | quote }}
+      http:
+        paths:
+        {{- $paths := default (list "/") .paths }}
+        {{- range $paths }}
+          - path: {{ . }}
+            backend:
+              serviceName: {{ template "chaos-dashboard.svc" . }}
+              servicePort: http
+        {{- end }}
+  {{- end }}
+  tls:
+  {{- range .Values.dashboard.ingress.hosts }}
+  {{- if .tls }}
+    - hosts:
+    {{- if .tlsHosts }}
+      {{- range $host := .tlsHosts }}
+        - {{ $host }}
+      {{- end }}
+    {{- else }}
+        - {{ .name }}
+    {{- end }}
+      secretName: {{ .tlsSecret }}
+  {{- end }}
+  {{- end }}
+{{- end }}
