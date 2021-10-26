@@ -1,0 +1,30 @@
+{{- if .Values.dnsServer.create }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ .Values.dnsServer.name }}
+  namespace: {{ .Release.Namespace | quote }}
+  annotations:
+    prometheus.io/port: "9153"
+    prometheus.io/scrape: "true"
+  labels:
+    {{- include "chaos-mesh.labels" . | nindent 4 }}
+    app.kubernetes.io/component: dns-server
+spec:
+  selector:
+    {{- include "chaos-mesh.selectors" . | nindent 4 }}
+    app.kubernetes.io/component: chaos-dns-server
+  ports:
+  - name: dns
+    port: 53
+    protocol: UDP
+  - name: dns-tcp
+    port: 53
+    protocol: TCP
+  - name: metrics
+    port: 9153
+    protocol: TCP
+  - name: grpc
+    port: {{ .Values.dnsServer.grpcPort }}
+    protocol: TCP
+{{- end }}

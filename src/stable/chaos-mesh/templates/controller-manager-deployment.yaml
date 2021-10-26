@@ -1,0 +1,132 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: {{ .Release.Namespace | quote }}
+  name: chaos-controller-manager
+  labels:
+    {{- include "chaos-mesh.labels" . | nindent 4 }}
+    app.kubernetes.io/component: controller-manager
+spec:
+  replicas: {{ .Values.controllerManager.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "chaos-mesh.selectors" . | nindent 6 }}
+      app.kubernetes.io/component: controller-manager
+  template:
+    metadata:
+      labels:
+        {{- include "chaos-mesh.labels" . | nindent 8 }}
+        app.kubernetes.io/component: controller-manager
+      annotations:
+        rollme: {{ randAlphaNum 5 | quote }}
+    {{- with .Values.controllerManager.podAnnotations }}
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    spec:
+    {{- if .Values.controllerManager.hostNetwork }}
+      hostNetwork: true
+    {{- end }}
+    {{- if .Values.controllerManager.serviceAccount }}
+      serviceAccountName: {{ .Values.controllerManager.serviceAccount }}
+    {{- end }}
+      priorityClassName: {{ .Values.controllerManager.priorityClassName}}
+      containers:
+      - name: chaos-mesh
+        image: {{template "registry-prefix" .}}{{ .Values.controllerManager.image }}
+        imagePullPolicy: {{ .Values.controllerManager.imagePullPolicy | default "IfNotPresent" }}
+        resources:
+{{ toYaml .Values.controllerManager.resources | indent 12 }}
+        command:
+          - /usr/local/bin/chaos-controller-manager
+        env:
+          - name: NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          - name: TEMPLATE_NAMESPACE
+            valueFrom:
+              fieldRef:
+                fieldPath: metadata.namespace
+          - name: ALLOW_HOST_NETWORK_TESTING
+            value: "{{ .Values.controllerManager.allowHostNetworkTesting }}"
+          - name: TARGET_NAMESPACE
+            value: {{ .Values.controllerManager.targetNamespace | quote }}
+          - name: CLUSTER_SCOPED
+            value: "{{ .Values.clusterScoped }}"
+          - name: TZ
+            value: {{ .Values.timezone | default "UTC" }}
+          - name: CHAOS_DAEMON_SERVICE_PORT
+            value: !!str {{ .Values.chaosDaemon.grpcPort }}
+          - name: BPFKI_PORT
+            value: !!str {{ .Values.bpfki.grpcPort }}
+          - name: TEMPLATE_LABELS
+            value: "app.kubernetes.io/component:template"
+          - name: CONFIGMAP_LABELS
+            value: "app.kubernetes.io/component:webhook"
+          - name: ENABLE_FILTER_NAMESPACE
+            value: "{{ .Values.controllerManager.enableFilterNamespace }}"
+          {{- if .Values.enableProfiling }}
+          - name: PPROF_ADDR
+            value: ":10081"
+          {{- end }}
+          - name: CHAOS_DNS_SERVICE_NAME
+            value: {{ .Values.dnsServer.name }}
+          - name: CHAOS_DNS_SERVICE_PORT
+            value: !!str {{ .Values.dnsServer.grpcPort }}
+          - name: SECURITY_MODE
+            value: "{{ .Values.dashboard.securityMode }}"
+          {{- if .Values.dashboard.securityMode}}
+          - name: CHAOS_DAEMON_CLIENT_CERT
+            value: /etc/chaos-daemon/cert/tls.crt
+          - name: CHAOS_DAEMON_CLIENT_KEY
+            value: /etc/chaos-daemon/cert/tls.key
+          - name: CHAOS_MESH_CA_CERT
+            value: /etc/chaos-daemon/cert/ca.crt
+          - name: QPS
+            value: "30"
+          - name: BURST
+            value: "50"
+          {{- end }}
+          {{- if .Values.controllerManager.podChaos.podFailure.pauseImage }}
+          - name: POD_FAILURE_PAUSE_IMAGE
+            value: {{ .Values.controllerManager.podChaos.podFailure.pauseImage }}
+          {{- end }}
+        volumeMounts:
+          - name: webhook-certs
+            mountPath: /etc/webhook/certs
+            readOnly: true
+          {{- if .Values.dashboard.securityMode }}
+          - name: chaos-daemon-client-cert
+            mountPath: /etc/chaos-daemon/cert
+            readOnly: true
+          {{- end }}
+        ports:
+          - name: webhook
+            containerPort: 9443 # Customize containerPort
+          - name: http
+            containerPort: 10080
+        {{- if .Values.enableProfiling }}
+          - name: pprof
+            containerPort: 10081
+        {{- end }}
+      volumes:
+        - name: webhook-certs
+          secret:
+            secretName: {{ template "chaos-mesh.webhook.certs" . }}
+        {{- if .Values.dashboard.securityMode }}
+        - name: chaos-daemon-client-cert
+          secret:
+            secretName: {{ template "chaos-mesh.daemon-client.certs" . }}
+        {{- end }}
+    {{- with .Values.controllerManager.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.controllerManager.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- with .Values.controllerManager.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+    {{- end }}
