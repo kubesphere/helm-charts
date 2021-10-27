@@ -1,0 +1,175 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  namespace: {{ .Release.Namespace | quote }}
+  name: chaos-daemon
+  labels:
+    app.kubernetes.io/component: chaos-daemon
+    {{- include "chaos-mesh.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "chaos-mesh.selectors" . | nindent 6 }}
+      app.kubernetes.io/component: chaos-daemon
+  template:
+    metadata:
+      labels:
+        {{- include "chaos-mesh.labels" . | nindent 8 }}
+        app.kubernetes.io/component: chaos-daemon
+      annotations:
+        {{- if .Values.dashboard.securityMode }}
+        rollme: {{ randAlphaNum 5 | quote }}
+        {{- end }}
+    {{- with .Values.chaosDaemon.podAnnotations }}
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    spec:
+  {{- if .Values.chaosDaemon.hostNetwork }}
+      hostNetwork: true
+  {{- end }}
+  {{- if .Values.chaosDaemon.serviceAccount }}
+      serviceAccountName: {{ .Values.chaosDaemon.serviceAccount }}
+  {{- end }}
+      hostIPC: true
+      hostPID: true
+      priorityClassName: {{ .Values.chaosDaemon.priorityClassName}}
+      containers:
+        - name: chaos-daemon
+          image: {{template "registry-prefix" .}}{{ .Values.chaosDaemon.image }}
+          imagePullPolicy: {{ .Values.chaosDaemon.imagePullPolicy | default "IfNotPresent" }}
+          {{- if .Values.chaosDaemon.resources }}
+          resources:
+{{ toYaml .Values.chaosDaemon.resources | indent 12 }}
+          {{- end }}
+          command:
+            - /usr/local/bin/chaos-daemon
+            - --runtime
+            - {{ .Values.chaosDaemon.runtime }}
+            - --http-port
+            - !!str {{ .Values.chaosDaemon.httpPort }}
+            - --grpc-port
+            - !!str {{ .Values.chaosDaemon.grpcPort }}
+          {{- if .Values.enableProfiling }}
+            - --pprof
+          {{- end }}
+          {{- if .Values.dashboard.securityMode }}
+            - --ca
+            - /etc/chaos-daemon/cert/ca.crt
+            - --cert
+            - /etc/chaos-daemon/cert/tls.crt
+            - --key
+            - /etc/chaos-daemon/cert/tls.key
+          {{- end }}
+          env:
+            {{- range $envKey, $envVal := .Values.chaosDaemon.env }}
+            - name: {{ $envKey | upper }}
+              value: {{ $envVal | quote }}
+            {{- end }}
+            {{- if not .Values.chaosDaemon.env.TZ }}
+            - name: TZ
+              value: {{ .Values.timezone | default "UTC" }}
+            {{- end }}
+          securityContext:
+            {{- if .Values.chaosDaemon.privileged }}
+            privileged: true
+            capabilities:
+              add:
+                - SYS_PTRACE
+            {{- else }}
+            capabilities:
+              add:
+                - SYS_PTRACE
+                - NET_ADMIN
+                - MKNOD
+                - SYS_CHROOT
+                - SYS_ADMIN
+                - KILL
+                # CAP_IPC_LOCK is used to lock memory
+                - IPC_LOCK
+            {{- end }}
+          volumeMounts:
+            - name: socket-path
+              {{- if eq .Values.chaosDaemon.runtime "docker" }}
+              mountPath: /var/run/docker.sock
+              {{- else if eq .Values.chaosDaemon.runtime "containerd" }}
+              mountPath: /run/containerd/containerd.sock
+              {{- else if eq .Values.chaosDaemon.runtime "crio" }}
+              mountPath: /var/run/crio/crio.sock
+              {{- end }}
+            - name: sys-path
+              mountPath: /host-sys
+            {{- if .Values.dashboard.securityMode}}
+            - name: chaos-daemon-cert
+              mountPath: /etc/chaos-daemon/cert
+              readOnly: true
+            {{- end }}
+          ports:
+            - name: grpc
+              containerPort: {{ .Values.chaosDaemon.grpcPort }}
+              hostPort: {{ .Values.chaosDaemon.grpcPort }}
+            - name: http
+              containerPort: {{ .Values.chaosDaemon.httpPort }}
+{{- if .Values.bpfki.create }}
+        - name: bpfki
+          image: {{template "registry-prefix" .}}{{ .Values.bpfki.image }}
+          imagePullPolicy: {{ .Values.bpfki.imagePullPolicy | default "IfNotPresent" }}
+          {{- if .Values.bpfki.resources }}
+          resources:
+{{ toYaml .Values.bpfki.resources | indent 12 }}
+          {{- end }}
+          command:
+            - /usr/local/bin/bpfki
+            - -port
+            - !!str {{ .Values.bpfki.grpcPort }}
+          securityContext:
+            privileged: true
+          volumeMounts:
+            - name: localtime-path
+              mountPath: /etc/localtime
+              readOnly: true
+            - name: modules-path
+              mountPath: /lib/modules
+              readOnly: true
+            - name: src-path
+              mountPath: /usr/src
+              readOnly: true
+          ports:
+            - name: grpc
+              containerPort: {{ .Values.bpfki.grpcPort }}
+              hostPort: {{ .Values.bpfki.grpcPort }}
+{{- end }}
+      volumes:
+        - name: socket-path
+          hostPath:
+            path: {{ .Values.chaosDaemon.socketPath | default "/var/run/docker.sock" }}
+        - name: sys-path
+          hostPath:
+            path: /sys
+        {{- if .Values.dashboard.securityMode}}
+        - name: chaos-daemon-cert
+          secret:
+            secretName:  {{ template "chaos-mesh.daemon.certs" . }}
+        {{- end }}
+{{- if .Values.bpfki.create }}
+        - name: localtime-path
+          hostPath:
+            path: /etc/localtime
+        - name: modules-path
+          hostPath:
+            path: /lib/modules
+        - name: src-path
+          hostPath:
+            path: /usr/src
+{{- end }}
+      {{- with .Values.chaosDaemon.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+      {{- end }}
+      {{- with .Values.chaosDaemon.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+      {{- end }}
+      {{- with .Values.chaosDaemon.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+      {{- end }}
