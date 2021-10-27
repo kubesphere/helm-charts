@@ -1,0 +1,107 @@
+{{- if .Values.prometheus.create }}
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  namespace: {{ .Release.Namespace | quote }}
+  name: chaos-prometheus
+  labels:
+    {{- include "chaos-mesh.labels" . | nindent 4 }}
+    app.kubernetes.io/component: prometheus
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      {{- include "chaos-mesh.selectors" . | nindent 6 }}
+      app.kubernetes.io/component: prometheus
+  template:
+    metadata:
+      labels:
+        {{- include "chaos-mesh.labels" . | nindent 8 }}
+        app.kubernetes.io/component: prometheus
+    {{- with .Values.prometheus.podAnnotations }}
+      annotations:
+{{ toYaml . | indent 8 }}
+    {{- end }}
+    spec:
+      {{- if .Values.prometheus.serviceAccount }}
+      serviceAccount: {{ .Values.prometheus.serviceAccount }}
+      {{- end }}
+      priorityClassName: {{ .Values.prometheus.priorityClassName}}
+      initContainers:
+        - name: data-permission-fix
+          image: busybox
+          command: ["/bin/chmod","-R","777", "/data"]
+          volumeMounts:
+            - name: data
+              mountPath: /data
+      containers:
+      - name: prometheus
+        image: {{template "registry-prefix" .}}{{ .Values.prometheus.image }}
+        imagePullPolicy: {{ .Values.prometheus.imagePullPolicy | default "IfNotPresent" }}
+        {{- if .Values.chaosDaemon.resources }}
+        resources:
+      {{ toYaml .Values.chaosDaemon.resources | indent 12 }}
+        {{- end }}
+        args:
+          - --storage.tsdb.path=/data
+          - --storage.tsdb.retention.time=6h
+          - --config.file=/etc/prometheus/prometheus.yml
+        livenessProbe:
+          httpGet:
+            path: /-/healthy
+            port: 9090
+          initialDelaySeconds: 30
+          timeoutSeconds: 30
+        ports:
+          - containerPort: 9090
+            name: http
+        securityContext:
+          runAsUser: 1000
+        volumeMounts:
+          - mountPath: /data
+            name: data
+          - mountPath: /etc/prometheus
+            name: prometheus-config
+            readOnly: true
+      volumes:
+      - name: data
+        persistentVolumeClaim:
+          claimName: prometheus-pvc
+      - configMap:
+          name: prometheus-config
+        name: prometheus-config
+  {{- with .Values.controllerManager.nodeSelector }}
+      nodeSelector:
+{{ toYaml . | indent 8 }}
+  {{- end }}
+  {{- with .Values.controllerManager.affinity }}
+      affinity:
+{{ toYaml . | indent 8 }}
+  {{- end }}
+  {{- with .Values.controllerManager.tolerations }}
+      tolerations:
+{{ toYaml . | indent 8 }}
+  {{- end }}
+
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  namespace: {{ .Release.Namespace | quote }}
+  name: prometheus-pvc
+  labels:
+    {{- include "chaos-mesh.labels" . | nindent 4 }}
+    app.kubernetes.io/component: prometheus
+spec:
+  {{- if .Values.prometheus.volume.storageClassName }}
+  storageClassName: {{ .Values.prometheus.volume.storageClassName }}
+  {{- end }}
+  volumeMode: Filesystem
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.prometheus.volume.storage }}
+
+{{- end }}

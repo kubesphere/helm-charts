@@ -1,0 +1,27 @@
+{{- if .Values.dashboard.create }}
+{{- if .Values.dashboard.persistentVolume.enabled -}}
+{{- if not .Values.dashboard.persistentVolume.existingClaim -}}
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  namespace: {{ .Release.Namespace | quote }}
+  name: {{ template "chaos-mesh.name" . }}-chaos-dashboard
+  labels:
+    {{- include "chaos-mesh.labels" . | nindent 4 }}
+    app.kubernetes.io/component: chaos-dashboard
+spec:
+{{- if .Values.dashboard.persistentVolume.storageClassName }}
+{{- if (eq "-" .Values.dashboard.persistentVolume.storageClassName) }}
+  storageClassName: ""
+{{- else }}
+  storageClassName: "{{ .Values.dashboard.persistentVolume.storageClassName }}"
+{{- end }}
+{{- end }}
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: "{{ .Values.dashboard.persistentVolume.size }}"
+{{- end -}}
+{{- end -}}
+{{- end -}}

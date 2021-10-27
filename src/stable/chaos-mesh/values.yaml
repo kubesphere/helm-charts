@@ -1,0 +1,388 @@
+# Default values for chaos-mesh.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+nameOverride: ""
+fullnameOverride: ""
+
+# Custom labels to add
+customLabels: {}
+
+# clusterScoped is whether chaos-mesh should manage kubernetes cluster wide chaos
+# Also see rbac.create and controllerManager.serviceAccount
+clusterScoped: true
+
+# Also see clusterScoped and controllerManager.serviceAccount
+rbac:
+  create: true
+
+# timezone is the timezone where controller-manager, chaos-daemon and dashboard uses.
+# For example: "UTC" or "Asia/Shanghai"
+# This value will be set on controller-manager and dashboard container's
+# environment variable TZ.
+# You may need to set the timezone to be consistent with your Grafana configuration,
+# otherwise the query Grafana used to retrieve event maybe in wrong timezone.
+timezone: "UTC"
+
+# enableProfiling is a flag to enable pprof in controller-manager and chaos-daemon.
+enableProfiling: true
+
+registry: ""
+
+controllerManager:
+  hostNetwork: false
+  serviceAccount: chaos-controller-manager
+
+  replicaCount: 1
+
+  priorityClassName: ""
+
+  image: pingcap/chaos-mesh:v2.0.3
+  imagePullPolicy: IfNotPresent
+
+  enableFilterNamespace: false
+
+  # targetNamespace only works with clusterScoped is false(namespace scoped mode).
+  # It means namespace which will be injected chaos
+  targetNamespace: chaos-testing
+
+  service:
+    type: ClusterIP
+
+  resources:
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    limits: {}
+    #  cpu: 500m
+    #  memory: 1024Mi
+    requests:
+      cpu: 25m
+      memory: 256Mi
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity: {}
+
+  podAnnotations: {}
+
+  # This is Dangerous. Run only on temporary clusters.
+  allowHostNetworkTesting: false
+
+  podChaos:
+    podFailure:
+      pauseImage: gcr.io/google-containers/pause:latest
+
+chaosDaemon:
+  image: pingcap/chaos-daemon:v2.0.3
+  imagePullPolicy: IfNotPresent
+  grpcPort: 31767
+  httpPort: 31766
+  env: {}
+  hostNetwork: false
+
+  # Run chaos-daemon container in privileged mode. Processes in privileged containers
+  # are essentially equivalent to root on the host.
+  # If it is set to false, the following capabilities will be set. You can grant certain privileges
+  # to a process without granting all the privileges of the root user.
+  ## capabilities:
+  ##   add:
+  ##     - SYS_PTRACE
+  ##     - NET_ADMIN
+  ##     - MKNOD
+  ##     - SYS_CHROOT
+  ##     - SYS_ADMIN
+  ##     - KILL
+  ##     # CAP_IPC_LOCK is used to lock memory
+  ##     - IPC_LOCK
+  privileged: true
+
+  priorityClassName: ""
+
+  podAnnotations: {}
+
+  serviceAccount: chaos-daemon
+
+  # enable a podSecurityPolicy(psp)
+  podSecurityPolicy: false
+
+  # runtime specifies which container runtime to use. Currently
+  # we only supports docker, containerd and CRI-O.
+  runtime: docker
+
+  # socketPath specifies the container runtime socket.
+  socketPath: /var/run/docker.sock
+
+  # If you are using Kind or using containerd as CRI, you can use the
+  # config below to use containerd as the runtime in chaos-daemon.
+  # runtime: containerd
+  # socketPath: /run/containerd/containerd.sock
+
+  # If you are using CRI-O as CRI, you can use the
+  # config below to use CRI-O as the runtime in chaos-daemon.
+  # runtime: crio
+  # socketPath: /var/run/crio/crio.sock
+
+  resources: {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 500m
+    #   memory: 1024Mi
+    # requests:
+    #   cpu: 250m
+    #   memory: 512Mi
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity: {}
+
+dashboard:
+  create: true
+  hostNetwork: false
+
+  replicaCount: 1
+
+  priorityClassName: ""
+
+  serviceAccount: chaos-controller-manager
+
+  image: pingcap/chaos-dashboard:v2.0.3
+  imagePullPolicy: IfNotPresent
+
+  securityMode: true
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity: {}
+
+  podAnnotations: {}
+
+  service:
+    annotations: {}
+    type: NodePort
+    # clusterIP:
+    # nodePort:
+
+  resources:
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    limits: {}
+    #  cpu: 500m
+    #  memory: 1024Mi
+    requests:
+      cpu: 25m
+      memory: 256Mi
+
+  persistentVolume:
+    # If you are using SQLite as your DB for Chaos Dashboard, it is recommended to enable persistence.
+    # If enable, the chart will create a PersistenceVolumeClaim to store its state in. If you are
+    # using a DB other than SQLite, set this to false to avoid allocating unused storage.
+    # If set to false, Chaos Mesh will use an emptyDir instead, which is ephemeral.
+    enabled: false
+
+    # If you'd like to bring your own PVC for persisting chaos event, pass the name of the
+    # created + ready PVC here. If set, this Chart will not create the default PVC.
+    # Requires server.persistentVolume.enabled: true
+    #
+    existingClaim: ""
+
+    # Chaos Dashboard data Persistent Volume size.
+    size: 8Gi
+
+    # Chaos Dashboard data Persistent Volume Storage Class.
+    # If defined, storageClassName: <storageClass>
+    storageClassName: standard
+
+    # Chaos Dashboard data Persistent Volume mount root path
+    #
+    mountPath: /data
+
+    # Subdirectory of Chaos Dashboard data Persistent Volume to mount
+    # Useful if the volume's root directory is not empty
+    #
+    subPath: ""
+
+  # The keys within the "env" map are mounted as environment variables on the Chaos Dashboard pod.
+  env:
+    LISTEN_HOST: "0.0.0.0"
+    LISTEN_PORT: 2333
+
+    # If you'd like to use a DB other than SQLite (the default), set a driver + DSN here.
+    DATABASE_DRIVER: sqlite3
+    DATABASE_DATASOURCE: /data/core.sqlite
+
+    # If you are going to store build secrets in the Chaos Dashboard database, it is suggested that
+    # you set a database encryption secret. This must be set before any secrets are stored
+    # in the database.
+    # DATABASE_SECRET:
+  ingress:
+    ## Set to true to enable ingress record generation
+    enabled: false
+
+    ## Set this to true in order to add the corresponding annotations for cert-manager
+    certManager: false
+
+    ## Ingress annotations done as key:value pairs
+    ## For a full list of possible ingress annotations, please see
+    ## ref: https://github.com/kubernetes/ingress-nginx/blob/master/docs/user-guide/nginx-configuration/annotations.md
+    ##
+    ## If tls is set to true, annotation ingress.kubernetes.io/secure-backends: "true" will automatically be set
+    ## If certManager is set to true, annotation kubernetes.io/tls-acme: "true" will automatically be set
+    # annotations:
+    #   kubernetes.io/ingress.class: nginx
+
+    ## The list of hostnames to be covered with this ingress record.
+    ## Most likely this will be just one host, but in the event more hosts are needed, this is an array
+    hosts:
+      - name: dashboard.local
+        paths: ["/"]
+
+        ## Set this to true in order to enable TLS on the ingress record
+        tls: false
+
+        ## Optionally specify the TLS hosts for the ingress record
+        ## Useful when the Ingress controller supports www-redirection
+        ## If not specified, the above host name will be used
+        # tlsHosts:
+        # - www.dashboard.local
+        # - dashboard.local
+
+        ## If TLS is set to true, you must declare what secret will store the key/certificate for TLS
+        tlsSecret: dashboard.local-tls
+
+dnsServer:
+  create: false
+
+  serviceAccount: chaos-dns-server
+
+  image: pingcap/coredns:v0.2.1
+
+  imagePullPolicy: IfNotPresent
+
+  priorityClassName: ""
+
+  nodeSelector: {}
+
+  podAnnotations: {}
+
+  runtime: docker
+
+  name: chaos-mesh-dns-server
+
+  grpcPort: 9288
+
+  resources:
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    limits: {}
+    #  cpu: 500m
+    #  memory: 1024Mi
+    requests:
+      cpu: 100m
+      memory: 70Mi
+
+  tolerations: []
+
+  env:
+    LISTEN_HOST: "0.0.0.0"
+    LISTEN_PORT: 53
+
+prometheus:
+  create: false
+
+  serviceAccount: prometheus
+
+  image: prom/prometheus:v2.18.1
+  imagePullPolicy: IfNotPresent
+
+  priorityClassName: ""
+
+  nodeSelector: {}
+
+  tolerations: []
+
+  affinity: {}
+
+  podAnnotations: {}
+
+  resources:
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    limits:
+      cpu: 500m
+      memory: 1024Mi
+    requests:
+      cpu: 250m
+      memory: 512Mi
+
+  service:
+    type: ClusterIP
+
+  volume:
+    storage: 2Gi
+    storageClassName: standard
+
+webhook:
+  # if empty and disable certManager, Helm will auto-generate these fields
+  crtPEM: |
+
+  keyPEM: |
+
+  # Setup the webhook using cert-manager
+  certManager:
+    enabled: false
+
+  # It is recommended that admission webhooks should evaluate as quickly as possible (typically in milliseconds),
+  # since they add to API request latency. It is encouraged to use a small timeout for webhooks.
+  # https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/#timeouts
+  timeoutSeconds: 5
+  # FailurePolicy defines how unrecognized errors and timeout errors from the admission webhook are handled.
+  # https://kubernetes.io/docs/reference/access-authn-authz/extensible-admission-controllers/#failure-policy
+  FailurePolicy: Ignore
+
+  CRDS:
+    - podchaos
+    - iochaos
+    - timechaos
+    - networkchaos
+    - kernelchaos
+    - stresschaos
+    - awschaos
+    - gcpchaos
+    - dnschaos
+    - jvmchaos
+    - schedule
+    - workflow
+    - httpchaos
+
+bpfki:
+  create: false
+  image: pingcap/chaos-kernel:v2.0.3
+  imagePullPolicy: IfNotPresent
+  grpcPort: 50051
+  resources: {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #  cpu: 500m
+    #  memory: 1024Mi
+    # requests:
+    #  cpu: 250m
+    #  memory: 512Mi
