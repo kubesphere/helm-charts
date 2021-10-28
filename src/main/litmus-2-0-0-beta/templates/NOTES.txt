@@ -1,5 +1,0 @@
-Thank you for installing {{ .Chart.Name }} 😀
-
-Your release is named {{ .Release.Name }} and it's installed to namespace: {{ .Release.Namespace }}.
-
-Visit https://litmusdocs-beta.netlify.app/docs/introduction to find more info.

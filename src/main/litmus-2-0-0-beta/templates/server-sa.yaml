@@ -1,8 +1,0 @@
-apiVersion: v1
-kind: ServiceAccount
-metadata:
-  name: {{ .Values.portal.server.serviceAccountName }}
-  namespace:  {{ .Release.Namespace }}
-  labels:
-    app.kubernetes.io/component: {{ include "litmus-portal.name" . }}-server
-    {{- include "litmus-portal.labels" . | nindent 4 }}
