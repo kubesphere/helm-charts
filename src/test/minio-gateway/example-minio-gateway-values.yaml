@@ -1,0 +1,12 @@
+gateway:
+  enabled: true
+  type: s3
+  replicaCount: 1
+  auth:
+    s3:
+      accessKey: ABCLEXMLGAQSIAXICZOD
+      secretKey: EFGQHGJKWBZMNUHUFvEC5PoLkXpbjOENnMEU33JV
+      serviceEndpoint: https://s3.pek3b.qingstor.com
+  etcd:
+    enabled: true
+    endpoint: http://192.168.0.5:2379

@@ -1,0 +1,153 @@
+{{- if .Values.rbac.create }}
+kind: ServiceAccount
+apiVersion: v1
+metadata:
+  namespace: {{ .Release.Namespace | quote }}
+  name: {{ .Values.controllerManager.serviceAccount }}
+  labels:
+    {{- include "chaos-mesh.labels" . | nindent 4 }}
+    app.kubernetes.io/component: controller-manager
+
+---
+# roles
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: {{ .Release.Name }}-chaos-controller-manager-target-namespace
+  labels:
+    {{- include "chaos-mesh.labels" . | nindent 4 }}
+    app.kubernetes.io/component: controller-manager
+rules:
+  - apiGroups: [ "" ]
+    resources: [ "pods", "secrets"]
+    verbs: [ "get", "list", "watch", "delete", "update", "patch" ]
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+    verbs:
+      - "create"
+  - apiGroups:
+      - ""
+    resources:
+      - "pods/log"
+    verbs:
+      - "get"
+  - apiGroups:
+      - ""
+    resources:
+      - events
+    verbs:
+      - patch
+      - create
+      - watch
+      - list
+      - get
+  - apiGroups: [ "" ]
+    resources: [ "configmaps" ]
+    verbs: [ "*" ]
+  - apiGroups: [ "chaos-mesh.org" ]
+    resources:
+      - "*"
+    verbs: [ "*" ]
+
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: {{ .Release.Name }}-chaos-controller-manager-cluster-level
+  labels:
+    {{- include "chaos-mesh.labels" . | nindent 4 }}
+    app.kubernetes.io/component: controller-manager
+rules:
+  - apiGroups: [ "" ]
+    resources:
+      - nodes
+      {{- if .Values.clusterScoped }}
+      - namespaces
+      - services
+    {{- end }}
+    verbs: [ "get", "list", "watch" ]
+  - apiGroups: [ "authorization.k8s.io" ]
+    resources:
+      - subjectaccessreviews
+    verbs: [ "create" ]
+
+
+---
+kind: Role
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: {{ .Release.Name }}-chaos-controller-manager-control-plane
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    {{- include "chaos-mesh.labels" . | nindent 4 }}
+    app.kubernetes.io/component: controller-manager
+rules:
+  - apiGroups: [ "" ]
+    resources: [ "configmaps", "services", "endpoints" ]
+    verbs: [ "get", "list", "watch" ]
+  - apiGroups: [ "authorization.k8s.io" ]
+    resources:
+      - subjectaccessreviews
+    verbs: [ "create" ]
+
+---
+# bindings cluster level
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: {{ .Release.Name }}-chaos-controller-manager-cluster-level
+  labels:
+    {{- include "chaos-mesh.labels" . | nindent 4 }}
+    app.kubernetes.io/component: controller-manager
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ .Release.Name }}-chaos-controller-manager-cluster-level
+subjects:
+  - kind: ServiceAccount
+    name: {{ .Values.controllerManager.serviceAccount }}
+    namespace: {{ .Release.Namespace | quote }}
+
+---
+# binding for control plane namespace
+kind: RoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: {{ .Release.Name }}-chaos-controller-manager-control-plane
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    {{- include "chaos-mesh.labels" . | nindent 4 }}
+    app.kubernetes.io/component: controller-manager
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: Role
+  name: {{ .Release.Name }}-chaos-controller-manager-control-plane
+subjects:
+  - kind: ServiceAccount
+    name: {{ .Values.controllerManager.serviceAccount }}
+    namespace: {{ .Release.Namespace | quote }}
+
+---
+  {{- if .Values.clusterScoped }}
+kind: ClusterRoleBinding
+  {{- else }}
+kind: RoleBinding
+  {{- end }}
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: {{ .Release.Name }}-chaos-controller-manager-target-namespace
+  namespace: {{ .Values.controllerManager.targetNamespace | quote }}
+  labels:
+    {{- include "chaos-mesh.labels" . | nindent 4 }}
+    app.kubernetes.io/component: controller-manager
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: {{ .Release.Name }}-chaos-controller-manager-target-namespace
+subjects:
+  - kind: ServiceAccount
+    name: {{ .Values.controllerManager.serviceAccount }}
+    namespace: {{ .Release.Namespace | quote }}
+  {{- end }}
