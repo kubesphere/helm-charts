@@ -1,0 +1,23 @@
+{{- if not .Values.s3Config.skipped }}
+apiVersion: migration.yinhestor.com/v1alpha1
+kind: MigStorage
+metadata:
+  name: {{ .Values.s3Config.name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  backupStorageConfig:
+    awsBucketName: {{ .Values.s3Config.bucket | required "s3 bucket is required " }}
+    awsRegion: {{ .Values.s3Config.region | required "s3 region is required " }}
+    awsS3Url: {{ .Values.s3Config.s3Url | required "s3 url is required " }}
+    credsSecretRef:
+      name: {{ .Values.s3Config.name }}
+      namespace: {{ .Release.Namespace }}
+    insecure: true
+  backupStorageProvider: {{ .Values.s3Config.provider | required "s3 provider is required " }}
+  volumeSnapshotConfig:
+    awsRegion: {{ .Values.s3Config.region }}
+    credsSecretRef:
+      name: {{ .Values.s3Config.name }}
+      namespace: {{ .Release.Namespace }}
+  volumeSnapshotProvider: {{ .Values.s3Config.provider }}
+{{- end }}

@@ -1,0 +1,21 @@
+apiVersion: migration.yinhestor.com/v1alpha1
+kind: Migconfig
+metadata:
+  name: qiming-config
+  namespace: {{ .Release.Namespace }}
+spec:
+  version: {{ .Values.migconfig.version }}
+  clientName: {{ .Values.migconfig.clientName }}
+  serviceAccountName: {{ include "qiming-operator.serviceAccountName" . }}
+  deploymentMode: {{ .Values.migconfig.deploymentMode }}
+  isAdminCluster: {{ .Values.migconfig.isAdminCluster }}
+  {{- if contains "NodePort" .Values.service.type }}
+  isUINodePortEnabled: true
+  {{- else }}
+  isUINodePortEnabled: false
+  {{- end }}
+  featureParameters:
+    remoteRestore: "true"
+    migration: "true"
+  keys: {{ .Values.migconfig.keys }}
+  backupIntervalMinutes: {{ .Values.migconfig.backupIntervalMinutes }}
