@@ -8,6 +8,10 @@ kubeVersion: ">=1.14.0-0"
 home: https://github.com/juicedata/juicefs
 sources:
   - https://github.com/juicedata/juicefs
+icon: https://s.juicefs.com/static/jfs/logo.svg
+maintainers:
+  - email: team@juicedata.io
+    name: Juicedata Inc
 keywords:
   - juicefs
   - csi
