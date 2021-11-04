@@ -38,7 +38,7 @@ spec:
         enabled: {{ .Values.common.es.basicAuth.enabled }}
         username: "{{ .Values.common.es.basicAuth.username }}"
         password: "{{ .Values.common.es.basicAuth.password }}"
-      externalElasticsearchUrl: "{{ .Values.common.es.externalElasticsearchUrl }}"
+      externalElasticsearchHost: "{{ .Values.common.es.externalElasticsearchHost }}"
       externalElasticsearchPort: "{{ .Values.common.es.externalElasticsearchPort }}"
   console:
     enableMultiLogin: {{ .Values.console.enableMultiLogin }}

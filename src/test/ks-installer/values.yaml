@@ -70,7 +70,7 @@ common:
       enabled: false
       username: ""
       password: ""
-    externalElasticsearchUrl: ""
+    externalElasticsearchHost: ""
     externalElasticsearchPort: ""
 
 # Enable or disable simultaneous logins. It allows different users
