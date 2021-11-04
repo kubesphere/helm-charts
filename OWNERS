@@ -1,13 +1,18 @@
 approvers:
     - zheng1
-    - zryfish
     - rayzhou2017
+    - zryfish
+    - calvinyv
+    - FeynmanZhou
+    - pixiake
+    - wansir
+    - stoneshi-yunify
+    - xyz-li
 
 reviewers:
     - zheng1
     - rayzhou2017
     - zryfish
-    - benjaminhuo
     - calvinyv
     - FeynmanZhou
     - pixiake
@@ -15,3 +20,4 @@ reviewers:
     - stoneshi-yunify
     - dkeven
     - f10atin9
+    - xyz-li
