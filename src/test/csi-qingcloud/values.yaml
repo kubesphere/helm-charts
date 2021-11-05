@@ -52,6 +52,13 @@ controller:
     requests:
       memory: 100Mi
       cpu: 100m
+  vpa:
+    minAllowed:
+      cpu: 100m
+      memory: 100Mi
+    maxAllowed:
+      cpu: 1
+      memory: 1000Mi
 provisioner:
   repository: csiplugin/csi-provisioner
   tag: v2.2.2
@@ -63,6 +70,13 @@ provisioner:
     requests:
       memory: 100Mi
       cpu: 100m
+  vpa:
+    minAllowed:
+      cpu: 20m
+      memory: 50Mi
+    maxAllowed:
+      cpu: 200m
+      memory: 200Mi
 attacher:
   repository: csiplugin/csi-attacher
   tag: v3.2.1
@@ -73,26 +87,47 @@ attacher:
     requests:
       memory: 100Mi
       cpu: 100m
+  vpa:
+    minAllowed:
+      cpu: 20m
+      memory: 50Mi
+    maxAllowed:
+      cpu: 200m
+      memory: 200Mi
 resizer:
   repository: csiplugin/csi-resizer
   tag: v1.2.0
   resources:
     limits:
-      memory: 40Mi
-      cpu: 20m
+      memory: 100Mi
+      cpu: 100m
     requests:
-      memory: 40Mi
+      memory: 100Mi
+      cpu: 100m
+  vpa:
+    minAllowed:
       cpu: 20m
+      memory: 50Mi
+    maxAllowed:
+      cpu: 200m
+      memory: 200Mi
 snapshotter:
   repository: csiplugin/csi-snapshotter
   tag: v4.0.0
   resources:
     limits:
-      memory: 40Mi
-      cpu: 20m
+      memory: 100Mi
+      cpu: 100m
     requests:
-      memory: 40Mi
+      memory: 100Mi
+      cpu: 100m
+  vpa:
+    minAllowed:
       cpu: 20m
+      memory: 50Mi
+    maxAllowed:
+      cpu: 200m
+      memory: 200Mi
 
 registrar:
   repository: csiplugin/csi-node-driver-registrar
@@ -124,3 +159,5 @@ sc:
   reclaimPolicy: Delete
   allowVolumeExpansion: true
   volumeBindingMode: WaitForFirstConsumer
+
+enableVPA: false
