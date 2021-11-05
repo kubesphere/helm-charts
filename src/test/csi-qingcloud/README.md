@@ -40,6 +40,22 @@ Chart Version | Snapshot CRDs Version | Min K8s Version
  &lt;= 1.2.8 | only v1beta1 | 1.14 
  &gt;= 1.2.9 | both v1beta1 and v1, only v1 | 1.17 
 
+## Vertical Pod Autoscaler
+Vertical Pod Autoscaler (VPA) frees the users from necessity of setting up-to-date resource limits and requests for the containers in their pods.
+
+Set `enableVPA` to `true` in ` values.yaml ` to apply VerticalPodAutoscaler for csi-qingcloud-controller. (Need to make sure that [vertical-pod-autoscaler](https://github.com/kubernetes/autoscaler/tree/master/vertical-pod-autoscaler) has been installed first.)
+
+If you need to modify the `minAllowed` and `maxAllowed` of the container, modify the value of the container in `value.yaml` .
+
+VPA will try to cap recommendations between min and max of limit ranges. If limit range conflicts and VPA resource policy conflict then VPA will follow **VPA policy** (and set values outside limit range).
+**VPA will keep the QoS class as guaranteed.**
+
+If the replicas value is 1, Then in your updater deployment you will just have to add
+```yaml
+  args:
+    - "--min-replicas=1"
+```
+
 ## Configuration
 
 The following table lists the configurable parameters of the chart and their default values.
