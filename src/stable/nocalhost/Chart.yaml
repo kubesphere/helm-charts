@@ -2,8 +2,8 @@ apiVersion: v2
 name: nocalhost
 description: Nocalhost is Cloud Native Dev Environment.
 type: application
-version: 0.6.2
-appVersion: "v0.6.2"
+version: 0.6.4
+appVersion: "v0.6.4"
 kubeVersion: '>= 1.16.0-0'
 sources:
   - https://github.com/nocalhost/nocalhost
