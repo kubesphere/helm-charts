@@ -1,0 +1,280 @@
+#
+# Licensed to the Apache Software Foundation (ASF) under one or more
+# contributor license agreements.  See the NOTICE file distributed with
+# this work for additional information regarding copyright ownership.
+# The ASF licenses this file to You under the Apache License, Version 2.0
+# (the "License"); you may not use this file except in compliance with
+# the License.  You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+global:
+  imagePullSecrets: []
+
+
+apisix:
+  # Enable or disable Apache APISIX itself
+  # Set it to false and ingress-controller.enabled=true will deploy only ingress-controller
+  enabled: true
+
+  customLuaSharedDicts: []
+    # - name: foo
+    #   size: 10k
+    # - name: bar
+    #   size: 1m
+
+  image:
+    repository: apache/apisix
+    pullPolicy: IfNotPresent
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: 2.10.0-alpine
+
+  replicaCount: 1
+
+  podAnnotations: {}
+  podSecurityContext: {}
+    # fsGroup: 2000
+  securityContext: {}
+    # capabilities:
+    #   drop:
+    #   - ALL
+    # readOnlyRootFilesystem: true
+    # runAsNonRoot: true
+    # runAsUser: 1000
+
+  resources: {}
+    # We usually recommend not to specify default resources and to leave this as a conscious
+    # choice for the user. This also increases chances charts run on environments with little
+    # resources, such as Minikube. If you do want to specify resources, uncomment the following
+    # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+    # limits:
+    #   cpu: 100m
+    #   memory: 128Mi
+    # requests:
+    #   cpu: 100m
+    #   memory: 128Mi
+
+  nodeSelector: {}
+  tolerations: []
+  affinity: {}
+  # If true, it will sets the anti-affinity of the Pod.
+  podAntiAffinity:
+    enabled: false
+
+
+nameOverride: ""
+fullnameOverride: ""
+
+
+gateway:
+  type: NodePort
+  # If you want to keep the client source IP, you can set this to Local.
+  # ref: https://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/#preserving-the-client-source-ip
+  externalTrafficPolicy: Cluster
+  # type: LoadBalancer
+  # annotations:
+  #   service.beta.kubernetes.io/aws-load-balancer-type: nlb
+  http:
+    enabled: true
+    servicePort: 80
+    containerPort: 9080
+  tls:
+    enabled: false
+    servicePort: 443
+    containerPort: 9443
+    existingCASecret: ""
+    certCAFilename: ""
+    http2:
+      enabled: true
+  stream:  # L4 proxy (TCP/UDP)
+    enabled: false
+    only: false
+    tcp: []
+    udp: []
+  ingress:
+    enabled: false
+    annotations: {}
+      # kubernetes.io/ingress.class: nginx
+      # kubernetes.io/tls-acme: "true"
+    hosts:
+      - host: apisix.local
+        paths: []
+    tls: []
+  #  - secretName: apisix-tls
+  #    hosts:
+  #      - chart-example.local
+
+
+admin:
+  # Enable Admin API
+  enabled: true
+  # admin service type
+  type: ClusterIP
+  # loadBalancerIP: a.b.c.d
+  # loadBalancerSourceRanges:
+  #   - "143.231.0.0/16"
+  externalIPs: []
+  #
+  port: 9180
+  servicePort: 9180
+  # Admin API support CORS response headers
+  cors: true
+  # Admin API credentials
+  credentials:
+    admin: edd1c9f034335f136f87ad84b625c8f1
+    viewer: 4054f7cf07e344346cd3f287985e76a2
+
+  allow:
+    # The ip range for allowing access to Apache APISIX
+    ipList:
+      - 127.0.0.1/24
+
+
+# APISIX plugins to be enabled
+plugins:
+  - api-breaker
+  - authz-keycloak
+  - basic-auth
+  - batch-requests
+  - consumer-restriction
+  - cors
+  - echo
+  - fault-injection
+  - grpc-transcode
+  - hmac-auth
+  - http-logger
+  - ip-restriction
+  - ua-restriction
+  - jwt-auth
+  - kafka-logger
+  - key-auth
+  - limit-conn
+  - limit-count
+  - limit-req
+  - node-status
+  - openid-connect
+  - authz-casbin
+  - prometheus
+  - proxy-cache
+  - proxy-mirror
+  - proxy-rewrite
+  - redirect
+  - referer-restriction
+  - request-id
+  - request-validation
+  - response-rewrite
+  - serverless-post-function
+  - serverless-pre-function
+  - sls-logger
+  - syslog
+  - tcp-logger
+  - udp-logger
+  - uri-blocker
+  - wolf-rbac
+  - zipkin
+  - traffic-split
+  - gzip
+  - real-ip
+stream_plugins:
+  - mqtt-proxy
+  - ip-restriction
+  - limit-conn
+
+# customPlugins allows you to mount your own HTTP plugins.
+customPlugins:
+  enabled: false
+  # the lua_path that tells APISIX where it can find plugins,
+  # note the last ';' is required.
+  luaPath: "/opts/custom_plugins/?.lua"
+  plugins:
+      # plugin name.
+    - name: ""
+      # plugin attrs
+      attrs: |
+      # plugin codes can be saved inside configmap object.
+      configMap:
+        # name of configmap.
+        name: ""
+        # since keys in configmap is flat, mountPath allows to define the mount
+        # path, so that plugin codes can be mounted hierarchically.
+        mounts:
+          - key: ""
+            path: ""
+          - key: ""
+            path: ""
+
+dns:
+  resolvers:
+    - 127.0.0.1
+    - 172.20.0.10
+    - 114.114.114.114
+    - 223.5.5.5
+    - 1.1.1.1
+    - 8.8.8.8
+  validity: 30
+  timeout: 5
+
+
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 100
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+
+# Custom configuration snippet.
+configurationSnippet:
+  main: |
+
+  httpStart: |
+
+  httpEnd: |
+
+  httpSrv: |
+
+  httpAdmin: |
+
+  stream: |
+
+# etcd configuration
+# use the FQDN address or the IP of the etcd
+etcd:
+  # install etcd(v3) by default, set false if do not want to install etcd(v3) together
+  enabled: true
+  host:
+    - http://etcd.host:2379  # host or ip e.g. http://172.20.128.89:2379
+  prefix: "/apisix"
+  timeout: 30
+
+  # if etcd.enabled is true, set more values of bitnami/etcd helm chart
+  auth:
+    rbac:
+      # No authentication by default
+      enabled: false
+      user: ""
+      password: ""
+    tls:
+      enabled: false
+      existingSecret: ""
+      certFilename: ""
+      certKeyFilename: ""
+      verify: true
+
+  service:
+    port: 2379
+
+  replicaCount: 3
+
+
+dashboard:
+  enabled: false
+
+
+ingress-controller:
+  enabled: false
