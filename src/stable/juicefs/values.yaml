@@ -8,7 +8,7 @@
 # fullnameOverride: ""
 
 image:
-  repository: juicedata/juicefs
+  repository: juicedata/juicefs-csi-driver
   tag: "v0.10.6"
   pullPolicy: ""
 
