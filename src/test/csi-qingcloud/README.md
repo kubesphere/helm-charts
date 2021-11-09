@@ -43,14 +43,15 @@ Chart Version | Snapshot CRDs Version | Min K8s Version
 ## Vertical Pod Autoscaler
 Vertical Pod Autoscaler (VPA) frees the users from necessity of setting up-to-date resource limits and requests for the containers in their pods.
 
-Set `enableVPA` to `true` in ` values.yaml ` to apply VerticalPodAutoscaler for csi-qingcloud-controller. (Need to make sure that [vertical-pod-autoscaler](https://github.com/kubernetes/autoscaler/tree/master/vertical-pod-autoscaler) has been installed first.)
+- Set `enableVPA` to `true` in ` values.yaml ` to apply VerticalPodAutoscaler for csi-qingcloud-controller. (Need to make sure that [vertical-pod-autoscaler](https://github.com/kubernetes/autoscaler/tree/master/vertical-pod-autoscaler) can work first.)
 
-If you need to modify the `minAllowed` and `maxAllowed` of the container, modify the value of the container in `value.yaml` .
+- If you need to modify the `minAllowed` and `maxAllowed` of the container, modify the value of the container in `value.yaml` .
 
-VPA will try to cap recommendations between min and max of limit ranges. If limit range conflicts and VPA resource policy conflict then VPA will follow **VPA policy** (and set values outside limit range).
-**VPA will keep the QoS class as guaranteed.**
+- When setting limits VPA will conform to resource policies. It will maintain limit to request ratio specified for all containers. VPA will try to cap recommendations between min and max of limit ranges. If limit range conflicts and VPA resource policy conflict then VPA will follow **VPA policy** (and set values outside limit range).
+  For details, refer to the following [examples](https://github.com/kubernetes/autoscaler/tree/master/vertical-pod-autoscaler#examples)
 
-If the replicas value is 1, Then in your updater deployment you will just have to add
+
+- By default VPA won't update the resource requests/limits of the container if the replicas is 1, in this case, the csi-qingcloud-controller, you can enforce this by adding below arguments to the vpa-updater deployment:
 ```yaml
   args:
     - "--min-replicas=1"
