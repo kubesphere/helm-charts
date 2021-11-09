@@ -75,8 +75,8 @@ provisioner:
       cpu: 20m
       memory: 50Mi
     maxAllowed:
-      cpu: 200m
-      memory: 200Mi
+      cpu: 1
+      memory: 1000Mi
 attacher:
   repository: csiplugin/csi-attacher
   tag: v3.2.1
@@ -92,8 +92,8 @@ attacher:
       cpu: 20m
       memory: 50Mi
     maxAllowed:
-      cpu: 200m
-      memory: 200Mi
+      cpu: 1
+      memory: 1000Mi
 resizer:
   repository: csiplugin/csi-resizer
   tag: v1.2.0
@@ -109,8 +109,8 @@ resizer:
       cpu: 20m
       memory: 50Mi
     maxAllowed:
-      cpu: 200m
-      memory: 200Mi
+      cpu: 1
+      memory: 1000Mi
 snapshotter:
   repository: csiplugin/csi-snapshotter
   tag: v4.0.0
@@ -126,8 +126,8 @@ snapshotter:
       cpu: 20m
       memory: 50Mi
     maxAllowed:
-      cpu: 200m
-      memory: 200Mi
+      cpu: 1
+      memory: 1000Mi
 
 registrar:
   repository: csiplugin/csi-node-driver-registrar

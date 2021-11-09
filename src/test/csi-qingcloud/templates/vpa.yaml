@@ -3,7 +3,7 @@
 apiVersion: "autoscaling.k8s.io/v1"
 kind: VerticalPodAutoscaler
 metadata:
-  name: csi-qingcloud-vpa
+  name: csi-qingcloud-controller-vpa
   namespace: kube-system
 spec:
   targetRef:
