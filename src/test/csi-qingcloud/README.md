@@ -45,13 +45,13 @@ Vertical Pod Autoscaler (VPA) frees the users from necessity of setting up-to-da
 
 - Set `enableVPA` to `true` in ` values.yaml ` to apply VerticalPodAutoscaler for csi-qingcloud-controller. (Need to make sure that [vertical-pod-autoscaler](https://github.com/kubernetes/autoscaler/tree/master/vertical-pod-autoscaler) can work first.)
 
-- If you need to modify the `minAllowed` and `maxAllowed` of the container, modify the value of the container in `value.yaml` .
+- Specify the `minAllowed` and `maxAllowed` value for each container in `values.yaml`, if the defaults don't meet your need.
 
 - When setting limits VPA will conform to resource policies. It will maintain limit to request ratio specified for all containers. VPA will try to cap recommendations between min and max of limit ranges. If limit range conflicts and VPA resource policy conflict then VPA will follow **VPA policy** (and set values outside limit range).
   For details, refer to the following [examples](https://github.com/kubernetes/autoscaler/tree/master/vertical-pod-autoscaler#examples)
 
 
-- By default VPA won't update the resource requests/limits of the container if the replicas is 1, in this case, the csi-qingcloud-controller, you can enforce this by adding below arguments to the vpa-updater deployment:
+- By default, VPA won't update the resource requests/limits of the container if the replicas is 1, in this case, the csi-qingcloud-controller, you can enforce this by adding below arguments to the vpa-updater deployment:
 ```yaml
   args:
     - "--min-replicas=1"
@@ -63,9 +63,9 @@ The following table lists the configurable parameters of the chart and their def
 
 Parameter | Description | Default
 --- | --- | ---
-`config.qy_access_key_id` | Access key id of QingCloud | ``
-`config.qy_secret_access_key` | Access secret of QingCloud | ``
-`config.zone` | Zone of QingCloud | ``
+`config.qy_access_key_id` | Access key id of QingCloud | 
+`config.qy_secret_access_key` | Access secret of QingCloud | 
+`config.zone` | Zone of QingCloud | 
 `config.host` | API host of QingCloud | `api.qingcloud.com`
 `config.port` | API port of QingCloud | `443`
 `config.protocol` | API protocol of QingCloud | `https`
@@ -74,9 +74,9 @@ Parameter | Description | Default
 `config.connection_timeout` | Retry time out of API| `30`
 `driver.name` | Name of the CSI driver | `disk.csi.qingcloud.com`
 `driver.repository` | Image of CSI plugin| `csiplugin/csi-qingcloud`
-`driver.tag` | Tag of CSI plugin, defaults to chart appVersion | `""`
 `driver.pullPolicy` | Image pull policy of CSI plugin | `IfNotPresent`
-`driver.maxVolume` | Max volume of CSI plugin | `10`
+`driver.maxVolume` | Max volume of CSI plugin | `9`
+`driver.retryDetachTimesMax` | Max time of retry detach | `100`
 `driver.kubeletDir` | Directory of kubelet | `/var/lib/kubelet`
 `provisioner.repository` | Image of csi-provisioner | `csiplugin/csi-provisioner`
 `provisioner.tag` | Tag of csi-provisioner | `v2.2.2`
@@ -93,8 +93,10 @@ Parameter | Description | Default
 `sc.isDefaultClass` | Whether to set this StorageClass as the default StorageClass | `false`
 `sc.name` | Name of storage class | `csi-qingcloud`
 `sc.type` | [Type](https://github.com/yunify/qingcloud-csi/blob/master/docs/user-guide.md#type-maxsize-minsize-stepsize) parameter of storage class. If set`auto`, disk type will be automatically set according to instance type| `auto`
-`sc.tags` | [Tag](https://github.com/yunify/qingcloud-csi/blob/master/docs/user-guide.md#tags) parameter of storage class | ``
+`sc.replica` | `1` represents single duplication disk，`2` represents multiple duplication disk | 2
+`sc.tags` | [Tag](https://github.com/yunify/qingcloud-csi/blob/master/docs/user-guide.md#tags) parameter of storage class | 
 `sc.fsType` | [FsType](https://github.com/yunify/qingcloud-csi/blob/master/docs/user-guide.md#fstype) parameter of storage class | `ext4`
 `sc.reclaimPolicy` | ReclaimPolicy parameter of storage class | `Delete`
 `sc.allowVolumeExpansion` | AllowVolumeExpansion parameter of storage class | `true`
 `sc.volumeBindingMode` | [VolumeBindingMode](https://github.com/yunify/qingcloud-csi/blob/master/docs/user-guide.md#topology-awareness) parameter of storage class | `WaitForFirstConsumer`
+`enableVPA` | Whether to enable [vertical-pod-autoscaler](https://github.com/kubernetes/autoscaler/tree/master/vertical-pod-autoscaler) | `false`

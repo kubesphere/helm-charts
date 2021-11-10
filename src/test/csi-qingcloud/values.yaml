@@ -27,7 +27,6 @@ config:
 driver:
   name: disk.csi.qingcloud.com
   repository: csiplugin/csi-qingcloud
-  # tag:
   pullPolicy: IfNotPresent
   maxVolume: 9
   retryDetachTimesMax: 100
