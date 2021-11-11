@@ -42,7 +42,7 @@ The following table lists the configurable parameters of the ks-installer chart 
 Parameter | Description | Default
 --- | --- | ---
 `image.repository` | The image of ks-installer container | `kubesphere/ks-installer`
-`image.tag` | The tag of the ks-installer image | `v3.0.0`
+`image.tag` | The tag of the ks-installer image | `v3.2.0`
 `image.pullPolicy` | The pull policy of the ks-installer image | `Always`
 
 ## KubeSphere Configuration
