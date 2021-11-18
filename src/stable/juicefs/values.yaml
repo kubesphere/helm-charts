@@ -12,8 +12,6 @@ image:
   tag: "v0.10.6"
   pullPolicy: ""
 
-namespace: kube-system
-
 sidecars:
   livenessProbeImage:
     repository: quay.io/k8scsi/livenessprobe
