@@ -53,51 +53,50 @@ You can set the configuration of kubesphere in `values.yaml`
 
 Parameter | Description | Default
 --- | --- | ---
-`persistence.storageClass` | Installer will use the default StorageClass, you can also designate another StorageClass| `""`
-`authentication.jwtSecret `| Keep the jwtSecret consistent with the host cluster. | `""`
-`etcd.monitoring `| Whether to enable etcd monitoring|`false`
-`etcd.endpointIps`|etcd address（for etcd cluster,see an example value like `192.168.0.7,192.168.0.8,192.168.0.9`）|`localhost` 
-`etcd.port`|etcd port (Default port: 2379, you can appoint any other port) | `2379` 
-`etcd.tlsEnable`|Whether to enable etcd TLS certificate authentication.（true / false）| `true`
-`common.redis.enabled`|Whether to install redis|`false`
-`common.redis.openldap`|Whether to install openldap|`false`
-`common.minioVolumeSize`|Minio volume size (cannot be modified after set)|`20Gi`
-`common.openldapVolumeSize`|openldap volume size (cannot be modified after set)|`2Gi`
-`common.redisVolumSize`|redis volume size (cannot be modified after set)|`2Gi`
-`common.es.elasticsearchMasterVolumeSize`|Volume size of Elasticsearch master nodes (cannot be modified after set)|`4Gi`
-`common.es.elasticsearchDataVolumeSize`|Volume size of Elasticsearch data nodes (cannot be modified after set)|`20Gi`
-`common.es.logMaxAge`|Log retention time in built-in Elasticsearch (days)|`7`
-`common.es.elkPrefix`|redis volume size (cannot be modified after set)|`2Gi`
-`console.enableMultiLogin`|Whether to enable multiple point login of one account（true / false）|`false`
-`console.port`|Console Port（NodePort）|`30880`
-`alerting.enabled`|Whether to install KubeSphere alerting system. It enables Users to customize alerting policies to send messages to receivers in time with different time intervals and alerting levels to choose from. （true / false）|`false`
-`auditing.enabled`|Whether to install KubeSphere audit log system. It provides a security-relevant chronological set of records，recording the sequence of activities happened in platform, initiated by different tenants. （true / false）|`false`
-`devops.enabled`|Whether to install KubeSphere DevOps System. It provides out-of-box CI/CD system based on Jenkins, and automated workflow tools including Source-to-Image & Binary-to-Image. （true / false） | `false`
-`devops.jenkinsMemoryLim`|Jenkins Memory Limit|`2Gi`
-`devops.jenkinsMemoryReq`|Jenkins Memory Request|`1500Mi`
-`devops.jenkinsVolumeSize`|Jenkins volume size|`8Gi`
-`devops.jenkinsJavaOpts_Xms`|Jenkins JVM parameter（Xms）|`512m`
-`devops.jenkinsJavaOpts_Xmx`|Jenkins  JVM parameter（Xmx）|`512m`
-`devops.jenkinsJavaOpts_MaxRAM`|Jenkins  JVM parameter（MaxRAM）|`2Gi`
-`events.enabled`|Whether to install KubeSphere events system. It provides a graphical web console for Kubernetes Events exporting, filtering and alerting in multi-tenant Kubernetes clusters. （true / false）|`false`
-`logging.enabled`|Whether to install KubeSphere logging system. Flexible logging functions are provided for log query, collection and management in a unified console. Additional log collectors can be added, such as Elasticsearch, Kafka and Fluentd.  （true / false）|`false`
-`logging.logsidecar.replicas`|Logsidecar replicas|`2`
-`metrics_server.enabled`|Whether to install metrics_servertrue (true / false)| `false`
-`monitoring.endpoint`|Prometheus endpoint to get metrics data|`http://prometheus-operated.kubesphere-monitoring-system.svc:9090`
-`monitoring.storageClass`|If there is an independent StorageClass you need for Prometheus, you can specify it here| `""`
-`monitoring.prometheusMemoryRequest`|Prometheus memory request|`400Mi`
-`monitoring.prometheusVolumeSize`|Prometheus volume size|`20Gi`
-`multicluster.clusterRole`|You can install a solo cluster, or specify it as the role of host or member cluster. (host / member / none) |`none`
-`network.networkpolicy.enabled` |Network policies allow network isolation within the same cluster, which means firewalls can be set up between certain instances (Pods).  (true / false) |`false`
-`network.ippool.type` |Specify "calico" for this field if Calico is used as your CNI plugin. "none" means that Pod IP Pools are disabled.|`none`
-`network.topology.type` | Specify "weave-scope" for this field to enable Service Topology. "none" means that Service Topology is disabled.|`none`
-`openpitrix.store.enabled `|Enable or disable the KubeSphere App Store. (true / false) |`false`
-`servicemesh.enabled`|Whether to install KubeSphere Service Mesh (Istio-based). It provides fine-grained traffic management, observability and tracing, and offer visualization for traffic topology. (true / false) |`false`
+`cc.persistence.storageClass` | Installer will use the default StorageClass, you can also designate another StorageClass| `""`
+`cc.authentication.jwtSecret `| Keep the jwtSecret consistent with the host cluster. | `""`
+`cc.etcd.monitoring `| Whether to enable etcd monitoring|`false`
+`cc.etcd.endpointIps`|etcd address（for etcd cluster,see an example value like `192.168.0.7,192.168.0.8,192.168.0.9`）|`localhost` 
+`cc.etcd.port`|etcd port (Default port: 2379, you can appoint any other port) | `2379` 
+`cc.etcd.tlsEnable`|Whether to enable etcd TLS certificate authentication.（true / false）| `true`
+`cc.common.redis.enabled`|Whether to install redis|`false`
+`cc.common.redis.volumeSize`|redis volume size (cannot be modified after set)|`2Gi`
+`cc.common.openldap.enabled`|Whether to install openldap|`false`
+`cc.common.openldap.volumeSize`|openldap volume size (cannot be modified after set)|`2Gi`
+`cc.common.minio.volumeSize`|Minio volume size (cannot be modified after set)|`20Gi`
+`cc.common.es.master.volumeSize`|Volume size of Elasticsearch master nodes (cannot be modified after set)|`4Gi`
+`cc.common.es.data.volumeSize`|Volume size of Elasticsearch data nodes (cannot be modified after set)|`20Gi`
+`cc.common.es.logMaxAge`|Log retention time in built-in Elasticsearch (days)|`7`
+`cc.common.es.elkPrefix`|redis volume size (cannot be modified after set)|`2Gi`
+`cc.common.core.console.enableMultiLogin`|Whether to enable multiple point login of one account（true / false）|`false`
+`cc.common.core.console.port`|Console Port（NodePort）|`30880`
+`cc.alerting.enabled`|Whether to install KubeSphere alerting system. It enables Users to customize alerting policies to send messages to receivers in time with different time intervals and alerting levels to choose from. （true / false）|`false`
+`cc.auditing.enabled`|Whether to install KubeSphere audit log system. It provides a security-relevant chronological set of records，recording the sequence of activities happened in platform, initiated by different tenants. （true / false）|`false`
+`cc.devops.enabled`|Whether to install KubeSphere DevOps System. It provides out-of-box CI/CD system based on Jenkins, and automated workflow tools including Source-to-Image & Binary-to-Image. （true / false） | `false`
+`cc.devops.jenkinsMemoryLim`|Jenkins Memory Limit|`2Gi`
+`cc.devops.jenkinsMemoryReq`|Jenkins Memory Request|`1500Mi`
+`cc.devops.jenkinsVolumeSize`|Jenkins volume size|`8Gi`
+`cc.devops.jenkinsJavaOpts_Xms`|Jenkins JVM parameter（Xms）|`512m`
+`cc.devops.jenkinsJavaOpts_Xmx`|Jenkins  JVM parameter（Xmx）|`512m`
+`cc.devops.jenkinsJavaOpts_MaxRAM`|Jenkins  JVM parameter（MaxRAM）|`2Gi`
+`cc.events.enabled`|Whether to install KubeSphere events system. It provides a graphical web console for Kubernetes Events exporting, filtering and alerting in multi-tenant Kubernetes clusters. （true / false）|`false`
+`cc.logging.enabled`|Whether to install KubeSphere logging system. Flexible logging functions are provided for log query, collection and management in a unified console. Additional log collectors can be added, such as Elasticsearch, Kafka and Fluentd.  （true / false）|`false`
+`cc.logging.logsidecar.replicas`|Logsidecar replicas|`2`
+`cc.metrics_server.enabled`|Whether to install metrics_servertrue (true / false)| `false`
+`cc.monitoring.storageClass`|If there is an independent StorageClass you need for Prometheus, you can specify it here| `""`
+`cc.monitoring.gpu.nvidia_dcgm_exporter.enabled`|Whether to install GPU monitoring-related plugins.| `false`
+`cc.multicluster.clusterRole`|You can install a solo cluster, or specify it as the role of host or member cluster. (host / member / none) |`none`
+`cc.network.networkpolicy.enabled` |Network policies allow network isolation within the same cluster, which means firewalls can be set up between certain instances (Pods).  (true / false) |`false`
+`cc.network.ippool.type` |Specify "calico" for this field if Calico is used as your CNI plugin. "none" means that Pod IP Pools are disabled.|`none`
+`cc.network.topology.type` | Specify "weave-scope" for this field to enable Service Topology. "none" means that Service Topology is disabled.|`none`
+`cc.openpitrix.store.enabled `|Enable or disable the KubeSphere App Store. (true / false) |`false`
+`cc.servicemesh.enabled`|Whether to install KubeSphere Service Mesh (Istio-based). It provides fine-grained traffic management, observability and tracing, and offer visualization for traffic topology. (true / false) |`false`
+`cc.kubeedge.enabled`|Add edge nodes to your cluster and deploy workloads on edge nodes. (true / false) |`false`
 
 Specify each parameter using the `--set key=value[,key=value]` argument to `helm install`. For example:
 
 ```console
-$ helm install --name my-release ks-installer --set persistence.storageClass=local
+$ helm install --name my-release ks-installer --set cc.persistence.storageClass=local
 ```
 
 Alternatively, a YAML file that specifies the values for the above parameters can be provided while installing the chart. For example:
