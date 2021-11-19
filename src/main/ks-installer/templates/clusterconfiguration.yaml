@@ -9,5 +9,5 @@ metadata:
   labels:
     version: {{ .Chart.AppVersion }}
 spec:
-{{ toYaml .Values.clusterConfiguration | indent 2 }}
+{{ toYaml .Values.cc | indent 2 }}
 {{ end -}}

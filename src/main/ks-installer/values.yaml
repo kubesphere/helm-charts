@@ -38,7 +38,7 @@ tolerations: []
 
 affinity: {}
 
-clusterConfiguration:
+cc:
   persistence:
     storageClass: ""        # If there is no default StorageClass in your cluster, you need to specify an existing StorageClass here.
   authentication:
