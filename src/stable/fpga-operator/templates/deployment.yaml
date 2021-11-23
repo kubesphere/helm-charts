@@ -1,0 +1,60 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    {{- include "labels" . | nindent 4 }}
+  name: {{ .Chart.Name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      kind: Deployment
+      {{- include "selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/default-container: reef
+      labels:
+        kind: Deployment
+        {{- include "labels" . | nindent 8 }}
+    spec:
+      containers:
+      - args:
+        - --debug={{ .Values.reef.debug }}
+        image: {{ .Values.reef.image }}:{{ .Values.reef.tag }}
+        {{- if .Values.reef.pullPolicy }}
+        imagePullPolicy: {{ .Values.reef.pullPolicy }}
+        {{- end }}
+        name: reef
+        {{- if .Values.reef.resources }}
+        resources:
+          {{- .Values.reef.resources | toYaml | nindent 10 }}
+        {{- end }}
+        volumeMounts:
+        - mountPath: /etc/inaccel
+          name: config-root
+          readOnly: true
+      hostAliases:
+      - hostnames:
+        - reef
+        ip: 127.0.0.1
+      initContainers:
+      - args:
+        - init
+        env:
+        - name: MUTATING_WEBHOOK_CONFIGURATION_NAME
+          value: {{ .Chart.Name }}
+        image: {{ .Values.reef.image }}:{{ .Values.reef.tag }}
+        {{- if .Values.reef.pullPolicy }}
+        imagePullPolicy: {{ .Values.reef.pullPolicy }}
+        {{- end }}
+        name: reef-init
+        volumeMounts:
+        - mountPath: /etc/inaccel
+          name: config-root
+      priorityClassName: system-cluster-critical
+      serviceAccountName: {{ .Chart.Name }}
+      volumes:
+      - emptyDir: {}
+        name: config-root
