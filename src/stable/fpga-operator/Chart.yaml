@@ -1,4 +1,6 @@
 annotations:
+  app.kubesphere.io/category: Infrastructure
+  app.kubesphere.io/display-name: InAccel FPGA Operator
   artifacthub.io/license: Apache-2.0
   artifacthub.io/links: |
     - name: Documentation
