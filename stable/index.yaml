@@ -3,10 +3,10 @@ entries:
   chaos-mesh:
   - apiVersion: v2
     appVersion: 2.0.3
-    created: "2021-11-15T08:23:01.711388122Z"
+    created: "2021-11-24T12:48:13.480631549Z"
     description: Chaos Mesh® is a cloud-native Chaos Engineering platform that orchestrates
       chaos on Kubernetes environments.
-    digest: 1e00857d4dc038560d0b99684ab193e00a255049603678776c4f431829e1858d
+    digest: 007ef0a56a062996ccfb841cf61f133a16e57b93c88ff19b09d964f177defe1b
     home: https://chaos-mesh.org
     icon: https://raw.githubusercontent.com/pingcap/chaos-mesh/master/static/logo.svg
     keywords:
@@ -21,6 +21,43 @@ entries:
     urls:
     - https://charts.kubesphere.io/stable/chaos-mesh-2.0.3.tgz
     version: 2.0.3
+  fpga-operator:
+  - annotations:
+      app.kubesphere.io/category: Infrastructure
+      app.kubesphere.io/display-name: InAccel FPGA Operator
+      artifacthub.io/license: Apache-2.0
+      artifacthub.io/links: |
+        - name: Documentation
+          url: https://docs.inaccel.com
+      category: Infrastructure
+    apiVersion: v2
+    appVersion: "2.1"
+    created: "2021-11-24T12:48:13.482556686Z"
+    dependencies:
+    - alias: fpga-discovery
+      condition: fpga-discovery.enabled
+      name: node-feature-discovery
+      repository: https://kubernetes-sigs.github.io/node-feature-discovery/charts
+      version: 0.9.0
+    description: Simplifying FPGA management in Kubernetes
+    digest: 5f1e04c63d2679ac069c546cb58f501738a2e9a1c1544f4818fa071f04756995
+    home: https://inaccel.com
+    icon: https://en.gravatar.com/userimage/147236320/2a11cd2992b4521ec287587f03fae35c.png?size=1250
+    keywords:
+    - fpga
+    - infrastructure
+    kubeVersion: '>= 1.18.0-0'
+    maintainers:
+    - email: info@inaccel.com
+      name: InAccel
+    name: fpga-operator
+    sources:
+    - https://docs.inaccel.com
+    - https://github.com/inaccel/helm
+    type: application
+    urls:
+    - https://charts.kubesphere.io/stable/fpga-operator-2.6.1.tgz
+    version: 2.6.1
   juicefs:
   - apiVersion: v2
     appVersion: 0.10.6
@@ -137,4 +174,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/stable/nocalhost-0.5.7.tgz
     version: 0.5.7
-generated: "2021-11-15T08:23:01.702787326Z"
+generated: "2021-11-24T12:48:13.471257Z"
