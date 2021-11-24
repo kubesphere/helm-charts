@@ -3,10 +3,10 @@ entries:
   chaos-mesh:
   - apiVersion: v2
     appVersion: 2.0.3
-    created: "2021-11-24T12:48:13.480631549Z"
+    created: "2021-11-24T15:14:19.304363778Z"
     description: Chaos Mesh® is a cloud-native Chaos Engineering platform that orchestrates
       chaos on Kubernetes environments.
-    digest: 007ef0a56a062996ccfb841cf61f133a16e57b93c88ff19b09d964f177defe1b
+    digest: 04d9643307b0c243ce5341cb90dc3e61eb47c155adcd6845272ae66d07161b97
     home: https://chaos-mesh.org
     icon: https://raw.githubusercontent.com/pingcap/chaos-mesh/master/static/logo.svg
     keywords:
@@ -59,6 +59,27 @@ entries:
     - https://charts.kubesphere.io/stable/fpga-operator-2.6.1.tgz
     version: 2.6.1
   juicefs:
+  - apiVersion: v2
+    appVersion: 0.11.0
+    created: "2021-11-24T15:14:19.305212363Z"
+    description: A Helm chart for JuiceFS CSI Driver
+    digest: 6c0f23b4c11247957d349f066d268e67bb9e6191cd06544c7551d2eed10b4bb3
+    home: https://github.com/juicedata/juicefs
+    icon: https://s.juicefs.com/static/jfs/logo.svg
+    keywords:
+    - juicefs
+    - csi
+    kubeVersion: '>=1.14.0-0'
+    maintainers:
+    - email: team@juicedata.io
+      name: Juicedata Inc
+    name: juicefs
+    sources:
+    - https://github.com/juicedata/juicefs
+    type: application
+    urls:
+    - https://charts.kubesphere.io/stable/juicefs-0.7.0.tgz
+    version: 0.7.0
   - apiVersion: v2
     appVersion: 0.10.6
     created: "2021-11-11T09:02:02.1052406Z"
@@ -174,4 +195,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/stable/nocalhost-0.5.7.tgz
     version: 0.5.7
-generated: "2021-11-24T12:48:13.471257Z"
+generated: "2021-11-24T15:14:19.295477206Z"
