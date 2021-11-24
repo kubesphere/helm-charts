@@ -1,0 +1,14 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    {{- include "labels" . | nindent 4 }}
+  name: {{ .Chart.Name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  ports:
+  - port: 443
+  publishNotReadyAddresses: true
+  selector:
+    kind: Deployment
+    {{- include "selectorLabels" . | nindent 4 }}

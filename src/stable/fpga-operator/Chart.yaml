@@ -1,0 +1,32 @@
+annotations:
+  app.kubesphere.io/category: Infrastructure
+  app.kubesphere.io/display-name: InAccel FPGA Operator
+  artifacthub.io/license: Apache-2.0
+  artifacthub.io/links: |
+    - name: Documentation
+      url: https://docs.inaccel.com
+  category: Infrastructure
+apiVersion: v2
+appVersion: "2.1"
+dependencies:
+- alias: fpga-discovery
+  condition: fpga-discovery.enabled
+  name: node-feature-discovery
+  repository: https://kubernetes-sigs.github.io/node-feature-discovery/charts
+  version: 0.9.0
+description: Simplifying FPGA management in Kubernetes
+home: https://inaccel.com
+icon: https://en.gravatar.com/userimage/147236320/2a11cd2992b4521ec287587f03fae35c.png?size=1250
+keywords:
+- fpga
+- infrastructure
+kubeVersion: '>= 1.18.0-0'
+maintainers:
+- email: info@inaccel.com
+  name: InAccel
+name: fpga-operator
+sources:
+- https://docs.inaccel.com
+- https://github.com/inaccel/helm
+type: application
+version: 2.6.1

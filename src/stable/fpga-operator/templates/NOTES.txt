@@ -1,0 +1,9 @@
+{{- if .Release.IsInstall -}}
+Install
+{{- end -}}
+{{- if .Release.IsUpgrade -}}
+Upgrad
+{{- end -}}
+ing {{ ( index .Chart.Maintainers 0 ).Name }} [{{ include "chart" . }}] {{ .Release.Service }} chart.
+For detailed usage instructions visit: {{ index .Chart.Sources 0 }}
+For more product information contact: {{ ( index .Chart.Maintainers 0 ).Email }}
