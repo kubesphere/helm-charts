@@ -1,0 +1,185 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  labels:
+    {{- include "labels" . | nindent 4 }}
+  name: {{ .Chart.Name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    matchLabels:
+      kind: DaemonSet
+      {{- include "selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        kubectl.kubernetes.io/default-container: coral
+      labels:
+        kind: DaemonSet
+        {{- include "labels" . | nindent 8 }}
+    spec:
+      containers:
+      - env:
+        {{- if .Values.coral.httpsProxy }}
+        - name: HTTPS_PROXY
+          value: {{ .Values.coral.httpsProxy }}
+        {{- end }}
+        {{- if .Values.license }}
+        - name: LICENSE
+          valueFrom:
+            secretKeyRef:
+              key: license
+              name: {{ .Chart.Name }}
+        {{- end }}
+        {{- if .Values.coral.logLevel }}
+        - name: LOG_LEVEL
+          value: {{ .Values.coral.logLevel }}
+        {{- end }}
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        image: {{ .Values.coral.image }}:{{ default .Chart.AppVersion .Values.coral.tag }}
+        {{- if .Values.coral.pullPolicy }}
+        imagePullPolicy: {{ .Values.coral.pullPolicy }}
+        {{- end }}
+        name: coral
+        ports:
+        - containerPort: 55677
+          {{- if .Values.coral.port }}
+          hostPort: {{ .Values.coral.port }}
+          {{- end }}
+        readinessProbe:
+          exec:
+            command:
+            - get
+            - coral
+        {{- if .Values.coral.resources }}
+        resources:
+          {{- .Values.coral.resources | toYaml | nindent 10 }}
+        {{- end }}
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /etc/localtime
+          name: localtime
+          readOnly: true
+        - mountPath: /sys
+          name: sys
+        - mountPath: /var/lib/inaccel
+          mountPropagation: HostToContainer
+          name: state-root
+        - mountPath: /var/lib/kubelet/plugins_registry
+          name: kubelet
+          subPath: plugins_registry
+        - mountPath: /var/opt/inaccel/runtimes
+          name: data-root
+          readOnly: true
+          subPath: runtimes
+      - args:
+        - --debug={{ .Values.daemon.debug }}
+        env:
+        - name: DOCKER
+          value: disabled
+        - name: NODE_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: spec.nodeName
+        image: {{ .Values.daemon.image }}:{{ .Values.daemon.tag }}
+        {{- if .Values.daemon.pullPolicy }}
+        imagePullPolicy: {{ .Values.daemon.pullPolicy }}
+        {{- end }}
+        name: daemon
+        {{- if .Values.daemon.resources }}
+        resources:
+          {{- .Values.daemon.resources | toYaml | nindent 10 }}
+        {{- end }}
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /var/lib/inaccel
+          mountPropagation: Bidirectional
+          name: state-root
+        - mountPath: /var/lib/kubelet/plugins_registry
+          name: kubelet
+          subPath: plugins_registry
+        - mountPath: {{ .Values.kubelet }}
+          mountPropagation: Bidirectional
+          name: kubelet
+      - image: {{ .Values.monitor.image }}:{{ default .Chart.AppVersion .Values.monitor.tag }}
+        {{- if .Values.monitor.pullPolicy }}
+        imagePullPolicy: {{ .Values.monitor.pullPolicy }}
+        {{- end }}
+        name: monitor
+        ports:
+        - containerPort: 19999
+          {{- if .Values.monitor.port }}
+          hostPort: {{ .Values.monitor.port }}
+          {{- end }}
+        {{- if .Values.monitor.resources }}
+        resources:
+          {{- .Values.monitor.resources | toYaml | nindent 10 }}
+        {{- end }}
+      hostAliases:
+      - hostnames:
+        - coral
+        - daemon
+        - monitor
+        ip: 127.0.0.1
+      hostPID: {{ .Values.driver.enabled }}
+      initContainers:
+      {{- if .Values.driver.enabled }}
+      - env:
+        - name: DRIVER_SYSROOT_DIR
+          value: /host
+        image: {{ .Values.driver.image }}:{{ .Values.driver.tag }}
+        {{- if .Values.driver.pullPolicy }}
+        imagePullPolicy: {{ .Values.driver.pullPolicy }}
+        {{- end }}
+        name: driver
+        securityContext:
+          privileged: true
+        volumeMounts:
+        - mountPath: /host
+          name: host
+      {{- end }}
+      - env:
+        - name: MKRT_CONFIG_PATH
+          value: {{ .Values.root.config }}/runtimes
+        - name: MKRT_SYSROOT_DIR
+          value: /host
+        image: {{ .Values.mkrt.image }}:{{ .Values.mkrt.tag }}
+        {{- if .Values.mkrt.pullPolicy }}
+        imagePullPolicy: {{ .Values.mkrt.pullPolicy }}
+        {{- end }}
+        name: mkrt
+        volumeMounts:
+        - mountPath: /host
+          name: host
+          readOnly: true
+        - mountPath: /var/opt/inaccel/runtimes
+          name: data-root
+          subPath: runtimes
+      nodeSelector:
+        inaccel/fpga: enabled
+      priorityClassName: system-node-critical
+      serviceAccountName: {{ .Chart.Name }}
+      volumes:
+      - emptyDir: {}
+        name: data-root
+      - hostPath:
+          path: /
+        name: host
+      - hostPath:
+          path: {{ .Values.kubelet }}
+        name: kubelet
+      - hostPath:
+          path: /etc/localtime
+        name: localtime
+      - hostPath:
+          path: {{ .Values.root.state }}
+          type: DirectoryOrCreate
+        name: state-root
+      - hostPath:
+          path: /sys
+        name: sys

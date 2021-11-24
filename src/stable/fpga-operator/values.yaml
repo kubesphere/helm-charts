@@ -1,0 +1,78 @@
+coral:
+  # httpsProxy: ...
+  image: inaccel/coral
+  logLevel: info
+  # port: ...
+  pullPolicy: Always
+  # resources: ...
+  # tag: ...
+
+daemon:
+  debug: false
+  image: inaccel/daemon
+  # pullPolicy: ...
+  # resources: ...
+  tag: latest
+
+driver:
+  enabled: true
+  image: inaccel/driver
+  # pullPolicy: ...
+  tag: latest
+
+fpga-discovery:
+  enabled: true
+  fullnameOverride: fpga-discovery
+  image:
+    tag: v0.9.0-minimal
+  master:
+    extraLabelNs:
+    - inaccel
+  worker:
+    config: |
+      core:
+        sources:
+        - custom
+      sources:
+        custom:
+        - matchOn:
+          # intel-fpga
+          - pciId:
+              device: ["09c4", "0b2b"]
+              vendor: ["8086"]
+          # xilinx-fpga
+          - pciId:
+              vendor: ["10ee"]
+          - pciId:
+              device: ["1042", "f010"]
+              vendor: ["1d0f"]
+          name: inaccel/fpga
+          value: enabled
+    configmapName: fpga-discovery
+
+kubelet: /var/lib/kubelet
+
+# license: ...
+
+mkrt:
+  image: inaccel/mkrt
+  # pullPolicy: ...
+  tag: latest
+
+monitor:
+  image: inaccel/monitor
+  # port: ...
+  pullPolicy: Always
+  # resources: ...
+  # tag: ...
+
+reef:
+  debug: false
+  image: inaccel/reef
+  # pullPolicy: ...
+  # resources: ...
+  tag: latest
+
+root:
+  config: /etc/inaccel
+  state: /var/lib/inaccel
