@@ -55,7 +55,7 @@ spec:
               cpu: "{{ .Values.registrar.resources.requests.cpu }}"
           args:
             - "--csi-address=$(ADDRESS)"
-            - "--kubelet-registration-path=/var/lib/kubelet/plugins/{{ .Values.driver.name }}/csi.sock"
+            - "--kubelet-registration-path={{ .Values.driver.kubeletDir }}/plugins/{{ .Values.driver.name }}/csi.sock"
             - "--v=5"
           env:
             - name: ADDRESS
@@ -121,11 +121,11 @@ spec:
             path: {{ .Values.driver.kubeletDir }}
         - name: socket-dir
           hostPath:
-            path: "/var/lib/kubelet/plugins/{{ .Values.driver.name }}/"
+            path: "{{ .Values.driver.kubeletDir }}/plugins/{{ .Values.driver.name }}/"
             type: DirectoryOrCreate
         - name: registration-dir
           hostPath:
-            path: /var/lib/kubelet/plugins_registry/
+            path: {{ .Values.driver.kubeletDir }}/plugins_registry/
         - name: dev-dir
           hostPath:
             path: /dev
