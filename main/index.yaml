@@ -877,6 +877,34 @@ entries:
     version: 3.4.2
   sonarqube:
   - apiVersion: v1
+    appVersion: 8.9-community
+    created: "2021-12-01T04:06:14.359261805Z"
+    dependencies:
+    - condition: postgresql.enabled
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: 8.6.4
+    description: SonarQube is an open sourced code quality scanning tool
+    digest: 2a422df173a5b7e8fc613248d8135f3d3351dac72166ec7d26ddc23ece0ea65f
+    home: https://www.sonarqube.org/
+    icon: https://www.sonarqube.org/assets/logo-31ad3115b1b4b120f3d1efd63e6b13ac9f1f89437f0cf6881cc4d8b5603a52b4.svg
+    keywords:
+    - coverage
+    - security
+    - code
+    - quality
+    maintainers:
+    - email: rjkernick@gmail.com
+      name: rjkernick
+    - email: tsiddique@live.com
+      name: tsiddique
+    name: sonarqube
+    sources:
+    - https://github.com/SonarSource/docker-sonarqube
+    urls:
+    - https://charts.kubesphere.io/main/sonarqube-6.7.0.tgz
+    version: 6.7.0
+  - apiVersion: v1
     appVersion: 8.2-community
     created: "2021-10-18T12:04:41.854383413Z"
     dependencies:
@@ -997,4 +1025,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/main/tomcat-0.4.0-r1.tgz
     version: 0.4.0-r1
-generated: "2021-11-25T05:59:14.521508476Z"
+generated: "2021-12-01T04:06:14.354435601Z"
