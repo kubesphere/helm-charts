@@ -70,6 +70,32 @@ entries:
       app.kubesphere.io/category: Prometheus Exporter
     apiVersion: v1
     appVersion: 1.1.0
+    created: "2021-12-15T06:57:27.728568497Z"
+    description: Elasticsearch stats exporter for Prometheus
+    digest: a476692a385cee005d317928f240a939b5dbecda276c58b21198f41653d151d8
+    home: https://github.com/justwatchcom/elasticsearch_exporter
+    keywords:
+    - metrics
+    - elasticsearch
+    - monitoring
+    kubeVersion: '>=1.10.0-0'
+    maintainers:
+    - email: sven.mueller@commercetools.com
+      name: svenmueller
+    - email: carlos@carlosbecker.com
+      name: caarlos0
+    - email: cedric@desaintmartin.fr
+      name: desaintmartin
+    name: elasticsearch-exporter
+    sources:
+    - https://github.com/justwatchcom/elasticsearch_exporter
+    urls:
+    - https://charts.kubesphere.io/main/elasticsearch-exporter-3.3.4.tgz
+    version: 3.3.4
+  - annotations:
+      app.kubesphere.io/category: Prometheus Exporter
+    apiVersion: v1
+    appVersion: 1.1.0
     created: "2021-04-15T14:28:25.80680627Z"
     description: Elasticsearch stats exporter for Prometheus
     digest: 2b296729364f83ebd0a9dd8d82c564f18a282e058ce37986ec3e32170e015f58
@@ -821,6 +847,26 @@ entries:
       app.kubesphere.io/category: Prometheus Exporter
     apiVersion: v1
     appVersion: 1.3.4
+    created: "2021-12-15T06:57:27.72918598Z"
+    description: Prometheus exporter for Redis metrics
+    digest: c306d9c0643c8fb951b553a17d69b506018ff17ca11fff5217f003c07bae518b
+    home: https://github.com/oliver006/redis_exporter
+    keywords:
+    - prometheus
+    - redis
+    maintainers:
+    - email: arcadie.condrat@gmail.com
+      name: acondrat
+    name: redis-exporter
+    sources:
+    - https://github.com/oliver006/redis_exporter
+    urls:
+    - https://charts.kubesphere.io/main/redis-exporter-3.4.5.tgz
+    version: 3.4.5
+  - annotations:
+      app.kubesphere.io/category: Prometheus Exporter
+    apiVersion: v1
+    appVersion: 1.3.4
     created: "2021-04-15T14:28:25.813895934Z"
     description: Prometheus exporter for Redis metrics
     digest: 543e761b57ac94c2b853b91ffcbd673d667ff8990b132cbc62f4d259460130f6
@@ -1025,4 +1071,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/main/tomcat-0.4.0-r1.tgz
     version: 0.4.0-r1
-generated: "2021-12-01T04:06:14.354435601Z"
+generated: "2021-12-15T06:57:27.727510026Z"
