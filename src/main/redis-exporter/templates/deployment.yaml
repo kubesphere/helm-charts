@@ -50,7 +50,7 @@ spec:
                   name: {{ .Values.auth.secret.name }}
                   key: {{ .Values.auth.secret.key }}
             {{- else }}
-              value: {{ .Values.auth.redisPassword }}
+              value: {{ .Values.auth.redisPassword | quote }}
             {{- end }}
           {{- end }}
 {{- if .Values.script }}
