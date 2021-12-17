@@ -208,4 +208,19 @@ mirror() {
   pushUpdates
 }
 
+deploy_charts(){
+    verify
+    echo "checkout gh-pages"
+    git checkout gh-pages
+    dirs=$(ls build/)
+    for dir in ${dirs}; do
+      echo "copy resource in ${dir}"
+      mkdir -p ${dir}
+      cp build/${dir}/* ${dir}
+      git add ${dir}
+    done
+
+    git clean -fd
+}
+
 $@
