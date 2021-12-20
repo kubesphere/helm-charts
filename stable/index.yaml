@@ -3,10 +3,10 @@ entries:
   chaos-mesh:
   - apiVersion: v2
     appVersion: 2.0.4
-    created: "2021-12-17T07:51:23.23646917Z"
+    created: "2021-12-20T14:42:59.260686285Z"
     description: Chaos Mesh® is a cloud-native Chaos Engineering platform that orchestrates
       chaos on Kubernetes environments.
-    digest: 1dafc0ef111646dc2b6164242d3878e55a571b34ec29ed16913d55a622a0496f
+    digest: dc3a02d5fdaf21f523c457c62a0b58d1cdc145dbc8c57d13854a87768926f0be
     home: https://chaos-mesh.org
     icon: https://raw.githubusercontent.com/pingcap/chaos-mesh/master/static/logo.svg
     keywords:
@@ -125,6 +125,37 @@ entries:
   - annotations:
       category: App Definition and Development
     apiVersion: v2
+    appVersion: v0.6.9
+    created: "2021-12-20T14:42:59.266715532Z"
+    dependencies:
+    - name: mariadb
+      repository: https://nocalhost-helm.pkg.coding.net/nocalhost/helm
+      version: 9.0.1
+    description: Nocalhost is Cloud Native Dev Environment.
+    digest: 8ddb5e9100b5d03bcc84d5f28f1d7bece20847d6e2f3266a51e871320be7bab5
+    home: https://nocalhost.dev
+    icon: https://nocalhost.dev/img/icon_helmchart.png
+    keywords:
+    - nocalhost
+    - nhctl
+    - kubernetes
+    - develop
+    - telepresence
+    - skaffold
+    kubeVersion: '>= 1.16.0-0'
+    maintainers:
+    - name: Nocalhost
+      url: https://github.com/nocalhost/nocalhost
+    name: nocalhost
+    sources:
+    - https://github.com/nocalhost/nocalhost
+    type: application
+    urls:
+    - https://charts.kubesphere.io/stable/nocalhost-0.6.9.tgz
+    version: 0.6.9
+  - annotations:
+      category: App Definition and Development
+    apiVersion: v2
     appVersion: v0.6.4
     created: "2021-11-08T04:27:48.620871967Z"
     dependencies:
@@ -215,4 +246,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/stable/nocalhost-0.5.7.tgz
     version: 0.5.7
-generated: "2021-12-17T07:51:23.225796905Z"
+generated: "2021-12-20T14:42:59.25217002Z"
