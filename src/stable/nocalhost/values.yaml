@@ -9,14 +9,14 @@ api:
     repository: nocalhost-docker.pkg.coding.net/nocalhost/public/nocalhost-api
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
-    tag: "v0.6.4"
+    tag: "v0.6.9"
 
 web:
   image:
     repository: nocalhost-docker.pkg.coding.net/nocalhost/public/nocalhost-web
     pullPolicy: Always
     # Overrides the image tag whose default is the chart appVersion.
-    tag: "v0.6.4"
+    tag: "v0.6.9"
 
 imagePullSecrets: []
 
