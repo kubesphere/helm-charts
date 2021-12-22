@@ -1,6 +1,6 @@
 image:
   # image.repository -- pvc-autoresizer image repository to use.
-  repository: f10atin9/pvc-autoresizer
+  repository: kubesphere/pvc-autoresizer
 
   # image.tag -- pvc-autoresizer image tag to use.
   # @default -- `{{ .Chart.AppVersion }}`
