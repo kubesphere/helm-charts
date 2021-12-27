@@ -842,6 +842,20 @@ entries:
     urls:
     - https://charts.kubesphere.io/main/nginx-1.2.1.tgz
     version: 1.2.1
+  pvc-autoresizer:
+  - apiVersion: v2
+    appVersion: v0.1
+    created: "2021-12-27T08:23:46.343223811Z"
+    description: Auto-resize PersistentVolumeClaim objects based on Prometheus metrics.
+    digest: 931338a42d27296401438fa327693d18903ef02f0cfa2335ea16ef0c8aaf17b8
+    home: https://github.com/kubesphere/pvc-autoresizer
+    name: pvc-autoresizer
+    sources:
+    - https://github.com/kubesphere/pvc-autoresizer
+    type: application
+    urls:
+    - https://charts.kubesphere.io/main/pvc-autoresizer-0.1.0.tgz
+    version: 0.1.0
   redis-exporter:
   - annotations:
       app.kubesphere.io/category: Prometheus Exporter
@@ -1091,4 +1105,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/main/tomcat-0.4.0-r1.tgz
     version: 0.4.0-r1
-generated: "2021-12-17T07:51:21.946058041Z"
+generated: "2021-12-27T08:23:46.342586202Z"
