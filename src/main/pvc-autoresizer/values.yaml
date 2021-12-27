@@ -1,0 +1,41 @@
+image:
+  # image.repository -- pvc-autoresizer image repository to use.
+  repository: kubesphere/pvc-autoresizer
+
+  # image.tag -- pvc-autoresizer image tag to use.
+  # @default -- `{{ .Chart.AppVersion }}`
+  tag:  # v0.1
+
+  # image.pullPolicy -- pvc-autoresizer image pullPolicy.
+  pullPolicy:  # Always
+
+controller:
+  # controller.replicas -- Specify the number of replicas of the controller Pod.
+  replicas: 1
+
+  args:
+    # controller.args.prometheusURL -- Specify Prometheus URL to query volume stats.
+    # Used as "--prometheus-url" option
+    prometheusURL: http://prometheus-k8s.kubesphere-monitoring-system:9090
+
+    # controller.args.interval -- Specify interval to monitor pvc capacity.
+    # Used as "--interval" option
+    interval: 10s
+
+    # controller.args.additionalArgs -- Specify additional args.
+    additionalArgs: []
+
+  # controller.resources -- Specify resources.
+  resources:
+    requests:
+      cpu: 100m
+      memory: 20Mi
+
+  # controller.terminationGracePeriodSeconds -- Specify terminationGracePeriodSeconds.
+  terminationGracePeriodSeconds:  # 10
+
+  # controller.tolerations -- Ensure pods are not scheduled on inappropriate nodes.
+  tolerations: {}
+
+  # controller.nodeSelector -- Map of key-value pairs for scheduling pods on specific nodes.
+  nodeSelector: {}
