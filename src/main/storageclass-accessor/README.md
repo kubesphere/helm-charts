@@ -30,5 +30,5 @@ The following table lists the configurable parameters of the chart and their def
 
 Parameter | Description | Default
 --- | --- | ---
-`image.repository` | Image repository of accessor deployment | `f10atin9/storageclass-accessor`
+`image.repository` | Image repository of accessor deployment | `kubesphere/storageclass-accessor`
 `webhook.timeoutSeconds` | The maximum number of seconds used by the webhook to verify | `5`
