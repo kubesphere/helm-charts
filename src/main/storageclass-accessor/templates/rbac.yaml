@@ -1,0 +1,41 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: storageclass-accessor
+  labels:
+    role: controller
+---
+kind: ClusterRole
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: storageclass-accessor
+  labels:
+    role: controller
+rules:
+  - apiGroups: [ "" ]
+    resources: [ "namespaces" ]
+    verbs: [ "get", "list", "watch", "create", "delete", "update" ]
+
+  - apiGroups: [""]
+    resources: ["persistentvolumeclaims"]
+    verbs: ["get", "list", "watch", "create", "delete", "update"]
+
+  - apiGroups: ["storage.kubesphere.io"]
+    resources: ["accessors"]
+    verbs: [ "get", "list", "watch", "create", "delete", "update"]
+
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: storageclass-accessor
+  labels:
+    role: controller
+subjects:
+  - kind: ServiceAccount
+    name: storageclass-accessor
+    namespace: {{ .Release.Namespace }}
+roleRef:
+  kind: ClusterRole
+  name: storageclass-accessor
+  apiGroup: rbac.authorization.k8s.io
