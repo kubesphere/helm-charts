@@ -1,0 +1,26 @@
+apiVersion: v2
+name: edgemesh
+description: EdgeMesh is a KubeEdge cluster network addon.
+type: application
+version: 0.1.0
+appVersion: "v1.9.0"
+sources:
+  - https://github.com/kubeedge/edgemesh
+keywords:
+- edgemesh
+- kubeedge
+- edge computing
+- network
+- service mesh
+home: https://edgemesh.netlify.app/
+icon: https://kubeedge.io/en/author/admin/avatar_hu6dd63758e9c8a7a1da773a2d4193fd13_641557_250x250_fill_box_center_2.png
+annotations:
+  category: App Definition and Development
+dependencies:
+  - name: server
+    version: 0.1.0
+  - name: agent
+    version: 0.1.0
+maintainers:
+  - name: Poorunga
+    url: https://github.com/Poorunga
