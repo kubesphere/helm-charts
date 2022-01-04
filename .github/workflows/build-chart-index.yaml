@@ -25,7 +25,8 @@ jobs:
         run: ./build.sh deploy_charts
 
       - uses: stefanzweifel/git-auto-commit-action@v4
-        name: cimmit to gh-pages
+        name: commit to gh-pages when merging to master
+        if: ${{ github.ref == 'refs/heads/master' }}
         with:
           # Optional, but recommended
           # Defaults to "Apply automatic changes"
