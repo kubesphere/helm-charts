@@ -3,10 +3,10 @@ entries:
   chaos-mesh:
   - apiVersion: v2
     appVersion: 2.0.4
-    created: "2022-01-04T07:02:21.551757082Z"
+    created: "2022-01-04T08:03:58.501692416Z"
     description: Chaos Mesh® is a cloud-native Chaos Engineering platform that orchestrates
       chaos on Kubernetes environments.
-    digest: bbb770bfa827e7729cc82721483380623581e59e89cf2e08208072c072095112
+    digest: 0a58cf9d79fb904b25ac8681fe62f627da83576d6f4bee7f60bb20d61058f2e4
     home: https://chaos-mesh.org
     icon: https://raw.githubusercontent.com/pingcap/chaos-mesh/master/static/logo.svg
     keywords:
@@ -41,6 +41,39 @@ entries:
     urls:
     - https://charts.kubesphere.io/stable/chaos-mesh-2.0.3.tgz
     version: 2.0.3
+  edgemesh:
+  - annotations:
+      category: App Definition and Development
+    apiVersion: v2
+    appVersion: v1.9.0
+    created: "2022-01-04T08:03:58.503754487Z"
+    dependencies:
+    - name: server
+      repository: ""
+      version: 0.1.0
+    - name: agent
+      repository: ""
+      version: 0.1.0
+    description: EdgeMesh is a KubeEdge cluster network addon.
+    digest: 7e13f65e07b13e53592529f8444d39bd2875a8e01765e66646392879279bbe33
+    home: https://edgemesh.netlify.app/
+    icon: https://kubeedge.io/en/author/admin/avatar_hu6dd63758e9c8a7a1da773a2d4193fd13_641557_250x250_fill_box_center_2.png
+    keywords:
+    - edgemesh
+    - kubeedge
+    - edge computing
+    - network
+    - service mesh
+    maintainers:
+    - name: Poorunga
+      url: https://github.com/Poorunga
+    name: edgemesh
+    sources:
+    - https://github.com/kubeedge/edgemesh
+    type: application
+    urls:
+    - https://charts.kubesphere.io/stable/edgemesh-0.1.0.tgz
+    version: 0.1.0
   fpga-operator:
   - annotations:
       app.kubesphere.io/category: Infrastructure
@@ -246,4 +279,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/stable/nocalhost-0.5.7.tgz
     version: 0.5.7
-generated: "2022-01-04T07:02:21.54198396Z"
+generated: "2022-01-04T08:03:58.492456346Z"
