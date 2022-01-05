@@ -3,10 +3,10 @@ entries:
   chaos-mesh:
   - apiVersion: v2
     appVersion: 2.0.4
-    created: "2022-01-04T08:03:58.501692416Z"
+    created: "2022-01-05T09:13:58.239619755Z"
     description: Chaos Mesh® is a cloud-native Chaos Engineering platform that orchestrates
       chaos on Kubernetes environments.
-    digest: 0a58cf9d79fb904b25ac8681fe62f627da83576d6f4bee7f60bb20d61058f2e4
+    digest: 8107d2a5371d3c82c1760341ddc4155a35f63117b5c31a48a87f27ba7eba6be2
     home: https://chaos-mesh.org
     icon: https://raw.githubusercontent.com/pingcap/chaos-mesh/master/static/logo.svg
     keywords:
@@ -279,4 +279,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/stable/nocalhost-0.5.7.tgz
     version: 0.5.7
-generated: "2022-01-04T08:03:58.492456346Z"
+generated: "2022-01-05T09:13:58.230749391Z"
