@@ -1,0 +1,36 @@
+image: kubeedge/edgemesh-server:latest
+nodeName: "your node name"
+affinity: {}
+  # nodeAffinity:
+  #   requiredDuringSchedulingIgnoredDuringExecution:
+  #     nodeSelectorTerms:
+  #     - matchExpressions:
+  #       - key: node-role.kubernetes.io/edge
+  #         operator: DoesNotExist
+tolerations: {}
+nodeSelector: {}
+livenessProbe:
+  initialDelaySeconds: 10
+  periodSeconds: 5
+# advertiseAddress overwrites the value of modules.tunnel.advertiseAddress
+advertiseAddress:
+
+# edgemesh-server configmap
+apiVersion: server.edgemesh.config.kubeedge.io/v1alpha1
+kind: EdgeMeshServer
+kubeAPIConfig:
+  burst: 200
+  contentType: application/vnd.kubernetes.protobuf
+  kubeConfig: ""
+  master: ""
+  qps: 100
+modules:
+  tunnel:
+    enable: true
+    listenPort: 20004
+    security:
+      enable: false
+      httpServer: ""
+      tlsCaFile: /etc/kubeedge/edgemesh/server/acls/rootCA.crt
+      tlsCertFile: /etc/kubeedge/edgemesh/server/acls/server.crt
+      tlsPrivateKeyFile: /etc/kubeedge/edgemesh/server/acls/server.key

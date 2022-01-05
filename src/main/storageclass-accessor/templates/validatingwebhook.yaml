@@ -1,0 +1,38 @@
+{{- $ca := genCA "storageclass-accessor" 3650 }}
+{{- $cn := printf "%s-admission-webhook" .Release.Name }}
+{{- $altName1 := printf "storageclass-accessor.%s" .Release.Namespace }}
+{{- $altName2 := printf "storageclass-accessor.%s.svc" .Release.Namespace }}
+{{- $cert := genSignedCert $cn nil (list $altName1 $altName2) 3650 $ca }}
+
+apiVersion: v1
+data:
+  ca.crt: {{ b64enc $ca.Cert | quote }}
+  cert.pem: {{ b64enc  $cert.Cert | quote }}
+  key.pem: {{ b64enc  $cert.Key | quote }}
+kind: Secret
+metadata:
+  name: storageclass-accessor-cert
+type: Opaque
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: "storageclass-accessor.storage.kubesphere.io"
+webhooks:
+  - name: "pvc-accessor.storage.kubesphere.io"
+    rules:
+      - apiGroups:   [""]
+        apiVersions: ["v1"]
+        operations:  ["CREATE", "UPDATE", "DELETE"]
+        resources:   ["persistentvolumeclaims"]
+        scope:       "*"
+    clientConfig:
+      service:
+        namespace: "{{ .Release.Namespace }}"
+        name: "storageclass-accessor"
+        path: "/persistentvolumeclaims"
+      caBundle: {{ b64enc $ca.Cert | quote }}
+    admissionReviewVersions: ["v1"]
+    sideEffects: None
+    failurePolicy: Ignore
+    timeoutSeconds: {{ .Values.webhook.timeoutSeconds }}
