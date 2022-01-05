@@ -824,6 +824,21 @@ entries:
     version: 0.1.0
   ks-installer:
   - apiVersion: v2
+    appVersion: 3.2.1
+    created: "2022-01-05T09:13:58.807897783Z"
+    description: The helm chart of KubeSphere, supports installing KubeSphere on existing
+      Kubernetes.
+    digest: c80a84e1a97184b59e9790cf415122e0ae1aecd46d0f0f20ecc695425446b00d
+    icon: https://kubesphere.io/static/logo.16097928.svg
+    keywords:
+    - kubesphere
+    - installer
+    name: ks-installer
+    type: application
+    urls:
+    - https://charts.kubesphere.io/test/ks-installer-0.3.1.tgz
+    version: 0.3.1
+  - apiVersion: v2
     appVersion: 3.2.0
     created: "2021-11-25T05:59:15.973620678Z"
     description: The helm chart of KubeSphere, supports installing KubeSphere on existing
@@ -1818,4 +1833,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/test/xenondb-1.0.0.tgz
     version: 1.0.0
-generated: "2021-11-25T06:01:27.334127311Z"
+generated: "2022-01-05T09:13:58.806618974Z"
