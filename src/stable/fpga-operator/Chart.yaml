@@ -1,10 +1,27 @@
 annotations:
   app.kubesphere.io/category: Infrastructure
   app.kubesphere.io/display-name: InAccel FPGA Operator
+  artifacthub.io/images: |
+    - image: inaccel/coral:2.1
+      name: coral
+    - image: inaccel/daemon:latest
+      name: daemon
+    - image: inaccel/driver:latest
+      name: driver
+    - image: inaccel/mkrt:latest
+      name: mkrt
+    - image: inaccel/monitor:2.1
+      name: monitor
+    - image: inaccel/reef:latest
+      name: reef
+    - image: inaccel/vadd:latest
+      name: tests.vadd
   artifacthub.io/license: Apache-2.0
   artifacthub.io/links: |
     - name: Documentation
       url: https://docs.inaccel.com
+    - name: Support
+      url: https://github.com/inaccel/helm/issues
   category: Infrastructure
 apiVersion: v2
 appVersion: "2.1"
@@ -13,7 +30,7 @@ dependencies:
   condition: fpga-discovery.enabled
   name: node-feature-discovery
   repository: https://kubernetes-sigs.github.io/node-feature-discovery/charts
-  version: 0.9.0
+  version: 0.10.0
 description: Simplifying FPGA management in Kubernetes
 home: https://inaccel.com
 icon: https://en.gravatar.com/userimage/147236320/2a11cd2992b4521ec287587f03fae35c.png?size=1250
@@ -29,4 +46,4 @@ sources:
 - https://docs.inaccel.com
 - https://github.com/inaccel/helm
 type: application
-version: 2.6.1
+version: 2.7.4

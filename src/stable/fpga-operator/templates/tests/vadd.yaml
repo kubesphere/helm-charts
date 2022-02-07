@@ -1,0 +1,36 @@
+{{- range $index, $platform := $.Values.tests.vadd.platforms }}
+{{- if and $platform.name $platform.vendor $platform.version }}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  annotations:
+    helm.sh/hook: test
+    helm.sh/hook-delete-policy: before-hook-creation,hook-succeeded
+    inaccel/cli: |
+      {{- if $platform.labels }}
+      bitstream install https://store.inaccel.com/artifactory/bitstreams/{{ $platform.vendor }}/{{ $platform.name }}/{{ $platform.version }}/{{ join "_" $platform.labels }}/vector/1/1addition
+      {{- else }}
+      bitstream install https://store.inaccel.com/artifactory/bitstreams/{{ $platform.vendor }}/{{ $platform.name }}/{{ $platform.version }}/vector/1/1addition
+      {{- end }}
+    kubectl.kubernetes.io/default-container: vadd
+  labels:
+    inaccel/fpga: enabled
+    {{- include "labels" $ | nindent 4 }}
+  name: {{ $.Chart.Name }}-tests-vadd-{{ $index }}
+  namespace: {{ $.Release.Namespace }}
+spec:
+  containers:
+  - image: {{ $.Values.tests.vadd.image }}:{{ $.Values.tests.vadd.tag }}
+    {{- if $.Values.tests.vadd.pullPolicy }}
+    imagePullPolicy: {{ $.Values.tests.vadd.pullPolicy }}
+    {{- end }}
+    name: vadd
+    resources:
+      limits:
+        {{ $platform.vendor }}/{{ $platform.name }}: 1
+  nodeSelector:
+    {{ $platform.vendor }}/{{ $platform.name }}: {{ $platform.version }}
+  restartPolicy: Never
+{{- end }}
+{{- end }}

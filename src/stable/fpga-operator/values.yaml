@@ -24,12 +24,15 @@ fpga-discovery:
   enabled: true
   fullnameOverride: fpga-discovery
   image:
-    tag: v0.9.0-minimal
+    tag: v0.10.0-minimal
   master:
     extraLabelNs:
     - inaccel
+    instance: fpga-discovery
+  nodeFeatureRule:
+    createCRD: false
   worker:
-    config: |
+    config:
       core:
         sources:
         - custom
@@ -48,7 +51,6 @@ fpga-discovery:
               vendor: ["1d0f"]
           name: inaccel/fpga
           value: enabled
-    configmapName: fpga-discovery
 
 kubelet: /var/lib/kubelet
 
@@ -76,3 +78,15 @@ reef:
 root:
   config: /etc/inaccel
   state: /var/lib/inaccel
+
+tests:
+  vadd:
+    image: inaccel/vadd
+    # platforms:
+    # - labels:
+    #   - ...
+    #   name: ...
+    #   vendor: ...
+    #   version: ...
+    # pullPolicy: ...
+    tag: latest
