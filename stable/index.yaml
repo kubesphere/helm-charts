@@ -3,10 +3,10 @@ entries:
   chaos-mesh:
   - apiVersion: v2
     appVersion: 2.0.4
-    created: "2022-01-05T09:13:58.239619755Z"
+    created: "2022-02-07T08:48:31.218619922Z"
     description: Chaos Mesh® is a cloud-native Chaos Engineering platform that orchestrates
       chaos on Kubernetes environments.
-    digest: 8107d2a5371d3c82c1760341ddc4155a35f63117b5c31a48a87f27ba7eba6be2
+    digest: c6aa652ed6a6059efd738d90d9f7245a5660b80f536daf9cfb2282a0331d4209
     home: https://chaos-mesh.org
     icon: https://raw.githubusercontent.com/pingcap/chaos-mesh/master/static/logo.svg
     keywords:
@@ -75,6 +75,59 @@ entries:
     - https://charts.kubesphere.io/stable/edgemesh-0.1.0.tgz
     version: 0.1.0
   fpga-operator:
+  - annotations:
+      app.kubesphere.io/category: Infrastructure
+      app.kubesphere.io/display-name: InAccel FPGA Operator
+      artifacthub.io/images: |
+        - image: inaccel/coral:2.1
+          name: coral
+        - image: inaccel/daemon:latest
+          name: daemon
+        - image: inaccel/driver:latest
+          name: driver
+        - image: inaccel/mkrt:latest
+          name: mkrt
+        - image: inaccel/monitor:2.1
+          name: monitor
+        - image: inaccel/reef:latest
+          name: reef
+        - image: inaccel/vadd:latest
+          name: tests.vadd
+      artifacthub.io/license: Apache-2.0
+      artifacthub.io/links: |
+        - name: Documentation
+          url: https://docs.inaccel.com
+        - name: Support
+          url: https://github.com/inaccel/helm/issues
+      category: Infrastructure
+    apiVersion: v2
+    appVersion: "2.1"
+    created: "2022-02-07T08:48:31.222254363Z"
+    dependencies:
+    - alias: fpga-discovery
+      condition: fpga-discovery.enabled
+      name: node-feature-discovery
+      repository: https://kubernetes-sigs.github.io/node-feature-discovery/charts
+      version: 0.10.0
+    description: Simplifying FPGA management in Kubernetes
+    digest: 1fd23c73e560a0ab84f05b47db9eb2731728fe058b0b0b1c8b90ca7a3657700b
+    home: https://inaccel.com
+    icon: https://en.gravatar.com/userimage/147236320/2a11cd2992b4521ec287587f03fae35c.png?size=1250
+    keywords:
+    - fpga
+    - infrastructure
+    kubeVersion: '>= 1.18.0-0'
+    maintainers:
+    - email: info@inaccel.com
+      name: InAccel
+    name: fpga-operator
+    sources:
+    - https://docs.inaccel.com
+    - https://github.com/inaccel/helm
+    type: application
+    urls:
+    - https://charts.kubesphere.io/stable/fpga-operator-2.7.4.tgz
+    version: 2.7.4
   - annotations:
       app.kubesphere.io/category: Infrastructure
       app.kubesphere.io/display-name: InAccel FPGA Operator
@@ -279,4 +332,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/stable/nocalhost-0.5.7.tgz
     version: 0.5.7
-generated: "2022-01-05T09:13:58.230749391Z"
+generated: "2022-02-07T08:48:31.206389945Z"
