@@ -3,8 +3,8 @@
 
 admission:
   image:
-    repository: docker.io/jettech/kube-webhook-certgen
-    tag: v1.5.0
+    repository: k8s.gcr.io/ingress-nginx/kube-webhook-certgen
+    tag: v1.1.1
     pullPolicy: IfNotPresent
   serviceAccount:
     create: false
@@ -14,8 +14,8 @@ manager:
   apiHosts: ":50051"
   webhookPort: 443
   image:
-    repository: kubespheredev/porter
-    tag: v0.4.1
+    repository: kubesphere/porter
+    tag: v0.4.3
     pullPolicy: IfNotPresent
   resources:
     limits:
