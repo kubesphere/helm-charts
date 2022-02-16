@@ -74,9 +74,9 @@ app.kubernetes.io/component: {{ include "porter.admission.fullname" . }}
 {{- end -}}
 
 {{- define "porter.manager.serviceAccountName" -}}
-    {{ default "default" .Values.manager.serviceAccount.name }}
+    {{ default "porter-admission" .Values.manager.serviceAccount.name }}
 {{- end -}}
 
 {{- define "porter.admission.serviceAccountName" -}}
-    {{ default "default" .Values.admission.serviceAccount.name }}
+    {{ default "porter-admission" .Values.admission.serviceAccount.name }}
 {{- end -}}

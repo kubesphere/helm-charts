@@ -17,7 +17,7 @@ spec:
             - patch
             - --webhook-name={{ template "porter.admission.fullname" . }}
             - --namespace=$(POD_NAMESPACE)
-            - --patch-mutating=false
+            - --patch-mutating=true
             - --secret-name={{ template "porter.admission.fullname" . }}
             - --patch-failure-policy=Fail
           env:
