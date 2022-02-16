@@ -12,8 +12,8 @@ keywords:
 - function
 - qingcloud
 maintainers:
-- email: hualongzhong@qingcloud.com
-  name: Qingcloud
+- email: radondb@yunify.com
+  name: RadonDB
 name: common
 sources:
 - https://github.com/radondb/radondb-postgresql-kubernetes.git

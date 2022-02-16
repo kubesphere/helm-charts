@@ -19,7 +19,7 @@ apiVersion: v2
 annotations:
   category: Database
 name: clickhouse
-version: 0.1.0
+version: 0.1.1
 appVersion: "21.1"
 description: Helm Chart for deploying a ClickHouse cluster with Zookeeper.
 home: https://github.com/radondb/clickhouse-cluster-helm
@@ -33,9 +33,9 @@ sources:
   - https://github.com/radondb/clickhouse-cluster-helm
 
 maintainers:
-  - email: tai_chong@foxmail.com
-    name: TCeason
-    url: https://tceason.github.io/
+  - email: radondb@yunify.com
+    name: RadonDB
+
 
 # Chart.yaml reference:
 # https://helm.sh/docs/topics/charts/#the-chart-yaml-file
