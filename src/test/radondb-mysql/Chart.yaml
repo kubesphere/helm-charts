@@ -16,7 +16,7 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.0.0
+version: 1.0.1
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
@@ -34,20 +34,8 @@ keywords:
 - kubernetes
 
 maintainers:
-- email: andyli@yunify.com
-  name: andy
-- email: changlongguan@yunify.com
-  name: guanchanglong
-- email: zuqianzhang@yunify.com
-  name: zhangzuqian
-- email: jasongao@yunify.com
-  name: jason
-- email: runkecheng@yunify.com
-  name: rinker
-- email: molliezhang@yunify.com
-  name: molliezhang
-- email: dingyuan@yunify.com
-  name: dingyuan
+- email: radondb@yunify.com
+  name: RadonDB
 
 icon: https://xenondb.pek3b.qingstor.com/icons/radondb-mysql.svg
 annotations:
