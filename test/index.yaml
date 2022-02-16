@@ -1108,6 +1108,24 @@ entries:
     version: 0.1.0
   porter:
   - apiVersion: v2
+    appVersion: 0.4.3
+    created: "2022-02-16T07:56:11.623442388Z"
+    description: Bare Metal Load-balancer for Kubernetes Cluster
+    digest: 5cba5463fc8adf876a89d065f43925a746eb59672a2d9f3aa44da96e9c87f042
+    icon: https://raw.githubusercontent.com/cncf/landscape/master/hosted_logos/porter.svg
+    maintainers:
+    - email: kubesphere@gmail.com
+      name: KubeSphere
+    - email: jian.zhang@jhlinux.com
+      name: chinazj
+    name: porter
+    sources:
+    - https://github.com/kubesphere/porter
+    type: application
+    urls:
+    - https://charts.kubesphere.io/test/porter-0.2.2.tgz
+    version: 0.2.2
+  - apiVersion: v2
     appVersion: 0.4.1
     created: "2021-01-26T13:25:15.21317458Z"
     description: Bare Metal Load-balancer for Kubernetes Cluster
@@ -1833,4 +1851,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/test/xenondb-1.0.0.tgz
     version: 1.0.0
-generated: "2022-01-05T09:13:58.806618974Z"
+generated: "2022-02-16T07:56:11.622424484Z"
