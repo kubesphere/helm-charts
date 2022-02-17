@@ -141,6 +141,27 @@ entries:
       category: Database
     apiVersion: v2
     appVersion: "21.1"
+    created: "2022-02-17T04:00:39.617581276Z"
+    description: Helm Chart for deploying a ClickHouse cluster with Zookeeper.
+    digest: 98aeb194a8e5d662732dad46eae9a46f6fd69616fc9d23bddd2c41b8a3d26caf
+    home: https://github.com/radondb/clickhouse-cluster-helm
+    icon: https://xenondb.pek3b.qingstor.com/icons/radondb.svg
+    keywords:
+    - clickhouse
+    maintainers:
+    - email: radondb@yunify.com
+      name: RadonDB
+    name: clickhouse
+    sources:
+    - https://github.com/radondb/clickhouse-cluster-helm
+    type: application
+    urls:
+    - https://charts.kubesphere.io/test/clickhouse-0.1.1.tgz
+    version: 0.1.1
+  - annotations:
+      category: Database
+    apiVersion: v2
+    appVersion: "21.1"
     created: "2021-06-10T09:19:50.417110146Z"
     description: Helm Chart for deploying a ClickHouse cluster with Zookeeper.
     digest: 8e9851b3d78c84c737391a89a55fe39875833220d5881546c7e6aca06b428ddf
@@ -1452,6 +1473,31 @@ entries:
       app.kubesphere.io/category: Database & Cache
     apiVersion: v2
     appVersion: 5.7.33
+    created: "2022-02-17T04:00:39.61938306Z"
+    description: High Availability MySQL Cluster, Open Source.
+    digest: 6ccc82b622eb2cd9361f2a71827cacb9340dde3ee71850c0f4c391f6a05538ab
+    home: https://github.com/radondb/radondb-mysql-kubernetes.git
+    icon: https://xenondb.pek3b.qingstor.com/icons/radondb-mysql.svg
+    keywords:
+    - xenondb
+    - MySQL HA
+    - database
+    - kubernetes
+    kubeVersion: '>=1.17.0-0'
+    maintainers:
+    - email: radondb@yunify.com
+      name: RadonDB
+    name: radondb-mysql
+    sources:
+    - https://github.com/radondb/xenondb
+    type: application
+    urls:
+    - https://charts.kubesphere.io/test/radondb-mysql-1.0.1.tgz
+    version: 1.0.1
+  - annotations:
+      app.kubesphere.io/category: Database & Cache
+    apiVersion: v2
+    appVersion: 5.7.33
     created: "2021-04-27T14:09:32.402252965Z"
     description: High Availability MySQL Cluster, Open Source.
     digest: 42fd20f9ab41e0b81f7c3df7f953fa67b5b32481c02a055dd71eaea1f67a88df
@@ -1486,6 +1532,40 @@ entries:
     - https://charts.kubesphere.io/test/radondb-mysql-1.0.0.tgz
     version: 1.0.0
   radondb-postgresql:
+  - annotations:
+      app.kubesphere.io/category: Database & Cache
+      app.kubesphere.io/display-name: RadonDB PostgreSQL
+    apiVersion: v2
+    appVersion: 11.11.0
+    created: "2022-02-17T04:00:39.625405774Z"
+    dependencies:
+    - name: common
+      repository: ""
+      version: 1.4.2
+    description: Chart for PostgreSQL with HA architecture.
+    digest: 25a2b7ea3bd8b2ec41fa170d72273b5ce2cb329762d412103b3a8bf6d9853f48
+    home: https://github.com/radondb/radondb-postgresql-kubernetes.git
+    icon: https://xenondb.pek3b.qingstor.com/icons/radondb-mysql.svg
+    keywords:
+    - postgresql
+    - repmgr
+    - pgpool
+    - postgres
+    - database
+    - sql
+    - replication
+    - cluster
+    - high availability
+    maintainers:
+    - email: radondb@yunify.com
+      name: RadonDB
+    name: radondb-postgresql
+    sources:
+    - https://github.com/radondb/radondb-postgresql-kubernetes.git
+    - https://www.postgresql.org/
+    urls:
+    - https://charts.kubesphere.io/test/radondb-postgresql-1.0.2.tgz
+    version: 1.0.2
   - annotations:
       app.kubesphere.io/category: Database & Cache
       app.kubesphere.io/display-name: RadonDB PostgreSQL
@@ -1851,4 +1931,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/test/xenondb-1.0.0.tgz
     version: 1.0.0
-generated: "2022-02-16T07:56:11.622424484Z"
+generated: "2022-02-17T04:00:39.616653781Z"
