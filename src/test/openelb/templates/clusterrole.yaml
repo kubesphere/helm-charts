@@ -2,9 +2,53 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   labels:
-    {{- include "porter.labels" . | nindent 4 }}
-  name: {{ template "porter.fullname" . }}
+    {{- include "openelb.labels" . | nindent 4 }}
+  name: {{ template "openelb.fullname" . }}
 rules:
+  - apiGroups:
+      - apps
+    resources:
+      - daemonsets
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - apps
+    resources:
+      - daemonsets/status
+    verbs:
+      - get
+  - apiGroups:
+      - apps
+    resources:
+      - deployments
+    verbs:
+      - create
+      - delete
+      - get
+      - list
+      - patch
+      - update
+      - watch
+  - apiGroups:
+      - apps
+    resources:
+      - deployments/status
+    verbs:
+      - get
+  - apiGroups:
+      - ""
+    resources:
+      - configmaps
+    verbs:
+      - get
+      - list
+      - watch
   - apiGroups:
       - ""
     resources:
@@ -32,6 +76,30 @@ rules:
   - apiGroups:
       - ""
     resources:
+      - nodes/status
+    verbs:
+      - get
+      - patch
+      - update
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
+      - pods/status
+    verbs:
+      - get
+      - list
+      - watch
+  - apiGroups:
+      - ""
+    resources:
       - services
     verbs:
       - create
@@ -41,6 +109,12 @@ rules:
       - patch
       - update
       - watch
+  - apiGroups:
+      - ""
+    resources:
+      - services/finalizers
+    verbs:
+      - update
   - apiGroups:
       - ""
     resources:

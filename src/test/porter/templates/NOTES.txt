@@ -1,3 +1,0 @@
-The PorterLB has been installed.
-
-More info on the official site: https://github.com/kubesphere/porter/blob/master/doc/index.md

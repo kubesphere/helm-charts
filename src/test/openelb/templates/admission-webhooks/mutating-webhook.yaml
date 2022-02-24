@@ -2,15 +2,15 @@ apiVersion: admissionregistration.k8s.io/v1
 kind: MutatingWebhookConfiguration
 metadata:
   creationTimestamp: null
-  name: {{ template "porter.admission.fullname" . }}
+  name: {{ template "openelb.admission.fullname" . }}
 webhooks:
   - admissionReviewVersions:
       - v1beta1
       - v1
     clientConfig:
       service:
-        name: {{ template "porter.manager.fullname" . }}
-        namespace: {{ template "porter.namespace" . }}
+        name: {{ template "openelb.manager.fullname" . }}
+        namespace: {{ template "openelb.namespace" . }}
         path: /validate-network-kubesphere-io-v1alpha2-svc
     failurePolicy: Fail
     name: mutating.eip.network.kubesphere.io
