@@ -1,10 +1,10 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ template "porter.manager.fullname" . }}
-  namespace: {{ template "porter.namespace" . }}
+  name: {{ template "openelb.manager.fullname" . }}
+  namespace: {{ template "openelb.namespace" . }}
   labels:
-    {{- include "porter.manager.labels" . | nindent 4 }}
+    {{- include "openelb.manager.labels" . | nindent 4 }}
 spec:
   strategy:
     rollingUpdate:
@@ -12,24 +12,24 @@ spec:
     type: RollingUpdate
   selector:
     matchLabels:
-      {{- include "porter.manager.labels" . | nindent 6 }}
+      {{- include "openelb.manager.labels" . | nindent 6 }}
   template:
     metadata:
-      labels: {{- include "porter.manager.labels" . | nindent 8 }}
+      labels: {{- include "openelb.manager.labels" . | nindent 8 }}
     spec:
-      serviceAccountName: {{ template "porter.manager.serviceAccountName" . }}
+      serviceAccountName: {{ template "openelb.manager.serviceAccountName" . }}
       affinity:
         podAntiAffinity:
           requiredDuringSchedulingIgnoredDuringExecution:
           - labelSelector:
               matchLabels:
-                {{- include "porter.manager.labels" . | nindent 16 }}
+                {{- include "openelb.manager.labels" . | nindent 16 }}
             topologyKey: kubernetes.io/hostname
       nodeSelector:
       {{- toYaml .Values.manager.nodeSelector | nindent 8 }}
       containers:
       - command:
-          - porter-manager
+          - openelb-manager
         args:
           - --webhook-port={{ .Values.manager.webhookPort }}
           - --api-hosts={{ .Values.manager.apiHosts }}
@@ -38,13 +38,13 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: spec.nodeName
-          - name: PORTER_NAMESPACE
+          - name: OPENELB_NAMESPACE
             valueFrom:
               fieldRef:
                 fieldPath: metadata.namespace
         image: {{ .Values.manager.image.repository }}:{{ .Values.manager.image.tag }}
         imagePullPolicy: {{ .Values.manager.image.pullPolicy }}
-        name: porter-manager
+        name: openelb-manager
         ports:
           - containerPort: {{ .Values.manager.webhookPort }}
             name: webhook
@@ -81,4 +81,4 @@ spec:
                 path: tls.key
               - key: cert
                 path: tls.crt
-            secretName: {{ template "porter.admission.fullname" . }}
+            secretName: {{ template "openelb.admission.fullname" . }}
