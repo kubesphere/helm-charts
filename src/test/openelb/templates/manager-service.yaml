@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "openelb.manager.fullname" . }}
+  labels:
+  {{- include "openelb.manager.labels" . | nindent 4 }}
+  namespace: {{ template "openelb.namespace" . }}
+spec:
+  ports:
+    - name: https-webhook
+      port: 443
+      targetPort: webhook
+  selector:
+  {{- include "openelb.manager.labels" . | nindent 4 }}
+  type: ClusterIP

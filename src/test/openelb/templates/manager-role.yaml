@@ -1,10 +1,10 @@
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: {{ template "porter.manager.fullname" . }}
-  namespace: {{ template "porter.namespace" . }}
+  name: {{ template "openelb.manager.fullname" . }}
+  namespace: {{ template "openelb.namespace" . }}
   labels:
-    {{- include "porter.manager.labels" . | nindent 4 }}
+    {{- include "openelb.manager.labels" . | nindent 4 }}
 rules:
   - apiGroups:
       - coordination.k8s.io
