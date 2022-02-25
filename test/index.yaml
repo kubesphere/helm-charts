@@ -1127,6 +1127,23 @@ entries:
     urls:
     - https://charts.kubesphere.io/test/online-boutique-0.1.0.tgz
     version: 0.1.0
+  openelb:
+  - apiVersion: v2
+    appVersion: 0.4.3
+    created: "2022-02-25T12:32:05.232175818Z"
+    description: Bare Metal Load-balancer for Kubernetes Cluster
+    digest: 0e4141794d0007bb0375db38865a6145af4c66999e24f7c6449281ce9545270e
+    icon: https://github.com/openelb/openelb/blob/master/doc/logo/color-horizontal.svg
+    maintainers:
+    - email: kubesphere@gmail.com
+      name: KubeSphere
+    name: openelb
+    sources:
+    - https://github.com/openelb/openelb
+    type: application
+    urls:
+    - https://charts.kubesphere.io/test/openelb-0.2.3.tgz
+    version: 0.2.3
   porter:
   - apiVersion: v2
     appVersion: 0.4.3
@@ -1931,4 +1948,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/test/xenondb-1.0.0.tgz
     version: 1.0.0
-generated: "2022-02-17T04:00:39.616653781Z"
+generated: "2022-02-25T12:32:05.2311505Z"
