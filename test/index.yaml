@@ -1129,6 +1129,22 @@ entries:
     version: 0.1.0
   openelb:
   - apiVersion: v2
+    appVersion: 0.4.4
+    created: "2022-02-28T02:30:30.571633457Z"
+    description: Bare Metal Load-balancer for Kubernetes Cluster
+    digest: 5ef85f878a13f0c92b30830fa57da610088d0f3ce6e35d091a372f893e21884f
+    icon: https://github.com/openelb/openelb/blob/master/doc/logo/color-horizontal.svg
+    maintainers:
+    - email: kubesphere@gmail.com
+      name: KubeSphere
+    name: openelb
+    sources:
+    - https://github.com/openelb/openelb
+    type: application
+    urls:
+    - https://charts.kubesphere.io/test/openelb-0.2.4.tgz
+    version: 0.2.4
+  - apiVersion: v2
     appVersion: 0.4.3
     created: "2022-02-25T12:32:05.232175818Z"
     description: Bare Metal Load-balancer for Kubernetes Cluster
@@ -1948,4 +1964,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/test/xenondb-1.0.0.tgz
     version: 1.0.0
-generated: "2022-02-25T12:32:05.2311505Z"
+generated: "2022-02-28T02:30:30.570584047Z"
