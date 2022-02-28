@@ -1,0 +1,7 @@
+apiVersion: v2
+name: easegress
+type: application
+version: 1.0.0
+maintainers:
+  - name: megaease
+    url: https://github.com/megaease/easegress
