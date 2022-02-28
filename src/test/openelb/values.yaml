@@ -15,7 +15,7 @@ manager:
   webhookPort: 443
   image:
     repository: kubesphere/openelb
-    tag: v0.4.3
+    tag: v0.4.4
     pullPolicy: IfNotPresent
   resources:
     limits:
