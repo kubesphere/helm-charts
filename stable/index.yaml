@@ -3,10 +3,10 @@ entries:
   chaos-mesh:
   - apiVersion: v2
     appVersion: 2.0.4
-    created: "2022-02-28T02:30:30.049987333Z"
+    created: "2022-02-28T02:31:31.815374077Z"
     description: Chaos Mesh® is a cloud-native Chaos Engineering platform that orchestrates
       chaos on Kubernetes environments.
-    digest: 49efc6ba135200177080ffd95678909d463dd8e69fe588f0ea007598dd3c2b79
+    digest: 9fd066f2d7d704fe4dc26e9e0cdfc88bd142e3d9bb68c2ae84f798da78b90698
     home: https://chaos-mesh.org
     icon: https://raw.githubusercontent.com/pingcap/chaos-mesh/master/static/logo.svg
     keywords:
@@ -41,6 +41,18 @@ entries:
     urls:
     - https://charts.kubesphere.io/stable/chaos-mesh-2.0.3.tgz
     version: 2.0.3
+  easegress:
+  - apiVersion: v2
+    created: "2022-02-28T02:31:31.816082078Z"
+    digest: 965fe7de2acf2b855c557d5b7d0b1927fd1e4d2cc4ef5f2563cb134982291f9f
+    maintainers:
+    - name: megaease
+      url: https://github.com/megaease/easegress
+    name: easegress
+    type: application
+    urls:
+    - https://charts.kubesphere.io/stable/easegress-1.0.0.tgz
+    version: 1.0.0
   edgemesh:
   - annotations:
       category: App Definition and Development
@@ -332,4 +344,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/stable/nocalhost-0.5.7.tgz
     version: 0.5.7
-generated: "2022-02-28T02:30:30.039707259Z"
+generated: "2022-02-28T02:31:31.805514751Z"
