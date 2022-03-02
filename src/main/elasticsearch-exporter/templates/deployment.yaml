@@ -3,16 +3,12 @@ kind: Deployment
 metadata:
   name: {{ template "elasticsearch-exporter.fullname" . }}
   labels:
-    chart: {{ template "elasticsearch-exporter.chart" . }}
-    app: {{ template "elasticsearch-exporter.name" . }}
-    release: "{{ .Release.Name }}"
-    heritage: "{{ .Release.Service }}"
+    {{- include "elasticsearch-exporter.labels" . | indent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: {{ template "elasticsearch-exporter.name" . }}
-      release: "{{ .Release.Name }}"
+      {{- include "elasticsearch-exporter.selectorLabels" . | indent 6 }}
   strategy:
     rollingUpdate:
       maxSurge: 1
@@ -21,8 +17,7 @@ spec:
   template:
     metadata:
       labels:
-        app: {{ template "elasticsearch-exporter.name" . }}
-        release: "{{ .Release.Name }}"
+        {{- include "elasticsearch-exporter.labels" . | indent 8 }}
       {{- if .Values.podAnnotations }}
       annotations:
 {{ toYaml .Values.podAnnotations | indent 8 }}
