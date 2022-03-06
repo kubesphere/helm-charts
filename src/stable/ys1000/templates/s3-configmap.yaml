@@ -1,0 +1,12 @@
+{{- if not .Values.s3Config.skipped }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ .Values.s3Config.name | required "s3 name is required " }}
+  namespace: {{ .Release.Namespace }}
+data:
+  s3Url: {{ .Values.s3Config.s3Url }}
+  bucket: {{ .Values.s3Config.bucket }}
+  region: {{ .Values.s3Config.region }}
+  provider: {{ .Values.s3Config.provider }}
+{{- end }}
