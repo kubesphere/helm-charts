@@ -1,0 +1,10 @@
+{{- if not .Values.migconfig.isAdminCluster -}}
+apiVersion: migration.yinhestor.com/v1alpha1
+kind: MigCluster
+metadata:
+  name: host-cluster
+  namespace: {{ .Release.Namespace }}
+spec:
+  isHostCluster: true
+  isAdminOnlyCluster: false
+{{- end }}

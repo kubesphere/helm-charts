@@ -1,0 +1,85 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "qiming-operator.fullname" . }}
+  labels:
+    {{- include "qiming-operator.labels" . | nindent 4 }}
+spec:
+  {{- if not .Values.autoscaling.enabled }}
+  replicas: {{ .Values.replicaCount }}
+  {{- end }}
+  selector:
+    matchLabels:
+      app: qiming-operator
+      {{- include "qiming-operator.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      {{- with .Values.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        app: qiming-operator
+        {{- include "qiming-operator.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+      - args:
+        - --health-probe-bind-address=:8081
+        - --metrics-bind-address=127.0.0.1:8080
+        - --leader-elect
+        env:
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              apiVersion: v1
+              fieldPath: metadata.name
+        - name: WATCH_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: IMAGE_UI
+          value: "{{ .Values.componentImages.uiImage.repository }}:{{ .Values.componentImages.uiImage.tag }}"
+        - name: IMAGE_DISCOVERY
+          value: "{{ .Values.componentImages.discoveryImage.repository }}:{{ .Values.componentImages.discoveryImage.tag }}"
+        - name: IMAGE_MIG_CONTROLLER
+          value: "{{ .Values.componentImages.migControllerImage.repository }}:{{ .Values.componentImages.migControllerImage.tag }}"
+        - name: IMAGE_RESTIC_HELPER
+          value: "{{ .Values.componentImages.resticHelperImage.repository }}:{{ .Values.componentImages.resticHelperImage.tag }}"
+        - name: IMAGE_VELERO_INSTALLER
+          value: "{{ .Values.componentImages.veleroInstallerImage.repository }}:{{ .Values.componentImages.veleroInstallerImage.tag }}"
+        - name: HOOK_RUNNER_IMAGE
+          value: "{{ .Values.componentImages.hookRunnerImage.repository }}:{{ .Values.componentImages.hookRunnerImage.tag }}"
+        - name: VELERO_IMAGE
+          value: {{ .Values.velero.image }}
+        - name: VELERO_PLUGINS
+          value: {{ .Values.velero.plugins }}
+        - name: UI_ENABLE_FLAG
+          value: "true"
+{{- if .Values.velero.disableSnapshot }}
+        - name: VELERO_DISABLE_SNAPSHOT
+          value: "true"
+{{- end }}
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        name: manager 
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 8081
+          initialDelaySeconds: 15
+          periodSeconds: 20
+        readinessProbe:
+          httpGet:
+            path: /readyz
+            port: 8081
+          initialDelaySeconds: 5
+          periodSeconds: 10
+        resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+        securityContext:
+          allowPrivilegeEscalation: false
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      serviceAccountName: {{ include "qiming-operator.serviceAccountName" . }}
+      terminationGracePeriodSeconds: 10
+      

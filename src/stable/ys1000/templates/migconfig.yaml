@@ -1,0 +1,39 @@
+apiVersion: migration.yinhestor.com/v1alpha1
+kind: Migconfig
+metadata:
+  name: qiming-config
+  namespace: {{ .Release.Namespace }}
+spec:
+  version: {{ .Values.migconfig.version }}
+  clientName: {{ .Values.migconfig.clientName }}
+  serviceAccountName: {{ include "qiming-operator.serviceAccountName" . }}
+  deploymentMode: {{ .Values.migconfig.deploymentMode }}
+  isAdminCluster: {{ .Values.migconfig.isAdminCluster }}
+  {{- if contains "NodePort" .Values.service.type }}
+  isUINodePortEnabled: true
+  {{- else }}
+  isUINodePortEnabled: false
+  {{- end }}
+  featureParameters:
+    user_cluster_features: "amberapp,datamover"
+
+    {{- if .Values.migconfig.amberappEnabled }}
+    amberapp_enabled: "true"
+    {{- else }}
+    amberapp_enabled: "false"
+    {{- end }}
+    amberapp_registry: {{ .Values.migconfig.amberappRegistry }}
+    amberapp_repo: {{ .Values.migconfig.amberappRepo }}
+    amberapp_tag: {{ .Values.migconfig.amberappTag }}
+    amberapp_clusters: {{ .Values.migconfig.amberappClusters }}
+    {{- if .Values.migconfig.datamoverEnabled }}
+    datamover_enabled: "true"
+    {{- else }}
+    datamover_enabled: "false"
+    {{- end }}
+    datamover_registry: {{ .Values.migconfig.datamoverRegistry }}
+    datamover_repo: {{ .Values.migconfig.datamoverRepo }}
+    datamover_tag: {{ .Values.migconfig.datamoverTag }}
+    datamover_clusters: {{ .Values.migconfig.datamoverClusters }}
+  keys: {{ .Values.migconfig.keys }}
+  backupIntervalMinutes: {{ .Values.migconfig.backupIntervalMinutes }}
