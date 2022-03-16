@@ -1,0 +1,15 @@
+{{- if and .Values.global.gitaly.enabled .Values.global.praefect.enabled -}}
+{{- range .Values.global.praefect.virtualStorages -}}
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ template "fullname" $ }}-{{ .name }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "gitlab.standardLabels" $ | nindent 4 }}
+    {{- include "gitlab.commonLabels" $ | nindent 4 }}
+    storage: {{ .name }}
+{{ include (print $.Template.BasePath "/_pdb_spec.yaml") (merge (dict) $ (dict "storage" .)) }}
+---
+{{- end -}}
+{{- end -}}

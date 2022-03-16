@@ -1,0 +1,13 @@
+spec:
+  {{- if .storage }}
+  maxUnavailable: {{ default .Values.maxUnavailable .storage.maxUnavailable }}
+  {{- else }}
+  maxUnavailable:  {{ .Values.maxUnavailable }}
+  {{- end }}
+  selector:
+    matchLabels:
+      app: {{ template "name" . }}
+      release: {{ .Release.Name }}
+      {{- if .storage }}
+      storage: {{ .storage.name }}
+      {{- end }}

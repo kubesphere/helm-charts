@@ -1,0 +1,15 @@
+# Configure an ACME Issuer in cert-manager. Only used if configure==true
+server: https://acme-v02.api.letsencrypt.org/directory
+
+# Provide an email to associate with your TLS certificates
+# email:
+
+rbac:
+  create: true
+
+resources:
+  requests:
+    cpu: 50m
+
+common:
+  labels: {}

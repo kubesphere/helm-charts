@@ -1,0 +1,11 @@
+{{- if eq (include "gitlab.gitaly.includeInternalResources" $) "true" -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "fullname" . }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
+    {{- include "gitlab.commonLabels" . | nindent 4 }}
+{{ include (print $.Template.BasePath "/_configmap_spec.yaml") . }}
+{{- end }}

@@ -1,0 +1,16 @@
+{{- if not .Values.tcpExternalConfig}}
+{{- if .Values.enabled }}
+{{- $port := include "gitlab.shell.port" . | int -}}
+{{- $tcpProxyProtocol := include "gitlab.shell.tcp.proxyProtocol" . }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "ingress-nginx.tcp-configmap" . }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
+    {{- include "gitlab.commonLabels" . | nindent 4 }}
+data:
+  {{ $port | quote }}: "{{ .Release.Namespace }}/{{ template "fullname" . }}:{{ $port }}{{ $tcpProxyProtocol }}"
+{{- end -}}
+{{- end -}}

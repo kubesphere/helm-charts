@@ -1,0 +1,166 @@
+image:
+  repository: registry.jihulab.com/gitlab-cn/build/cng-images/gitlab-mailroom
+  # tag: v0.9.1
+  # pullPolicy: IfNotPresent
+  # pullSecrets: []
+
+enabled: true
+
+init:
+  image: {}
+    # repository:
+    # tag:
+  resources:
+    requests:
+      cpu: 50m
+
+# Tolerations for pod scheduling
+tolerations: []
+
+podLabels: {}
+common:
+  labels: {}
+
+workhorse: {}
+  # by default, Workhorse is a part of the Webservice Pods / Service
+  # scheme: 'http'
+  # host: '0.0.0.0'
+  # serviceName: 'webservice'
+  # port: 8181
+
+global:
+  redis:
+    password: {}
+  appConfig:
+    incomingEmail:
+      enabled: false
+      address:
+      host:
+      port: 993
+      ssl: true
+      startTls: false
+      user:
+      password:
+        secret: ""
+        key: password
+      expungeDeleted: false
+      logger:
+        logPath: "/dev/stdout"
+      mailbox: inbox
+      idleTimeout: 60
+      inboxMethod: "imap"
+      clientSecret:
+        key: secret
+      pollInterval: 60
+      deliveryMethod: sidekiq
+      authToken:
+        secret: ""
+        key: authToken
+
+    serviceDeskEmail:
+      enabled: false
+      address:
+      host:
+      port: 993
+      ssl: true
+      startTls: false
+      user:
+      password:
+        secret: ""
+        key: password
+      expungeDeleted: false
+      logger:
+        logPath: "/dev/stdout"
+      mailbox: inbox
+      idleTimeout: 60
+      inboxMethod: "imap"
+      clientSecret:
+        key: secret
+      pollInterval: 60
+      deliveryMethod: sidekiq
+      authToken:
+        secret: ""
+        key: authToken
+
+hpa:
+  minReplicas: 1
+  maxReplicas: 2
+  cpu:
+    targetAverageUtilization: 75
+
+  # Note that the HPA is limited to autoscaling/v2beta1
+  customMetrics: []
+
+# Mailroom does not require inbound connections
+# This service only requires outgoing connections to the
+# IMAP service of choice, the provided or self hosted redis
+# service, and DNS.
+# An optimal configuration may look like the following:
+#
+#networkpolicy:
+#  enabled: true
+#  egress:
+#    enabled: true
+#    # The following rules enable traffic to all external
+#    # endpoints, except the local
+#    # network (except DNS requests)
+#    rules:
+#      - to:
+#        - ipBlock:
+#            cidr: 10.0.0.0/8
+#        ports:
+#        - port: 53
+#          protocol: UDP
+#      - to:
+#        - ipBlock:
+#            cidr: 10.0.0.0/8
+#        ports:
+#        - port: 6379
+#          protocol: TCP
+#      - to:
+#        - ipBlock:
+#            cidr: 10.0.0.0/8
+#        ports:
+#        - port: 993
+#          protocol: TCP
+
+networkpolicy:
+  enabled: false
+  egress:
+    enabled: false
+    rules: []
+  ingress:
+    enabled: false
+    rules: []
+  annotations: {}
+
+redis:
+  password: {}
+
+resources:
+  # limits:
+  #  cpu: 1
+  #  memory: 2G
+  requests:
+    cpu: 50m
+    memory: 150M
+
+## Allow to overwrite under which User and Group we're running.
+securityContext:
+  runAsUser: 1000
+  fsGroup: 1000
+
+## Enable deployment to use a serviceAccount
+serviceAccount:
+  enabled: false
+  create: false
+  annotations: {}
+  ## Name to be used for serviceAccount, otherwise defaults to chart fullname
+  # name:
+
+deployment:
+  strategy: {}
+
+affinity:
+  podAntiAffinity:
+    topologyKey:

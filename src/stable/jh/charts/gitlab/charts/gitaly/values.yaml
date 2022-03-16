@@ -1,0 +1,148 @@
+# Default values for gitaly.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+global:
+  gitaly:
+    enabled: true
+    internal:
+      names: ["default"]
+    external: []
+    authToken: {}
+    hooks: {}
+  # serviceName:
+  redis:
+    password: {}
+
+gitaly: {}
+# serviceName:
+
+internal: {}
+image:
+  repository: registry.jihulab.com/gitlab-cn/build/cng-images/gitaly
+  # pullPolicy: IfNotPresent
+  # pullSecrets: []
+  # tag: master
+service:
+  tls: {}
+annotations: {}
+common:
+  labels: {}
+podLabels: {}
+serviceLabels: {}
+
+init:
+  image: {}
+    # repository:
+    # tag:
+  resources:
+    requests:
+      cpu: 50m
+
+## Support for tolerations for pod scheduling
+tolerations: []
+
+## The Gitaly StatefulSet's priorityClassName
+# priorityClassName:
+
+logging:
+  format: "json"
+  # level:
+  # sentryDsn:
+  # rubySentryDsn:
+  # sentryEnvironment:
+git: {}
+  # catFileCacheSize:
+ruby: {}
+  # maxRss:
+  # gracefulRestartTimeout:
+  # restartDelay:
+  # numWorkers:
+prometheus: {}
+  # grpcLatencyBuckets: "[1.0, 1.5, 2.0, 2.5]"
+
+workhorse: {}
+  # by default, Workhorse is a part of the Webservice Pods / Service
+  # scheme: 'http'
+  # host: '0.0.0.0'
+  # serviceName: 'webservice'
+  # port: 8181
+shell:
+  authToken: {}
+  concurrency: []
+    # - rpc: "/gitaly.SmartHTTPService/PostUploadPack"
+    #   maxPerRepo: 20
+    # - rpc: "/gitaly.SSHService/SSHUploadPack"
+    #   maxPerRepo: 20
+
+## Enable prometheus metrics and set the port to scrape the
+## container on.
+metrics:
+  enabled: true
+  metricsPort: 9236
+
+## Enable persistence using Persistent Volume Claims
+## ref: http://kubernetes.io/docs/user-guide/persistent-volumes/
+##
+persistence:
+  enabled: true
+
+  ## git repositories Persistent Volume Storage Class
+  ## If defined, storageClassName: <storageClass>
+  ## If set to "-", storageClassName: "", which disables dynamic provisioning
+  ## If undefined (the default) or set to null, no storageClassName spec is
+  ##   set, choosing the default provisioner.  (gp2 on AWS, standard on
+  ##   GKE, AWS & OpenStack)
+  ##
+  # storageClass: "-"
+  accessMode: ReadWriteOnce
+  size: 50Gi
+
+  ## If subPath is set mount a sub folder of a volume instead of the root of the volume.
+  ## This is especially handy for volume plugins that don't natively support sub mounting (like glusterfs).
+  ##
+  subPath: ""
+
+  ## Only bind to a volume with the following exactly matched labels with values.
+  ## ref: https://kubernetes.io/docs/concepts/storage/persistent-volumes/#selector
+  matchLabels: {}
+
+  ## Only bind to a volume with the following exppression matched labels.
+  ## ref: https://kubernetes.io/docs/concepts/storage/persistent-volumes/#selector
+  matchExpressions: []
+  annotations: {}
+
+resources:
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #  cpu: 100m
+  #  memory: 128Mi
+  requests:
+    cpu: 100m
+    memory: 200Mi
+
+## For PodDisruptionBudget, how many pods can be unavailable at one time
+maxUnavailable: 1
+
+## Allow to overwrite under which User and Group we're running.
+securityContext:
+  runAsUser: 1000
+  fsGroup: 1000
+
+## Enable deployment to use a serviceAccount
+serviceAccount:
+  enabled: false
+  create: false
+  annotations: {}
+  ## Name to be used for serviceAccount, otherwise defaults to chart fullname
+  # name:
+
+statefulset:
+  strategy: {}
+
+affinity:
+  podAntiAffinity:
+    topologyKey:

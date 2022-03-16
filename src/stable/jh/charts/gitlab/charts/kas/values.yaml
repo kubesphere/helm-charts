@@ -1,0 +1,105 @@
+# Default values for gitlab-kas.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+annotations: {}
+global:
+  ingress: {}
+  kas:
+    enabled: false
+  redis:
+    # host: '0.0.0.0'
+    password: {}
+  # hosts:
+    # kas:
+      # name: kas.example.com
+      # https: true
+
+init:
+  image: {}
+    # repository:
+    # tag:
+  resources:
+    requests:
+      cpu: 50m
+
+hpa:
+  targetAverageValue: 100m
+image:
+  repository: registry.gitlab.com/gitlab-org/cluster-integration/gitlab-agent/kas
+  # tag: latest
+  # pullPolicy: IfNotPresent
+  # pullSecrets: []
+ingress:
+  apiVersion:
+  annotations: {}
+  tls: {}
+  agentPath: /
+  k8sApiPath: /k8s-proxy
+maxReplicas: 10
+maxUnavailable: 1
+minReplicas: 2
+podLabels: {}
+common:
+  labels: {}
+serviceLabels: {}
+resources:
+  requests:
+    cpu: 100m
+    memory: 100M
+service:
+  externalPort: 8150
+  internalPort: 8150
+  apiInternalPort: 8153
+  kubernetesApiPort: 8154
+  privateApiPort: 8155
+  type: ClusterIP
+  # loadBalancerIP:
+  # loadBalancerSourceRanges:
+metrics:
+  enabled: true
+  port: 8151
+  path: /metrics
+serviceAccount:
+  enabled: false
+  create: false
+  annotations: {}
+# Tolerations for pod scheduling
+tolerations: []
+workhorse: {}
+  # by default, Workhorse is a part of the Webservice Pods / Service
+  # scheme: 'http'
+  # host: '0.0.0.0'
+  # serviceName: 'webservice'
+  # port: 8181
+# merged with the default kas config
+customConfig: {}
+
+privateApi: {}
+  # secret:
+  # key:
+
+deployment:
+  strategy: {}
+
+## Allow to overwrite under which User and Group we're running.
+securityContext:
+  runAsUser: 65532
+  runAsGroup: 65532
+  fsGroup: 65532
+redis:
+  enabled: true
+
+networkpolicy:
+  enabled: false
+  egress:
+    enabled: false
+    rules: []
+  ingress:
+    enabled: false
+    rules: []
+  annotations: {}
+
+affinity:
+  podAntiAffinity:
+    topologyKey:

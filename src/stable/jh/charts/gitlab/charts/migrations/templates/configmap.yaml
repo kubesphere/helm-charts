@@ -1,0 +1,38 @@
+{{- if .Values.enabled -}}
+{{- include "database.datamodel.prepare" . -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
+    {{- include "gitlab.commonLabels" . | nindent 4 }}
+data:
+  pages_redirect_uri: {{ template "oauth.gitlab-pages.authRedirectUri" . }}
+  installation_type: |
+    gitlab-helm-chart
+  database.yml.erb: |
+    {{- include "gitlab.database.yml" . | nindent 4 }}
+  {{- if include "gitlab.geo.secondary" $ }}
+  database_geo.yml.erb: |
+    {{- include "gitlab.geo.database.yml" $ | nindent 4 }}
+  {{- end }}
+  {{- include "gitlab.rails.redis.all" . | nindent 2 }}
+  gitlab.yml.erb: |
+    production: &base
+      gitlab:
+        host: {{ template "gitlab.gitlab.hostname" . }}
+        {{- if hasKey .Values.global.appConfig.initialDefaults "signupEnabled" }}
+        signup_enabled: {{ .Values.global.appConfig.initialDefaults.signupEnabled }}
+        {{- end }}
+      {{- include "gitlab.appConfig.gitaly" . | nindent 6 }}
+      {{- include "gitlab.appConfig.repositories" . | nindent 6 }}
+      {{- include "gitlab.appConfig.sidekiq.configuration" $ | nindent 6 }}
+      {{- include "gitlab.geo.config" $ | nindent 6 }}
+  configure: |
+    {{- include "gitlab.scripts.configure.secrets" (dict "required" "rails-secrets migrations gitaly") | nindent 4 -}}
+    {{- include "gitlab.psql.ssl.initScript" . | nindent 4 }}
+    {{- include "gitlab.geo.psql.ssl.initScript" . | nindent 4 }}
+# Leave this here - This line denotes end of block to the parser.
+{{- end }}

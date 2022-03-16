@@ -1,0 +1,42 @@
+{{ if (pluck "configureCertmanager" .Values.global.ingress (dict "configureCertmanager" false) | first) }}
+{{- $imageCfg := dict "global" .Values.global.image "local" .Values.global.kubectl.image -}}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ template "certmanager-issuer.jobname" . }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
+    {{- include "gitlab.commonLabels" . | nindent 4 }}
+spec:
+  activeDeadlineSeconds: 300
+  template:
+    metadata:
+      labels:
+        app: {{ template "name" . }}
+        release: {{ .Release.Name }}
+    spec:
+      {{- include "gitlab.nodeSelector" . | nindent 6 }}
+      securityContext:
+        runAsUser: {{ .Values.global.kubectl.securityContext.runAsUser }}
+        fsGroup: {{ .Values.global.kubectl.securityContext.fsGroup }}
+      {{- if .Values.rbac.create }}
+      serviceAccountName: {{ template "fullname" . }}
+      {{- end }}
+      restartPolicy: OnFailure
+      {{- include "gitlab.image.pullSecrets" $imageCfg | indent 6}}
+      containers:
+        - name: create-issuer
+          image: {{ include "gitlab.kubectl.image" . | quote }}
+          command: ['/bin/bash', '/scripts/create-issuer', '/scripts/issuer.yml']
+          {{- include "gitlab.image.pullPolicy" $imageCfg | indent 10 }}
+          volumeMounts:
+            - name: scripts
+              mountPath: /scripts
+          resources:
+{{ toYaml .Values.resources | indent 12 }}
+      volumes:
+      - name: scripts
+        configMap:
+          name: {{ template "fullname" . }}-certmanager
+{{- end }}

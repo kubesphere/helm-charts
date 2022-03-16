@@ -1,0 +1,37 @@
+{{- if .Values.rbac.create -}}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: {{ if .Values.rbac.clusterWideAccess }}"ClusterRole"{{ else }}"Role"{{ end }}
+metadata:
+  name: {{ include "gitlab-runner.fullname" . }}
+  labels:
+    app: {{ include "gitlab-runner.fullname" . }}
+    chart: {{ include "gitlab-runner.chart" . }}
+    release: "{{ .Release.Name }}"
+    heritage: "{{ .Release.Service }}"
+  {{ if not .Values.rbac.clusterWideAccess -}}
+  namespace: {{ default .Release.Namespace .Values.runners.namespace | quote }}
+  {{- end }}
+rules:
+{{- if .Values.rbac.podSecurityPolicy.enabled }}
+- apiGroups: ['policy']
+  resources: ['podsecuritypolicies']
+  verbs:     ['use']
+  resourceNames:
+{{ toYaml .Values.rbac.podSecurityPolicy.resourceNames | indent 2 }}
+{{- end }}
+{{- if or (empty .Values.rbac.rules) (or .Values.rbac.resources .Values.rbac.verbs) }}
+- apiGroups: [""]
+  resources: {{ (default (list "*") .Values.rbac.resources | toJson) }}
+  verbs: {{ (default (list "*") .Values.rbac.verbs | toJson) }}
+{{- end -}}
+{{- if and (eq (default 1.0 .Values.replicas) 1.0) .Values.sessionServer .Values.sessionServer.enabled }}
+- apiGroups: [""]
+  resources: ["services"]
+  verbs: ["create", "get", "list"]
+{{- end -}}
+{{ range .Values.rbac.rules }}
+- apiGroups: {{ (default (list "") .apiGroups) | toJson }}
+  resources: {{ (default (list "*") .resources) | toJson }}
+  verbs: {{ (default (list "*") .verbs) | toJson }}
+{{- end }}
+{{- end -}}
