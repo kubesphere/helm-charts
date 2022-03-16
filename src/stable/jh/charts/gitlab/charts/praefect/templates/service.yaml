@@ -1,0 +1,41 @@
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "gitlab.praefect.serviceName" . }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
+    {{- include "gitlab.commonLabels" . | nindent 4 }}
+    {{- include "gitlab.serviceLabels" . | nindent 4 }}
+  annotations:
+  {{- if .Values.metrics.enabled }}
+    gitlab.com/prometheus_scrape: "true"
+    gitlab.com/prometheus_port: "{{ .Values.metrics.metricsPort }}"
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "{{ .Values.metrics.metricsPort }}"
+  {{- end }}
+    {{- include "gitlab.serviceAnnotations" . | nindent 4 }}
+spec:
+  type: {{ coalesce .Values.service.type .Values.global.praefect.service.type }}
+  clusterIP: None
+  ports:
+  - name: {{ coalesce .Values.service.name .Values.global.praefect.service.name }}
+    port: {{ include "gitlab.praefect.externalPort" . }}
+    protocol: TCP
+    targetPort: {{ include "gitlab.praefect.internalPort" . }}
+  {{- if $.Values.global.praefect.tls.enabled }}
+  - name: {{ coalesce .Values.service.name .Values.global.praefect.service.name }}-tls
+    port: {{ include "gitlab.praefect.tls.externalPort" . }}
+    protocol: TCP
+    targetPort: {{ include "gitlab.praefect.tls.internalPort" . }}
+  {{- end }}
+  {{- if .Values.metrics.enabled }}
+  - name: {{ coalesce .Values.service.name .Values.global.praefect.service.name }}-metrics
+    port: {{ .Values.metrics.port }}
+    protocol: TCP
+    targetPort: {{ .Values.metrics.port }}
+  {{- end }}
+  selector:
+    app: {{ template "name" . }}
+    release: {{ .Release.Name }}

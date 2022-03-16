@@ -1,0 +1,53 @@
+default_scope: other
+names:
+  new-feature: New features
+  security-fix: Security fixes
+  fix: Bug fixes
+  maintenance: Maintenance
+  runner-distribution: GitLab Runner distribution
+  documentation: Documentation changes
+  other: Other changes
+order:
+- new-feature
+- security-fix
+- fix
+- maintenance
+- runner-distribution
+- documentation
+- other
+label_matchers:
+- labels:
+  - runner-distribution
+  scope: runner-distribution
+- labels:
+  - feature::addition
+  scope: new-feature
+- labels:
+  - security
+  scope: security-fix
+- labels:
+  - type::bug
+  scope: fix
+- labels:
+  - type::maintenance
+  scope: maintenance
+- labels:
+  - feature::enhancement
+  scope: maintenance
+- labels:
+  - technical debt
+  scope: maintenance
+- labels:
+  - tooling::pipelines
+  scope: maintenance
+- labels:
+  - tooling::workflow
+  scope: maintenance
+- labels:
+  - documentation
+  scope: documentation
+authorship_labels:
+- Community contribution
+skip_changelog_labels:
+- skip-changelog
+

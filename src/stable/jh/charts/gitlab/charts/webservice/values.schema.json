@@ -1,0 +1,39 @@
+{
+  "schema": "https://json-schema.org/draft-07/schema#",
+  "properties": {
+    "enabled": {
+      "title": "Webservice enabled",
+      "type": "boolean"
+    },
+    "sharedTmpDir": {
+      "properties": {
+        "sizeLimit": {
+          "title": "Total amount of local storage required for this EmptyDir volume.",
+          "type": "string"
+        },
+        "medium": {
+          "title": "What type of storage medium should back this directory.",
+          "enum": [
+            "",
+            "Memory"
+          ]
+        }
+      }
+    },
+    "sharedUploadDir": {
+      "properties": {
+        "sizeLimit": {
+          "title": "Total amount of local storage required for this EmptyDir volume.",
+          "type": "string"
+        },
+        "medium": {
+          "title": "What type of storage medium should back this directory.",
+          "enum": [
+            "",
+            "Memory"
+          ]
+        }
+      }
+    }
+  }
+}

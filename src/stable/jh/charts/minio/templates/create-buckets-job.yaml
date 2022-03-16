@@ -1,0 +1,54 @@
+{{- if and .Values.global.minio.enabled .Values.defaultBuckets }}
+{{- /* Placeholder to bridge MinIO chart values with "gitlab.image.*" helper templates */ -}}
+{{-  $minioMcImageCfg := dict "pullPolicy" .Values.imagePullPolicy "pullSecrets" .Values.pullSecrets -}}
+{{- $imageCfg := dict "global" .Values.global.image "local" $minioMcImageCfg -}}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ template "minio.createBucketsJobName" . }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+{{- include "gitlab.standardLabels" . | nindent 4 }}
+{{- include "gitlab.commonLabels" . | nindent 4 }}
+spec:
+  activeDeadlineSeconds: 600
+  template:
+    metadata:
+      labels:
+        component: create-buckets
+        {{- include "gitlab.standardLabels" . | nindent 8 }}
+        {{- include "gitlab.commonLabels" . | nindent 8 }}
+        {{- include "gitlab.podLabels" . | nindent 8 }}
+    spec:
+      automountServiceAccountToken: false
+      restartPolicy: OnFailure
+      {{- include "gitlab.nodeSelector" . | nindent 6 }}
+      {{- if .Values.tolerations }}
+      tolerations:
+        {{ toYaml .Values.tolerations | nindent 8 }}
+      {{- end }}
+      volumes:
+        - name: minio-configuration
+          projected:
+            sources:
+            - configMap:
+                name: {{ template "minio.fullname" . }}-config-cm
+            - secret:
+                name: {{ template "gitlab.minio.credentials.secret" . }}
+      {{- include "gitlab.image.pullSecrets" $imageCfg | indent 6}}
+      containers:
+      - name: minio-mc
+        image: {{ .Values.minioMc.image }}:{{ .Values.minioMc.tag }}
+        {{- include "gitlab.image.pullPolicy" $imageCfg | indent 8 }}
+        command: ["/bin/sh", "/config/initialize"]
+        env:
+          - name: MINIO_ENDPOINT
+            value: {{ printf "%s-svc.%s.svc" (include "minio.fullname" .) .Release.Namespace }}
+          - name: MINIO_PORT
+            value: {{ .Values.servicePort | quote }}
+        volumeMounts:
+          - name: minio-configuration
+            mountPath: /config
+        resources:
+{{ toYaml .Values.init.resources | indent 10 }}
+    {{- end }}

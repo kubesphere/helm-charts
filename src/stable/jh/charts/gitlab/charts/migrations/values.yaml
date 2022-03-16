@@ -1,0 +1,85 @@
+# Default values for migrations.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+image: {}
+  # pullPolicy: IfNotPresent
+  # pullSecrets: []
+  # repository: registry.jihulab.com/gitlab-cn/build/cng-images/gitlab-toolbox-jh
+  # tag: master
+
+init:
+  image: {}
+    # repository:
+    # tag:
+  resources:
+    requests:
+      cpu: 50m
+
+# Tolerations for pod scheduling
+tolerations: []
+
+# Annotations for the job
+annotations: {}
+
+# Labels for the job
+podLabels: {}
+common:
+  labels: {}
+
+enabled: true
+initialRootPassword: {}
+redis:
+  password: {}
+gitaly:
+  # host: '0.0.0.0'
+  # port: 8075
+  # serviceName: 'gitaly'
+  authToken: {}
+  #   secret: gitaly-secret
+  #   key: token
+
+psql: {}
+  # port: 5432
+
+global:
+  psql: {}
+    # host: '0.0.0.0'
+    # port: '5432'
+    # database: 'gitlabhq_production'
+    # username: 'gitlab'
+    # applicationName:
+    # preparedStatements: false
+    # password:
+    #   secret: gitlab-postgres
+    #   key: psql-password
+    # ssl:
+    #   secret: gitlab-ssl-secret
+    #   clientKey: client-key.pem
+    #   clientCertificate: client-cert.pem
+    #   serverCA: server-ca.pem
+  redis:
+    password: {}
+  gitaly:
+    internal:
+      names: ["default"]
+    external: []
+    authToken: {}
+resources:
+  requests:
+    cpu: 250m
+    memory: 200Mi
+activeDeadlineSeconds: 3600
+backoffLimit: 6
+
+## Allow to overwrite under which User and Group we're running.
+securityContext:
+  runAsUser: 1000
+  fsGroup: 1000
+
+## Enable deployment to use a serviceAccount
+serviceAccount:
+  enabled: false
+  create: false
+  annotations: {}
+  ## Name to be used for serviceAccount, otherwise defaults to chart fullname
+  # name:

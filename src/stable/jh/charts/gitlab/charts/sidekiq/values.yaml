@@ -1,0 +1,308 @@
+# Default values for sidekiq.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+image: {}
+  # pullPolicy: IfNotPresent
+  # pullSecrets: []
+  # repository: registry.jihulab.com/gitlab-cn/build/cng-images/gitlab-sidekiq-jh
+  # tag: master
+
+init:
+  image: {}
+    # repository:
+    # tag:
+    # pullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: 50m
+
+# Tolerations for pod scheduling
+tolerations: []
+
+enabled: true
+queueSelector: false
+
+annotations: {}
+podLabels: {}
+common:
+  labels: {}
+
+logging:
+  # set to "json" for json
+  # structured logs
+  format: "default"
+
+networkpolicy:
+  enabled: false
+  egress:
+    enabled: false
+    rules: []
+  ingress:
+    enabled: false
+    rules: []
+  annotations: {}
+
+metrics:
+  enabled: true
+  port: 3807
+  annotations:
+    gitlab.com/prometheus_scrape: "true"
+    gitlab.com/prometheus_port: "3807"
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "3807"
+
+health_checks:
+  enabled: true
+
+redis:
+  password: {}
+
+psql: {}
+  # port: 5432
+
+# https://docs.gitlab.com/ee/administration/operations/sidekiq_memory_killer.html#sidekiq-memorykiller
+memoryKiller:
+  daemonMode: true
+  maxRss: 2000000
+  graceTime: 900
+  shutdownWait: 30
+  checkInterval: 3
+  #hardLimitRss: 3000000
+
+livenessProbe:
+  initialDelaySeconds: 20
+  periodSeconds: 60
+  timeoutSeconds: 30
+  successThreshold: 1
+  failureThreshold: 3
+readinessProbe:
+  initialDelaySeconds: 0
+  periodSeconds: 10
+  timeoutSeconds: 2
+  successThreshold: 1
+  failureThreshold: 3
+
+global:
+  hosts:
+    domain: example.com
+    hostSuffix:
+    https: true
+    gitlab: {}
+      #name: gitlab.example.com
+      #https: false
+    registry: {}
+      #name: registry.example.com
+      #https: false
+    minio: {}
+      #name: minio.example.com
+      #https: false
+  psql: {}
+    # host: '0.0.0.0'
+    # port: '5432'
+    # database: 'gitlabhq_production'
+    # username: 'gitlab'
+    # applicationName:
+    # preparedStatements: false
+    # password:
+    #   secret: gitlab-postgres
+    #   key: psql-password
+    # ssl:
+    #   secret: gitlab-ssl-secret
+    #   clientKey: client-key.pem
+    #   clientCertificate: client-cert.pem
+    #   serverCA: server-ca.pem
+  redis:
+    password: {}
+  gitaly:
+    internal:
+      names: ["default"]
+    external: []
+    authToken: {}
+  webservice: {}
+  minio:
+    enabled:
+    credentials: {}
+  appConfig:
+    incomingEmail:
+      enabled: false
+      address:
+    serviceDeskEmail:
+      enabled: false
+      address:
+    lfs:
+      enabled: true
+      proxy_download: true
+      bucket:
+      connection: {}
+    artifacts:
+      enabled: true
+      proxy_download: true
+      bucket:
+      connection: {}
+    uploads:
+      enabled: true
+      proxy_download: true
+      bucket:
+      connection: {}
+    packages:
+      enabled: true
+      proxy_download: true
+      bucket:
+      connection: {}
+    externalDiffs:
+      when:
+      proxy_download: true
+      bucket:
+      connection: {}
+    terraformState:
+      enabled: false
+      bucket:
+      connection: {}
+    dependencyProxy:
+      enabled: false
+      proxy_download: true
+      bucket:
+      connection: {}
+    ldap:
+      servers: {}
+      # 'main' is the GitLab 'provider ID' of this LDAP server
+      # main:
+      #   label: 'LDAP'
+      #   host: '_your_ldap_server'
+      #   port: 636
+      #   uid: 'sAMAccountName'
+      #   bind_dn: '_the_full_dn_of_the_user_you_will_bind_with'
+      #   password: '_the_password_of_the_bind_user'
+      #   encryption: 'plain'
+    omniauth:
+      enabled: false
+      autoSignInWithProvider:
+      syncProfileFromProvider: []
+      syncProfileAttributes: ['email']
+      allowSingleSignOn: ['saml']
+      blockAutoCreatedUsers: true
+      autoLinkLdapUser: false
+      autoLinkSamlUser: false
+      autoLinkUser: []
+      externalProviders: []
+      allowBypassTwoFactor: []
+      providers: []
+      # - secret: gitlab-google-oauth2
+      #   key: provider
+    pseudonymizer:
+      configMap:
+      bucket:
+      connection: {}
+    sentry:
+      enabled: false
+      dsn:
+      clientside_dsn:
+      environment:
+
+gitaly:
+  # host: '0.0.0.0'
+  # port: 8075
+  # serviceName: 'gitaly'
+  authToken: {}
+  #   secret: gitaly-secret
+  #   key: token
+minio:
+  serviceName: 'minio-svc'
+  port: 9000
+registry:
+  enabled: true
+  host:
+  # port: 443
+  api:
+    protocol: http
+    serviceName: registry
+    port: 5000
+  tokenIssuer: gitlab-issuer
+extra: {}
+
+## Additional environment variables to set
+## Note that these will be applied to every
+##   container in the pod.
+extraEnv: {}
+# extraEnv:
+#   SOMEKEY: SOMEVALUE
+#   SOMEKEY2: SOMEVALUE2
+
+rack_attack:
+  git_basic_auth:
+    enabled: false
+    # enabled: true
+    # ip_whitelist: ["127.0.0.1"]
+    # maxretry: 10
+    # findtime: 60
+    # bantime: 3600
+
+trusted_proxies: []
+
+# Global defaults
+minReplicas: 1
+maxReplicas: 10
+concurrency: 25
+
+# `deployment.strategy` is utilized to configure the desired upgrade approach and
+# configuration for the deployment.  See the Kubernetes documentation
+# related to this subject.
+# https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy
+deployment:
+  strategy: {}
+  terminationGracePeriodSeconds: 30
+
+hpa:
+  targetAverageValue: 350m
+timeout: 25
+resources:
+  # limits:
+  #  memory: 5G
+  requests:
+    cpu: 900m
+    memory: 2G
+maxUnavailable: 1
+
+# Define queue groups into Pods
+pods:
+  - name: all-in-1
+    # concurrency: 25
+    # memoryKiller:
+    #   maxRss: 2000000
+    #   graceTime: 900
+    #   shutdownWait: 30
+    #   checkInterval: 3
+    # minReplicas: 1
+    # maxReplicas: 10
+    # strategy: {}
+    # queues: ''
+    # extraVolumes
+    # extraVolumeMounts
+    # priorityClassName: ""
+    # hpa:
+    #   targetAverageValue:
+    # common:
+    #   labels: {}
+    # podLabels: {}
+    # terminationGracePeriodSeconds: 30
+
+## Allow to overwrite under which User and Group we're running.
+securityContext:
+  runAsUser: 1000
+  fsGroup: 1000
+
+## Enable deployment to use a serviceAccount
+serviceAccount:
+  enabled: false
+  create: false
+  annotations: {}
+  ## Name to be used for serviceAccount, otherwise defaults to chart fullname
+  # name:
+
+## Allow configuring pods' priorityClassName. This is used to control pod priority in case of eviction:
+#  https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/
+priorityClassName: ""
+
+affinity:
+  podAntiAffinity:
+    topologyKey:

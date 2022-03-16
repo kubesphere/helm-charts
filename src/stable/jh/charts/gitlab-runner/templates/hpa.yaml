@@ -1,0 +1,16 @@
+{{- if .Values.hpa}}
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ include "gitlab-runner.fullname" . }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ include "gitlab-runner.fullname" . }}
+  minReplicas: {{ default 1 .Values.hpa.minReplicas }}
+  maxReplicas: {{ default 1 .Values.hpa.maxReplicas }}
+  metrics:
+{{ toYaml .Values.hpa.metrics | indent 2 }}
+{{- end}}

@@ -1,0 +1,17 @@
+{{- if .Values.global.kas.enabled -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "fullname" . }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
+    {{- include "gitlab.commonLabels" . | nindent 4 }}
+data:
+  # See https://gitlab.com/gitlab-org/cluster-integration/gitlab-agent/-/blob/master/pkg/kascfg/config_example.yaml
+  config.yaml: |
+    {{- $defaults := include (print $.Template.BasePath "/_default-config.yaml") . | fromYaml -}}
+    {{- $custom := default .Values.customConfig .Values.global.kas.customConfig -}}
+    {{- $merged := deepCopy $custom | mergeOverwrite $defaults -}}
+    {{- $merged | toYaml | nindent 4 }}
+{{- end }}

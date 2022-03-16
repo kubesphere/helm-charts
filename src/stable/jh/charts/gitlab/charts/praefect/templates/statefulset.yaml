@@ -1,0 +1,171 @@
+{{- $imageCfg := dict "global" .Values.global.image "local" .Values.image -}}
+{{- $initImageCfg := dict "global" .Values.global.busybox.image "local" .Values.init.image -}}
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ template "fullname" . }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
+    {{- include "gitlab.commonLabels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "gitlab.selectorLabels" . | nindent 6 }}
+  serviceName: {{ template "gitlab.praefect.serviceName" $ }}
+  replicas: {{ $.Values.replicas }}
+  podManagementPolicy: Parallel
+  {{- if .Values.statefulset.strategy }}
+  updateStrategy: {{ .Values.statefulset.strategy | toYaml | nindent 4 }}
+  {{- end }}
+  template:
+    metadata:
+      labels:
+        {{- include "gitlab.standardLabels" . | nindent 8 }}
+        {{- include "gitlab.commonLabels" . | nindent 8 }}
+        {{- include "gitlab.podLabels" . | nindent 8 }}
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+      {{- range $key, $value := .Values.annotations }}
+        {{ $key }}: {{ $value | quote }}
+      {{- end }}
+    spec:
+      {{- if eq (default .Values.global.antiAffinity .Values.antiAffinity) "hard" }}
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - topologyKey: {{ default .Values.global.affinity.podAntiAffinity.topologyKey .Values.affinity.podAntiAffinity.topologyKey | quote }}
+              labelSelector:
+                matchLabels:
+                  {{- include "gitlab.selectorLabels" . | nindent 18 }}
+      {{- else if eq (default .Values.global.antiAffinity .Values.antiAffinity) "soft" }}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            podAffinityTerm:
+              topologyKey: {{ default .Values.global.affinity.podAntiAffinity.topologyKey .Values.affinity.podAntiAffinity.topologyKey | quote }}
+              labelSelector:
+                matchLabels:
+                  {{- include "gitlab.selectorLabels" . | nindent 18 }}
+      {{- end }}
+      {{- include "gitlab.nodeSelector" . | nindent 6 }}
+      {{- if .Values.tolerations }}
+      tolerations:
+        {{- toYaml .Values.tolerations | nindent 8 }}
+      {{- end }}
+      {{- if .Values.priorityClassName }}
+      priorityClassName: "{{ .Values.priorityClassName }}"
+      {{- end }}
+      initContainers:
+        {{- include "gitlab.extraInitContainers" $ | nindent 8 }}
+        {{- include "gitlab.certificates.initContainer" $ | nindent 8 }}
+        - name: configure
+          command: ['sh', '/config/configure']
+          image: {{ include "gitlab.busybox.image" (dict "local" .Values.init "global" .Values.global.busybox) | quote }}
+          {{- include "gitlab.image.pullPolicy" $initImageCfg | indent 10 }}
+          env:
+          {{- include "gitlab.extraEnv" $ | nindent 10 }}
+          volumeMounts:
+          {{- include "gitlab.extraVolumeMounts" $ | nindent 10 }}
+          - name: praefect-config
+            mountPath: /config
+            readOnly: true
+          - name: init-praefect-secrets
+            mountPath: /init-config
+            readOnly: true
+          - name: praefect-secrets
+            mountPath: /init-secrets
+            readOnly: false
+          resources:
+            {{- toYaml $.Values.init.resources | nindent 12 }}
+      securityContext:
+        runAsUser: {{ .Values.securityContext.runAsUser }}
+        fsGroup: {{ .Values.securityContext.fsGroup }}
+      {{- include "gitlab.image.pullSecrets" $imageCfg | indent 6 }}
+      {{- if or .Values.serviceAccount.enabled .Values.global.serviceAccount.enabled }}
+      serviceAccountName: {{ include "gitlab.serviceAccount.name" . }}
+      {{- end }}
+      containers:
+        {{- include "gitlab.extraContainers" . | nindent 6 }}
+      - name: {{ $.Chart.Name }}
+        image: "{{ $.Values.image.repository }}:{{ coalesce $.Values.image.tag (include "gitlab.parseAppVersion" (dict "appVersion" $.Chart.AppVersion "prepend" "true")) }}"
+        {{- include "gitlab.image.pullPolicy" $imageCfg | indent 8 }}
+        ports:
+          - containerPort: {{ include "gitlab.praefect.internalPort" $ }}
+        {{- if $.Values.global.praefect.tls.enabled }}
+          - containerPort: {{ include "gitlab.praefect.tls.internalPort" $ }}
+        {{- end }}
+        {{- if .Values.metrics.enabled }}
+          - containerPort: {{ .Values.metrics.port }}
+        {{- end }}
+        env:
+        - name: CONFIG_TEMPLATE_DIRECTORY
+          value: '/etc/gitaly/templates'
+        - name: CONFIG_DIRECTORY
+          value: '/etc/gitaly'
+        - name: PRAEFECT_CONFIG_FILE
+          value: '/etc/gitaly/config.toml'
+        - name: SSL_CERT_DIR
+          value: '/etc/ssl/certs'
+        - name: PRAEFECT_PROMETHEUS_LISTEN_ADDR
+          value: ':{{ .Values.metrics.port }}'
+        - name: USE_PRAEFECT_SERVICE
+          value: '1'
+        - name: PRAEFECT_AUTO_MIGRATE
+          value: '{{ .Values.global.praefect.autoMigrate | int }}'
+        {{- include "gitlab.tracing.env" . | nindent 8 }}
+        {{- include "gitlab.extraEnv" . | nindent 8 }}
+        resources:
+          {{- toYaml .Values.resources | nindent 10 }}
+        terminationMessagePath: /dev/termination-log
+        terminationMessagePolicy: File
+        volumeMounts:
+          {{- include "gitlab.extraVolumeMounts" . | nindent 10 }}
+          {{- include "gitlab.certificates.volumeMount" . | nindent 10 }}
+          - name: praefect-secrets
+            mountPath: /etc/gitlab-secrets
+            readOnly: true
+          - name: praefect-config
+            mountPath: /etc/gitaly/templates
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      terminationGracePeriodSeconds: 30
+      volumes:
+      - configMap:
+          defaultMode: 420
+          name: {{ template "fullname" . }}
+        name: praefect-config
+      - emptyDir:
+          medium: Memory
+        name: praefect-secrets
+      - name: init-praefect-secrets
+        projected:
+          defaultMode: 288
+          sources:
+          - secret:
+              items:
+              - key: {{ template "gitlab.gitaly.authToken.key" . }}
+                path: gitaly_token
+              name: {{ template "gitlab.gitaly.authToken.secret" . }}
+          - secret:
+              items:
+              - key: {{ template "gitlab.praefect.authToken.key" . }}
+                path: praefect_token
+              name: {{ template "gitlab.praefect.authToken.secret" . }}
+          - secret:
+              items:
+              - key: {{ template "gitlab.praefect.dbSecret.key" . }}
+                path: db_password
+              name: {{ template "gitlab.praefect.dbSecret.secret"  . }}
+          {{- if $.Values.global.praefect.tls.enabled }}
+          - secret:
+              name: {{ template "gitlab.praefect.tls.secret" $ }}
+              items:
+                - key: "tls.crt"
+                  path: "praefect.crt"
+                - key: "tls.key"
+                  path: "praefect.key"
+          {{- end }}
+      {{- include "gitlab.certificates.volumes" . | nindent 6 }}
+

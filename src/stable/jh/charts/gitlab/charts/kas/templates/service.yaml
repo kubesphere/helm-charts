@@ -1,0 +1,42 @@
+{{- if .Values.global.kas.enabled -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "gitlab.kas.serviceName" . }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
+    {{- include "gitlab.commonLabels" . | nindent 4 }}
+    {{- include "gitlab.serviceLabels" . | nindent 4 }}
+  annotations:
+    {{- include "gitlab.serviceAnnotations" . | nindent 4 }}
+spec:
+  type: {{ .Values.service.type | quote }}
+  {{- if (eq .Values.service.type "LoadBalancer") }}
+  {{-   if .Values.service.loadBalancerIP }}
+  loadBalancerIP: {{ .Values.service.loadBalancerIP | quote }}
+  {{-   end }}
+  {{-   if .Values.service.loadBalancerSourceRanges }}
+  loadBalancerSourceRanges:
+  {{-     range .Values.service.loadBalancerSourceRanges }}
+    - {{ . | quote }}
+  {{-     end }}
+  {{-   end }}
+  {{- end }}
+  ports:
+    - port: {{ .Values.service.externalPort }}
+      targetPort: {{ .Values.service.internalPort }}
+      protocol: TCP
+      name: tcp-{{ template "name" . }}-external-api
+    - port: {{ .Values.global.kas.service.apiExternalPort }}
+      targetPort: {{ .Values.service.apiInternalPort }}
+      protocol: TCP
+      name: tcp-{{ template "name" . }}-internal-api
+    - port: {{ .Values.service.kubernetesApiPort }}
+      targetPort: {{ .Values.service.kubernetesApiPort }}
+      protocol: TCP
+      name: tcp-{{ template "name" . }}-k8s-api
+  selector:
+    app: {{ template "name" . }}
+    release: {{ .Release.Name }}
+{{- end -}}

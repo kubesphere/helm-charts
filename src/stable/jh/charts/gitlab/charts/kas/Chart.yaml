@@ -1,0 +1,20 @@
+apiVersion: v1
+appVersion: 14.8.1
+description: GitLab Agent Server
+home: https://about.gitlab.com/
+icon: https://gitlab.com/gitlab-com/gitlab-artwork/raw/master/logo/logo-square.svg
+keywords:
+- agent
+- gitlab
+- gitlab-kas
+- k8s-agent
+- kas
+- kubernetes
+maintainers:
+- email: support@gitlab.com
+  name: GitLab Inc.
+name: kas
+sources:
+- https://gitlab.com/gitlab-org/charts/gitlab/tree/master/charts/gitlab/charts/gitlab-kas
+- https://gitlab.com/gitlab-org/cluster-integration/gitlab-agent
+version: 5.8.2
