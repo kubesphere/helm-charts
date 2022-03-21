@@ -3,10 +3,7 @@ apiVersion: v1
 metadata:
   name: {{ template "elasticsearch-exporter.fullname" . }}
   labels:
-    chart: {{ template "elasticsearch-exporter.chart" . }}
-    app: {{ template "elasticsearch-exporter.name" . }}
-    release: "{{ .Release.Name }}"
-    heritage: "{{ .Release.Service }}"
+    {{- include "elasticsearch-exporter.labels" . | indent 4 }}
 {{- if .Values.service.labels }}
 {{ toYaml .Values.service.labels | indent 4 }}
 {{- end }}
@@ -21,5 +18,4 @@ spec:
       port: {{ .Values.service.httpPort }}
       protocol: TCP
   selector:
-    app: {{ template "elasticsearch-exporter.name" . }}
-    release: "{{ .Release.Name }}"
+    {{- include "elasticsearch-exporter.selectorLabels" . | indent 4 }}

@@ -20,6 +20,10 @@ securityContext:
   enabled: true  # Should be set to false when running on OpenShift
   runAsUser: 1000
 
+## Additional labels to add to all resources
+additionalLabels: {}
+  # app: elasticsearch-exporter
+
 resources: {}
   # requests:
   #   cpu: 100m

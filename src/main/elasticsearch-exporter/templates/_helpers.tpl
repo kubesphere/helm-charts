@@ -31,3 +31,27 @@ Create chart name and version as used by the chart label.
 {{- printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
+{{/*
+Generate basic labels
+*/}}
+{{- define "elasticsearch-exporter.labels" }}
+helm.sh/chart: {{ include "elasticsearch-exporter.chart" . }}
+app.kubernetes.io/managed-by: {{ .Release.Service }}
+app.kubernetes.io/component: prometheus-exporter
+app.kubernetes.io/part-of: {{ template "elasticsearch-exporter.name" . }}
+{{- include "elasticsearch-exporter.selectorLabels" . }}
+{{- if .Chart.AppVersion }}
+app.kubernetes.io/version: {{ .Chart.AppVersion | quote }}
+{{- end }}
+{{- if .Values.additionalLabels }}
+{{ toYaml .Values.additionalLabels }}
+{{- end }}
+{{- end }}
+
+{{/*
+Selector labels
+*/}}
+{{- define "elasticsearch-exporter.selectorLabels" }}
+app.kubernetes.io/name: {{ include "elasticsearch-exporter.name" . }}
+app.kubernetes.io/instance: {{ .Release.Name }}
+{{- end }}
