@@ -70,6 +70,32 @@ entries:
       app.kubesphere.io/category: Prometheus Exporter
     apiVersion: v1
     appVersion: 1.1.0
+    created: "2022-03-21T07:11:45.509566438Z"
+    description: Elasticsearch stats exporter for Prometheus
+    digest: 8eb279c0135d196533eca81a535fcbbc377b0e240655a7b4f360597028865e3c
+    home: https://github.com/justwatchcom/elasticsearch_exporter
+    keywords:
+    - metrics
+    - elasticsearch
+    - monitoring
+    kubeVersion: '>=1.10.0-0'
+    maintainers:
+    - email: sven.mueller@commercetools.com
+      name: svenmueller
+    - email: carlos@carlosbecker.com
+      name: caarlos0
+    - email: cedric@desaintmartin.fr
+      name: desaintmartin
+    name: elasticsearch-exporter
+    sources:
+    - https://github.com/justwatchcom/elasticsearch_exporter
+    urls:
+    - https://charts.kubesphere.io/main/elasticsearch-exporter-3.4.0.tgz
+    version: 3.4.0
+  - annotations:
+      app.kubesphere.io/category: Prometheus Exporter
+    apiVersion: v1
+    appVersion: 1.1.0
     created: "2021-12-15T06:57:27.728568497Z"
     description: Elasticsearch stats exporter for Prometheus
     digest: a476692a385cee005d317928f240a939b5dbecda276c58b21198f41653d151d8
@@ -1139,4 +1165,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/main/tomcat-0.4.0-r1.tgz
     version: 0.4.0-r1
-generated: "2022-01-05T09:13:56.914910132Z"
+generated: "2022-03-21T07:11:45.508456638Z"
