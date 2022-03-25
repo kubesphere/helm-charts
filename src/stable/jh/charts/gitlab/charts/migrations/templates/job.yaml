@@ -1,0 +1,5 @@
+{{- if and .Values.enabled }}
+{{ include (print $.Template.BasePath "/_serviceaccountspec.yaml") . }}
+---
+{{ include (print $.Template.BasePath "/_jobspec.yaml") . }}
+{{- end }}

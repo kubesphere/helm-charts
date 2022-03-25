@@ -1,0 +1,89 @@
+{{- if and .Values.enabled .Values.database.enabled .Values.database.migrations.enabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ template "registry.migrations.jobname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
+    {{- include "gitlab.commonLabels" . | nindent 4 }}
+spec:
+  activeDeadlineSeconds: {{ .Values.database.migrations.activeDeadlineSeconds }}
+  backoffLimit: {{ .Values.database.migrations.backoffLimit }}
+  template:
+    metadata:
+      {{- if .Values.annotations }}
+      annotations:
+      {{-   range $key, $value := .Values.annotations }}
+        {{ $key }}: {{ $value | quote }}
+      {{-   end }}
+      {{- end }}
+      labels:
+        {{- include "gitlab.standardLabels" . | nindent 8 }}
+        {{- include "gitlab.commonLabels" . | nindent 8 }}
+        {{- include "gitlab.podLabels" . | nindent 8 }}
+    spec:
+      {{- if .Values.tolerations }}
+      tolerations:
+        {{- toYaml .Values.tolerations | nindent 8 }}
+      {{- end }}
+      securityContext:
+        runAsUser: {{ .Values.securityContext.runAsUser }}
+        fsGroup: {{ .Values.securityContext.fsGroup }}
+      {{- if or .Values.serviceAccount.enabled .Values.global.serviceAccount.enabled }}
+      serviceAccountName: {{ include "gitlab.serviceAccount.name" . }}
+      {{- end }}
+      initContainers:
+      {{- include "gitlab.extraInitContainers" . | nindent 6 }}
+      {{- include "gitlab.certificates.initContainer" . | nindent 6 }}
+      - name: configure
+        image: {{ include "gitlab.busybox.image" (dict "local" .Values.init "global" $.Values.global.busybox) | quote }}
+        imagePullPolicy: {{ .Values.init.image.pullPolicy }}
+        command: ['sh', '/config/configure']
+        volumeMounts:
+          - name: registry-secrets
+            mountPath: /config
+          - name: registry-server-config
+            mountPath: /registry
+        resources:
+          {{- toYaml .Values.init.resources | nindent 10 }}
+        env:
+        {{- include "gitlab.extraEnv" . | nindent 8 }}
+      restartPolicy: OnFailure
+      {{- include "gitlab.image.pullSecrets" (dict "global" .Values.global.image "local" .Values.image) | indent 6 }}
+      containers:
+      {{- include "gitlab.extraContainers" . | nindent 6 }}
+      - name: migrations
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        imagePullPolicy: {{ default "" .Values.image.pullPolicy | quote }}
+        args:
+        - /scripts/wait-for-deps
+        - /scripts/db-migrate
+        volumeMounts:
+          - name: registry-server-config
+            mountPath: /etc/docker/registry/
+            readOnly: true
+        {{- include "gitlab.certificates.volumeMount" . | nindent 10 }}
+        resources:
+          {{- toYaml .Values.resources | nindent 10 }}
+        env:
+        - name: BYPASS_SCHEMA_VERSION
+          value: 'true'
+        {{- include "gitlab.extraEnv" . | nindent 8 }}
+      volumes:
+      - name: registry-server-config
+        emptyDir:
+          medium: "Memory"
+      - name: registry-secrets
+        projected:
+          sources:
+          - configMap:
+              name: {{ template "registry.fullname" . }}
+              items:
+              - key: configure
+                path: configure
+              - key: migrations-config.yml
+                path: config.yml
+          {{- include "gitlab.registry.database.password.projectedVolume" . | nindent 10 }}
+      {{- include "gitlab.certificates.volumes" . | nindent 6 }}
+{{- end }}

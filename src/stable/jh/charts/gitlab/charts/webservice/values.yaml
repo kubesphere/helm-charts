@@ -1,0 +1,404 @@
+# Default values for webservice.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+image: {}
+  # pullPolicy: IfNotPresent
+  # pullSecrets: []
+  # repository: registry.jihulab.com/gitlab-cn/build/cng-images/gitlab-webservice-jh
+  # tag: master
+
+init:
+  image: {}
+    # repository:
+    # tag:
+    # pullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: 50m
+
+# Tolerations for pod scheduling
+tolerations: []
+
+monitoring:
+  # Monitoring IP whitelist
+  ipWhitelist:
+  - 0.0.0.0/0
+  exporter:
+    enabled: false
+    port: 8083
+
+# Shutdown settings
+# Defines an interval to block healthcheck,
+# but continue accepting application requests.
+shutdown:
+  blackoutSeconds: 10
+
+extraEnv: {}
+
+annotations: {}
+
+podLabels: {}
+common:
+  labels: {}
+serviceLabels: {}
+
+sshHostKeys:
+  # backwards compatibility - do not automount by default as the default behavior
+  # assumes all four key types (specified below), provided by `shared-secrets`
+  mount: false
+  mountName: ssh-host-keys
+  # defines which types of public SSH host keys to mount so that their fingerprints
+  # are available under /help/instance_configuration
+  types:
+  - dsa
+  - rsa
+  - ecdsa
+  - ed25519
+
+metrics:
+  enabled: true
+  annotations:
+    gitlab.com/prometheus_scrape: "true"
+    gitlab.com/prometheus_port: "8080"
+    gitlab.com/prometheus_path: "/-/metrics"
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "8080"
+    prometheus.io/path: "/-/metrics"
+
+networkpolicy:
+  enabled: false
+  egress:
+    enabled: false
+    rules: []
+  ingress:
+    enabled: false
+    rules: []
+  annotations: {}
+
+service:
+  type: ClusterIP
+  externalPort: 8080
+  internalPort: 8080
+  workhorseExternalPort: 8181
+  workhorseInternalPort: 8181
+  # loadBalancerIP:
+  # loadBalancerSourceRanges:
+enabled: true
+ingress:
+  apiVersion:
+  enabled:
+  proxyConnectTimeout: 15
+  proxyReadTimeout: 600
+  proxyBodySize: "512m"
+  tls: {}
+    # secretName:
+    # smartcardSecretName:
+    # enabled: true
+  annotations:
+    nginx.ingress.kubernetes.io/service-upstream: "true"
+  configureCertmanager:
+  # Use this in combination of .deployments below
+  requireBasePath: true
+
+workerProcesses: 2
+
+puma:
+  workerMaxMemory: 1024 # in MB units
+  threads:
+    min: 4
+    max: 4
+  disableWorkerKiller: false
+
+hpa:
+  targetAverageValue: 1
+  customMetrics: # optional replacement of HPA metrics definition
+
+deployment:
+  # terminationGracePeriodSeconds: 30
+  livenessProbe:
+    initialDelaySeconds: 20
+    periodSeconds: 60
+    timeoutSeconds: 30
+    successThreshold: 1
+    failureThreshold: 3
+  readinessProbe:
+    initialDelaySeconds: 0
+    periodSeconds: 10
+    timeoutSeconds: 2
+    successThreshold: 1
+    failureThreshold: 3
+
+  # strategy is used to configure the desired upgrade approach and
+  # configuration for the deployment. See the Kubernetes documentation
+  # related to this subject.
+  # https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy
+  strategy: {}
+
+workhorse:
+  keywatcher: true
+  # trustedCIDRsForPropagation: ["127.0.0.1/32"]
+  # trustedCIDRsForXForwardedFor: ["127.0.0.1/32"]
+  sentryDSN: ""
+  extraArgs: ""
+  logFormat: json # valid: (json, structured, text)
+  resources:
+    requests:
+      cpu: 100m
+      memory: 100M
+  # shutdownTimeout:
+  # image: registry.jihulab.com/gitlab-cn/build/cng-images/gitlab-workhorse-jh
+  livenessProbe:
+    initialDelaySeconds: 20
+    periodSeconds: 60
+    timeoutSeconds: 30
+    successThreshold: 1
+    failureThreshold: 3
+  readinessProbe:
+    initialDelaySeconds: 0
+    periodSeconds: 10
+    timeoutSeconds: 2
+    successThreshold: 1
+    failureThreshold: 3
+  monitoring:
+    exporter:
+      enabled: false
+      port: 9229
+  imageScaler:
+    maxProcs: 2 # aim for max(2, requested_cpus / 2)
+    maxFileSizeBytes: 250000
+
+psql: {}
+  # port: 5432
+
+global:
+  ingress:
+    enabled:
+    annotations: {}
+    tls: {}
+      # secretName:
+      # enabled: true
+  hosts:
+    domain: example.com
+    hostSuffix:
+    https: true
+    gitlab: {}
+      #name: gitlab.example.com
+      #https: false
+    registry: {}
+      #name: registry.example.com
+      #https: false
+    minio: {}
+      #name: minio.example.com
+      #https: false
+  psql: {}
+    # host: '0.0.0.0'
+    # port: '5432'
+    # database: 'gitlabhq_production'
+    # username: 'gitlab'
+    # preparedStatements: false
+    # applicationName:
+    # password:
+    #   secret: gitlab-postgres
+    #   key: psql-password
+    # ssl:
+    #   secret: gitlab-ssl-secret
+    #   clientKey: client-key.pem
+    #   clientCertificate: client-cert.pem
+    #   serverCA: server-ca.pem
+  redis:
+    # host: '0.0.0.0'
+    password: {}
+  gitaly:
+    internal:
+      names: ["default"]
+    external: []
+    authToken: {}
+  minio:
+    enabled:
+    credentials: {}
+  webservice: {}
+    # workerTimeout: 60
+  appConfig:
+    incomingEmail:
+      enabled: false
+      address:
+    serviceDeskEmail:
+      enabled: false
+      address:
+    object_store:
+      connection: {}
+        # provider: AWS
+        # region: us-east-1
+        # secret:
+        # secret_key:
+        # access_key:
+      storage_options: {}
+        # server_side_encryption:
+        # server_side_encrypton_kms_key_id:
+    lfs:
+      enabled: true
+      proxy_download: true
+      bucket:
+      connection: {}
+    artifacts:
+      enabled: true
+      proxy_download: true
+      bucket:
+      connection: {}
+    uploads:
+      enabled: true
+      proxy_download: true
+      bucket:
+      connection: {}
+    packages:
+      enabled: true
+      proxy_download: true
+      bucket:
+      connection: {}
+    externalDiffs:
+      when:
+      proxy_download: true
+      bucket:
+      connection: {}
+    terraformState:
+      enabled: false
+      bucket:
+      connection: {}
+    dependencyProxy:
+      enabled: false
+      proxy_download: true
+      bucket:
+      connection: {}
+    ldap:
+      servers: {}
+      # 'main' is the GitLab 'provider ID' of this LDAP server
+      # main:
+      #   label: 'LDAP'
+      #   host: '_your_ldap_server'
+      #   port: 636
+      #   uid: 'sAMAccountName'
+      #   bind_dn: '_the_full_dn_of_the_user_you_will_bind_with'
+      #   password: '_the_password_of_the_bind_user'
+      #   encryption: 'plain'
+    omniauth:
+      enabled: false
+      autoSignInWithProvider:
+      syncProfileFromProvider: []
+      syncProfileAttributes: ['email']
+      allowSingleSignOn: ['saml']
+      blockAutoCreatedUsers: true
+      autoLinkLdapUser: false
+      autoLinkSamlUser: false
+      autoLinkUser: []
+      externalProviders: []
+      allowBypassTwoFactor: []
+      providers: []
+      # - secret: gitlab-google-oauth2
+      #   key: provider
+    sentry:
+      enabled: false
+      dsn:
+      clientside_dsn:
+      environment:
+
+redis:
+  password: {}
+gitaly:
+  # host: '0.0.0.0'
+  # port: 8075
+  # serviceName: 'gitaly'
+  authToken: {}
+  #   secret: gitaly-secret
+  #   key: token
+minio:
+  serviceName: 'minio-svc'
+  port: 9000
+registry:
+  enabled: true
+  host:
+  # port: 443
+  api:
+    protocol: http
+    serviceName: registry
+    port: 5000
+  tokenIssuer: gitlab-issuer
+extra: {}
+  # google_analytics_id: '_your_tracking_id'
+  # matomo_url: '_your_matomo_url'
+  # matomo_site_id: '_your_matomo_site_id'
+  # matomo_disable_cookies: false
+  # one_trust_id: '_your_one_trust_id'
+  # google_tag_manager_nonce_id: '_your_google_tag_manager_id'
+rack_attack:
+  git_basic_auth:
+    enabled: false
+    # enabled: true
+    # ip_whitelist: ["127.0.0.1"]
+    # maxretry: 10
+    # findtime: 60
+    # bantime: 3600
+trusted_proxies: []
+resources:
+  # limits:
+  #  cpu: 1.5
+  #  memory: 3G
+  requests:
+    cpu: 300m
+    memory: 2.5G
+maxUnavailable: 1
+minReplicas: 2
+maxReplicas: 10
+helmTests:
+  enabled: true
+
+webServer: puma
+
+## Configuration of shared emptyDir(s) between Webservice and Workhorse
+#  NOTICE:
+#    Be very wary of these settings.
+#    DO NOT alter these unless you have explicit reason.
+## mount: /tmp
+sharedTmpDir: {}
+#  sizeLimit:
+#  medium:
+## mount: `/srv/gitlab/public/uploads/tmp`
+sharedUploadDir: {}
+#  sizeLimit:
+#  medium:
+
+## Allow to overwrite under which User and Group we're running.
+securityContext:
+  runAsUser: 1000
+  fsGroup: 1000
+
+## Enable deployment to use a serviceAccount
+serviceAccount:
+  enabled: false
+  create: false
+  annotations: {}
+  ## Name to be used for serviceAccount, otherwise defaults to chart fullname
+  # name:
+
+## Allow configuring pods' priorityClassName. This is used to control pod priority in case of eviction:
+#  https://kubernetes.io/docs/concepts/configuration/pod-priority-preemption/
+priorityClassName: ""
+
+## deployments:
+#    Allows for splitting of service classes across multiple deployments
+#  This map will be range-walked, and each entry will create discrete
+#  Kubernetes resources: Deployment, HPA, PDB, Service, Ingress
+#    The name of the key (for example, `web`) will be appended to the
+#  end of each resource `.metadata.name`, and added as a label to each
+#  resource for tracking.
+#  https://docs.gitlab.com/charts/charts/gitlab/webservice/#deployments
+deployments: {}
+  # There must always be at least one, with `xyz.ingress.path: /`
+  # unless `ingress.requireBasePath: false`
+  #
+  # default:
+  #   ingress:
+  #     path: /
+
+affinity:
+  podAntiAffinity:
+    topologyKey:

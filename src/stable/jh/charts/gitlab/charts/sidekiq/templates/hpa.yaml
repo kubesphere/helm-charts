@@ -1,0 +1,31 @@
+{{- if .Values.enabled -}}
+{{- $name := default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
+{{- $releaseName := .Release.Name -}}
+{{- $fullname := printf "%s-%s" $releaseName $name | trunc 63 | trimSuffix "-" -}}
+{{- range .Values.pods -}}
+{{-   $queueName := printf "%s-%s" $fullname .name | trunc 63 }}
+{{-   $hpa := default dict .hpa }}
+{{-   include "sidekiq.pod.common.labels" . }}
+---
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ printf "%s-v2" ($queueName | trunc 60) }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "gitlab.standardLabels" $ | nindent 4 }}
+    {{- include "sidekiq.commonLabels" (dict "pod" .common.labels "global" $.Values.common.labels) | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ printf "%s-v2" ($queueName | trunc 60) }}
+  minReplicas: {{ default $.Values.minReplicas .minReplicas }}
+  maxReplicas: {{ default $.Values.maxReplicas .maxReplicas }}
+  metrics:
+  - type: Resource
+    resource:
+      name: cpu
+      targetAverageValue: {{ default $.Values.hpa.targetAverageValue $hpa.targetAverageValue }}
+{{- end }}
+{{- end -}}

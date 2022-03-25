@@ -1,0 +1,206 @@
+{{- if .Values.enabled -}}
+{{- $imageCfg := dict "global" .Values.global.image "local" .Values.image -}}
+{{- $initImageCfg := dict "global" $.Values.global.busybox.image "local" $.Values.init.image -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "registry.fullname" . }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
+    {{- include "gitlab.commonLabels" . | nindent 4 }}
+  annotations:
+    {{- include "gitlab.deploymentAnnotations" . | nindent 4 }}
+spec:
+  # Don't provide replicas when HPA are present
+  # replicas: {{ .Values.hpa.minReplicas }}
+  selector:
+    matchLabels:
+      app: {{ template "name" . }}
+      release: {{ .Release.Name }}
+  {{- if .Values.deployment.strategy }}
+  strategy: {{ .Values.deployment.strategy | toYaml | nindent 4 }}
+  {{- end }}
+  template:
+    metadata:
+      labels:
+        {{- include "gitlab.standardLabels" . | nindent 8 }}
+        {{- include "gitlab.commonLabels" . | nindent 8 }}
+        {{- include "gitlab.podLabels" . | nindent 8 }}
+      annotations:
+        checksum/configmap: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
+        {{- if .Values.debug.prometheus.enabled }}
+        gitlab.com/prometheus_scrape: "true"
+        gitlab.com/prometheus_path: {{ .Values.debug.prometheus.path | quote }}
+        gitlab.com/prometheus_port: {{ .Values.debug.addr.port | quote }}
+        prometheus.io/scrape: "true"
+        prometheus.io/path: {{ .Values.debug.prometheus.path | quote }}
+        prometheus.io/port: {{ .Values.debug.addr.port | quote }}
+        {{- end }}
+      {{- range $key, $value := .Values.annotations }}
+        {{ $key }}: {{ $value | quote }}
+      {{- end }}
+    spec:
+      {{- include "gitlab.nodeSelector" . | nindent 6 }}
+      {{- if .Values.tolerations }}
+      tolerations:
+        {{- toYaml .Values.tolerations | nindent 8 }}
+      {{- end }}
+      securityContext:
+        runAsUser: {{ .Values.securityContext.runAsUser }}
+        fsGroup: {{ .Values.securityContext.fsGroup }}
+      {{- if eq (default .Values.global.antiAffinity .Values.antiAffinity) "hard" }}
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - topologyKey: {{ default .Values.global.affinity.podAntiAffinity.topologyKey .Values.affinity.podAntiAffinity.topologyKey | quote }}
+              labelSelector:
+                matchLabels:
+                  app: {{ template "name" . }}
+                  release: {{ .Release.Name }}
+      {{- else if eq (default .Values.global.antiAffinity .Values.antiAffinity) "soft" }}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            podAffinityTerm:
+              topologyKey: {{ default .Values.global.affinity.podAntiAffinity.topologyKey .Values.affinity.podAntiAffinity.topologyKey | quote }}
+              labelSelector:
+                matchLabels:
+                  app: {{ template "name" . }}
+                  release: {{ .Release.Name }}
+      {{- end }}
+      {{- if or $.Values.serviceAccount.enabled $.Values.global.serviceAccount.enabled }}
+      serviceAccountName: {{ include "registry.serviceAccount.name" $ }}
+      {{- end }}
+      automountServiceAccountToken: false
+      initContainers:
+        {{- include "gitlab.certificates.initContainer" . | nindent 8 }}
+        - name: configure
+          image: {{ include "gitlab.busybox.image" (dict "local" .Values.init "global" $.Values.global.busybox) | quote }}
+          {{- include "gitlab.image.pullPolicy" $initImageCfg | indent 10 }}
+          command: ["sh", "/config/configure"]
+          volumeMounts:
+            - name: registry-secrets
+              mountPath: /config
+            - name: registry-server-config
+              mountPath: /registry
+          resources:
+            {{- toYaml .Values.init.resources | nindent 12 }}
+          env:
+          {{- include "gitlab.extraEnv" . | nindent 10 }}
+        {{- if .Values.database.enabled }}
+        - name: dependencies
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          {{- include "gitlab.image.pullPolicy" $imageCfg | indent 10 }}
+          command: ["/scripts/wait-for-deps"]
+          volumeMounts:
+            - name: registry-server-config
+              mountPath: /etc/docker/registry/
+              readOnly: true
+          resources:
+            {{- toYaml .Values.init.resources | nindent 12 }}
+          env:
+          {{- include "gitlab.extraEnv" . | nindent 10 }}
+        {{- end }}
+      {{- include "gitlab.image.pullSecrets" $imageCfg | indent 6 }}
+      containers:
+        - name: registry
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+          {{- include "gitlab.image.pullPolicy" $imageCfg | indent 10 }}
+          env:
+          {{- include "gitlab.extraEnv" . | nindent 10 }}
+          volumeMounts:
+          - name: registry-server-config
+            mountPath: /etc/docker/registry/
+            readOnly: true
+          {{- include "gitlab.certificates.volumeMount" . | nindent 10 }}
+{{- if .Values.deployment.livenessProbe.enabled }}
+          livenessProbe:
+            httpGet:
+              path: {{ .Values.deployment.livenessProbe.path }}
+              port: {{ default .Values.debug.addr.port .Values.deployment.livenessProbe.port }}
+              scheme: HTTP
+            initialDelaySeconds: {{ .Values.deployment.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.deployment.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.deployment.livenessProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.deployment.livenessProbe.successThreshold }}
+            failureThreshold: {{ .Values.deployment.livenessProbe.failureThreshold }}
+{{- end }}
+{{- if .Values.deployment.readinessProbe.enabled }}
+          readinessProbe:
+            httpGet:
+              path: {{ .Values.deployment.readinessProbe.path }}
+              port: {{ default .Values.debug.addr.port .Values.deployment.livenessProbe.port }}
+              scheme: HTTP
+            initialDelaySeconds: {{ .Values.deployment.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ .Values.deployment.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ .Values.deployment.readinessProbe.timeoutSeconds }}
+            successThreshold: {{ .Values.deployment.readinessProbe.successThreshold }}
+            failureThreshold: {{ .Values.deployment.readinessProbe.failureThreshold }}
+{{- end }}
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          lifecycle:
+            preStop:
+              exec:
+                command: ["/bin/bash", "-c", "sleep 5"]
+      terminationGracePeriodSeconds: {{ .Values.deployment.terminationGracePeriodSeconds }}
+      volumes:
+      - name: registry-server-config
+        emptyDir:
+          medium: "Memory"
+      - name: registry-secrets
+        projected:
+          sources:
+          - configMap:
+              name: {{ template "registry.fullname" . }}
+          - secret:
+              name: {{ template "gitlab.registry.certificate.secret" . }}
+              items:
+                  - key: registry-auth.crt
+                    path: certificate.crt
+          - secret:
+              name: {{ template "gitlab.registry.httpSecret.secret" . }}
+              items:
+                - key: {{ template "gitlab.registry.httpSecret.key" . }}
+                  path: httpSecret
+          {{- if .Values.global.minio.enabled }}
+          - secret:
+              name: {{ template "gitlab.minio.credentials.secret" . }}
+          {{- end }}
+          {{- if .Values.storage.secret }}
+          - secret:
+              name: {{ .Values.storage.secret }}
+              items:
+                - key: {{ default "config" .Values.storage.key }}
+                  path: storage/config
+                {{- if .Values.storage.extraKey }}
+                - key: {{ .Values.storage.extraKey }}
+                  path: storage/{{ .Values.storage.extraKey }}
+                {{- end }}
+          {{- end }}
+          {{- if .Values.middleware.storage }}
+            {{-  range $index, $v := .Values.middleware.storage }}
+          - secret:
+              name: {{ $v.options.privatekeySecret.secret }}
+              items:
+                - key: {{ $v.options.privatekeySecret.key }}
+                  path: {{ printf "middleware.storage/%d/%s" $index $v.options.privatekeySecret.key }}
+            {{- end }}
+          {{- end }}
+          {{- if .Values.profiling.stackdriver.credentials.secret }}
+          - secret:
+              name: {{ .Values.profiling.stackdriver.credentials.secret }}
+              items:
+                - key: {{ template "gitlab.registry.profiling.stackdriver.credentials.key" . }}
+                  path: profiling-key.json
+          {{- end }}
+          {{- include "registry.notifications.secrets" $ | nindent 10 }}
+          {{- if .Values.database.enabled -}}
+          {{-   include "gitlab.registry.database.password.projectedVolume" . | nindent 10 }}
+          {{-   include "gitlab.registry.psql.ssl" . | nindent 10 }}
+          {{- end -}}
+      {{- include "gitlab.certificates.volumes" . | nindent 6 }}
+{{- end -}}

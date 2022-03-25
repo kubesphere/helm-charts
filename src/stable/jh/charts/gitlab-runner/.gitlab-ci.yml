@@ -1,0 +1,127 @@
+##############
+# Conditions #
+##############
+
+.if-merge-request-pipeline: &if-merge-request-pipeline
+  if: $CI_PIPELINE_SOURCE == "merge_request_event"
+
+.if-default-branch: &if-default-branch
+  if: '$CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH'
+
+.if-stable-release-branch: &if-stable-release-branch
+  if: $CI_COMMIT_REF_NAME =~ /\A[0-9]+-[0-9]+-stable\z/
+
+.if-release-tag: &if-release-tag
+  if: '$CI_COMMIT_TAG =~ /^v[0-9]+\.[0-9]+\.[0-9]+(-rc[0-9]+)?$/ && $CI_PROJECT_URL == "https://gitlab.com/gitlab-org/charts/gitlab-runner"'
+
+.if-security-release-tag: &if-security-release-tag
+  if: '$CI_COMMIT_TAG =~ /^v[0-9]+\.[0-9]+\.[0-9]+(-rc[0-9]+)?$/ && $CI_PROJECT_URL == "https://gitlab.com/gitlab-org/security/charts/gitlab-runner"'
+
+#########
+# Rules #
+#########
+
+.rules:default:
+  rules:
+  - <<: *if-merge-request-pipeline
+  - <<: *if-default-branch
+  - <<: *if-stable-release-branch
+  - <<: *if-release-tag
+  - <<: *if-security-release-tag
+
+.rules:release:development:
+  rules:
+  - <<: *if-default-branch
+    when: never
+  - <<: *if-merge-request-pipeline
+    when: manual
+
+.rules:release:beta:
+  rules:
+  - <<: *if-default-branch
+
+.rules:release:stable:
+  rules:
+  - <<: *if-release-tag
+  - <<: *if-security-release-tag
+
+############
+# Pipeline #
+############
+
+default:
+  image: registry.gitlab.com/gitlab-org/gitlab-build-images:gitlab-charts-build-base
+  tags:
+  - gitlab-org
+
+variables:
+  GIT_CLONE_PATH: $CI_BUILDS_DIR/gitlab-runner
+  STABLE_REPO_URL: https://charts.helm.sh/stable
+
+stages:
+- test
+- release
+
+lint:
+  extends:
+  - .rules:default
+  stage: test
+  script:
+  - helm lint .
+
+release development:
+  extends:
+  - .rules:release:development
+  stage: release
+  script:
+  - helm init --client-only --stable-repo-url=${STABLE_REPO_URL}
+  - helm package .
+  artifacts:
+    paths:
+    - gitlab-runner*.tgz
+    expire_in: 7d
+
+release beta:
+  extends:
+  - .rules:release:beta
+  stage: release
+  variables:
+    S3_URL: s3://${S3_BUCKET}${S3_PATH}
+    REPO_URL: https://${S3_BUCKET}.s3.amazonaws.com${S3_PATH}
+  script:
+  - apk add --no-cache py-pip
+  - pip install awscli
+  - helm init --client-only --stable-repo-url=${STABLE_REPO_URL}
+  - 'beta_info=$(git describe --long | sed -r "s/v[0-9\.]+(-rc[0-9]+)?-//")'
+  - 'build_time=$(date +%s)'
+  - 'sed -r "s/(version: [0-9\.]+-beta)/\1-${build_time}-${beta_info}/" -i Chart.yaml'
+  - 'sed -r "s/appVersion: .*/appVersion: bleeding/" -i Chart.yaml'
+  - 'sed -r "s/imagePullPolicy: IfNotPresent/imagePullPolicy: Always/" -i values.yaml'
+  - mkdir -p public/
+  - aws s3 cp ${S3_URL}/index.yaml public/index.yaml || true
+  - (cd public; helm package ../)
+  - helm repo index public --merge public/index.yaml --url ${REPO_URL}
+  - aws s3 sync public ${S3_URL} --acl public-read
+  - 'echo "To install repository run: helm repo add gitlab-runner-beta ${REPO_URL} && helm repo update"'
+
+release stable:
+  extends:
+  - .rules:release:stable
+  stage: release
+  image: alpine:3.14
+  script:
+  - apk add --no-cache curl
+  - curl --fail-with-body
+         --request POST
+         --form "token=$CI_JOB_TOKEN"
+         --form ref=master
+         --form "variables[CHART_NAME]=$CI_PROJECT_NAME"
+         --form "variables[RELEASE_REF]=$CI_COMMIT_REF_NAME"
+         https://gitlab.com/api/v4/projects/2860651/trigger/pipeline
+
+##############
+# Includes #
+##############
+include:
+  - template: Security/Dependency-Scanning.gitlab-ci.yml
+  

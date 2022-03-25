@@ -1,0 +1,213 @@
+{{- if .Values.enabled -}}
+{{- include "database.datamodel.prepare" $ -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "fullname" . }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
+    {{- include "gitlab.commonLabels" . | nindent 4 }}
+data:
+  {{- if $.Values.debugDatamodel }}
+  # gitlab.webservice.debugDatamodel
+  # helm template . -f test_values.yaml | yq -r '.data.deployments | select(. != null)'
+  {{- include "webservice.datamodel.prepare" $ -}}
+  deployments: |
+    blank:
+      {{- include "webservice.datamodel.blank" $ | nindent 6 }}
+    {{- toYaml .Values.deployments | nindent 4 }}
+  {{- end }}
+  installation_type: |
+    gitlab-helm-chart
+  database.yml.erb: |
+    {{- include "gitlab.database.yml" . | nindent 4 }}
+  {{- if include "gitlab.geo.secondary" . }}
+  database_geo.yml.erb: |
+    {{- include "gitlab.geo.database.yml" . | nindent 4 }}
+  {{- end }}
+  smtp_settings.rb: |
+    {{- include "gitlab.smtp_settings" . | nindent 4 }}
+  {{- include "gitlab.rails.redis.all" . | nindent 2 }}
+  gitlab.yml.erb: |
+    production: &base
+      gitlab:
+        host: {{ template "gitlab.gitlab.hostname" . }}
+        https: {{ hasPrefix "https://" (include "gitlab.gitlab.url" .) }}
+        {{- with .Values.global.hosts.ssh }}
+        ssh_host: {{ . | quote }}
+        {{- end }}
+        {{- with .Values.global.appConfig }}
+        max_request_duration_seconds: {{ default (include "gitlab.appConfig.maxRequestDurationSeconds" $) .maxRequestDurationSeconds }}
+        impersonation_enabled: {{ .enableImpersonation }}
+        application_settings_cache_seconds: {{ .applicationSettingsCacheSeconds | int }}
+        usage_ping_enabled: {{ eq .enableUsagePing true }}
+        seat_link_enabled: {{ eq .enableSeatLink true }}
+        default_can_create_group: {{ eq .defaultCanCreateGroup true }}
+        username_changing_enabled: {{ eq .usernameChangingEnabled true }}
+        issue_closing_pattern: {{ .issueClosingPattern | quote }}
+        default_theme: {{ .defaultTheme }}
+        {{- include "gitlab.appConfig.defaultProjectsFeatures.configuration" $ | nindent 8 }}
+        {{- if hasKey .initialDefaults "signupEnabled" }}
+        signup_enabled: {{ .initialDefaults.signupEnabled }}
+        {{- end }}
+        webhook_timeout: {{ .webhookTimeout }}
+        {{- end }}
+        trusted_proxies:
+        {{- if .Values.trusted_proxies }}
+          {{- toYaml .Values.trusted_proxies | nindent 10 }}
+        {{- end }}
+        time_zone: {{ .Values.global.time_zone | quote }}
+        {{- include "gitlab.outgoing_email_settings" . | indent 8 }}
+      {{- with .Values.global.appConfig }}
+      {{- if eq .contentSecurityPolicy.enabled true }}
+      {{-   include "gitlab.appConfig.content_security_policy" . | nindent 8 }}
+      {{- end }}
+      {{-   if .incomingEmail.enabled }}
+      {{-     include "gitlab.appConfig.incoming_email" . | nindent 6 }}
+      {{-   end }}
+      {{-   if .serviceDeskEmail.enabled }}
+      {{-     include "gitlab.appConfig.service_desk_email" . | nindent 6 }}
+      {{-   end }}
+      {{-   include "gitlab.appConfig.cronJobs" . | nindent 6 }}
+      gravatar:
+        plain_url: {{ .gravatar.plainUrl }}
+        ssl_url: {{ .gravatar.sslUrl }}
+      {{-   include "gitlab.appConfig.extra" . | nindent 6 }}
+      {{- end }}
+
+      {{- if $.Values.global.appConfig.object_store.enabled }}
+      # Consolidated object storage configuration
+      ## property local configuration will override object_store
+      {{- include "gitlab.appConfig.objectStorage.configuration" (dict "name" "object_store" "config" $.Values.global.appConfig.object_store "context" $) | nindent 6 }}
+        objects:
+          {{- include "gitlab.appConfig.objectStorage.object" (dict "name" "artifacts" "config" $.Values.global.appConfig.artifacts) | nindent 10 -}}
+          {{- include "gitlab.appConfig.objectStorage.object" (dict "name" "lfs" "config" $.Values.global.appConfig.lfs) | nindent 10 -}}
+          {{- include "gitlab.appConfig.objectStorage.object" (dict "name" "uploads" "config" $.Values.global.appConfig.uploads) | nindent 10 -}}
+          {{- include "gitlab.appConfig.objectStorage.object" (dict "name" "packages" "config" $.Values.global.appConfig.packages) | nindent 10 -}}
+          {{- include "gitlab.appConfig.objectStorage.object" (dict "name" "external_diffs" "config" $.Values.global.appConfig.externalDiffs) | nindent 10 -}}
+          {{- include "gitlab.appConfig.objectStorage.object" (dict "name" "terraform_state" "config" $.Values.global.appConfig.terraformState) | nindent 10 -}}
+          {{- include "gitlab.appConfig.objectStorage.object" (dict "name" "dependency_proxy" "config" $.Values.global.appConfig.dependencyProxy) | nindent 10 -}}
+          {{- include "gitlab.appConfig.objectStorage.object" (dict "name" "pages" "config" $.Values.global.pages.objectStore) | nindent 10 -}}
+      {{- end }}
+      {{- include "gitlab.appConfig.artifacts.configuration" (dict "config" $.Values.global.appConfig.artifacts "context" $) | nindent 6 }}
+      {{- include "gitlab.appConfig.lfs.configuration" (dict "config" $.Values.global.appConfig.lfs "context" $) | nindent 6 }}
+      {{- include "gitlab.appConfig.uploads.configuration" (dict "config" $.Values.global.appConfig.uploads "context" $) | nindent 6 }}
+      {{- include "gitlab.appConfig.packages.configuration" (dict "config" $.Values.global.appConfig.packages "context" $) | nindent 6 }}
+      {{- include "gitlab.appConfig.external_diffs.configuration" (dict "config" $.Values.global.appConfig.externalDiffs "context" $) | nindent 6 }}
+      {{- include "gitlab.appConfig.terraformState.configuration" (dict "config" $.Values.global.appConfig.terraformState "context" $) | nindent 6 }}
+      {{- include "gitlab.appConfig.dependencyProxy.configuration" (dict "config" $.Values.global.appConfig.dependencyProxy "context" $) | nindent 6 }}
+      {{- include "gitlab.geo.config" $ | nindent 6 }}
+      {{- include "gitlab.appConfig.sentry.configuration" $ | nindent 6 }}
+      {{- include "gitlab.appConfig.sidekiq.configuration" $ | nindent 6 }}
+      {{- include "gitlab.pages.config" $ | nindent 6 }}
+      mattermost:
+        enabled: false
+      gitlab_ci:
+      {{- include "gitlab.appConfig.ldap.configuration" $ | nindent 6 }}
+      {{- include "gitlab.appConfig.omniauth.configuration" $ | nindent 6 }}
+      kerberos:
+        enabled: false
+      shared:
+      {{- include "gitlab.appConfig.gitaly" . | nindent 6 }}
+      {{- include "gitlab.appConfig.repositories" . | nindent 6 }}
+      backup:
+        path: "tmp/backups"   # Relative paths are relative to Rails.root (default: tmp/backups/)
+      {{- include "gitlab.appConfig.kas" . | nindent 6 }}
+      {{- include "gitlab.appConfig.shell" . | nindent 6 }}
+        {{- include "gitlab.appConfig.shell.ssh_port" . | nindent 8 }}
+        {{- include "gitlab.appConfig.shell.secret_file" . | nindent 8 }}
+      workhorse:
+        secret_file: /etc/gitlab/gitlab-workhorse/secret
+      git:
+        bin_path: /usr/bin/git
+      webpack:
+      monitoring:
+        ip_whitelist:
+          {{- if kindIs "slice" .Values.monitoring.ipWhitelist }}
+          {{ toYaml .Values.monitoring.ipWhitelist | nindent 10 | trim }}
+          {{- end }}
+        web_exporter:
+          enabled: {{ eq .Values.monitoring.exporter.enabled true }}
+          address: 0.0.0.0
+          port: {{ .Values.monitoring.exporter.port }}
+        sidekiq_exporter:
+      shutdown:
+        blackout_seconds: <%= ENV["SHUTDOWN_BLACKOUT_SECONDS"] %>
+      {{- include "gitlab.appConfig.rackAttack" . | nindent 6 }}
+      ## Registry Integration
+      {{- include "gitlab.appConfig.registry.configuration" $ | nindent 6 }}
+      {{- include "gitlab.appConfig.smartcard.configuration" $ | nindent 6 }}
+  configure: |
+    {{- include "gitlab.scripts.configure.secrets" (dict) | nindent 4 -}}
+    {{- include "gitlab.psql.ssl.initScript" . | nindent 4 }}
+    {{- include "gitlab.geo.psql.ssl.initScript" . | nindent 4 }}
+
+{{- include "webservice.datamodel.prepare" $ -}}
+{{/* BEGIN range deployments */}}
+{{- range $.Values.deployments -}}
+{{/*
+From here on:
+- `.` is `.deployments.xyz` value
+- `.name` is the key (xyz)
+*/}}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ $.Release.Name }}-workhorse-{{ .name }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "gitlab.standardLabels" $ | nindent 4 }}
+    {{- include "gitlab.commonLabels" $ | nindent 4 }}
+data:
+  installation_type: |
+    gitlab-helm-chart
+  workhorse-config.toml.tpl: |
+    shutdown_timeout = "{{ template "gitlab.workhorse.shutdownTimeout" $ }}"
+    {{- if $.Values.workhorse.trustedCIDRsForPropagation }}
+    trusted_cidrs_for_propagation = {{ $.Values.workhorse.trustedCIDRsForPropagation | toStrings | toJson }}
+    {{- end }}
+    {{- if $.Values.workhorse.trustedCIDRsForXForwardedFor }}
+    trusted_cidrs_for_x_forwarded_for = {{ $.Values.workhorse.trustedCIDRsForXForwardedFor | toStrings | toJson }}
+    {{- end }}
+
+    {{- if .workhorse.keywatcher }}
+    [redis]
+    {{- if not $.Values.global.redis.sentinels }}
+    URL = "{{ template "gitlab.redis.scheme" $ }}://{{ template "gitlab.redis.host" $ }}:{{ template "gitlab.redis.port" $ }}"
+    {{- else }}
+    SentinelMaster = "{{ template "gitlab.redis.host" $ }}"
+    Sentinel = [ {{ template "gitlab.redis.workhorse.sentinel-list" $ }} ]
+    {{- end }}
+    {{- if $.Values.global.redis.password.enabled }}
+    Password = {% file.Read "/etc/gitlab/redis/redis-password" | strings.TrimSpace | data.ToJSON %}
+    {{- end }}
+    {{- end }}
+    {{- include "workhorse.object_storage.config" $ | nindent 4 }}
+    [image_resizer]
+    max_scaler_procs = {{ $.Values.workhorse.imageScaler.maxProcs | int }}
+    max_filesize = {{ $.Values.workhorse.imageScaler.maxFileSizeBytes | int }}
+  configure: |
+      set -e
+      mkdir -p /init-secrets-workhorse/gitlab-workhorse
+      cp -v -r -L /init-config/gitlab-workhorse/secret /init-secrets-workhorse/gitlab-workhorse/secret
+      {{- if $.Values.global.redis.password.enabled }}
+      mkdir -p /init-secrets-workhorse/redis
+      cp -v -r -L /init-config/redis/redis-password /init-secrets-workhorse/redis/
+      {{- end }}
+      {{- if $.Values.global.minio.enabled }}
+      if [ -d /init-config/minio ]; then
+        mkdir -p /init-secrets-workhorse/minio
+        cp -v -r -L /init-config/minio/* /init-secrets-workhorse/minio/
+      fi
+      {{- end }}
+      {{- if $.Values.global.appConfig.object_store.connection }}
+      if [ -f /init-config/objectstorage/object_store ]; then
+        mkdir -p /init-secrets-workhorse/objectstorage
+        cp -v -r -L /init-config/objectstorage/object_store /init-secrets-workhorse/objectstorage/
+      fi
+      {{- end }}
+# Leave this here - This line denotes end of block to the parser.
+{{- end }}{{/* END range deployments */}}
+{{- end }}

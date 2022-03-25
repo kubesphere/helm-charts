@@ -1,0 +1,52 @@
+{{- if and .Values.service.enabled .Values.metrics.enabled -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "gitlab-runner.fullname" . | quote }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    app: {{ include "gitlab-runner.fullname" . | quote }}
+    chart: {{ include "gitlab-runner.chart" . | quote }}
+    release: {{ .Release.Name | quote }}
+    heritage: {{ .Release.Service | quote }}
+    {{- if .Values.service.labels }}
+    {{- toYaml .Values.service.labels | nindent 4 }}
+    {{- end }}
+  {{- if .Values.service.annotations }}
+  annotations:
+    {{- toYaml .Values.service.annotations | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if .Values.service.clusterIP }}
+  clusterIP: {{ .Values.service.clusterIP | quote }}
+  {{- end }}
+  {{- if .Values.service.externalIPs }}
+  externalIPs:
+    {{- toYaml .Values.service.externalIPs | nindent 4 }}
+  {{- end }}
+  {{- if .Values.service.loadBalancerIP }}
+  loadBalancerIP: {{ .Values.service.loadBalancerIP | quote }}
+  {{- end }}
+  {{- if .Values.service.loadBalancerSourceRanges }}
+  loadBalancerSourceRanges:
+  {{- range $cidr := .Values.service.loadBalancerSourceRanges }}
+    - {{ $cidr | quote }}
+  {{- end }}
+  {{- end }}
+  ports:
+  {{- if .Values.metrics.enabled }}
+  - name: {{ .Values.metrics.portName | quote }}
+    {{- if eq .Values.service.type "NodePort" }}
+    nodePort: {{ .Values.service.metrics.nodePort }}
+    {{- end }}
+    port: {{ .Values.metrics.port }}
+    targetPort: {{ .Values.metrics.portName | quote }}
+  {{- end }}
+  {{- if .Values.service.additionalPorts }}
+  {{- toYaml .Values.service.additionalPorts | nindent 2 }}
+  {{- end }}
+  selector:
+    app: {{ include "gitlab-runner.fullname" . | quote }}
+    release: {{ .Release.Name | quote }}
+  type: {{ .Values.service.type | default "ClusterIP" | quote }}
+{{- end }}

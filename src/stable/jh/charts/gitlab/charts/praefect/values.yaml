@@ -1,0 +1,69 @@
+# Default values for praefect.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+failover:
+  enabled: true
+  readonlyAfter: true
+
+electionStrategy: sql
+
+image:
+  repository: registry.jihulab.com/gitlab-cn/build/cng-images/gitaly
+  # pullPolicy: IfNotPresent
+  # pullSecrets: []
+
+service:
+  tls: {}
+
+init:
+  resources: {}
+  image: {}
+    # pullPolicy: IfNotPresent
+
+metrics:
+  enabled: true
+  port: 9236
+
+## Allow to overwrite under which User and Group we're running.
+securityContext:
+  runAsUser: 1000
+  fsGroup: 1000
+
+replicas: 2
+
+resources:
+  requests:
+    cpu: 100m
+    memory: 200Mi
+
+## For PodDisruptionBudget, how many pods can be unavailable at one time
+maxUnavailable: 1
+
+serviceAccount:
+  enabled: false
+  create: false
+  annotations: {}
+
+## Support for tolerations for pod scheduling
+tolerations: []
+
+## The Gitaly StatefulSet's priorityClassName
+# priorityClassName:
+
+gitaly:
+  service:
+    tls: {}
+  # serviceName:
+
+common:
+  labels: {}
+podLabels: {}
+serviceLabels: {}
+
+statefulset:
+  strategy: {}
+
+affinity:
+  podAntiAffinity:
+    topologyKey:

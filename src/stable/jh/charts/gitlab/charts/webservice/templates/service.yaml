@@ -1,0 +1,67 @@
+{{- if .Values.enabled }}
+{{- include "webservice.datamodel.prepare" $ -}}
+{{/* BEGIN range deployments */}}
+{{- range $.Values.deployments -}}
+{{/*
+From here on:
+- `.` is `.deployments.xyz` value
+- `.name` is the key (xyz)
+*/}}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ template "webservice.fullname.withSuffix" . }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "gitlab.standardLabels" $ | nindent 4 }}
+    {{- include "gitlab.serviceLabels" $ | nindent 4 }}
+    {{- include "webservice.labels" . | nindent 4 }}
+    {{- include "webservice.commonLabels" . | nindent 4 }}
+    {{- if .service.labels -}}
+    {{-   toYaml .service.labels | nindent 4 }}
+    {{- end }}
+  annotations:
+    {{- include "gitlab.serviceAnnotations" $ | nindent 4 }}
+    {{- if .service.annotations -}}
+    {{-   toYaml .service.annotations | nindent 4 }}
+    {{- end }}
+spec:
+  type: {{ .service.type }}
+  {{- if (and (eq .service.type "LoadBalancer") (not (empty .service.loadBalancerIP))) }}
+  loadBalancerIP: {{ .service.loadBalancerIP }}
+  {{- end }}
+  {{- if (and (eq .service.type "LoadBalancer") (not (empty .service.loadBalancerSourceRanges))) }}
+  loadBalancerSourceRanges:
+    {{- range .service.loadBalancerSourceRanges }}
+    - {{ . | quote }}
+    {{- end }}
+  {{- end }}
+  ports:
+    - port: {{ $.Values.service.externalPort }}
+      targetPort: {{ $.Values.service.internalPort }}
+      protocol: TCP
+      name: http-webservice
+    - port: {{ $.Values.service.workhorseExternalPort }}
+      targetPort: {{ $.Values.service.workhorseInternalPort }}
+      protocol: TCP
+      name: http-workhorse
+    {{- if eq $.Values.monitoring.exporter.enabled true }}
+    - port: {{ $.Values.monitoring.exporter.port }}
+      targetPort: {{ $.Values.monitoring.exporter.port }}
+      protocol: TCP
+      name: http-exporter
+    {{- end }}
+    {{- if eq $.Values.workhorse.monitoring.exporter.enabled true }}
+    - port: {{ $.Values.workhorse.monitoring.exporter.port | int }}
+      targetPort: {{ $.Values.workhorse.monitoring.exporter.port | int }}
+      protocol: TCP
+      name: http-workhorse-exporter
+    {{- end }}
+  selector:
+    app: {{ template "name" $ }}
+    release: {{ $.Release.Name }}
+    {{ include "webservice.labels" . | nindent 4 }}
+{{- end }}
+{{/* END range deployments */}}
+{{- end }}

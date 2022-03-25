@@ -1,0 +1,11 @@
+{{- if and .Values.global.gitaly.enabled .Values.global.praefect.enabled -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "fullname" . }}-praefect
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
+    {{- include "gitlab.commonLabels" . | nindent 4 }}
+{{ include (print $.Template.BasePath "/_configmap_spec.yaml") (merge (dict) . (dict "storage" "praefect")) }}
+{{- end }}

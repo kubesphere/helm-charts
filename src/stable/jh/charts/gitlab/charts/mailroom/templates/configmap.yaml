@@ -1,0 +1,118 @@
+{{- if and .Values.enabled .Values.global.appConfig.incomingEmail.enabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "fullname" . }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
+    {{- include "gitlab.commonLabels" . | nindent 4 }}
+data:
+  mail_room.yml: |
+    :health_check:
+      :address: 0.0.0.0
+      :port: 8080
+    :mailboxes:
+      -
+        {{- with .Values.global.appConfig.incomingEmail }}
+        :email: {{ .user }}
+        :name: {{ .mailbox }}
+        :delete_after_delivery: true
+        :expunge_deleted: {{ .expungeDeleted }}
+        {{- if ne .logger.logPath "" }}
+        :logger:
+          :log_path: "{{ .logger.logPath }}"
+        {{- end }}
+        :inbox_method: {{ .inboxMethod }}
+        {{- if eq .inboxMethod "microsoft_graph" }}
+        :inbox_options:
+          :tenant_id: "{{ .tenantId }}"
+          :client_id: "{{ .clientId }}"
+          :client_secret: <%= File.read("/etc/gitlab/mailroom/client_id_incoming_email").strip.to_json %>
+          :poll_interval: {{ .pollInterval }}
+        {{- else }}
+        :host: {{ .host }}
+        :port: {{ .port }}
+        :ssl: {{ .ssl }}
+        :start_tls: {{ .startTls }}
+        :password: <%= File.read("/etc/gitlab/mailroom/password_incoming_email").strip.to_json %>
+        :idle_timeout: {{ .idleTimeout }}
+        {{- end }}
+        {{- if eq .deliveryMethod "sidekiq" }}
+        :delivery_method: sidekiq
+        :delivery_options:
+          :redis_url: {{ include "gitlab.mailroom.redis.url" $ }}
+          :namespace: resque:gitlab
+          :queue: email_receiver
+          :worker: EmailReceiverWorker
+          {{- include "gitlab.mailroom.redis.sentinels" $ | nindent 10 }}
+        {{- else if eq .deliveryMethod "webhook" }}
+        :delivery_method: postback
+        :delivery_options:
+          :delivery_url: '{{ template "gitlab.workhorse.url" $ }}/api/v4/internal/mail_room/incoming_email'
+          :jwt_auth_header: "Gitlab-Mailroom-Api-Request"
+          :jwt_issuer: "gitlab-mailroom"
+          :jwt_algorithm: "HS256"
+          :jwt_secret_path: "/etc/gitlab/mailroom/incoming_email_webhook_secret"
+        {{- end }}
+        {{- end }}
+        :arbitration_method: redis
+        :arbitration_options:
+          :redis_url: {{ include "gitlab.mailroom.redis.url" . }}
+          :namespace: mail_room:gitlab
+          {{- include "gitlab.mailroom.redis.sentinels" . | nindent 10 }}
+      {{- if .Values.global.appConfig.serviceDeskEmail.enabled }}
+      -
+        {{- with .Values.global.appConfig.serviceDeskEmail }}
+        :email: {{ .user }}
+        :name: {{ .mailbox }}
+        :delete_after_delivery: true
+        :expunge_deleted: {{ .expungeDeleted }}
+        {{- if ne .logger.logPath "" }}
+        :logger:
+          :log_path: "{{ .logger.logPath }}"
+        {{- end }}
+        :inbox_method: {{ .inboxMethod }}
+        {{- if eq .inboxMethod "microsoft_graph" }}
+        :inbox_options:
+          :tenant_id: "{{ .tenantId }}"
+          :client_id: "{{ .clientId }}"
+          :client_secret: <%= File.read("/etc/gitlab/mailroom/client_id_service_desk").strip.to_json %>
+          :poll_interval: {{ .pollInterval }}
+        {{- else }}
+        :host: {{ .host }}
+        :port: {{ .port }}
+        :ssl: {{ .ssl }}
+        :start_tls: {{ .startTls }}
+        :password: <%= File.read("/etc/gitlab/mailroom/password_service_desk").strip.to_json %>
+        :idle_timeout: {{ .idleTimeout }}
+        {{- end }}
+        {{- if eq .deliveryMethod "sidekiq" }}
+        :delivery_method: sidekiq
+        :delivery_options:
+          :redis_url: {{ template "gitlab.redis.url" $ }}
+          :namespace: resque:gitlab
+          :queue: service_desk_email_receiver
+          :worker: ServiceDeskEmailReceiverWorker
+          {{- include "gitlab.mailroom.redis.sentinels" $ | nindent 10 }}
+        {{- else if eq .deliveryMethod "webhook" }}
+        :delivery_method: postback
+        :delivery_options:
+          :delivery_url: '{{ template "gitlab.workhorse.url" $ }}/api/v4/internal/mail_room/service_desk_email'
+          :jwt_auth_header: "Gitlab-Mailroom-Api-Request"
+          :jwt_issuer: "gitlab-mailroom"
+          :jwt_algorithm: "HS256"
+          :jwt_secret_path: "/etc/gitlab/mailroom/service_desk_email_webhook_secret"
+        {{- end }}
+        {{- end }}
+        :arbitration_method: redis
+        :arbitration_options:
+          :redis_url: {{ template "gitlab.redis.url" . }}
+          :namespace: mail_room:gitlab
+          {{- include "gitlab.mailroom.redis.sentinels" . | nindent 10 }}
+      {{- end }}
+
+  configure: |
+    {{- include "gitlab.scripts.configure.secrets" (dict "required" "mailroom" "optional" "redis") | nindent 4 }}
+# Leave this here - This line denotes end of block to the parser.
+{{- end }}

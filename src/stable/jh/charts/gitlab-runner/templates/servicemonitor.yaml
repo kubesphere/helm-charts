@@ -1,0 +1,53 @@
+{{- if and .Values.metrics.serviceMonitor.enabled .Values.metrics.enabled .Values.service.enabled -}}
+{{- if .Capabilities.APIVersions.Has "monitoring.coreos.com/v1" -}}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "gitlab-runner.fullname" . | quote }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    app: {{ include "gitlab-runner.fullname" . | quote }}
+    chart: {{ include "gitlab-runner.chart" . | quote }}
+    release: {{ .Release.Name | quote }}
+    heritage: {{ .Release.Service | quote }}
+    {{- if .Values.metrics.serviceMonitor.labels }}
+      {{- toYaml .Values.metrics.serviceMonitor.labels | nindent 4 }}
+    {{- end }}
+spec:
+  endpoints:
+  - port: {{ .Values.metrics.portName | quote }}
+    {{- if .Values.metrics.serviceMonitor.interval }}
+    interval: {{ .Values.metrics.serviceMonitor.interval }}
+    {{- end }}
+    {{- if .Values.metrics.serviceMonitor.scheme }}
+    scheme: {{ .Values.metrics.serviceMonitor.scheme | quote }}
+    {{- end }}
+    {{- if .Values.metrics.serviceMonitor.tlsConfig }}
+    tlsConfig:
+      {{- toYaml .Values.metrics.serviceMonitor.tlsConfig | nindent 6 }}
+    {{- end }}
+    {{- if .Values.metrics.serviceMonitor.metricRelabelings }}
+    metricRelabelings:
+      {{- tpl (toYaml .Values.metrics.serviceMonitor.metricRelabelings | nindent 6) . }}
+    {{- end }}
+    {{- if .Values.metrics.serviceMonitor.path }}
+    path: {{ .Values.metrics.serviceMonitor.path }}
+    {{- end }}
+    {{- if .Values.metrics.serviceMonitor.relabelings }}
+    relabelings:
+      {{- toYaml .Values.metrics.serviceMonitor.relabelings | nindent 6 }}
+    {{- end }}
+  {{- if .Values.metrics.serviceMonitor.jobLabel }}
+  jobLabel: {{ .Values.metrics.serviceMonitor.jobLabel }}
+  {{- end }}
+  namespaceSelector:
+    matchNames:
+      - {{ $.Release.Namespace | quote }}
+  selector:
+    matchLabels:
+      app: {{ include "gitlab-runner.fullname" . | quote }}
+      chart: {{ include "gitlab-runner.chart" . | quote }}
+      release: {{ .Release.Name | quote }}
+      heritage: {{ .Release.Service | quote }}
+{{- end }}
+{{- end }}

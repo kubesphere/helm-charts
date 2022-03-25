@@ -1,0 +1,24 @@
+{{- if .Values.enabled -}}
+{{- $name := default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
+{{- $releaseName := .Release.Name -}}
+{{- $fullname := printf "%s-%s" $releaseName $name | trunc 63 | trimSuffix "-" -}}
+{{- range .Values.pods -}}
+{{-   $queueName := printf "%s-%s" $fullname .name | trunc 63}}
+{{-   include "sidekiq.pod.common.labels" . }}
+---
+apiVersion: policy/v1beta1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ printf "%s-v1" ($queueName | trunc 60) }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "gitlab.standardLabels" $ | nindent 4 }}
+    {{- include "sidekiq.commonLabels" (dict "pod" .common.labels "global" $.Values.common.labels) | nindent 4 }}
+spec:
+  maxUnavailable: {{ default $.Values.maxUnavailable .maxUnavailable }}
+  selector:
+    matchLabels:
+      {{- include "gitlab.selectorLabels" $ | nindent 6 }}
+      queue-pod-name: {{ .name }}
+{{- end -}}
+{{- end -}}

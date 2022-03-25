@@ -1,0 +1,18 @@
+{{/* GitLab labels included below */}}
+{{- if and .Values.tcp (not .Values.tcpExternalConfig) -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
+    {{- include "gitlab.commonLabels" . | nindent 4 }}
+    component: "{{ .Values.controller.name }}"
+    {{- include "ingress-nginx.labels" . | nindent 4 }}
+    app.kubernetes.io/component: controller
+{{- if .Values.controller.tcp.annotations }}
+  annotations: {{ toYaml .Values.controller.tcp.annotations | nindent 4 }}
+{{- end }}
+  name: {{ template "ingress-nginx.tcp-configmap" . }}
+  namespace: {{ .Release.Namespace }}
+data: {{ tpl (toYaml .Values.tcp) . | nindent 2 }}
+{{- end }}

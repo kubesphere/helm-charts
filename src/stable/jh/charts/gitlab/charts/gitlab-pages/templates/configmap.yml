@@ -1,0 +1,135 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "fullname" . }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
+    {{- include "gitlab.commonLabels" . | nindent 4 }}
+  annotations:
+data:
+  config.tpl: |
+    {{- with .Values.gitlabCache }}
+    {{- if .cleanup }}
+    gitlab-cache-cleanup={{ .cleanup }}
+    {{- end }}
+    {{- if .expiry }}
+    gitlab-cache-expiry={{ .expiry }}
+    {{- end }}
+    {{- if .refresh }}
+    gitlab-cache-refresh={{ .refresh }}
+    {{- end }}
+    {{- end }}
+    {{- with .Values.gitlabRetrieval }}
+    {{- if .interval }}
+    gitlab-retrieval-interval={{ .interval }}
+    {{- end }}
+    {{- if .retries }}
+    gitlab-retrieval-retries={{ .retries }}
+    {{- end }}
+    {{- if .timeout }}
+    gitlab-retrieval-timeout={{ .timeout }}
+    {{- end }}
+    {{- end }}
+    {{- if not (empty .Values.headers) }}
+    {{- $headers := .Values.headers | join ";;" }}
+    header={{ $headers }}
+    {{- end }}
+    {{- $externalAddresses := concat $.Values.global.pages.externalHttp $.Values.global.pages.externalHttps | uniq }}
+    {{- if (empty ($externalAddresses)) }}
+    listen-proxy=0.0.0.0:{{ .Values.service.internalPort }}
+    listen-http=0.0.0.0:9090
+    {{- else }}
+      {{- if not (empty $.Values.global.pages.externalHttp) }}
+    listen-{{ if .Values.useHTTPProxy }}proxy{{ else }}http{{ end }}=0.0.0.0:{{ .Values.service.internalPort | int }}
+      {{-  else  }}
+    listen-{{ if .Values.useHTTPProxy }}proxy{{ else }}http{{ end }}=0.0.0.0:9090
+      {{- end }}
+      {{- if not (empty $.Values.global.pages.externalHttps) }}
+    listen-https{{ if .Values.useProxyV2 }}-proxyv2{{ end }}=0.0.0.0:{{ .Values.service.customDomains.internalHttpsPort | int }}
+    root-cert=/etc/gitlab-secrets/pages/{{ template "gitlab.pages.hostname" $ }}.crt
+    root-key=/etc/gitlab-secrets/pages/{{ template "gitlab.pages.hostname" $ }}.key
+      {{- end }}
+    {{- end }}
+    {{- if .Values.propagateCorrelationId }}
+    propagate-correlation-id={{ .Values.propagateCorrelationId }}
+    {{- end }}
+    pages-domain={{ template "gitlab.pages.hostname" . }}
+    pages-root=/srv/gitlab-pages
+    log-format={{ .Values.logFormat }}
+    log-verbose={{ eq .Values.logVerbose true }}
+    redirect-http={{ eq .Values.redirectHttp true }}
+    use-http2={{ eq .Values.useHttp2 true }}
+    insecure-ciphers={{ eq .Values.insecureCiphers true }}
+    artifacts-server={{ template "gitlab.pages.artifactsServer" . }}
+    artifacts-server-timeout={{ default 10 .Values.artifactsServerTimeout }}
+    gitlab-server={{ template "gitlab.pages.gitlabServer" . }}
+    internal-gitlab-server={{ template "gitlab.pages.internalGitlabServer" . }}
+    api-secret-key=/etc/gitlab-secrets/pages/secret
+    domain-config-source={{ default "gitlab" .Values.domainConfigSource }}
+    {{- if and .Values.metrics.enabled .Values.metrics.port }}
+    metrics-address=:{{ .Values.metrics.port | int }}
+    {{- end }}
+    {{- if .Values.maxConnections }}
+    max-conns={{ .Values.maxConnections }}
+    {{- end }}
+    {{- if .Values.maxURILength }}
+    max-uri-length={{ .Values.maxURILength }}
+    {{- end }}
+    {{- if .Values.gitlabClientHttpTimeout }}
+    gitlab-client-http-timeout={{ .Values.gitlabClientHttpTimeout }}
+    {{- end }}
+    {{- if .Values.gitlabClientJwtExpiry }}
+    gitlab-client-jwt-expiry={{ .Values.gitlabClientJwtExpiry }}
+    {{- end }}
+    {{- if .Values.sentry.enabled }}
+    {{-   if .Values.sentry.dsn }}
+    sentry-dsn={{ .Values.sentry.dsn }}
+    {{-   end }}
+    {{-   if .Values.sentry.environment }}
+    sentry-environment={{ .Values.sentry.environment }}
+    {{-   end }}
+    {{- end }}
+    {{- if .Values.statusUri }}
+    pages-status={{ .Values.statusUri }}
+    {{- end }}
+    {{- if .Values.tls.minVersion }}
+    tls-min-version={{ .Values.tls.minVersion }}
+    {{- end }}
+    {{- if .Values.tls.maxVersion }}
+    tls-max-version={{ .Values.tls.maxVersion }}
+    {{- end }}
+    {{- if eq $.Values.global.pages.accessControl true }}
+    auth-redirect-uri={{ template "oauth.gitlab-pages.authRedirectUri" . }}
+    auth-client-id={% file.Read "/etc/gitlab-secrets/pages/gitlab_appid" %}
+    auth-client-secret={% file.Read "/etc/gitlab-secrets/pages/gitlab_appsecret" %}
+    auth-secret={% file.Read "/etc/gitlab-secrets/pages/auth_secret" %} 
+    {{- end }}
+    {{- with .Values.zipCache }}
+    {{- if .cleanup }}
+    zip-cache-cleanup={{ .cleanup }}
+    {{- end }}
+    {{- if .expiration }}
+    zip-cache-expiration={{ .expiration }}
+    {{- end }}
+    {{- if .refresh }}
+    zip-cache-refresh={{ .refresh }}
+    {{- end }}
+    {{- end }}
+    {{- if .Values.zipOpenTimeout }}
+    zip-open-timeout={{ .Values.zipOpenTimeout }}
+    {{- end }}
+    {{- if .Values.rateLimitSourceIP }}
+    rate-limit-source-ip={{ .Values.rateLimitSourceIP }}
+    {{- end }}
+    {{- if .Values.rateLimitSourceIPBurst }}
+    rate-limit-source-ip-burst={{ .Values.rateLimitSourceIPBurst }}
+    {{- end }}
+    {{- if .Values.rateLimitDomain }}
+    rate-limit-domain={{ .Values.rateLimitDomain }}
+    {{- end }}
+    {{- if .Values.rateLimitDomainBurst }}
+    rate-limit-domain-burst={{ .Values.rateLimitDomainBurst }}
+    {{- end }}
+  configure: |
+    {{- include "gitlab.scripts.configure.secrets" (dict "required" "pages" "optional" "pages") | nindent 4 -}}

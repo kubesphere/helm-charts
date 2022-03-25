@@ -1,0 +1,18 @@
+{{/* GitLab labels included below */}}
+{{- if .Values.udp -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  labels:
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
+    {{- include "gitlab.commonLabels" . | nindent 4 }}
+    component: "{{ .Values.controller.name }}"
+    {{- include "ingress-nginx.labels" . | nindent 4 }}
+    app.kubernetes.io/component: controller
+{{- if .Values.controller.udp.annotations }}
+  annotations: {{ toYaml .Values.controller.udp.annotations | nindent 4 }}
+{{- end }}
+  name: {{ include "ingress-nginx.fullname" . }}-udp
+  namespace: {{ .Release.Namespace }}
+data: {{ tpl (toYaml .Values.udp) . | nindent 2 }}
+{{- end }}
