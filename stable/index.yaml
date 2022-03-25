@@ -1,12 +1,73 @@
 apiVersion: v1
 entries:
+  JiHu GitLab:
+  - apiVersion: v1
+    appVersion: 14.8.2
+    created: "2022-03-25T10:08:01.210103534Z"
+    dependencies:
+    - name: gitlab
+      repository: ""
+      version: '*.*.*'
+    - name: certmanager-issuer
+      repository: ""
+      version: '*.*.*'
+    - name: minio
+      repository: ""
+      version: '*.*.*'
+    - name: registry
+      repository: ""
+      version: '*.*.*'
+    - alias: certmanager
+      condition: certmanager.install
+      name: cert-manager
+      repository: https://charts.jetstack.io/
+      version: 1.5.4
+    - condition: prometheus.install
+      name: prometheus
+      repository: https://prometheus-community.github.io/helm-charts
+      version: 15.0.4
+    - condition: postgresql.install
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: 8.9.4
+    - condition: gitlab-runner.install
+      name: gitlab-runner
+      repository: https://charts.gitlab.io/
+      version: 0.38.0
+    - condition: global.grafana.enabled
+      name: grafana
+      repository: https://grafana.github.io/helm-charts
+      version: 6.9.1
+    - condition: redis.install
+      name: redis
+      repository: https://charts.bitnami.com/bitnami
+      version: 11.3.4
+    - condition: nginx-ingress.enabled
+      name: nginx-ingress
+      repository: ""
+      version: '*.*.*'
+    description: Web-based Git-repository manager with wiki and issue-tracking features.
+    digest: 22c430cf2ab243db7a009f0eed3271d04ffbe341dc1cd411aa2fc42a36af8571
+    home: https://about.gitlab.cn/
+    icon: https://jihulab.com/gitlab-cn/charts/gitlab/raw/main-jh/icons/helm-chart-icon.svg
+    keywords:
+    - gitlab
+    maintainers:
+    - email: support@gitlab.cn
+      name: JiHu(GitLab)
+    name: JiHu GitLab
+    sources:
+    - https://jihulab.com/gitlab-cn/charts/gitlab
+    urls:
+    - https://charts.kubesphere.io/stable/JiHu%20GitLab-5.8.2.tgz
+    version: 5.8.2
   chaos-mesh:
   - apiVersion: v2
     appVersion: 2.0.4
-    created: "2022-03-25T06:46:02.224271861Z"
+    created: "2022-03-25T10:08:01.22023972Z"
     description: Chaos Mesh® is a cloud-native Chaos Engineering platform that orchestrates
       chaos on Kubernetes environments.
-    digest: 5b5ae38ffe0fad503e752b47269b5aab00f4acd7ad39c6bd06f9e218c4cf31b3
+    digest: ea2f1437a612625e388560fc65318c6b4ae19376a30d9bd7919c3229765405da
     home: https://chaos-mesh.org
     icon: https://raw.githubusercontent.com/pingcap/chaos-mesh/master/static/logo.svg
     keywords:
@@ -417,4 +478,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/stable/qiming-operator-2.2.2.tgz
     version: 2.2.2
-generated: "2022-03-25T06:46:02.212046861Z"
+generated: "2022-03-25T10:08:01.138302118Z"
