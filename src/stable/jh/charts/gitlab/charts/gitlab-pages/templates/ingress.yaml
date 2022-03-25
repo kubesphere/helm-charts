@@ -1,0 +1,49 @@
+{{- $externalAddresses := concat $.Values.global.pages.externalHttp $.Values.global.pages.externalHttps | uniq }}
+{{- if and (empty ($externalAddresses)) (eq (include "gitlab.ingress.enabled" $) "true") -}}
+{{- $hostname := include "gitlab.pages.hostname" . -}}
+{{- $tlsSecret := include "pages.tlsSecret" . -}}
+{{- $ingressCfg := dict "global" .Values.global.ingress "local" .Values.ingress "context" . -}}
+apiVersion: {{ template "gitlab.ingress.apiVersion" $ingressCfg }}
+kind: Ingress
+metadata:
+  name: {{ template "fullname" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
+    {{- include "gitlab.commonLabels" . | nindent 4 }}
+  annotations:
+    {{ include "ingress.class.annotation" $ingressCfg }}
+    kubernetes.io/ingress.provider: "{{ template "gitlab.ingress.provider" $ingressCfg }}"
+    {{ include "gitlab.certmanager_annotations" . }}
+  {{- range $key, $value := merge .Values.ingress.annotations .Values.global.ingress.annotations }}
+    {{ $key }}: {{ $value | quote }}
+  {{- end }}
+spec:
+  {{ include "ingress.class.field" $ingressCfg }}
+  rules:
+    - host: "*.{{ $hostname }}"
+      http:
+        paths:
+          - path: {{ coalesce $.Values.ingress.path $.Values.global.ingress.path }}
+            {{ if or ($.Capabilities.APIVersions.Has "networking.k8s.io/v1/Ingress") (eq $.Values.global.ingress.apiVersion "networking.k8s.io/v1") -}}
+            pathType: {{ default "Prefix" $.Values.global.ingress.pathType }}
+            backend:
+              service:
+                  name: {{ template "fullname" . }}
+                  port:
+                    number: {{ .Values.service.externalPort }}
+            {{- else -}}
+            backend:
+              serviceName: {{ template "fullname" . }}
+              servicePort: {{ .Values.service.externalPort }}
+            {{- end -}}
+  {{- if (and $tlsSecret (eq (include "gitlab.ingress.tls.enabled" $) "true" )) }}
+  tls:
+    - hosts:
+      - {{ $hostname }}
+      - "*.{{ $hostname }}"
+      secretName: {{ $tlsSecret }}
+  {{- else }}
+  tls: []
+  {{- end }}
+{{- end -}}

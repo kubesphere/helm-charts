@@ -1,0 +1,26 @@
+{{ if (pluck "configureCertmanager" .Values.global.ingress (dict "configureCertmanager" false) | first) }}
+{{- $ingressCfg := dict "global" $.Values.global.ingress "local" .ingress "context" $ -}}
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: {{ .Release.Name }}-issuer
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
+    {{- include "gitlab.commonLabels" . | nindent 4 }}
+spec:
+  acme:
+    # The ACME server URL
+    server: {{ .Values.server | quote }}
+    # Email address used for ACME registration
+    email: {{ required "You must provide an email to associate with your TLS certificates. Please set certmanager-issuer.email" .Values.email | quote }}
+    # Name of a secret used to store the ACME account private key
+    privateKeySecretRef:
+      name: {{ .Release.Name }}-acme-key
+    # Enable the HTTP-01 challenge provider
+    solvers:
+    - selector: {}
+      http01:
+        ingress:
+          class: {{ template "ingress.class.name" $ingressCfg }}
+{{ end }}

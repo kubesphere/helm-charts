@@ -1,0 +1,132 @@
+# Default values for gitlab-shell.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+image:
+  repository: registry.jihulab.com/gitlab-cn/build/cng-images/gitlab-shell
+  # pullPolicy: IfNotPresent
+  # pullSecrets: []
+  # tag: master
+service:
+  name: gitlab-shell
+  type: ClusterIP
+  internalPort: 2222
+  externalTrafficPolicy: Cluster
+  # nodePort: xxx
+  # loadBalancerIP: x.x.x.x
+  # loadBalancerSourceRanges:
+  # - x.x.x.x/yy
+  # externalIPs:
+  # - x.x.x.x
+  # - y.y.y.y
+
+init:
+  image: {}
+    # repository:
+    # tag:
+  resources:
+    requests:
+      cpu: 50m
+
+# Tolerations for pod scheduling
+tolerations: []
+
+global: {}
+
+enabled: true
+annotations: {}
+podLabels: {}
+common:
+  labels: {}
+serviceLabels: {}
+workhorse: {}
+  # by default, Workhorse is a part of the webservice Pods / Service
+  # scheme: 'http'
+  # host: '0.0.0.0'
+  # serviceName: 'webservice'
+  # port: 8181
+resources:
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #  cpu: 100m
+  #  memory: 128Mi
+  requests:
+    cpu: 0
+    memory: 6M
+maxUnavailable: 1
+minReplicas: 2
+maxReplicas: 10
+hpa:
+  targetAverageValue: 100m
+
+deployment:
+  # terminationGracePeriodSeconds: 30
+  livenessProbe:
+    initialDelaySeconds: 10
+    periodSeconds: 10
+    timeoutSeconds: 3
+    successThreshold: 1
+    failureThreshold: 3
+  readinessProbe:
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    timeoutSeconds: 3
+    successThreshold: 1
+    failureThreshold: 2
+  strategy: {}
+
+logging:
+  format: "text"
+  sshdLogLevel: "ERROR"
+
+config:
+  clientAliveInterval: 0
+  loginGraceTime: 120
+  maxStartups:
+    start: 10
+    rate: 30
+    full: 100
+
+## Allow to overwrite under which User and Group we're running.
+securityContext:
+  runAsUser: 1000
+  fsGroup: 1000
+
+## Enable deployment to use a serviceAccount
+serviceAccount:
+  enabled: false
+  create: false
+  annotations: {}
+  ## Name to be used for serviceAccount, otherwise defaults to chart fullname
+  # name:
+
+metrics:
+  enabled: false
+  port: 9122
+  annotations:
+    gitlab.com/prometheus_scrape: "true"
+    gitlab.com/prometheus_port: "9122"
+    gitlab.com/prometheus_path: "/metrics"
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "9122"
+    prometheus.io/path: "/metrics"
+
+networkpolicy:
+  enabled: false
+  egress:
+    enabled: false
+    rules: []
+  ingress:
+    enabled: false
+    rules: []
+  annotations: {}
+
+## Allow to select ssh daemon that would be executed inside container
+## Possible values: openssh, gitlab-sshd
+sshDaemon: openssh
+
+affinity:
+  podAntiAffinity:
+    topologyKey:

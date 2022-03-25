@@ -1,0 +1,138 @@
+{{- if .Values.global.kas.enabled -}}
+{{- $imageCfg := dict "global" $.Values.global.image "local" $.Values.image -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ template "fullname" . }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
+    {{- include "gitlab.commonLabels" . | nindent 4 }}
+  annotations:
+    {{- include "gitlab.deploymentAnnotations" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "gitlab.selectorLabels" . | nindent 6 }}
+  {{- if .Values.deployment.strategy }}
+  strategy: {{ .Values.deployment.strategy | toYaml | nindent 4 }}
+  {{- end }}
+  template:
+    metadata:
+      labels:
+        {{- include "gitlab.standardLabels" . | nindent 8 }}
+        {{- include "gitlab.commonLabels" . | nindent 8 }}
+        {{- include "gitlab.podLabels" . | nindent 8 }}
+      annotations:
+        cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
+        {{- if .Values.metrics.enabled }}
+        gitlab.com/prometheus_scrape: "true"
+        gitlab.com/prometheus_path: {{ .Values.metrics.path | quote }}
+        gitlab.com/prometheus_port: {{ .Values.metrics.port | quote }}
+        prometheus.io/scrape: "true"
+        prometheus.io/path: {{ .Values.metrics.path | quote }}
+        prometheus.io/port: {{ .Values.metrics.port | quote }}
+        {{- end }}
+      {{- range $key, $value := .Values.annotations }}
+        {{ $key }}: {{ $value | quote }}
+      {{- end }}
+    spec:
+      {{- include "gitlab.nodeSelector" . | nindent 6 }}
+      {{- if .Values.tolerations }}
+      tolerations:
+        {{- toYaml .Values.tolerations | nindent 8 }}
+      {{- end }}
+      {{- if or .Values.serviceAccount.enabled .Values.global.serviceAccount.enabled }}
+      serviceAccountName: {{ include "gitlab.serviceAccount.name" . }}
+      automountServiceAccountToken: false
+      {{- end }}
+      {{- if eq (default .Values.global.antiAffinity .antiAffinity) "hard" }}
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - topologyKey: {{ default .Values.global.affinity.podAntiAffinity.topologyKey .Values.affinity.podAntiAffinity.topologyKey | quote }}
+              labelSelector:
+                matchLabels:
+                  {{- include "gitlab.selectorLabels" . | nindent 18 }}
+      {{- else if eq (default .Values.global.antiAffinity .antiAffinity) "soft" }}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            podAffinityTerm:
+              topologyKey: {{ default .Values.global.affinity.podAntiAffinity.topologyKey .Values.affinity.podAntiAffinity.topologyKey | quote }}
+              labelSelector:
+                matchLabels:
+                  {{- include "gitlab.selectorLabels" . | nindent 18 }}
+      {{- end }}
+      securityContext:
+        runAsUser: {{ .Values.securityContext.runAsUser }}
+        runAsGroup: {{ .Values.securityContext.runAsGroup }}
+        fsGroup: {{ .Values.securityContext.fsGroup }}
+      {{- include "gitlab.image.pullSecrets" $imageCfg | indent 6 }}
+      initContainers:
+        {{- include "gitlab.certificates.initContainer" . | nindent 8 }}
+      containers:
+        {{- include "gitlab.extraContainers" . | nindent 8 }}
+        - name: {{ template "name" . }}
+          image: "{{ .Values.image.repository }}:{{ coalesce .Values.image.tag (include "gitlab.parseAppVersion" (dict "appVersion" .Chart.AppVersion "prepend" "true")) }}"
+          {{- include "gitlab.image.pullPolicy" $imageCfg | indent 10 }}
+          args:
+            - "--configuration-file=/etc/kas/config.yaml"
+          env:
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: OWN_PRIVATE_API_URL
+              value: "grpc://$(POD_IP):{{ .Values.service.privateApiPort }}"
+          ports:
+            - containerPort: {{ .Values.service.internalPort }}
+              name: {{ template "name" . }}
+            - containerPort: {{ .Values.metrics.port }}
+              name: {{ template "name" . }}-metrics
+            - containerPort: {{ .Values.service.kubernetesApiPort }}
+              name: {{ template "name" . }}-k8s-api
+            - containerPort: {{ .Values.service.privateApiPort }}
+              name: {{ template "name" . }}-private-api
+          readinessProbe:
+            tcpSocket:
+              port: {{ .Values.service.internalPort }}
+            initialDelaySeconds: 5
+            periodSeconds: 10
+          livenessProbe:
+            tcpSocket:
+              port: {{ .Values.service.internalPort }}
+            initialDelaySeconds: 15
+            periodSeconds: 20
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: init-etc-kas
+              mountPath: /etc/kas
+              readOnly: true
+            {{- include "gitlab.extraVolumeMounts" . | nindent 12 }}
+            {{- include "gitlab.certificates.volumeMount" . | nindent 12 }}
+      volumes:
+      {{- include "gitlab.extraVolumes" . | nindent 6 }}
+      {{- include "gitlab.certificates.volumes" . | nindent 6 }}
+      - name: init-etc-kas
+        projected:
+          defaultMode: 0440
+          sources:
+            - configMap:
+                name: {{ template "fullname" . }}
+            - secret:
+                name: {{ template "gitlab.kas.secret" . }}
+                items:
+                  - key: {{ template "gitlab.kas.key" . }}
+                    path: .gitlab_kas_secret
+            - secret:
+                name: {{ template "gitlab.kas.privateApi.secret" . }}
+                items:
+                  - key: {{ template "gitlab.kas.privateApi.key" . }}
+                    path: .gitlab_kas_private_api_secret
+            {{- if .Values.redis.enabled -}}
+            {{- include "gitlab.redis.secrets" . | nindent 12 }}
+            {{- end }}
+{{- end }}

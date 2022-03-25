@@ -1,0 +1,345 @@
+image:
+  repository: registry.gitlab.com/gitlab-org/build/cng/gitlab-container-registry
+  tag: 'v3.27.1-gitlab'
+  # pullPolicy: IfNotPresent
+  # pullSecrets: []
+
+deployment:
+  terminationGracePeriodSeconds: 30
+  readinessProbe:
+    enabled: true
+    path: '/debug/health'
+    # defaults to the debug port
+    # port: 5001
+    initialDelaySeconds: 5
+    periodSeconds: 5
+    timeoutSeconds: 1
+    successThreshold: 1
+    failureThreshold: 3
+  livenessProbe:
+    enabled: true
+    path: '/debug/health'
+    # defaults to the debug port
+    # port: 5001
+    initialDelaySeconds: 5
+    periodSeconds: 10
+    timeoutSeconds: 1
+    successThreshold: 1
+    failureThreshold: 3
+
+  # strategy is utilized to configure the desired upgrade approach and
+  # configuration for the deployment.  See the Kubernetes documentation
+  # related to this subject.
+  # https://kubernetes.io/docs/concepts/workloads/controllers/deployment/#strategy
+  strategy: {}
+
+podLabels: {}
+common:
+  labels: {}
+
+serviceLabels: {}
+service:
+  name: registry
+  type: ClusterIP
+  externalPort: 5000
+  internalPort: 5000
+  clusterIP:
+  loadBalancerIP:
+
+## Support for tolerations for pod scheduling
+tolerations: []
+
+## Enable/Disable Chart
+enabled: true
+
+## Registry Maintenance Settings
+## See https://docs.docker.com/registry/configuration/#maintenance
+maintenance:
+  readonly:
+    ## Enable read-only mode for Registry
+    enabled: false
+  uploadpurging:
+    enabled: true
+    age: 168h
+    interval: 24h
+    dryrun: false
+
+annotations: {}
+
+networkpolicy:
+  enabled: false
+  egress:
+    enabled: false
+    rules: []
+  ingress:
+    enabled: false
+    rules: []
+  annotations: {}
+
+ingress:
+  apiVersion:
+  enabled:
+  proxyReadTimeout: 900
+  proxyBodySize: "0"
+  proxyBuffering: "off"
+  tls: {}
+    # secretName:
+    # enabled: true
+  annotations: {}
+  configureCertmanager:
+  path: # /
+
+global:
+  ingress:
+    enabled:
+    annotations: {}
+    tls: {}
+      # secretName:
+      # enabled: true
+  hosts:
+    domain: example.com
+    hostSuffix:
+    https: true
+    tls: {}
+      # secretName:
+    gitlab: {}
+      #name: gitlab.example.com
+      #https: false
+    registry: {}
+      #name: registry.example.com
+      #https: false
+    minio: {}
+      #name: minio.example.com
+      #https: false
+  minio:
+    enabled:
+    credentials: {}
+  registry:
+    certificate: {}
+    httpSecret: {}
+  psql:
+    ssl: {}
+
+## Control the InitContainer behaviors.
+init:
+  image: {}
+    # repository:
+    # tag:
+    # pullPolicy: IfNotPresent
+  resources:
+    requests:
+      cpu: 50m
+  script: |-
+    if [ -e /config/accesskey ] ; then
+      sed -e 's@ACCESS_KEY@'"$(cat /config/accesskey)"'@' -e 's@SECRET_KEY@'"$(cat /config/secretkey)"'@' /config/config.yml > /registry/config.yml
+    else
+      cp -v -r -L /config/config.yml  /registry/config.yml
+    fi
+    # Place the `http.secret` value from the kubernetes secret
+    sed -i -e 's@HTTP_SECRET@'"$(cat /config/httpSecret)"'@' /registry/config.yml
+    # Populate sensitive registry notification secrets in the config file
+    if [ -d /config/notifications ]; then
+      for i in /config/notifications/*; do
+        filename=$(basename $i);
+        sed -i -e 's@'"${filename}"'@'"$(cat $i)"'@' /registry/config.yml;
+      done
+    fi
+    # Insert any provided `storage` block from kubernetes secret
+    if [ -d /config/storage ]; then
+      # Copy contents of storage secret(s)
+      mkdir -p /registry/storage
+      cp -v -r -L /config/storage/* /registry/storage/
+      # Ensure there is a new line in the end
+      echo '' >> /registry/storage/config
+      # Default `delete.enabled: true` if not present.
+      ## Note: busybox grep doesn't support multiline, so we chain `egrep`.
+      if ! $(egrep -A1 '^delete:\s*$' /registry/storage/config | egrep -q '\s{2,4}enabled:') ; then
+        echo 'delete:' >> /registry/storage/config
+        echo '  enabled: true' >> /registry/storage/config
+      fi
+      # Indent /registry/storage/config 2 spaces before inserting into config.yml
+      sed -i 's/^/  /' /registry/storage/config
+      # Insert into /registry/config.yml after `storage:`
+      sed -i '/^storage:/ r /registry/storage/config' /registry/config.yml
+      # Remove the now extraneous `config` file
+      rm /registry/storage/config
+    fi
+    # Copy any middleware.storage if present
+    if [ -d /config/middleware.storage ]; then
+      cp -v -r -L /config/middleware.storage  /registry/middleware.storage
+    fi
+    # Set to known path, to used ConfigMap
+    cat /config/certificate.crt > /registry/certificate.crt
+    # Copy the optional profiling keyfile to the expected location
+    if [ -f /config/profiling-key.json ]; then
+      cp /config/profiling-key.json /registry/profiling-key.json
+    fi
+    # Insert Database password, if enabled
+    if [ -f /config/database_password ] ; then
+      sed -i -e 's@DB_PASSWORD_FILE@'"$(cat /config/database_password)"'@' /registry/config.yml
+    fi
+    # Copy the database TLS connection files to the expected location and set permissions
+    if [ -d /config/ssl ]; then
+      cp -r /config/ssl/ /registry/ssl
+      chmod 700 /registry/ssl
+      chmod 600 /registry/ssl/*.pem
+    fi
+
+# define some sane resource requests and limitations
+resources:
+  # limits:
+  #   cpu: 200m
+  #   memory: 1024Mi
+  requests:
+    cpu: 50m
+    memory: 32Mi
+
+## Node labels for pod assignment
+## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#nodeselector
+nodeSelector: {}
+
+affinity:
+  podAntiAffinity:
+    topologyKey:
+
+# Protocol/Host only. '/jwt/auth' will be appended.
+authEndpoint:
+# Do not change this
+tokenService: 'container_registry'
+# This must match your GitLab Rails configuration
+tokenIssuer: 'gitlab-issuer'
+# Must to be `false` to support Windows clients
+# See https://gitlab.com/gitlab-org/omnibus-gitlab/issues/3964
+authAutoRedirect: false
+
+maxUnavailable: 1
+
+# if minReplicas is >1, shared storage MUST be used.
+hpa:
+  minReplicas: 2
+  maxReplicas: 10
+  cpu:
+    targetAverageUtilization: 75
+
+  # Note that the HPA is limited to autoscaling/v2beta1
+  customMetrics: []
+
+storage: {}
+# secret:
+# redirect:
+#   disable:
+#   exceptions: []
+middleware:
+  # See https://gitlab.com/gitlab-org/container-registry/-/blob/master/docs/configuration.md#middleware
+  storage: []
+    ## EXAMPLE ONLY
+    # - name: cloudfront
+    #   options:
+    #     baseurl: cdn.registry.example.com
+    #     # `privatekey` is auto-populated with the content from the privatekey Secret.
+    #     privatekeySecret:
+    #       secret: cdn-private-key
+    #       key: private.pem
+    #     keypairid: YOURKEYPAIRIDFORPRIVATEKEY
+
+minio:
+  redirect: false
+
+# https://github.com/docker/distribution/blob/master/docs/configuration.md#compatibility
+compatibility:
+  schema1:
+    enabled: false
+
+# Enable the registry to accept windows based docker images
+# See https://github.com/docker/distribution/issues/2795
+validation:
+  disabled: true
+  manifests:
+    referencelimit: 0
+    payloadsizelimit: 0
+    urls:
+      allow: []
+      deny: []
+
+# Configure the logging mechanism for the Container Registry as desired
+# See https://docs.docker.com/registry/configuration/#log
+log:
+  level: info
+  fields:
+    service: registry
+
+debug:
+  addr:
+    port: 5001
+  prometheus:
+    enabled: false
+    path: '/metrics'
+
+# Amount of time to wait for HTTP connections to drain after
+# receiving a SIGTERM signal
+draintimeout: '0'
+
+# Enable the registry to return relative URLs in Location headers
+relativeurls: false
+
+# https://docs.docker.com/registry/configuration/#health
+health:
+  storagedriver:
+    enabled: false
+    interval: 10s
+    threshold: 3
+
+## Allow to overwrite under which User and Group we're running.
+securityContext:
+  runAsUser: 1000
+  fsGroup: 1000
+
+# Disable reporting by default
+# https://gitlab.com/gitlab-org/container-registry/-/blob/master/docs/configuration.md#reporting
+reporting:
+  sentry:
+    enabled: false
+    # dsn:
+    # environment:
+
+# Disable continuous profiling by default
+# https://gitlab.com/gitlab-org/container-registry/-/blob/master/docs/configuration.md#profiling
+# keyfile is provided via secrets, and serviceversion will be image.tag
+profiling:
+  stackdriver:
+    enabled: false
+    credentials: {}
+
+serviceAccount:
+  create: false
+
+# Disable metadata database by default
+# NOTE: This is an experimental feature and must not be used in production.
+# https://gitlab.com/gitlab-org/container-registry/-/blob/master/docs/configuration.md#database
+database:
+  enabled: false
+  user: registry
+  password: {}
+    # secret: RELEASE_NAME-registry-database-password
+    # key: password
+  name: registry
+  sslmode: disable
+  ssl: {}
+  migrations:
+    enabled: true
+    activeDeadlineSeconds: 3600
+    backoffLimit: 6
+
+# Configuration settings to support the migration of large registries to the metadata database.
+# NOTE: This is an experimental feature and must not be used in production.
+# https://gitlab.com/gitlab-org/container-registry/-/blob/master/docs/configuration.md#migration
+migration:
+  enabled: false
+  disablemirrorfs: false
+  # rootdirectory:
+
+# Disable online garbage collection by default.
+# NOTE: This is an experimental feature and must not be used in production.
+# https://gitlab.com/gitlab-org/container-registry/-/blob/master/docs/configuration.md#gc
+gc:
+  disabled: true

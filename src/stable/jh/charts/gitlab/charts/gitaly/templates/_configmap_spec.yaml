@@ -1,0 +1,161 @@
+data:
+  configure: |
+    set -e
+    mkdir -p /init-secrets/gitaly /init-secrets/shell
+    cp -v -r -L /init-config/.gitlab_shell_secret  /init-secrets/shell/.gitlab_shell_secret
+    cp -v -r -L /init-config/gitaly_token  /init-secrets/gitaly/gitaly_token
+    {{- if $.Values.global.gitaly.tls.enabled }}
+    cp -v -L /init-config/gitaly.crt /init-secrets/gitaly/gitaly.crt
+    cp -v -L /init-config/gitaly.key /init-secrets/gitaly/gitaly.key
+    {{- end }}
+  config.toml.erb: |
+    # The directory where Gitaly's executables are stored
+    bin_dir = "/usr/local/bin"
+
+    # listen on a TCP socket. This is insecure (no authentication)
+    listen_addr = "0.0.0.0:{{ coalesce .Values.service.internalPort .Values.global.gitaly.service.internalPort }}"
+
+    # Directory where internal sockets reside
+    # note: no value will result in a `/tmp/gitlab-internal-*` path
+    # internal_socket_dir = "/home/git"
+
+    {{- if $.Values.global.gitaly.tls.enabled }}
+    tls_listen_addr = "0.0.0.0:{{ coalesce .Values.service.tls.internalPort .Values.global.gitaly.service.tls.internalPort }}"
+    {{- end }}
+
+    # If metrics collection is enabled, inform gitaly about that
+    {{- if .Values.metrics.enabled }}
+    prometheus_listen_addr = "0.0.0.0:{{ .Values.metrics.metricsPort }}"
+    {{- end }}
+
+    {{- if $.Values.global.gitaly.tls.enabled }}
+    [tls]
+    certificate_path = '/etc/gitlab-secrets/gitaly/gitaly.crt'
+    key_path = '/etc/gitlab-secrets/gitaly/gitaly.key'
+    {{- end }}
+
+    {{- if .storage }}
+
+    {{- /*
+    Passing in "skipStorages=true" below prevents changes in the Gitaly replica counts from modifying
+    the contents of the ConfigMap, which would cause existing pods to restart unnecessarily.
+    */}}
+    {{ if not .skipStorages }}
+    <% @storages = [ {{ include "gitlab.praefect.gitaly.storageNames" . }}  ] %>
+    {{- end }}
+
+    <% @hostname=ENV['HOSTNAME'].strip %>
+    <% if @storages.any? { |s| s.include?(@hostname) } %>
+    [[storage]]
+    name = "<%= @hostname %>"
+    path = "/home/git/repositories"
+    <% else %>
+    <% raise Exception, "Storage for node #{@hostname} is not present in the storageNames array. Did you use kubectl to scale up? You need to solely use helm for this purpose." %>
+    <% end %>
+
+    {{- else }}
+
+    {{- /*
+    Passing in "skipStorages=true" below prevents changes in the Gitaly replica counts from modifying
+    the contents of the ConfigMap, which would cause existing pods to restart unnecessarily.
+    */}}
+    {{ if not .skipStorages }}
+    <% @storages = [ {{ include "gitlab.gitaly.storageNames" . }}  ] %>
+    {{- end }}
+
+    <% @index=`echo ${HOSTNAME##*-}`.to_i %>
+    <% if @storages.length > @index %>
+    [[storage]]
+    name = "<%= @storages[@index] %>"
+    path = "/home/git/repositories"
+    <% else %>
+    <% raise Exception, "Storage for node #{@index} is not present in the storageNames array. Did you use kubectl to scale up? You need to solely use helm for this purpose." %>
+    <% end %>
+
+    {{- end }}
+
+    [logging]
+    {{- with .Values.logging }}
+    {{- if .level }}
+    level = "{{ .level }}"
+    {{- end }}
+    {{- if .format }}
+    format = "{{ .format }}"
+    {{- end }}
+    {{- if .sentryDsn }}
+    sentry_dsn = "{{ .sentryDsn }}"
+    {{- end }}
+    {{- if .rubySentryDsn }}
+    ruby_sentry_dsn = "{{ .rubySentryDsn }}"
+    {{- end }}
+    dir = "/var/log/gitaly"
+    {{- if .sentryEnvironment }}
+    sentry_environment = "{{ .sentryEnvironment }}"
+    {{- end }}
+    {{- end }}
+
+    {{- if .Values.prometheus.grpcLatencyBuckets }}
+    [prometheus]
+    grpc_latency_buckets = {{ .Values.prometheus.grpcLatencyBuckets }}
+    {{- end }}
+
+    [auth]
+    token = <%= File.read('/etc/gitlab-secrets/gitaly/gitaly_token').strip.to_json %>
+
+    [git]
+    {{- with .Values.git }}
+    {{-   if .catFileCacheSize }}
+    catfile_cache_size = {{ .catFileCacheSize }}
+    {{-   end }}
+    {{- end }}
+
+    [gitaly-ruby]
+    # The directory where gitaly-ruby is installed
+    dir = "/srv/gitaly-ruby"
+    {{- with .Values.ruby }}
+    {{-   if .maxRss }}
+    max_rss = {{ .maxRss }}
+    {{-   end }}
+    {{-   if .gracefulRestartTimeout }}
+    graceful_restart_timeout = "{{ .gracefulRestartTimeout }}"
+    {{-   end }}
+    {{-   if .restartDelay }}
+    restart_delay = "{{ .restartDelay }}"
+    {{-   end }}
+    {{-   if .numWorkers }}
+    num_workers = {{ .numWorkers }}
+    {{-   end }}
+    {{- end }}
+    rugged_git_config_search_path = "/usr/local/etc"
+
+    [gitlab-shell]
+    # The directory where gitlab-shell is installed
+    dir = "/srv/gitlab-shell"
+
+    [gitlab]
+    # location of shared secret for GitLab Shell / API interaction
+    secret_file = "/etc/gitlab-secrets/shell/.gitlab_shell_secret"
+    # URL of API
+    url = "{{ template "gitlab.workhorse.url" . }}/"
+
+    [gitlab.http-settings]
+    # read_timeout = 300
+    # user = someone
+    # password = somepass
+    # ca_file = /etc/ssl/cert.pem
+    # ca_path = /etc/pki/tls/certs
+    self_signed_cert = false
+
+    [hooks]
+    # directory containing custom hooks
+    custom_hooks_dir = "/home/git/custom_hooks"
+
+    {{- if .Values.shell.concurrency }}
+    {{-   range .Values.shell.concurrency }}
+    {{-     if and .rpc .maxPerRepo }}
+    [[concurrency]]
+    rpc = "{{ .rpc }}"
+    max_per_repo = {{ .maxPerRepo }}
+    {{-     end }}
+    {{-   end }}
+    {{- end }}

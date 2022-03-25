@@ -1,0 +1,24 @@
+agent:
+  listen:
+    address: ":{{ .Values.service.internalPort }}"
+    websocket: true
+  kubernetes_api:
+    listen:
+      address: ":{{ .Values.service.kubernetesApiPort }}"
+    url_path_prefix: "{{ .Values.ingress.k8sApiPath }}"
+gitlab:
+  address: "{{ template "gitlab.workhorse.url" . }}"
+  authentication_secret_file: "/etc/kas/.gitlab_kas_secret"
+observability:
+  listen:
+    address: ":{{ .Values.metrics.port }}"
+redis:
+  {{- include "kas.redis" . | nindent 2 }}
+api:
+  listen:
+    address: ":{{ .Values.service.apiInternalPort }}"
+    authentication_secret_file: "/etc/kas/.gitlab_kas_secret"
+private_api:
+  listen:
+    address: ":{{ .Values.service.privateApiPort }}"
+    authentication_secret_file: "/etc/kas/.gitlab_kas_private_api_secret"

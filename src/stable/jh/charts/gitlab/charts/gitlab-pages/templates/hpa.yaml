@@ -1,0 +1,24 @@
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ template "fullname" . }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
+    {{- include "gitlab.commonLabels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ template "fullname" . }}
+  minReplicas: {{ .Values.hpa.minReplicas | int }}
+  maxReplicas: {{ .Values.hpa.maxReplicas | int }}
+  metrics:
+  {{- if not .Values.hpa.customMetrics }}
+    - type: Resource
+      resource:
+        name: cpu
+        targetAverageValue: {{ .Values.hpa.targetAverageValue }}
+  {{- else -}}
+    {{- toYaml .Values.hpa.customMetrics | nindent 4 -}}
+  {{- end -}}

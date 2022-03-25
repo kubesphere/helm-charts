@@ -1,0 +1,68 @@
+{{- if .Values.enabled -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "fullname" . }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "gitlab.standardLabels" . | nindent 4 }}
+    {{- include "gitlab.commonLabels" . | nindent 4 }}
+data:
+  configure: |
+    {{- include "gitlab.scripts.configure.secrets" (dict "required" "shell" ) | nindent 4 -}}
+    mkdir -p /${secret_dir}/ssh
+    cp -v -r -L /${config_dir}/ssh_host_* /${secret_dir}/ssh/
+    chmod 0400 /${secret_dir}/ssh/ssh_host_*
+  config.yml.tpl: |
+    # GitLab user. git by default
+    user: git
+
+    # Url to gitlab instance. Used for api calls. Should end with a slash.
+    gitlab_url: "{{ template "gitlab.workhorse.url" . }}/"
+
+    secret_file: /etc/gitlab-secrets/shell/.gitlab_shell_secret
+
+    http_settings:
+      self_signed_cert: false
+
+    # File used as authorized_keys for gitlab user
+    auth_file: "/home/git/.ssh/authorized_keys"
+
+    # Log file.
+    # Default is gitlab-shell.log in the root directory.
+    {{- if eq .Values.sshDaemon "gitlab-sshd"}}
+    log_file: "/dev/stdout"
+    {{- else }}
+    log_file: "/var/log/gitlab-shell/gitlab-shell.log"
+    {{- end }}
+
+    log_format: {{ .Values.logging.format }}
+
+    # Audit usernames.
+    # Set to true to see real usernames in the logs instead of key ids, which is easier to follow, but
+    # incurs an extra API call on every gitlab-shell command.
+    audit_usernames: false
+
+    {{ if .Values.global.tracing.connection.string }}
+    gitlab_tracing: {{ .Values.global.tracing.connection.string }}
+    {{ end }}
+
+    {{- if eq .Values.sshDaemon "gitlab-sshd"}}
+    # This section configures the built-in SSH server. Ignored when running on OpenSSH.
+    sshd:
+      # Address which the SSH server listens on. Defaults to [::]:2222.
+      listen: "[::]:{{ .Values.service.internalPort }}"
+      # Address which the server listens on HTTP for monitoring/health checks. Defaults to 0.0.0.0:9122.
+      web_listen: "0.0.0.0:{{ .Values.metrics.port }}"
+      # Maximum number of concurrent sessions allowed on a single SSH connection. Defaults to 100.
+      concurrent_sessions_limit: {{ .Values.config.maxStartups.full }}
+      # SSH host key files.
+      host_key_files:
+      {%- range file.Walk "/etc/ssh" %}
+        {%- if filepath.Match "/etc/ssh/ssh_host_*_key" . %}
+        - {%.%}
+        {%- end %}
+      {%- end %}
+    {{- end }}
+# Leave this here - This line denotes end of block to the parser.
+{{- end }}

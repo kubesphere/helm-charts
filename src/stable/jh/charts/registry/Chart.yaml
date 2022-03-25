@@ -1,0 +1,19 @@
+apiVersion: v1
+appVersion: v3.27.1-gitlab
+description: Stateless, highly scalable application that stores and lets you distribute
+  container images
+home: https://docs.gitlab.com/ee/user/packages/container_registry
+icon: https://hub.docker.com/public/images/logos/mini-logo.svg
+keywords:
+- registry
+- container
+- docker
+- gitlab
+maintainers:
+- email: support@gitlab.com
+  name: GitLab Inc.
+name: registry
+sources:
+- https://gitlab.com/gitlab-org/container-registry
+- https://gitlab.com/gitlab-org/charts/gitlab/charts/registry
+version: 0.7.0

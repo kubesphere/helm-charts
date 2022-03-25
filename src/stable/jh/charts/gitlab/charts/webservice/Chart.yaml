@@ -1,0 +1,17 @@
+apiVersion: v1
+appVersion: 14.8.2
+description: HTTP server for Gitlab
+home: https://about.gitlab.com/
+icon: https://gitlab.com/gitlab-com/gitlab-artwork/raw/master/logo/logo-square.svg
+keywords:
+- gitlab
+- webservice
+- puma
+maintainers:
+- email: support@gitlab.com
+  name: GitLab Inc.
+name: webservice
+sources:
+- https://gitlab.com/gitlab-org/charts/gitlab/tree/master/charts/gitlab/charts/webservice
+- https://gitlab.com/gitlab-org/build/CNG/tree/master/gitlab-webservice
+version: 5.8.2

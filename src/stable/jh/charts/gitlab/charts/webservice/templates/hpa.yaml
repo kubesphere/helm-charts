@@ -1,0 +1,38 @@
+{{- if .Values.enabled -}}
+{{- include "webservice.datamodel.prepare" $ -}}
+{{/* BEGIN range deployments */}}
+{{- range $.Values.deployments -}}
+{{/*
+From here on:
+- `.` is `.deployments.xyz` value
+- `.name` is the key (xyz)
+*/}}
+---
+apiVersion: autoscaling/v2beta1
+kind: HorizontalPodAutoscaler
+metadata:
+  name: {{ template "webservice.fullname.withSuffix" . }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "gitlab.standardLabels" $ | nindent 4 }}
+    {{- include "webservice.labels" . | nindent 4 }}
+    {{- include "webservice.commonLabels" . | nindent 4 }}
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: {{ template "webservice.fullname.withSuffix" . }}
+  minReplicas: {{ .hpa.minReplicas }}
+  maxReplicas: {{ .hpa.maxReplicas }}
+  metrics:
+  {{- if not .hpa.customMetrics }}
+  - type: Resource
+    resource:
+      name: cpu
+      targetAverageValue: {{ .hpa.targetAverageValue }}
+  {{- else }}
+    {{- toYaml .hpa.customMetrics | nindent 4 -}}
+  {{- end }}
+{{- end }}
+{{/* END range deployments */}}
+{{- end }}

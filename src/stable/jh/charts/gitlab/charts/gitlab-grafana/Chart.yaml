@@ -1,0 +1,16 @@
+apiVersion: v1
+appVersion: 14.8.2
+description: Adapt the Grafana chart to interface to the GitLab App
+home: https://about.gitlab.com/
+icon: https://gitlab.com/gitlab-com/gitlab-artwork/raw/master/logo/logo-square.svg
+keywords:
+- gitlab
+- grafana
+maintainers:
+- email: support@gitlab.com
+  name: GitLab Inc.
+name: gitlab-grafana
+sources:
+- https://gitlab.com/gitlab-org/charts/gitlab/tree/master/charts/gitlab/charts/gitlab-grafana
+- https://gitlab.com/gitlab-org/build/CNG/tree/master/gitlab-grafana
+version: 5.8.2

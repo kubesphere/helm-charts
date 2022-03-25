@@ -1,0 +1,14 @@
+apiVersion: v1
+appVersion: 14.8.2
+description: Web-based Git-repository manager with wiki and issue-tracking features.
+home: https://about.gitlab.cn/
+icon: https://jihulab.com/gitlab-cn/charts/gitlab/raw/main-jh/icons/helm-chart-icon.svg
+keywords:
+- gitlab
+maintainers:
+- email: support@gitlab.cn
+  name: JiHu(GitLab)
+name: gitlab
+sources:
+- https://jihulab.com/gitlab-cn/charts/gitlab
+version: 5.8.2

@@ -1,0 +1,88 @@
+# Default values for gitlab-exporter.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+image:
+  repository: registry.jihulab.com/gitlab-cn/build/cng-images/gitlab-exporter
+  # pullPolicy: IfNotPresent
+  # pullSecrets: []
+  # tag: master
+
+service:
+  name: gitlab-exporter
+  type: ClusterIP
+  externalPort: 9168
+  internalPort: 9168
+
+metrics:
+  enabled: true
+  port: 9168
+  annotations:
+    gitlab.com/prometheus_scrape: "true"
+    gitlab.com/prometheus_port: "9168"
+    gitlab.com/prometheus_path: "/metrics"
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "9168"
+    prometheus.io/path: "/metrics"
+enabled: true
+
+# Tolerations for pod scheduling
+tolerations: []
+
+annotations: {}
+
+podLabels: {}
+common:
+  labels: {}
+serviceLabels: {}
+
+init:
+  image: {}
+    # repository:
+    # tag:
+  resources:
+    requests:
+      cpu: 50m
+
+global:
+  redis:
+    password: {}
+
+redis:
+  password: {}
+
+psql: {}
+  # port: 5432
+
+resources:
+  # limits:
+  #  cpu: 1
+  #  memory: 2G
+  requests:
+    cpu: 75m
+    memory: 100M
+
+## Allow to overwrite under which User and Group we're running.
+securityContext:
+  runAsUser: 1000
+  fsGroup: 1000
+
+## Enable deployment to use a serviceAccount
+serviceAccount:
+  enabled: false
+  create: false
+  annotations: {}
+  ## Name to be used for serviceAccount, otherwise defaults to chart fullname
+  # name:
+
+extraEnv:
+  MALLOC_CONF: 'dirty_decay_ms:0,muzzy_decay_ms:0'
+  RUBY_GC_HEAP_INIT_SLOTS: 80000
+  RUBY_GC_HEAP_FREE_SLOTS_MIN_RATIO: 0.055
+  RUBY_GC_HEAP_FREE_SLOTS_MAX_RATIO: 0.111
+
+deployment:
+  strategy: {}
+
+affinity:
+  podAntiAffinity:
+    topologyKey:

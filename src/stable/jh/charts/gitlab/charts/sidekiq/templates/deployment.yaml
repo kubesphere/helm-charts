@@ -1,0 +1,358 @@
+{{- if .Values.enabled -}}
+{{- $imageCfg := dict "global" $.Values.global.image "local" $.Values.image -}}
+{{- $initImageCfg := dict "global" .Values.global.busybox.image "local" .Values.init.image -}}
+{{- include "database.datamodel.prepare" $ -}}
+{{- $chart := printf "%s-%s" .Chart.Name .Chart.Version | replace "+" "_" -}}
+{{- $name := default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
+{{- $releaseName := .Release.Name -}}
+{{- $releaseService := .Release.Service -}}
+{{- $fullname := printf "%s-%s" $releaseName $name | trunc 63 | trimSuffix "-" -}}
+{{- $image := printf "%s:%s" (coalesce .Values.image.repository (include "image.repository" .)) (coalesce .Values.image.tag (include "gitlab.versionTag" . ) | toString) -}}
+{{- $concurrency := .Values.concurrency -}}
+{{- $timeout := .Values.timeout -}}
+{{- $resources := .Values.resources -}}
+{{- $nodeSelector := default .Values.global.nodeSelector .Values.nodeSelector -}}
+{{- $minioEnabled := .Values.global.minio.enabled -}}
+{{- $minioSecret := include "gitlab.minio.credentials.secret" . -}}
+{{- $railsSecretName := include "gitlab.rails-secrets.secret" . -}}
+{{- $metricsEnabled := .Values.metrics.enabled -}}
+{{- $metricsPort := .Values.metrics.port -}}
+{{- $healthChecksPort := .Values.health_checks.port | default $metricsPort -}}
+{{- $metricsAnnotations := .Values.metrics.annotations -}}
+{{- $configMapChecksum := include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+{{- range .Values.pods -}}
+{{-   $queueName := printf "%s-%s" $fullname .name | trunc 63 }}
+{{-   $podNodeSelector := default $nodeSelector .nodeSelector -}}
+{{-   include "sidekiq.pod.common.labels" . }}
+{{-   $_ := set . "podLabels" (merge (default (dict) .podLabels) (default (dict) $.Values.podLabels) (default (dict) $.Values.global.pod.labels)) -}}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ printf "%s-v2" ($queueName | trunc 60) }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "gitlab.standardLabels" $ | nindent 4 }}
+    {{- include "sidekiq.commonLabels" (dict "pod" .common.labels "global" $.Values.common.labels) | nindent 4 }}
+    queue-pod-name: {{ .name }}
+  annotations:
+    {{- include "gitlab.deploymentAnnotations" $ | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "gitlab.selectorLabels" $ | nindent 6 }}
+      queue-pod-name: {{ .name }}
+  {{- if or $.Values.deployment.strategy .strategy}}
+  strategy: {{ default $.Values.deployment.strategy .strategy | toYaml | nindent 4 }}
+  {{- end }}
+  template:
+    metadata:
+      labels:
+        {{- include "gitlab.standardLabels" $ | nindent 8 }}
+        {{- include "sidekiq.commonLabels" (dict "pod" .common.labels "global" $.Values.common.labels) | nindent 8 }}
+        {{- include "sidekiq.podLabels" (dict "pod" .podLabels ) | nindent 8 }}
+        queue-pod-name: {{ .name }}
+      annotations:
+        checksum/configmap: {{ $configMapChecksum }}
+        cluster-autoscaler.kubernetes.io/safe-to-evict: "true"
+      {{- range $key, $value := $.Values.annotations }}
+        {{ $key }}: {{ $value | quote }}
+      {{- end }}
+{{- if $metricsEnabled }}
+        {{- toYaml $metricsAnnotations | nindent 8 }}
+{{- end }}
+    spec:
+      {{- if $.Values.tolerations }}
+      tolerations:
+        {{- toYaml $.Values.tolerations | nindent 8 }}
+      {{- end }}
+      {{- if or $.Values.priorityClassName .priorityClassName }}
+      priorityClassName: {{ default $.Values.priorityClassName .priorityClassName }}
+      {{- end }}
+      securityContext:
+        runAsUser: {{ $.Values.securityContext.runAsUser }}
+        fsGroup: {{ $.Values.securityContext.fsGroup }}
+      {{- if eq (default $.Values.global.antiAffinity .antiAffinity) "hard" }}
+      affinity:
+        podAntiAffinity:
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - topologyKey: {{ default $.Values.global.affinity.podAntiAffinity.topologyKey $.Values.affinity.podAntiAffinity.topologyKey | quote }}
+              labelSelector:
+                matchLabels:
+                  {{- include "gitlab.selectorLabels" $ | nindent 18 }}
+                  queue-pod-name: {{ .name }}
+      {{- else if eq (default $.Values.global.antiAffinity .antiAffinity) "soft" }}
+      affinity:
+        podAntiAffinity:
+          preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 1
+            podAffinityTerm:
+              topologyKey: {{ default $.Values.global.affinity.podAntiAffinity.topologyKey $.Values.affinity.podAntiAffinity.topologyKey | quote }}
+              labelSelector:
+                matchLabels:
+                  {{- include "gitlab.selectorLabels" $ | nindent 18 }}
+      {{- end }}
+      {{- if or $.Values.serviceAccount.enabled $.Values.global.serviceAccount.enabled }}
+      serviceAccountName: {{ include "gitlab.serviceAccount.name" $ }}
+      {{- end }}
+      automountServiceAccountToken: false
+      terminationGracePeriodSeconds: {{ int (default $.Values.deployment.terminationGracePeriodSeconds .terminationGracePeriodSeconds) }}
+      initContainers:
+        {{- include "gitlab.extraInitContainers" $ | nindent 8 }}
+        {{- include "gitlab.certificates.initContainer" $ | nindent 8 }}
+        - name: configure
+          command: ['sh', '/config/configure']
+          image: {{ include "gitlab.busybox.image" (dict "local" $.Values.init "global" $.Values.global.busybox) | quote }}
+          {{- include "gitlab.image.pullPolicy" $initImageCfg | indent 10 }}
+          env:
+          {{- include "gitlab.extraEnv" $ | nindent 10 }}
+          volumeMounts:
+          {{- tpl (default "" .extraVolumeMounts) $ | nindent 10 }}
+          {{- include "gitlab.extraVolumeMounts" $ | nindent 10 }}
+          {{- include "gitlab.psql.ssl.volumeMount" $ | nindent 10 }}
+          {{- include "gitlab.geo.psql.ssl.volumeMount" $ | nindent 10 }}
+          - name: sidekiq-config
+            mountPath: /config
+            readOnly: true
+          - name: init-sidekiq-secrets
+            mountPath: /init-config
+            readOnly: true
+          - name: sidekiq-secrets
+            mountPath: /init-secrets
+            readOnly: false
+          resources:
+            {{- toYaml $.Values.init.resources | nindent 12 }}
+        - name: dependencies
+          image: "{{ $image }}"
+          {{- include "gitlab.image.pullPolicy" $imageCfg | indent 10 }}
+          args:
+            - /scripts/wait-for-deps
+          env:
+            - name: GITALY_FEATURE_DEFAULT_ON
+              value: "1"
+            - name: CONFIG_TEMPLATE_DIRECTORY
+              value: '/var/opt/gitlab/templates'
+            - name: CONFIG_DIRECTORY
+              value: '/srv/gitlab/config'
+            - name: SIDEKIQ_CONCURRENCY
+              value: {{ default $concurrency .concurrency | quote }}
+            - name: SIDEKIQ_TIMEOUT
+              value: {{ default $timeout .timeout | quote }}
+            {{- if $.Values.global.rails.bootsnap.enabled }}
+            - name: ENABLE_BOOTSNAP
+              value: "1"
+            {{- end }}
+            {{- include "gitlab.extraEnv" $ | nindent 12 }}
+          volumeMounts:
+          {{- tpl (default "" .extraVolumeMounts) $ | nindent 10 }}
+          {{- include "gitlab.extraVolumeMounts" $ | nindent 10 }}
+          {{- include "gitlab.certificates.volumeMount" $ | nindent 10 }}
+          - name: sidekiq-config
+            mountPath: '/var/opt/gitlab/templates'
+            readOnly: true
+          - name: sidekiq-secrets
+            mountPath: '/etc/gitlab'
+            readOnly: true
+          - name: sidekiq-secrets
+            mountPath: /srv/gitlab/config/secrets.yml
+            subPath: rails-secrets/secrets.yml
+            readOnly: true
+          resources:
+            {{- toYaml $.Values.init.resources | nindent 12 }}
+      {{- include "gitlab.image.pullSecrets" $imageCfg | indent 6 }}
+      containers:
+        {{- include "gitlab.extraContainers" $ | nindent 8 }}
+        - name: {{ $name }}
+          image: "{{ $image }}"
+          {{- include "gitlab.image.pullPolicy" $imageCfg | indent 10 }}
+          env:
+{{- if $metricsEnabled }}
+            - name: prometheus_multiproc_dir
+              value: /metrics
+{{- end }}
+            - name: GITALY_FEATURE_DEFAULT_ON
+              value: "1"
+            - name: CONFIG_TEMPLATE_DIRECTORY
+              value: '/var/opt/gitlab/templates'
+            - name: CONFIG_DIRECTORY
+              value: '/srv/gitlab/config'
+            - name: SIDEKIQ_QUEUE_SELECTOR
+              value: {{ include "gitlab.boolean.local" (dict "global" $.Values.queueSelector "local" .queueSelector "default" false) | quote }}
+            - name: SIDEKIQ_CONCURRENCY
+              value: {{ default $concurrency .concurrency | quote }}
+            - name: SIDEKIQ_TIMEOUT
+              value: {{ default $timeout .timeout | quote }}
+            - name: SIDEKIQ_QUEUES
+              value: {{ default $.Values.queues .queues | quote | nospace }}
+            - name: SIDEKIQ_NEGATE_QUEUES
+              value: {{ default $.Values.negateQueues .negateQueues | quote | nospace }}
+            - name: SIDEKIQ_DAEMON_MEMORY_KILLER
+              value: {{ int $.Values.memoryKiller.daemonMode | quote }}
+            {{- with default $.Values.memoryKiller .memoryKiller }}
+            - name: SIDEKIQ_MEMORY_KILLER_CHECK_INTERVAL
+              value: {{ int .checkInterval | quote }}
+            - name: SIDEKIQ_MEMORY_KILLER_MAX_RSS
+              value: {{ int .maxRss | quote }}
+            {{- if .hardLimitRss }}
+            - name: SIDEKIQ_MEMORY_KILLER_HARD_LIMIT_RSS
+              value: {{ int .hardLimitRss | quote }}
+            {{- end }}
+            - name: SIDEKIQ_MEMORY_KILLER_GRACE_TIME
+              value: {{ int .graceTime | quote }}
+            - name: SIDEKIQ_MEMORY_KILLER_SHUTDOWN_WAIT
+              value: {{ int .shutdownWait | quote }}
+            {{- end }}
+            {{- if $.Values.global.rails.bootsnap.enabled }}
+            - name: ENABLE_BOOTSNAP
+              value: "1"
+            {{- end }}
+            {{- include "gitlab.tracing.env" $ | nindent 12 }}
+            {{- include "sidekiq.podExtraEnv" (dict "local" . "context" $) | nindent 12 }}
+{{- if $metricsEnabled }}
+          ports:
+          - containerPort: {{ $metricsPort }}
+            name: metrics
+{{- end }}
+          volumeMounts:
+          {{- tpl (default "" .extraVolumeMounts) $ | nindent 10 }}
+          {{- include "gitlab.extraVolumeMounts" $ | nindent 10 }}
+{{- if $metricsEnabled }}
+          - name: sidekiq-metrics
+            mountPath: '/metrics'
+{{- end }}
+          - name: sidekiq-config
+            mountPath: '/var/opt/gitlab/templates'
+            readOnly: true
+          - name: sidekiq-secrets
+            mountPath: '/etc/gitlab'
+            readOnly: true
+          - name: sidekiq-secrets
+            mountPath: /srv/gitlab/config/secrets.yml
+            subPath: rails-secrets/secrets.yml
+          - name: sidekiq-config
+            mountPath: '/srv/gitlab/config/initializers/smtp_settings.rb'
+            subPath: smtp_settings.rb
+          - name: sidekiq-config
+            mountPath: '/srv/gitlab/INSTALLATION_TYPE'
+            subPath: installation_type
+{{- if $.Values.global.email.smime.enabled }}
+          - name: smime-creds
+            mountPath: /home/git/gitlab
+            readOnly: true
+{{- end }}
+          {{- include "gitlab.certificates.volumeMount" $ | nindent 10 }}
+          livenessProbe:
+            httpGet:
+              path: /liveness
+              port: {{ $healthChecksPort }}
+            initialDelaySeconds: {{ $.Values.livenessProbe.initialDelaySeconds }}
+            periodSeconds: {{ $.Values.livenessProbe.periodSeconds }}
+            timeoutSeconds: {{ $.Values.livenessProbe.timeoutSeconds }}
+            successThreshold: {{ $.Values.livenessProbe.successThreshold }}
+            failureThreshold: {{ $.Values.livenessProbe.failureThreshold }}
+          readinessProbe:
+            httpGet:
+              path: /readiness
+              port: {{ $healthChecksPort }}
+            initialDelaySeconds: {{ $.Values.readinessProbe.initialDelaySeconds }}
+            periodSeconds: {{ $.Values.readinessProbe.periodSeconds }}
+            timeoutSeconds: {{ $.Values.readinessProbe.timeoutSeconds }}
+            successThreshold: {{ $.Values.readinessProbe.successThreshold }}
+            failureThreshold: {{ $.Values.readinessProbe.failureThreshold }}
+          lifecycle:
+            preStop:
+              exec:
+                command: ["/bin/bash", "-c", "pkill -f 'sidekiq'"]
+          resources:
+            {{- toYaml ( default $resources .resources ) | nindent 12 }}
+      volumes:
+      {{- tpl (default "" .extraVolumes) $ | nindent 6 }}
+      {{- include "gitlab.extraVolumes" $ | nindent 6 }}
+      {{- include "gitlab.psql.ssl.volume" $ | nindent 6 }}
+      {{- include "gitlab.geo.psql.ssl.volume" $ | nindent 6 }}
+{{- if $metricsEnabled }}
+      - name: sidekiq-metrics
+        emptyDir:
+          medium: "Memory"
+{{- end }}
+      - name: sidekiq-config
+        projected:
+          sources:
+            - configMap:
+                name: {{ $fullname }}
+            {{- if $.Values.global.appConfig.pseudonymizer.configMap }}
+            - configMap:
+                name: {{ $.Values.global.appConfig.pseudonymizer.configMap }}
+            {{- end }}
+      - name: init-sidekiq-secrets
+        projected:
+          defaultMode: 0400
+          sources:
+          - secret:
+              name: {{ $railsSecretName }}
+              items:
+                - key: secrets.yml
+                  path: rails-secrets/secrets.yml
+          {{- include "gitlab.gitaly.clientSecrets" $ | nindent 10 }}
+          {{- include "gitlab.redis.secrets" $ | nindent 10 }}
+          {{- range $.Values.local.psql }}
+          {{-   include "gitlab.psql.secret" . | nindent 10 }}
+          {{- end }}
+          {{- if include "gitlab.geo.secondary" $ }}
+          - secret:
+              name: {{ template "gitlab.geo.psql.password.secret" $ }}
+              items:
+                - key: {{ template "gitlab.geo.psql.password.key" $ }}
+                  path: postgres/geo-psql-password
+          {{- end }}
+          - secret:
+              name: {{ template "gitlab.registry.certificate.secret" $ }}
+              items:
+                - key: registry-auth.key
+                  path: registry/gitlab-registry.key
+          {{- include "gitlab.registry.notificationSecret.mount" $ | nindent 10 -}}
+          {{- include "gitlab.pages.mountSecrets" $ | nindent 10 }}
+          {{- include "gitlab.kas.mountSecrets" $ | nindent 10 }}
+          {{- include "gitlab.minio.mountSecrets" $ | nindent 10 }}
+          {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "object_store" "config" $.Values.global.appConfig.object_store) | nindent 10 }}
+          {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "lfs" "config" $.Values.global.appConfig.lfs) | nindent 10 }}
+          {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "artifacts" "config" $.Values.global.appConfig.artifacts) | nindent 10 }}
+          {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "uploads" "config" $.Values.global.appConfig.uploads) | nindent 10 }}
+          {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "packages" "config" $.Values.global.appConfig.packages) | nindent 10 }}
+          {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "external_diffs" "config" $.Values.global.appConfig.externalDiffs) | nindent 10 }}
+          {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "terraform_state" "config" $.Values.global.appConfig.terraformState) | nindent 10 }}
+          {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "dependency_proxy" "config" $.Values.global.appConfig.dependencyProxy) | nindent 10 }}
+          {{- include "gitlab.appConfig.objectStorage.mountSecrets" (dict "name" "pages" "config" $.Values.global.pages.objectStore) | nindent 10 }}
+          {{- include "gitlab.appConfig.pseudonymizer.mountSecrets" $ | nindent 10 }}
+          {{- include "gitlab.appConfig.ldap.servers.mountSecrets" $ | nindent 10 }}
+          {{- include "gitlab.appConfig.omniauth.mountSecrets" $ | nindent 10 }}
+          {{- if and $.Values.global.smtp.enabled $.Values.global.smtp.authentication }}
+          - secret:
+              name: {{ $.Values.global.smtp.password.secret | required "Missing required secret containing the SMTP password. Make sure to set `global.smtp.password.secret`" }}
+              items:
+                - key: {{ $.Values.global.smtp.password.key }}
+                  path: smtp/smtp-password
+          {{- end }}
+{{- if $.Values.global.email.smime.enabled }}
+      - name: smime-creds
+        projected:
+          defaultMode: 0400
+          sources:
+            - secret:
+                name: {{ $.Values.global.email.smime.secretName }}
+                items:
+                  - key: {{ $.Values.global.email.smime.keyName }}
+                    path: .gitlab_smime_key
+                  - key: {{ $.Values.global.email.smime.certName }}
+                    path: .gitlab_smime_cert
+{{- end }}
+      - name: sidekiq-secrets
+        emptyDir:
+          medium: "Memory"
+      {{- include "gitlab.certificates.volumes" $ | nindent 6 }}
+    {{- if $podNodeSelector }}
+      nodeSelector:
+        {{- toYaml $podNodeSelector | nindent 8 }}
+    {{- end }}
+---
+{{   end }}
+{{ end }}

@@ -1,0 +1,18 @@
+{{- if and .Values.global.gitaly.enabled .Values.global.praefect.enabled -}}
+{{- range .Values.global.praefect.virtualStorages -}}
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "gitlab.praefect.gitaly.serviceName" (dict "context" $ "name" .name) }}
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "gitlab.standardLabels" $ | nindent 4 }}
+    {{- include "gitlab.commonLabels" $ | nindent 4 }}
+    {{- include "gitlab.serviceLabels" $ | nindent 4 }}
+    storage: {{ .name }}
+  annotations:
+    {{- include "gitlab.serviceAnnotations" $ | nindent 4 }}
+{{ include (print $.Template.BasePath "/_service_spec.yaml") (merge (dict) $ (dict "storage" .)) }}
+---
+{{- end }}
+{{- end }}

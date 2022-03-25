@@ -1,0 +1,70 @@
+{{- if $.Values.global.appConfig.smartcard.enabled -}}
+{{- if eq (include "gitlab.ingress.enabled" $) "true" -}}
+{{- $smartcardHostname := include "gitlab.smartcard.hostname" . -}}
+{{- $tlsSecret := include "smartcard.tlsSecret" . -}}
+{{/* BEGIN range deployments */}}
+{{- range $.Values.deployments -}}
+{{- if has .ingress.path (list "/" "/*") }}
+{{/*
+From here on:
+- `.` is `.deployments.xyz` value
+- `.name` is the key (xyz)
+*/}}
+{{- $ingressCfg := dict "global" $.Values.global.ingress "local" .ingress "context" $ -}}
+---
+apiVersion: {{ template "gitlab.ingress.apiVersion" $ingressCfg }}
+kind: Ingress
+metadata:
+  name: {{ template "webservice.fullname.withSuffix" . }}-smartcard
+  namespace: {{ $.Release.Namespace }}
+  labels:
+    {{- include "gitlab.standardLabels" $ | nindent 4 }}
+    {{- include "gitlab.commonLabels" $ | nindent 4 }}
+  annotations:
+    {{ include "ingress.class.annotation" $ingressCfg }}
+    kubernetes.io/ingress.provider: "{{ template "gitlab.ingress.provider" $ingressCfg }}"
+    {{- if eq "nginx" $.Values.global.ingress.provider }}
+    nginx.ingress.kubernetes.io/proxy-body-size: {{ $.Values.ingress.proxyBodySize | quote }}
+    nginx.ingress.kubernetes.io/proxy-read-timeout: {{ $.Values.ingress.proxyReadTimeout | quote }}
+    nginx.ingress.kubernetes.io/proxy-connect-timeout: {{ $.Values.ingress.proxyConnectTimeout | quote }}
+    nginx.ingress.kubernetes.io/auth-tls-verify-client: 'on'
+    nginx.ingress.kubernetes.io/auth-tls-verify-depth: '2'
+    nginx.ingress.kubernetes.io/auth-tls-secret: '{{ $.Release.Namespace }}/{{ $.Values.global.appConfig.smartcard.CASecret }}'
+    nginx.ingress.kubernetes.io/configuration-snippet: |
+      proxy_set_header X-SSL-Client-Certificate $ssl_client_escaped_cert;
+    {{- end }}
+    {{ include "gitlab.certmanager_annotations" $ }}
+  {{- range $key, $value := merge $.Values.ingress.annotations $.Values.global.ingress.annotations }}
+    {{ $key }}: {{ $value | quote }}
+  {{- end }}
+spec:
+  {{ include "ingress.class.field" $ingressCfg }}
+  rules:
+    - host: {{ $smartcardHostname }}
+      http:
+        paths:
+          - path: {{ .ingress.path }}
+            {{ if or ($.Capabilities.APIVersions.Has "networking.k8s.io/v1/Ingress") (eq $.Values.global.ingress.apiVersion "networking.k8s.io/v1") -}}
+            pathType: {{ default $.Values.global.ingress.pathType .ingress.pathType }}
+            backend:
+              service:
+                  name: {{ template "webservice.fullname.withSuffix" . }}
+                  port:
+                    number: {{ $.Values.service.workhorseExternalPort }}
+            {{- else -}}
+            backend:
+              serviceName: {{ template "webservice.fullname.withSuffix" . }}
+              servicePort: {{ $.Values.service.workhorseExternalPort }}
+            {{- end -}}
+  {{- if (and $tlsSecret (eq (include "gitlab.ingress.tls.enabled" $) "true" )) }}
+  tls:
+    - hosts:
+      - {{ $smartcardHostname }}
+      secretName: {{ $tlsSecret }}
+  {{- else }}
+  tls: []
+  {{- end }}
+{{- end -}}
+{{- end -}}
+{{- end -}}{{/* SET .ingress.path */}}
+{{- end -}}

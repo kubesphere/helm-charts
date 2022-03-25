@@ -1,0 +1,18 @@
+spec:
+  type: {{ coalesce .Values.service.type .Values.global.gitaly.service.type }}
+  clusterIP: "None"
+  ports:
+    - port: {{ coalesce .Values.service.externalPort .Values.global.gitaly.service.externalPort }}
+      name: {{ coalesce .Values.service.name .Values.global.gitaly.service.name }}
+      targetPort: grcp-gitaly
+   {{- if .Values.global.gitaly.tls.enabled }}
+    - port: {{ coalesce .Values.service.tls.externalPort .Values.global.gitaly.service.tls.externalPort }}
+      name: {{coalesce  .Values.service.name .Values.global.gitaly.service.name }}-tls
+      targetPort: {{ coalesce .Values.service.tls.internalPort .Values.global.gitaly.service.tls.internalPort }}
+   {{- end }}
+  selector:
+    app: {{ template "name" . }}
+    release: {{ .Release.Name }}
+    {{- if .storage }}
+    storage: {{ .storage.name }}
+    {{- end }}
