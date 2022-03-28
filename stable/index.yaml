@@ -3,7 +3,7 @@ entries:
   JiHu GitLab:
   - apiVersion: v1
     appVersion: 14.8.2
-    created: "2022-03-25T10:08:01.210103534Z"
+    created: "2022-03-28T13:22:07.814194131Z"
     dependencies:
     - name: gitlab
       repository: ""
@@ -47,7 +47,7 @@ entries:
       repository: ""
       version: '*.*.*'
     description: Web-based Git-repository manager with wiki and issue-tracking features.
-    digest: 22c430cf2ab243db7a009f0eed3271d04ffbe341dc1cd411aa2fc42a36af8571
+    digest: d82866e0efb503ef99b3c51bb964b65a65f9632aec53021e26e7f65d98184685
     home: https://about.gitlab.cn/
     icon: https://jihulab.com/gitlab-cn/charts/gitlab/raw/main-jh/icons/helm-chart-icon.svg
     keywords:
@@ -64,10 +64,10 @@ entries:
   chaos-mesh:
   - apiVersion: v2
     appVersion: 2.0.4
-    created: "2022-03-25T10:08:01.22023972Z"
+    created: "2022-03-28T13:22:07.826974601Z"
     description: Chaos Mesh® is a cloud-native Chaos Engineering platform that orchestrates
       chaos on Kubernetes environments.
-    digest: ea2f1437a612625e388560fc65318c6b4ae19376a30d9bd7919c3229765405da
+    digest: 2c39eb3f3c36ae4ed7aeb820d5631e21fd34070dbaecf7fa4acc2162068df363
     home: https://chaos-mesh.org
     icon: https://raw.githubusercontent.com/pingcap/chaos-mesh/master/static/logo.svg
     keywords:
@@ -405,6 +405,23 @@ entries:
     urls:
     - https://charts.kubesphere.io/stable/nocalhost-0.5.7.tgz
     version: 0.5.7
+  pulsar:
+  - apiVersion: v2
+    appVersion: 2.7.4
+    created: "2022-03-28T13:22:07.831995429Z"
+    description: Apache Pulsar Helm chart for Kubernetes
+    digest: 5a04b1c01027528dfa9dc9b8ecbb39fc3b63b624cf72a7a1f9839f1a169fa0ce
+    home: https://pulsar.apache.org
+    icon: http://pulsar.apache.org/img/pulsar.svg
+    maintainers:
+    - email: dev@pulsar.apache.org
+      name: The Apache Pulsar Team
+    name: pulsar
+    sources:
+    - https://github.com/apache/pulsar
+    urls:
+    - https://charts.kubesphere.io/stable/pulsar-2.7.13.tgz
+    version: 2.7.13
   qiming-operator:
   - apiVersion: v2
     appVersion: 2.2.2
@@ -417,4 +434,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/stable/qiming-operator-2.2.2.tgz
     version: 2.2.2
-generated: "2022-03-25T10:08:01.138302118Z"
+generated: "2022-03-28T13:22:07.73258878Z"
