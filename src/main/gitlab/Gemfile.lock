@@ -43,7 +43,7 @@ GEM
     mini_mime (1.0.0)
     mini_portile2 (2.8.0)
     multi_json (1.13.1)
-    nokogiri (1.13.3)
+    nokogiri (1.13.4)
       mini_portile2 (~> 2.8.0)
       racc (~> 1.4)
     public_suffix (3.0.2)
