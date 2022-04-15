@@ -3,10 +3,10 @@ entries:
   chaos-mesh:
   - apiVersion: v2
     appVersion: 2.0.4
-    created: "2022-04-13T15:29:48.292115505Z"
+    created: "2022-04-15T02:01:10.229116519Z"
     description: Chaos Mesh® is a cloud-native Chaos Engineering platform that orchestrates
       chaos on Kubernetes environments.
-    digest: f0049626ebbc043fafcf979481eb06a3b9027c901000a444a555c6a4fb041693
+    digest: 78b39b85fada430fb21955766e39e6abae0a93fb9c57b8a05b4304538c5f4ff2
     home: https://chaos-mesh.org
     icon: https://raw.githubusercontent.com/pingcap/chaos-mesh/master/static/logo.svg
     keywords:
@@ -237,6 +237,67 @@ entries:
     urls:
     - https://charts.kubesphere.io/stable/gitlab-5.8.2.tgz
     version: 5.8.2
+  jh-gitlab:
+  - apiVersion: v1
+    appVersion: 14.8.2
+    created: "2022-04-15T02:01:10.296808945Z"
+    dependencies:
+    - name: gitlab
+      repository: ""
+      version: '*.*.*'
+    - name: certmanager-issuer
+      repository: ""
+      version: '*.*.*'
+    - name: minio
+      repository: ""
+      version: '*.*.*'
+    - name: registry
+      repository: ""
+      version: '*.*.*'
+    - alias: certmanager
+      condition: certmanager.install
+      name: cert-manager
+      repository: https://charts.jetstack.io/
+      version: 1.5.4
+    - condition: prometheus.install
+      name: prometheus
+      repository: https://prometheus-community.github.io/helm-charts
+      version: 15.0.4
+    - condition: postgresql.install
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: 8.9.4
+    - condition: gitlab-runner.install
+      name: gitlab-runner
+      repository: https://charts.gitlab.io/
+      version: 0.38.0
+    - condition: global.grafana.enabled
+      name: grafana
+      repository: https://grafana.github.io/helm-charts
+      version: 6.9.1
+    - condition: redis.install
+      name: redis
+      repository: https://charts.bitnami.com/bitnami
+      version: 11.3.4
+    - condition: nginx-ingress.enabled
+      name: nginx-ingress
+      repository: ""
+      version: '*.*.*'
+    description: Web-based Git-repository manager with wiki and issue-tracking features.
+    digest: da3d9ac0b3920266d59edf1d37cccc7d5aa227571a30069be920516c4d0f5fcb
+    home: https://about.gitlab.cn/
+    icon: https://jihulab.com/gitlab-cn/charts/gitlab/raw/main-jh/icons/helm-chart-icon.svg
+    keywords:
+    - gitlab
+    maintainers:
+    - email: support@gitlab.cn
+      name: JiHu(GitLab)
+    name: jh-gitlab
+    sources:
+    - https://jihulab.com/gitlab-cn/charts/gitlab
+    urls:
+    - https://charts.kubesphere.io/stable/jh-gitlab-5.9.2.tgz
+    version: 5.9.2
   juicefs:
   - apiVersion: v2
     appVersion: 0.11.0
@@ -434,4 +495,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/stable/qiming-operator-2.2.2.tgz
     version: 2.2.2
-generated: "2022-04-13T15:29:48.282865681Z"
+generated: "2022-04-15T02:01:10.220667266Z"
