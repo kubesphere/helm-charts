@@ -8,7 +8,7 @@ keywords:
 maintainers:
 - email: support@gitlab.cn
   name: JiHu(GitLab)
-name: gitlab
+name: jh-gitlab
 sources:
 - https://jihulab.com/gitlab-cn/charts/gitlab
-version: 5.8.2
+version: 5.9.2
