@@ -21,9 +21,9 @@ OpenELB is an open source load balancer designed for bare metal Kubernetes clust
 > Note: this chart is only supported by helm3
 
 ```bash
-helm repo add test https://charts.kubesphere.io/test
+helm repo add stable https://charts.kubesphere.io/stable
 help repo update
-helm install openelb test/openelb
+helm install openelb stable/openelb
 ```
 
 ## Uninstalling the Chart
@@ -43,7 +43,7 @@ The following table lists the configurable parameters of the MSOMS chart and the
 | Parameter | Description  | Default |
 | -----------------------    | -----------------------| -----------------------|
 | `manager.image.repository`| `manager` image name.        | `kubesphere/openelb` |
-| `manager.image.tag`       | `manager` image tag.         | `v0.4`  |
+| `manager.image.tag`       | `manager` image tag.         | `v0.4.4`  |
 | `manager.image.pullPolicy`| `manager` image pull Policy. | `IfNotPresent`  |
 | `manager.resources`       | openelb manager resource requests and limits      | `{}`   |
 | `manager.nodeSelector`     | Node labels for pod assignment             | `{}`   |
@@ -59,7 +59,7 @@ Specify parameters using `--set key=value[,key=value]` argument to `helm install
 Alternatively a YAML file that specifies the values for the parameters can be provided like this:
 
 ```bash
-$ helm install --name my-openelb -f values.yaml test/openelb
+$ helm install --name my-openelb -f values.yaml stable/openelb
 ```
 
 
