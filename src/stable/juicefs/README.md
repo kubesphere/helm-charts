@@ -1,6 +1,6 @@
 # juicefs-csi-driver
 
-![Version: 0.7.0](https://img.shields.io/badge/Version-0.7.0-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.11.0](https://img.shields.io/badge/AppVersion-0.11.0-informational?style=flat-square)
+![Version: 0.9.2](https://img.shields.io/badge/Version-0.9.2-informational?style=flat-square) ![Type: application](https://img.shields.io/badge/Type-application-informational?style=flat-square) ![AppVersion: 0.13.2](https://img.shields.io/badge/AppVersion-0.13.2-informational?style=flat-square)
 
 A Helm chart for JuiceFS CSI Driver
 
@@ -16,40 +16,38 @@ Kubernetes: `>=1.14.0-0`
 
 ## Values
 
-| Key | Type | Default | Description |
-|-----|------|---------|-------------|
-| controller.affinity | object | Hard node and soft zone anti-affinity | Affinity for controller pods. |
-| controller.enabled | bool | `true` |  |
-| controller.nodeSelector | object | `{}` | Node selector for controller pods |
-| controller.replicas | int | `1` |  |
-| controller.resources.limits.cpu | string | `"1000m"` |  |
-| controller.resources.limits.memory | string | `"1Gi"` |  |
-| controller.resources.requests.cpu | string | `"100m"` |  |
-| controller.resources.requests.memory | string | `"512Mi"` |  |
-| controller.service.port | int | `9909` |  |
-| controller.service.trpe | string | `"ClusterIP"` |  |
-| controller.terminationGracePeriodSeconds | int | `30` | Grace period to allow the controller to shutdown before it is killed |
+| Key | Type | Default                                              | Description |
+|-----|------|------------------------------------------------------|-------------|
+| controller.affinity | object | Hard node and soft zone anti-affinity                | Affinity for controller pods. |
+| controller.enabled | bool | `true`                                               |  |
+| controller.nodeSelector | object | `{}`                                                 | Node selector for controller pods |
+| controller.replicas | int | `1`                                                  |  |
+| controller.resources.limits.cpu | string | `"1000m"`                                            |  |
+| controller.resources.limits.memory | string | `"1Gi"`                                              |  |
+| controller.resources.requests.cpu | string | `"100m"`                                             |  |
+| controller.resources.requests.memory | string | `"512Mi"`                                            |  |
+| controller.service.port | int | `9909`                                               |  |
+| controller.service.trpe | string | `"ClusterIP"`                                        |  |
+| controller.terminationGracePeriodSeconds | int | `30`                                                 | Grace period to allow the controller to shutdown before it is killed |
 | controller.tolerations | list | `[{"key":"CriticalAddonsOnly","operator":"Exists"}]` | Tolerations for controller pods |
-| dnsConfig | object | `{}` |  |
-| dnsPolicy | string | `"ClusterFirstWithHostNet"` |  |
-| hostAliases | list | `[]` |  |
-| image.pullPolicy | string | `""` |  |
-| image.repository | string | `"juicedata/juicefs-csi-driver"` |  |
-| image.tag | string | `"v0.10.5"` |  |
-| jfsConfigDir | string | `"/var/lib/juicefs/config"` |  |
-| jfsMountDir | string | `"/var/lib/juicefs/volume"` | juicefs mount dir |
-| jfsMountPriority | object | `{"enable":true,"name":"juicefs-mount-critical"}` | juicefs mount pod priority |
-| kubeletDir | string | `"/var/lib/kubelet"` | kubelet working directory,can be set using `--root-dir` when starting kubelet |
-| namespace | string | `"kube-system"` |  |
-| node.affinity | object | Hard node and soft zone anti-affinity | Affinity for node pods. |
-| node.enabled | bool | `true` |  |
-| node.hostNetwork | bool | `false` |  |
-| node.nodeSelector | object | `{}` | Node selector for node pods |
-| node.resources.limits.cpu | string | `"2000m"` |  |
-| node.resources.limits.memory | string | `"5Gi"` |  |
-| node.resources.requests.cpu | string | `"1000m"` |  |
-| node.resources.requests.memory | string | `"1Gi"` |  |
-| node.terminationGracePeriodSeconds | int | `30` | Grace period to allow the node pod to shutdown before it is killed |
+| dnsConfig | object | `{}`                                                 |  |
+| dnsPolicy | string | `"ClusterFirstWithHostNet"`                          |  |
+| hostAliases | list | `[]`                                                 |  |
+| image.pullPolicy | string | `""`                                                 |  |
+| image.repository | string | `"juicedata/juicefs-csi-driver"`                     |  |
+| image.tag | string | `"v0.13.2"`                                          |  |
+| jfsConfigDir | string | `"/var/lib/juicefs/config"`                          |  |
+| jfsMountDir | string | `"/var/lib/juicefs/volume"`                          | juicefs mount dir |
+| kubeletDir | string | `"/var/lib/kubelet"`                                 | kubelet working directory,can be set using `--root-dir` when starting kubelet |
+| node.affinity | object | Hard node and soft zone anti-affinity                | Affinity for node pods. |
+| node.enabled | bool | `true`                                               |  |
+| node.hostNetwork | bool | `false`                                              |  |
+| node.nodeSelector | object | `{}`                                                 | Node selector for node pods |
+| node.resources.limits.cpu | string | `"2000m"`                                            |  |
+| node.resources.limits.memory | string | `"5Gi"`                                              |  |
+| node.resources.requests.cpu | string | `"1000m"`                                            |  |
+| node.resources.requests.memory | string | `"1Gi"`                                              |  |
+| node.terminationGracePeriodSeconds | int | `30`                                                 | Grace period to allow the node pod to shutdown before it is killed |
 | node.tolerations | list | `[{"key":"CriticalAddonsOnly","operator":"Exists"}]` | Tolerations for node pods |
 | serviceAccount.controller.annotations | object | `{}` |  |
 | serviceAccount.controller.create | bool | `true` |  |
