@@ -31,7 +31,7 @@ spec:
         args:
         - --endpoint=$(CSI_ENDPOINT)
         - --logtostderr
-        - --nodeid=$(NODE_ID)
+        - --nodeid=$(NODE_NAME)
         - --v=5
         - --enable-manager=true
         env:
@@ -49,6 +49,12 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.name
+        - name: HOST_IP
+          valueFrom:
+            fieldRef:
+              fieldPath: status.hostIP
+        - name: KUBELET_PORT
+          value: "10250"
         - name: JUICEFS_MOUNT_PATH
           value: {{ .Values.jfsMountDir }}
         - name: JUICEFS_CONFIG_PATH
