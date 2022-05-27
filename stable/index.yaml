@@ -3,10 +3,10 @@ entries:
   chaos-mesh:
   - apiVersion: v2
     appVersion: 2.0.4
-    created: "2022-05-27T07:52:50.198895636Z"
+    created: "2022-05-27T07:53:12.077657582Z"
     description: Chaos Mesh® is a cloud-native Chaos Engineering platform that orchestrates
       chaos on Kubernetes environments.
-    digest: 98d81a15946501bb690b99a6d16443c98a86d8193df472970d26c172e66413aa
+    digest: c67bfb51c6265d944a78978f743919ad5ae00a9607d3d6864c2f9b01df512123
     home: https://chaos-mesh.org
     icon: https://raw.githubusercontent.com/pingcap/chaos-mesh/master/static/logo.svg
     keywords:
@@ -303,7 +303,7 @@ entries:
     version: 0.6.1
   meshery:
   - apiVersion: v2
-    created: "2022-05-27T07:52:50.207202956Z"
+    created: "2022-05-27T07:53:12.087134882Z"
     dependencies:
     - condition: meshery-istio.enabled
       name: meshery-istio
@@ -366,7 +366,7 @@ entries:
       repository: ""
       version: 0.5.0
     description: Meshery chart for deploying Meshery and Meshery's adapters.
-    digest: 719e3bb290f86808571545b25a35be4c639e7358db4bc458f99b5afdec2b3e66
+    digest: 2a743f78cb342c624cee734455fa6cf381c4081d594715689429a191378ec80e
     icon: https://meshery.io/images/logos/meshery-logo.png
     keywords:
     - meshery
@@ -562,4 +562,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/stable/qiming-operator-2.2.2.tgz
     version: 2.2.2
-generated: "2022-05-27T07:52:50.182286797Z"
+generated: "2022-05-27T07:53:12.067013969Z"
