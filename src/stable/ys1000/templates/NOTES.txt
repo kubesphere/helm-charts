@@ -1,3 +1,9 @@
+{{- if .Values.restore }}
+Restore is completed successfully, you can delete this release now.
+If there is anything wrong, check the restore log by:
+kubectl logs -l app.kubernetes.io/component=self-restore -n {{ .Release.Namespace }} --tail -1
+
+{{- else }}
 1. Check the application status Ready by running these commands:
   NOTE: It may take a few minutes to pull docker images.
         You can watch the status of by running `kubectl --namespace {{ .Release.Namespace }} get migconfigs.migration.yinhestor.com -w`
@@ -30,3 +36,4 @@
   export SECRET=$(kubectl -n {{ .Release.Namespace }} get secret | (grep qiming-operator |grep -v helm || echo "$_") | awk '{print $1}')
   export TOKEN=$(kubectl -n {{ .Release.Namespace }} describe secrets $SECRET |grep token: | awk '{print $2}')
   echo $TOKEN
+{{- end }}

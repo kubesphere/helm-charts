@@ -5,6 +5,7 @@ metadata:
   name: {{ .Values.s3Config.name }}
   namespace: {{ .Release.Namespace }}
 spec:
+  default: true
   backupStorageConfig:
     awsBucketName: {{ .Values.s3Config.bucket | required "s3 bucket is required " }}
     awsRegion: {{ .Values.s3Config.region | required "s3 region is required " }}
