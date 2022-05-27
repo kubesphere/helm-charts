@@ -1,0 +1,40 @@
+{{- if .Values.restore }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "{{ .Release.Name }}-self-restore"
+  labels:
+    {{- include "qiming-operator.labels" . | nindent 4 }}
+    app.kubernetes.io/component: self-restore
+  annotations:
+    "helm.sh/hook": post-install
+    "helm.sh/hook-delete-policy": before-hook-creation
+    "helm.sh/hook-weight": "10"
+spec:
+  template:
+    metadata:
+      labels:
+        {{- include "qiming-operator.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: self-restore
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: self-restore
+        image: "{{ .Values.componentImages.selfRestore.repository }}:{{ .Values.componentImages.selfRestore.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        resources:
+          requests:
+            cpu: 200m
+            memory: 512Mi
+          limits:
+            cpu: 200m
+            memory: 512Mi
+        env:
+        - name: AGENT_NAMESPACE
+          value: {{ .Values.velero.namespace }}
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+      serviceAccountName: {{ include "qiming-operator.serviceAccountName" . }}
+{{- end }}
