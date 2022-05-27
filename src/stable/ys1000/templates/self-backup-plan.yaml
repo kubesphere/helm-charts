@@ -1,0 +1,17 @@
+{{- if .Values.selfBackup.enabled }}
+apiVersion: migration.yinhestor.com/v1alpha1
+kind: Backup
+metadata:
+  name: ys1000-self-backup-internal
+  labels:
+    {{- include "qiming-operator.labels" . | nindent 4 }}
+    app.kubernetes.io/component: self-backup
+spec:
+  fallbackToDefault: true
+  namespaces:
+  - {{ .Release.Namespace }}
+  policyName: ys1000-self-backup-internal
+  srcClusterRef:
+    name: host-cluster
+    namespace: {{ .Release.Namespace }}
+{{- end }}

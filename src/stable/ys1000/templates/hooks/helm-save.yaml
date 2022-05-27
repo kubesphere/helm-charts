@@ -1,0 +1,37 @@
+{{- if and .Values.uploadToS3 ( not .Values.s3Config.skipped ) }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: "{{ .Release.Name }}-helm-save"
+  labels:
+    {{- include "qiming-operator.labels" . | nindent 4 }}
+    app.kubernetes.io/component: helm-save
+  annotations:
+    "helm.sh/hook": post-install,post-upgrade,post-rollback
+    "helm.sh/hook-delete-policy": before-hook-creation
+    "helm.sh/hook-weight": "20"
+spec:
+  template:
+    metadata:
+      labels:
+        {{- include "qiming-operator.selectorLabels" . | nindent 8 }}
+        app.kubernetes.io/component: helm-save
+    spec:
+      restartPolicy: Never
+      containers:
+      - name: helm-save
+        image: "{{ .Values.componentImages.helmTool.repository }}:{{ .Values.componentImages.helmTool.tag | default .Chart.AppVersion }}"
+        imagePullPolicy: {{ .Values.image.pullPolicy }}
+        args:
+        - save
+        - {{ .Release.Name }}
+        - --upload
+        env:
+        - name: POD_NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: AGENT_NAMESPACE
+          value: {{ .Values.velero.namespace }}
+      serviceAccountName: {{ include "qiming-operator.serviceAccountName" . }}
+{{- end }}
