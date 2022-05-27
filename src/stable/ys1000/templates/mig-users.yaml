@@ -1,0 +1,8 @@
+apiVersion: v1
+stringData:
+  admin: {{ .Values.migconfig.UIadminPassword }}
+kind: Secret
+metadata:
+  name: mig-users
+  namespace: {{ .Release.Namespace }}
+type: Opaque
