@@ -3,10 +3,10 @@ entries:
   chaos-mesh:
   - apiVersion: v2
     appVersion: 2.0.4
-    created: "2022-05-27T07:53:12.077657582Z"
+    created: "2022-05-30T07:52:51.459697428Z"
     description: Chaos Mesh® is a cloud-native Chaos Engineering platform that orchestrates
       chaos on Kubernetes environments.
-    digest: c67bfb51c6265d944a78978f743919ad5ae00a9607d3d6864c2f9b01df512123
+    digest: b430a2fd11fd7919e42e1a22faa7a25391a0aebdd204ac4a8f26e7db3a15f40f
     home: https://chaos-mesh.org
     icon: https://raw.githubusercontent.com/pingcap/chaos-mesh/master/static/logo.svg
     keywords:
@@ -552,6 +552,16 @@ entries:
     version: 2.7.13
   qiming-operator:
   - apiVersion: v2
+    appVersion: 2.5.2
+    created: "2022-05-30T07:52:51.462760029Z"
+    description: ys1000 provides data protection for cloud native applications
+    digest: 5cec9cf183d3149f2254bedf2ded7f062589901f411c9b48fffc14ace3b6a2d1
+    name: qiming-operator
+    type: application
+    urls:
+    - https://charts.kubesphere.io/stable/qiming-operator-2.5.2.tgz
+    version: 2.5.2
+  - apiVersion: v2
     appVersion: 2.2.2
     created: "2022-03-08T09:17:40.157557602Z"
     description: ys1000 provides data protection and management services for cloud
@@ -562,4 +572,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/stable/qiming-operator-2.2.2.tgz
     version: 2.2.2
-generated: "2022-05-27T07:53:12.067013969Z"
+generated: "2022-05-30T07:52:51.449776823Z"
