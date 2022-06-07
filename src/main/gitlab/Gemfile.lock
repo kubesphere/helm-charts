@@ -37,7 +37,7 @@ GEM
     excon (0.62.0)
     ffi (1.9.25)
     hash-deep-merge (0.1.1)
-    jmespath (1.4.0)
+    jmespath (1.6.1)
     launchy (2.4.3)
       addressable (~> 2.3)
     mini_mime (1.0.0)
