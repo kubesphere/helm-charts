@@ -74,8 +74,6 @@ spec:
             mountPath: /csi
           - name: neonsan-config
             mountPath: /etc/neonsan/qbd.conf
-          - name: qbd
-            mountPath: /usr/sbin/qbd
           - name: dev-dir
             mountPath: /dev
           - name: plugin-dir
@@ -125,10 +123,6 @@ spec:
         - name: neonsan-config
           hostPath:
             path: {{ .Values.driver.config }}
-            type: File
-        - name: qbd
-          hostPath:
-            path: /usr/sbin/qbd
             type: File
         - name: plugin-dir
           hostPath:
