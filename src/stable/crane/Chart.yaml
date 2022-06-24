@@ -1,0 +1,21 @@
+apiVersion: v2
+name: crane
+icon: https://github.com/gocrane/crane/blob/main/docs/images/crane.png
+home: https://github.com/gocrane/crane
+description: A Helm chart for Crane
+keywords:
+  - kubernetes
+  - finops
+  - autoscaling
+  - hpa
+  - vpa
+  - resources
+  - qos
+sources:
+  - https://github.com/gocrane/crane
+
+type: application
+
+version: 0.5.0
+
+appVersion: v0.5.0
