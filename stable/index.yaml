@@ -3,10 +3,10 @@ entries:
   chaos-mesh:
   - apiVersion: v2
     appVersion: 2.0.4
-    created: "2022-06-23T01:51:41.779223108Z"
+    created: "2022-06-24T01:29:37.812016894Z"
     description: Chaos Mesh® is a cloud-native Chaos Engineering platform that orchestrates
       chaos on Kubernetes environments.
-    digest: 2186078d42572e7351adf4380af281b3ff1b2ffa2f6a7305290abcc28fc0d5b7
+    digest: c3ed11870f4d7c455dc93f40663ab69a84a9b86b9db22bd533a189d484bb842b
     home: https://chaos-mesh.org
     icon: https://raw.githubusercontent.com/pingcap/chaos-mesh/master/static/logo.svg
     keywords:
@@ -41,6 +41,29 @@ entries:
     urls:
     - https://charts.kubesphere.io/stable/chaos-mesh-2.0.3.tgz
     version: 2.0.3
+  crane:
+  - apiVersion: v2
+    appVersion: v0.5.0
+    created: "2022-06-24T01:29:37.813403311Z"
+    description: A Helm chart for Crane
+    digest: 0a61e2c53f868ca565bb98c17e18dade1168685ab16a2176993e37057761d448
+    home: https://github.com/gocrane/crane
+    icon: https://github.com/gocrane/crane/blob/main/docs/images/crane.png
+    keywords:
+    - kubernetes
+    - finops
+    - autoscaling
+    - hpa
+    - vpa
+    - resources
+    - qos
+    name: crane
+    sources:
+    - https://github.com/gocrane/crane
+    type: application
+    urls:
+    - https://charts.kubesphere.io/stable/crane-0.5.0.tgz
+    version: 0.5.0
   easegress:
   - apiVersion: v2
     created: "2022-02-28T02:31:31.816082078Z"
@@ -572,4 +595,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/stable/qiming-operator-2.2.2.tgz
     version: 2.2.2
-generated: "2022-06-23T01:51:41.767093781Z"
+generated: "2022-06-24T01:29:37.803145684Z"
