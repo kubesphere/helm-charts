@@ -1,0 +1,257 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: craned
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "crane.labels" . | nindent 4 }}
+    app: craned
+spec:
+  replicas: {{ .Values.craned.replicaCount }}
+  selector:
+    matchLabels:
+      app: craned
+  template:
+    metadata:
+      {{- with .Values.craned.podAnnotations }}
+      annotations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        app: craned
+    spec:
+      {{- with .Values.craned.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: craned
+      containers:
+        - name: craned
+          image: "{{ .Values.craned.image.repository }}:{{ .Values.craned.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.craned.image.pullPolicy }}
+          command:
+            - /craned
+          args:
+            - --recommendation-config-file=/tmp/recommendation-config/config_set.yaml
+            - --prometheus-address={{ .Values.global.prometheusAddr }}
+          {{- range $key, $value := .Values.craned.containerArgs }}
+            {{- if $value }}
+            - --{{ $key }}={{ $value }}
+            {{- else }}
+            - --{{ $key }}
+            {{- end }}
+          {{- end }}
+          volumeMounts:
+            - mountPath: /tmp/k8s-webhook-server/serving-certs
+              name: cert
+              readOnly: true
+            - name: config
+              mountPath: /tmp/recommendation-config
+          ports:
+            - name: http
+              containerPort: 9443
+              protocol: TCP
+          readinessProbe:
+            httpGet:
+              path: /api/healthz
+              port: 8082
+              scheme: HTTP
+          resources:
+            {{- toYaml .Values.craned.resources | nindent 12 }}
+        {{ if .Values.cranedDashboard.enable }}
+        - name: dashboard
+          volumeMounts:
+            - mountPath: /etc/nginx/conf.d/
+              name: nginx-conf
+          image: "{{ .Values.cranedDashboard.image.repository }}:{{ .Values.cranedDashboard.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.cranedDashboard.image.pullPolicy }}
+        {{ end }}
+      {{- with .Values.craned.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.craned.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.craned.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        - name: cert
+          secret:
+            defaultMode: 420
+            secretName: webhook-server-tls
+        - name: config
+          configMap:
+            name: recommendation-config
+        {{ if .Values.cranedDashboard.enable }}
+        - name: nginx-conf
+          configMap:
+            name: nginx-conf
+        {{ end }}
+
+---
+apiVersion: v1
+data:
+  tls.crt: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSURPekNDQWlPZ0F3SUJBZ0lKQU9vSDdESmN5UkM4TUEwR0NTcUdTSWIzRFFFQkJRVUFNQkF4RGpBTUJnTlYKQkFNTUJXTnlZVzVsTUI0WERUSXlNREl5TWpFME16SXhOVm9YRFRNeU1ESXlNREUwTXpJeE5Wb3dJakVnTUI0RwpBMVVFQXd3WFkzSmhibVZrTG1OeVlXNWxMWE41YzNSbGJTNXpkbU13Z2dFaU1BMEdDU3FHU0liM0RRRUJBUVVBCkE0SUJEd0F3Z2dFS0FvSUJBUURLQ1VOc2JUT0NNUWMyL0pzWS9UVVp2NE0rM3h5OGE3K0ZTSkNFMTgyaWVJQnAKcWNTQXZKY2tCVjZodG0yUS8ycnR2M0QzWDJNL0NVYlg4M3dLY2tsSWttaC9oRlUrSkc2TVdKcmgwVUQzc1ZjTgpuTFlDaDFEczU0aGVOV3ZvTXJiZ1NRZkFYTVNhRmVwVU01M3NYdXIzcEozQmVCYTZDTGJKM0paeFdGR0l2L21XCkZKVFRhOS80MTI5TUNHZjIrTzN6aDZtSEdlZXBYQ0hQejQ1TlRKbmd4Q01nN3AxaTY2ano5UURLMk9JREdrbG0KS1ZoTEhWU2tFL1VMU3VWZVA4Wit5b1RJYndOVys0dVJFOSsydGFPaGZlSFcySTgxbHZ4VFZVZVRDbnFQa01mTAo4NVpKTnROUnJ6OSszSXJnYmpGaThSdHZDNlF1QkdkN0JHdGQ1YTFSQWdNQkFBR2pnWVV3Z1lJd0NRWURWUjBUCkJBSXdBREFMQmdOVkhROEVCQU1DQmVBd0hRWURWUjBsQkJZd0ZBWUlLd1lCQlFVSEF3SUdDQ3NHQVFVRkJ3TUIKTUVrR0ExVWRFUVJDTUVDQ0YyTnlZVzVsWkM1amNtRnVaUzF6ZVhOMFpXMHVjM1pqZ2lWamNtRnVaV1F1WTNKaApibVV0YzNsemRHVnRMbk4yWXk1amJIVnpkR1Z5TG14dlkyRnNNQTBHQ1NxR1NJYjNEUUVCQlFVQUE0SUJBUUJZCmtBcDVnWDQ1N2w0TFpDNkIyYUsxVWpHSzRFam4vUTRuSEhUWGNGVW0vN0tZeVJ5N1d2UjNmd1d3TnFNNDNrMXIKYjArS2Y4SDVvQUV5c2VJeXVVYW5ZVUQ0SGNHR1d0Yk05SnhpbDh4a1dQRy9yaEJJYkhEUkdYSkpXRTI0NVU5VwpOcGxsRmovT2xRYW45Y24rZGNqMGRzOWxHUHFzTVNlNXJ5eUZqSVRoeE1Za0FpZlJKak0yZkxGamExZTduR2lnCnhKZkFZK0RYbWJiQTJLN0Z0dmJHZUJjTXhCbFQwUEdlUWhJZVk2RVRJUDNRbHBnMnltdDJpejAvVXIzTzl1VmIKUFBJOWEzYjV0WG1nRUM3KzUwWVVYbHMwZUpEZlhWLzdlWS95SW45VGZjajJEb2d0cFYzM3JMWHovNS9XcWl3OQplQUxlSENmaDhmYzhld0RZT1JLUgotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
+  tls.key: LS0tLS1CRUdJTiBSU0EgUFJJVkFURSBLRVktLS0tLQpNSUlFcEFJQkFBS0NBUUVBeWdsRGJHMHpnakVITnZ5YkdQMDFHYitEUHQ4Y3ZHdS9oVWlRaE5mTm9uaUFhYW5FCmdMeVhKQVZlb2JadGtQOXE3Yjl3OTE5alB3bEcxL044Q25KSlNKSm9mNFJWUGlSdWpGaWE0ZEZBOTdGWERaeTIKQW9kUTdPZUlYalZyNkRLMjRFa0h3RnpFbWhYcVZET2Q3RjdxOTZTZHdYZ1d1Z2kyeWR5V2NWaFJpTC81bGhTVQowMnZmK05kdlRBaG45dmp0ODRlcGh4bm5xVndoejgrT1RVeVo0TVFqSU82ZFl1dW84L1VBeXRqaUF4cEpaaWxZClN4MVVwQlAxQzBybFhqL0dmc3FFeUc4RFZ2dUxrUlBmdHJXam9YM2gxdGlQTlpiOFUxVkhrd3A2ajVESHkvT1cKU1RiVFVhOC9mdHlLNEc0eFl2RWJid3VrTGdSbmV3UnJYZVd0VVFJREFRQUJBb0lCQUZsQmVHajVZVzBkN2RzTQpCQlVwSUFGdEN6V0dhZktRQTMrRmpGc3ozNlBzYW9iRHVvMUpROWhsQ3VhVWFwbEpUZHNVM1hwYnlNTzdmSEhCCkhzYWFzT2QvenV5dThOM1FTSXAyUm82RzNKWFE0ZTJna3dSUTlaNkR0MG92ZmFtS1ppSjJBUmVwcEMyU2l3Q0MKQVQzQXZUdUVuVEV3dFpHZ2NlaUNMSENNblJDMVBrR2JaYlVCQlU3K3E5ZGpPU25oOC9iQ0w0cVkxK2RpbGZMSQplMU1VbTBTSmN6MlgwWU1VLzFYMm9aT2I4UVBXYjM1QjJxcG9ESjhzbFlKdStRUjgxeFlsWWhsTnpvaThyRThCCmhlRVcxa3dLMDlqcmFTbE5zZEx1WW1iNC9mVzFqbTgzL1crMmNnUkVyU2hRdFQwOENMQ3dPVER2NjFYeUhFbGoKb1d6UlNrRUNnWUVBNVV3UE9nOVpBc0FRMXE2N1dicktaUXlaOFdkR1dPV1hUK09lYi80MG5vd1JzVVhWMWlRWQozbDlzeTVHYnNSRnFkaXd4UXUzNVJ0RjhqbDM1L1AvNGhyeENwS2tNTDdZaG1xUFNqelNWT2ZTWlJDbVhDdEdvCnVnbzhFUmQ4RzhGbmJJM1RUdlplS1BqaVRieER3Y3ZqUFdWODJONzZhK21ucVVUQ0ZlNDlZeWtDZ1lFQTRaQjgKTnJJNWFZSHFrUWNPLzRldzBsOUJ4SkViQ2thQ2liNG9ORzBzcXpSQ01KTmFXNTBYWnFHcjQ1eE80TnNnaWZjTQo1ZU9ueWhtMGd1K0ZJZ1c0REpVL1JiZ1BiQngzNUlpREIxUERHY05nZmYxVnVxTldYTTVHQ2RQck04UDRtYzlnCm1RYUtxaGZPYlJIUUQyc08rekxjTGh3b1dRdVRWdnlzSlliVnBla0NnWUVBNCtNWjV3eEYzTFBpaUZzVW5ITkcKbi9OTU5GMzl6bkF3V0JmUzZWOXVFSDBKUUhRMXVDUWNDell2dklvMGdHRGN2Q0hqdTY4ajVqeGhYR1VPQldLcApMODkvTklOR04weitUT0N3YmQ5R3lGak8wcTI3RGVlZGwzaUFoa1FlOXI3YStVcGpUc0VRaUF3RGJsckR4S0hNCmNNS2l1QyswRnZnYngrRXNPL3VSU3pFQ2dZRUF1WU1uWmFTMjZ6dGFPK1RlUlBMSVRuemhqbFQ1TkQ1QlpoL3EKMlJOaFJYMDVZdElONG9NVWwrZ25nbzh2b0djWUg5Lzd6NmFvZk9NZlB3RFhNZUFhT3Q4VXByWjJtS2ZoUXlleQorL2U3NGhoNTU2VFBPU3pVL29iM3UyVjdiNXVoZm42OEo1N2x0SGJYNDRSZTVnOWF4dVpSaCtySWxGT2MzbEg1CkV2UU9DdUVDZ1lBQ3Z2UjBoVW5jMjNqYXNNYXNwUFVGTVFyeTFaTGtEdEcvWHMrUVlWSEFKWXpES2RaRUdoM1QKb3NNQng2STc2bDM3WjVEY05yb1hJZFJBUVJXVUxpUWIyelZMaG9LYjdzRXRmbDZmOUFnVnNXQjIvUjVVeHVKdQpKdHA1ZzNpUjZyd3dJZWJwYjRTR1VlcDByZXp5eFlwWXhaTHcyZHYwUEtYc3U0NzdCMFA3Vnc9PQotLS0tLUVORCBSU0EgUFJJVkFURSBLRVktLS0tLQo=
+kind: Secret
+metadata:
+  name: webhook-server-tls
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "crane.labels" . | nindent 4 }}
+type: kubernetes.io/tls
+
+---
+
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: recommendation-config
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "crane.labels" . | nindent 4 }}
+data:
+  config_set.yaml: |-
+    apiVersion: analysis.crane.io/v1alpha1
+    kind: ConfigSet
+    configs:
+      - targets: []
+        properties:
+          resource.cpu-request-percentile: "0.98"
+          replicas.workload-min-replicas: "3"
+          replicas.pod-min-ready-seconds: "30"
+          replicas.pod-available-ratio: "0.5"
+          replicas.default-min-replicas: "3"
+          replicas.max-replicas-factor: "3"
+          replicas.min-cpu-usage-threshold: "0.1"
+          replicas.fluctuation-threshold: "1.0"
+          replicas.min-cpu-target-utilization: "30"
+          replicas.max-cpu-target-utilization: "75"
+          replicas.cpu-target-utilization: "30"
+          replicas.cpu-percentile: "95"
+          replicas.reference-hpa: "true"
+
+{{ if .Values.cranedDashboard.enable }}
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nginx-conf
+  namespace: {{ .Release.Namespace }}
+data:
+  nginx.conf: |
+    gzip_static  on;
+
+    # Enable gzip encoding for content of the provided types of 50kb and higher.
+    gzip on;
+    gzip_min_length 50000;
+    gzip_proxied expired no-cache no-store private auth;
+    gzip_types
+        application/atom+xml
+        application/geo+json
+        application/javascript
+        application/x-javascript
+        application/json
+        application/ld+json
+        application/manifest+json
+        application/rdf+xml
+        application/rss+xml
+        application/vnd.ms-fontobject
+        application/wasm
+        application/x-web-app-manifest+json
+        application/xhtml+xml
+        application/xml
+        font/eot
+        font/otf
+        font/ttf
+        image/bmp
+        image/svg+xml
+        text/cache-manifest
+        text/calendar
+        text/css
+        text/javascript
+        text/markdown
+        text/plain
+        text/xml
+        text/x-component
+        text/x-cross-domain-policy;
+    
+    map $http_upgrade $connection_upgrade {
+        default upgrade;
+        '' close;
+    }
+
+    upstream cluster {
+        server craned.crane-system:8082;
+    }
+
+    resolver kube-dns.kube-system.svc.cluster.local valid=5s;
+
+    server {
+        server_name _;
+        large_client_header_buffers 4 32k;
+        add_header Cache-Control "must-revalidate";
+        add_header Cache-Control "max-age=300";
+        add_header ETag "1.90.0-rc.0";
+        add_header Access-Control-Allow-Origin *;
+        listen 9090;
+        listen [::]:9090;
+        location / {
+            root /usr/share/nginx/html/;
+            include /etc/nginx/mime.types;
+            try_files $uri $uri/ /index.html;
+        }
+        location /grafana {
+            set $upstream_grafana grafana.crane-system.svc.cluster.local;
+            proxy_connect_timeout       180;
+            proxy_send_timeout          180;
+            proxy_read_timeout          180;
+            proxy_pass http://$upstream_grafana:8082;
+            proxy_redirect off;
+            rewrite /grafana/(.*) /$1 break;
+            proxy_http_version 1.1;
+            proxy_set_header  Host $http_host;
+            proxy_set_header  Upgrade $http_upgrade;
+            proxy_set_header  Connection $connection_upgrade;
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+        location /api/v1/cluster {
+            proxy_connect_timeout       180;
+            proxy_send_timeout          180;
+            proxy_read_timeout          180;
+            proxy_pass http://cluster;
+            proxy_redirect off;
+            proxy_http_version 1.1;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+        location /api/v1/namespaces {
+            proxy_connect_timeout       180;
+            proxy_send_timeout          180;
+            proxy_read_timeout          180;
+            proxy_pass http://cluster;
+            proxy_redirect off;
+            proxy_http_version 1.1;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+        location /api {
+            proxy_connect_timeout       180;
+            proxy_send_timeout          180;
+            proxy_read_timeout          180;
+            proxy_pass http://cluster;
+            proxy_redirect off;
+            proxy_http_version 1.1;
+            proxy_set_header Connection "";
+            proxy_set_header  X-Real-IP  $remote_addr;
+            proxy_set_header  X-Forwarded-For $proxy_add_x_forwarded_for;
+        }
+    }
+{{ end }}
