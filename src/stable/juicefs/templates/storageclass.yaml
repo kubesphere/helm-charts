@@ -13,7 +13,12 @@ type: Opaque
 data:
   {{- with $sc.backend }}
   name: {{ .name | b64enc | quote }}
+  {{- if .metaurl }}
   metaurl: {{ .metaurl | b64enc | quote }}
+  {{- end }}
+  {{- if .token }}
+  token: {{ .token | b64enc | quote }}
+  {{- end }}
   {{- if .storage }}
   storage: {{ .storage | b64enc | quote }}
   {{- end }}
@@ -35,6 +40,9 @@ data:
   {{- if .trashDays }}
   trash-days: {{ .trashDays | b64enc | quote }}
   {{- end }}
+  {{- if .formatOptions }}
+  format-options: {{ .formatOptions | b64enc | quote }}
+  {{- end }}
   {{- end }}
 ---
 apiVersion: storage.k8s.io/v1
@@ -52,21 +60,24 @@ parameters:
   csi.storage.k8s.io/node-publish-secret-namespace: {{ $namespace }}
   csi.storage.k8s.io/provisioner-secret-name: {{ $sc.name }}-secret
   csi.storage.k8s.io/provisioner-secret-namespace: {{ $namespace }}
+  {{- if $sc.pathPattern }}
+  pathPattern: {{ $sc.pathPattern }}
+  {{- end }}
   {{- with $sc.mountPod }}
   {{- if .resources.limits }}
   {{- if .resources.limits.cpu }}
-  juicefs/mount-cpu-limit: {{ .resources.limits.cpu }}
+  juicefs/mount-cpu-limit: {{ .resources.limits.cpu | quote }}
   {{- end }}
   {{- if .resources.limits.memory }}
-  juicefs/mount-memory-limit: {{ .resources.limits.memory }}
+  juicefs/mount-memory-limit: {{ .resources.limits.memory | quote }}
   {{- end }}
   {{- end }}
   {{- if .resources.requests }}
   {{- if .resources.requests.cpu }}
-  juicefs/mount-cpu-request: {{ .resources.requests.cpu }}
+  juicefs/mount-cpu-request: {{ .resources.requests.cpu | quote }}
   {{- end }}
   {{- if .resources.requests.memory }}
-  juicefs/mount-memory-request: {{ .resources.requests.memory }}
+  juicefs/mount-memory-request: {{ .resources.requests.memory | quote }}
   {{- end }}
   {{- end }}
   {{- end }}

@@ -9,7 +9,7 @@
 
 image:
   repository: juicedata/juicefs-csi-driver
-  tag: "v0.13.2"
+  tag: "v0.15.0"
   pullPolicy: ""
 
 sidecars:
@@ -65,6 +65,8 @@ serviceAccount:
 controller:
   # Default is true. This Component will control CSI Driver deployed on node
   enabled: true
+  # Default is false. Enable provisioner of controller service
+  provisioner: false
   # Pod Numbers
   replicas: 1
   resources:
@@ -101,6 +103,7 @@ node:
     requests:
       cpu: 1000m
       memory: 1Gi
+  storageClassShareMount: false
   # -- Grace period to allow the node pod to shutdown before it is killed
   terminationGracePeriodSeconds: 30
   # -- Affinity for node pods.
@@ -124,30 +127,39 @@ storageClasses:
   backend:
     # -- The JuiceFS file system name.
     name: "juice"
-    # -- Connection URL for metadata engine (e.g. Redis). Read [this document](https://github.com/juicedata/juicefs/blob/main/docs/en/databases_for_metadata.md) for more information.
+    # -- Connection URL for metadata engine (e.g. Redis), using in Community edition. Read [this document](https://juicefs.com/docs/community/databases_for_metadata) for more information.
     metaurl: ""
-    # -- Object storage type, such as `s3`, `gs`, `oss`. Read [this document](https://github.com/juicedata/juicefs/blob/main/docs/en/how_to_setup_object_storage.md) for the full supported list.
+    # -- Object storage type, such as `s3`, `gs`, `oss`, using in Community edition. Read [this document](https://juicefs.com/docs/community/how_to_setup_object_storage) for the full supported list.
     storage: ""
+    # -- JuiceFS managed token, using in Cloud Service edition. Read [this document](https://juicefs.com/docs/cloud/metadata/#token-management) for more details.
+    token: ""
     # -- Access key for object storage
     accessKey: ""
     # -- Secret key for object storage
     secretKey: ""
-    # -- Bucket URL. Read [this document](https://github.com/juicedata/juicefs/blob/main/docs/en/how_to_setup_object_storage.md) to learn how to setup different object storage.
+    # -- Bucket URL. Read [this document](https://juicefs.com/docs/community/how_to_setup_object_storage) to learn how to setup different object storage.
     bucket: ""
-    # -- Env for mount pod and format, such as `a: b`
+    # -- Env for mount pod and format, such as `{"a": "b"}`
     envs: ""
-    # -- Config for mount pod. Read [this document](https://github.com/juicedata/juicefs-csi-driver/blob/master/docs/en/examples/config-and-env.md) for more usage.
+    # -- Config for mount pod. Read [this document](https://juicefs.com/docs/csi/examples/config-and-env) for more usage.
     configs: ""
     # -- Config for trash days
     trashDays: ""
+    # -- Options of juicefs format/auth, connected by `,`, such as `block-size=4096,capacity=10`. Read [community document](https://juicefs.com/docs/community/command_reference/) and [Cloud Service document](https://juicefs.com/docs/cloud/commands_reference#auth) for more usage.
+    formatOptions: ""
 
 
   mountOptions:
-  # -- Mount Options. Read [this document](https://github.com/juicedata/juicefs/blob/main/docs/en/command_reference.md#juicefs-mount) to learn how to set different mount options.
+  # -- Mount Options. Read [this document](https://juicefs.com/docs/community/command_reference) to learn how to set different mount options.
   # Example:
   # - debug
   # - cache-size=2048
   # - cache-dir=/var/foo
+
+  # Define subdir format in storageClass, read [this document](https://juicefs.com/docs/csi/examples/subpath/#using-pathpattern) for more details.
+  # If enabled, please make sure controller.provisioner=true
+  # Example: "${.PVC.name}"
+  pathPattern: ""
 
   mountPod:
     # mount pod resource requests & limits
