@@ -3,7 +3,7 @@ craned:
     repository: docker.io/gocrane/craned
     pullPolicy: IfNotPresent
     # Overrides the image tag whose default is the chart appVersion.
-    tag: ""
+    tag: "v0.5.1"
 
   replicaCount: 1
 
@@ -45,8 +45,8 @@ controller:
   name: crane-scheduler-controller
   image:
     repository: docker.io/gocrane/crane-scheduler-controller
-    tag: 0.0.23
+    tag: 0.1.23
   replicaCount: 1
 
 global:
-  prometheusAddr: http://prometheus-server.crane-system.svc.cluster.local:8080   # prometheus address
+  prometheusAddr: http://prometheus-k8s.kubesphere-monitoring-system.svc.cluster.local:9090   # prometheus address
