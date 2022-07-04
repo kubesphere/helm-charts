@@ -23,7 +23,11 @@ spec:
         - /scheduler
         - --leader-elect=false
         - --config=/etc/kubernetes/kube-scheduler/scheduler-config.yaml
-        image: "{{ .Values.scheduler.image.repository }}:{{ .Values.scheduler.image.tag | default .Chart.AppVersion }}"
+        {{- if ge .Capabilities.KubeVersion.Minor "22" }}
+        image: "{{ .Values.scheduler.image.repository }}:0.0.23"
+        {{- else }}
+        image: "{{ .Values.scheduler.image.repository }}:0.0.20"
+        {{- end }}
         livenessProbe:
           httpGet:
             path: /healthz

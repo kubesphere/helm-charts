@@ -1,0 +1,38 @@
+{{ if .Values.scheduler.enable }}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  name: crane-scheduler-rules
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "crane.labels" . | nindent 4 }}
+    prometheus: k8s
+    role: alert-rules
+spec:
+  groups:
+    - name: scheduler.rules.30s
+      interval: 30s
+      rules:
+        - record: cpu_usage_active
+          expr: 100 - (avg by (instance) (irate(node_cpu_seconds_total{mode="idle"}[90s])) * 100)
+        - record: mem_usage_active
+          expr: 100*(1-node_memory_MemAvailable_bytes/node_memory_MemTotal_bytes)
+    - name: scheduler.rules.1m
+      interval: 1m
+      rules:
+        - record: cpu_usage_avg_5m
+          expr: avg_over_time(cpu_usage_active[5m])
+        - record: mem_usage_avg_5m
+          expr: avg_over_time(mem_usage_active[5m])
+    - name: scheduler.rules.5m
+      interval: 5m
+      rules:
+        - record: cpu_usage_max_avg_1h
+          expr: max_over_time(cpu_usage_avg_5m[1h])
+        - record: cpu_usage_max_avg_1d
+          expr: max_over_time(cpu_usage_avg_5m[1d])
+        - record: mem_usage_max_avg_1h
+          expr: max_over_time(mem_usage_avg_5m[1h])
+        - record: mem_usage_max_avg_1d
+          expr: max_over_time(mem_usage_avg_5m[1d])
+{{ end }}
