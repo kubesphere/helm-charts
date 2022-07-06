@@ -3,10 +3,10 @@ entries:
   chaos-mesh:
   - apiVersion: v2
     appVersion: 2.0.4
-    created: "2022-06-24T01:48:39.459615318Z"
+    created: "2022-07-06T01:22:56.848362051Z"
     description: Chaos Mesh® is a cloud-native Chaos Engineering platform that orchestrates
       chaos on Kubernetes environments.
-    digest: 7ed0c6d36b90dc1af88b4ad39cbb403b9de9c69091f2b6c2325ee106a01b4fd8
+    digest: 2df79eea52e1eeb3a6976f39f2c97bd5f77c5ec815f397de4bf77c78d6b33a6a
     home: https://chaos-mesh.org
     icon: https://raw.githubusercontent.com/pingcap/chaos-mesh/master/static/logo.svg
     keywords:
@@ -42,6 +42,34 @@ entries:
     - https://charts.kubesphere.io/stable/chaos-mesh-2.0.3.tgz
     version: 2.0.3
   crane:
+  - annotations:
+      app.kubesphere.io/category: Continuous Optimization
+    apiVersion: v2
+    appVersion: v0.5.1
+    created: "2022-07-06T01:22:56.849769663Z"
+    description: Crane (FinOps Crane) is an opensource project which manages cloud
+      resource on Kubernetes stack, it is inspired by FinOps concepts.
+    digest: 6f3cf57089a0411d7a21798f600d5b65d9ccac91e3a998f7bb1bd1b0a1820c52
+    home: https://github.com/gocrane/crane
+    icon: https://docs.gocrane.io/dev/images/crane.svg
+    keywords:
+    - kubernetes
+    - finops
+    - autoscaling
+    - hpa
+    - vpa
+    - resources
+    - qos
+    maintainers:
+    - email: brilliantroad@126.com
+      name: qmhu
+    name: crane
+    sources:
+    - https://github.com/gocrane/crane
+    type: application
+    urls:
+    - https://charts.kubesphere.io/stable/crane-0.5.1.tgz
+    version: 0.5.1
   - apiVersion: v2
     appVersion: v0.5.0
     created: "2022-06-24T01:29:37.813403311Z"
@@ -616,4 +644,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/stable/qiming-operator-2.2.2.tgz
     version: 2.2.2
-generated: "2022-06-24T01:48:39.449379119Z"
+generated: "2022-07-06T01:22:56.838085327Z"
