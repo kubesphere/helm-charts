@@ -1,4 +1,4 @@
-{{- if and .Values.uploadToS3 ( not .Values.s3Config.skipped ) }}
+{{- if and ( or .Values.selfBackup.enabled .Values.uploadToS3 ) ( not .Values.s3Config.skipped ) }}
 apiVersion: batch/v1
 kind: Job
 metadata:
