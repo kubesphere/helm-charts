@@ -1,0 +1,12 @@
+apiVersion: v2
+appVersion: 1.4.12
+home: https://github.com/yunify/qingcloud-cloud-controller-manager
+keywords:
+- qingcloud
+- ccm
+kubeVersion: '>=1.17.0-0'
+name: ccm-qingcloud
+description: A Helm chart for qingcloud cloud controller manager
+sources:
+- https://github.com/yunify/qingcloud-cloud-controller-manager
+version: 0.1.0
