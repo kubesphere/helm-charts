@@ -26,17 +26,15 @@ This chart creates ys1000 data protection components on a Kubernetes cluster usi
 
    ```bash
    NAME                  	CHART VERSION	APP VERSION	DESCRIPTION
-   qiming/qiming-operator	2.2.2        	2.2.2      	ys1000 provides data protection and management ...
+   qiming/qiming-operator  2.6.1           2.6.1           ys1000 provides data protection for cloud nativ...
    ```
 
-   **NOTE**:
-
-   CRDs are now **required** to apply if your environment ever has deployed ys1000.
-
-   ```
-   kubectl apply -f crds/crds.yaml
-   ```
 2. Install helm chart **qiming-operator**
+
+   **NOTE**: if any previous ys1000 was installed , you must do crd update before installation or upgrade by:
+   ```
+   kubectl apply -f https://raw.githubusercontent.com/jibutech/helm-charts/main/charts/qiming-operator/crds/crds.yaml
+   ```
 
    1. Option 1) CLI commands
 
@@ -146,18 +144,32 @@ This chart creates ys1000 data protection components on a Kubernetes cluster usi
 
 ## Upgrade
 
+1. use `helm repo update` to pull updated version and search historical versions through `helm search repo qiming`, for example
+
+   ```
+   [root@ ~]# helm search repo qiming
+   NAME                  	CHART VERSION	APP VERSION	DESCRIPTION
+   qiming/qiming-operator  2.6.1           2.6.1           ys1000 provides data protection for cloud nativ...
+   [root@ ~]# helm search repo qiming --versions
+   NAME                  	CHART VERSION	APP VERSION	DESCRIPTION
+   qiming/qiming-operator  2.6.1           2.6.1           ys1000 provides data protection for cloud nativ...
+   qiming/qiming-operator  2.6.0           2.6.0           ys1000 provides data protection for cloud nativ...
+   qiming/qiming-operator  2.5.3           2.5.3           ys1000 provides data protection for cloud nativ...
+   qiming/qiming-operator  2.5.0           2.5.0           ys1000 provides data protection for cloud nativ...
+   ...
+   ```
 1. Upgrade to a chart version by specifying `--version=<CHART VERSION>`  through `helm upgrade
 
-   **NOTE:** CRDs are now **required** to apply before helm upgrade through:
-
-   `kubectl apply -f crds/crds.yaml`
-
-   If a value needs to be added or changed, you may do so with the `--set key=value[,key=value] ` argument.
+   **NOTE-1:**: use `--set key=value[,key=value]` to update or add parameters based on Configuration section. 
+   **NOTE-2:**: if any previous ys1000 was installed , you must do crd update before installation or upgrade by:
+   ```
+   kubectl apply -f https://raw.githubusercontent.com/jibutech/helm-charts/main/charts/qiming-operator/crds/crds.yaml
+   ```
 
    An example:
 
    ```bash
-   [root@remote-dev ~]helm upgrade qiming-operator-1618982398 qiming/qiming-operator --namespace qiming-migration --version=2.5.2
+   [root@remote-dev ~]helm upgrade qiming-operator-1618982398 qiming/qiming-operator --namespace qiming-migration --version=2.6.3
    ```
 
 ## Uninstallation
