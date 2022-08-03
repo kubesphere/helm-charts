@@ -24,6 +24,14 @@ prepareHelm() {
   curl -sL $helmUrl | tar --strip-components=1 -xzf - linux-amd64/helm
 }
 
+findDependsCharts() {
+  local repoDir=$1
+  helm dependency update $repoDir/depends
+  for dependsCharts in $(ls $repoDir/depends/charts/); do
+     tar -zxvf $repoDir/depends/charts/$dependsCharts -C $repoDir/stable
+  done
+}
+
 findUpdatedCharts() {
   local repoDir=$1 indexFile=$2
   local existingCharts="$(grep -oE "[^/]+\.tgz$" $indexFile)"
@@ -91,6 +99,7 @@ updateRepo() {
   [ "$httpCode" = "404" ] && rm -f $indexFile
 
   echo "Finding updated charts ..."
+  findDependsCharts $srcDir
   updatedCharts="$(findUpdatedCharts $repoSrcDir $indexFile)"
   updatedCharts="$(echo $updatedCharts)"
   if [ -z "$updatedCharts" ]; then
