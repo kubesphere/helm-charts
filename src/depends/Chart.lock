@@ -1,0 +1,6 @@
+dependencies:
+- name: deepflow
+  repository: https://deepflowys.github.io/deepflow
+  version: 0.1.006
+digest: sha256:155fbb5bc0821b4397854e6336f5f82b4c1c2351af3f439e270e8418e2d5bc55
+generated: "2022-08-08T18:50:57.652643+08:00"
