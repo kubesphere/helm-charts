@@ -221,7 +221,7 @@ deploy_charts(){
     verify
     echo "checkout gh-pages"
     git checkout gh-pages
-    dirs=$(ls build/)
+    dirs=$(ls build/|grep -v depends)
     for dir in ${dirs}; do
       echo "copy resource in ${dir}"
       mkdir -p ${dir}
