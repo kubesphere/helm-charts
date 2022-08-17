@@ -3,10 +3,10 @@ entries:
   chaos-mesh:
   - apiVersion: v2
     appVersion: 2.0.4
-    created: "2022-08-16T14:43:20.848953623Z"
+    created: "2022-08-17T03:51:22.442713581Z"
     description: Chaos Mesh® is a cloud-native Chaos Engineering platform that orchestrates
       chaos on Kubernetes environments.
-    digest: 122c76a6442309b5551ee5b02eb3b8c975b737930f195de0a040dab8cf297d24
+    digest: e1f0875ec7f2ef4d7e260101d6dbb664f4d90d1d04a7d547583b0b4752cdf29a
     home: https://chaos-mesh.org
     icon: https://raw.githubusercontent.com/pingcap/chaos-mesh/master/static/logo.svg
     keywords:
@@ -93,6 +93,38 @@ entries:
     - https://charts.kubesphere.io/stable/crane-0.5.0.tgz
     version: 0.5.0
   deepflow:
+  - apiVersion: v2
+    appVersion: 6.1.1
+    created: "2022-08-17T03:51:22.457006259Z"
+    dependencies:
+    - condition: deepflow-agent.enabled
+      name: deepflow-agent
+      repository: ""
+      version: '*.*.*'
+    - name: clickhouse
+      repository: ""
+      version: '*.*.*'
+    - name: mysql
+      repository: ""
+      version: '*.*.*'
+    - condition: grafana.enabled
+      name: grafana
+      repository: https://grafana.github.io/helm-charts
+      version: 6.32.*
+    description: An automated observability platform for cloud-native developers.
+    digest: d1080bd47010456afa543b5cbd37b2d0dadc0ff4c5f222617f61c7c38be8b52a
+    home: https://github.com/deepflowys/deepflow
+    icon: https://raw.githubusercontent.com/deepflowys/deepflow-charts/main/deepflow.png
+    keywords:
+    - deepflow
+    kubeVersion: '>=1.16.0-0'
+    name: deepflow
+    sources:
+    - https://github.com/deepflowys/deepflow
+    type: application
+    urls:
+    - https://charts.kubesphere.io/stable/deepflow-0.1.012.tgz
+    version: 0.1.012
   - apiVersion: v2
     appVersion: 6.1.1
     created: "2022-08-16T14:43:20.861749795Z"
@@ -719,4 +751,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/stable/qiming-operator-2.2.2.tgz
     version: 2.2.2
-generated: "2022-08-16T14:43:20.838024776Z"
+generated: "2022-08-17T03:51:22.431409608Z"
