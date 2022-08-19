@@ -4,18 +4,20 @@ description: An open source trusted cloud native registry that stores, signs, an
 home: https://goharbor.io
 icon: https://raw.githubusercontent.com/goharbor/website/master/static/img/logos/harbor-icon-color.png
 keywords:
-- docker
-- registry
-- harbor
+  - docker
+  - registry
+  - harbor
 maintainers:
-- email: yinw@vmware.com
-  name: Wenkai Yin
-- email: hweiwei@vmware.com
-  name: Weiwei He
-- email: yshengwen@vmware.com
-  name: Shengwen Yu
+  - email: yinw@vmware.com
+    name: Wenkai Yin
+  - email: hweiwei@vmware.com
+    name: Weiwei He
+  - email: yshengwen@vmware.com
+    name: Shengwen Yu
 name: harbor
 sources:
-- https://github.com/goharbor/harbor
-- https://github.com/goharbor/harbor-helm
+  - https://github.com/goharbor/harbor
+  - https://github.com/goharbor/harbor-helm
+annotations:
+  "app.kubesphere.io/category": "Image Registry"
 version: 1.9.3
