@@ -7,6 +7,7 @@ metadata:
     component: registry
 spec:
   replicas: {{ .Values.registry.replicas }}
+  revisionHistoryLimit: {{ .Values.registry.revisionHistoryLimit }}
   strategy:
     type: {{ .Values.updateStrategy.type }}
     {{- if eq .Values.updateStrategy.type "Recreate" }}
@@ -36,11 +37,17 @@ spec:
 {{- end }}
     spec:
       securityContext:
+        runAsUser: 10000
         fsGroup: 10000
+{{- if .Values.registry.serviceAccountName }}
+      serviceAccountName: {{ .Values.registry.serviceAccountName }}
+{{- end -}}
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      automountServiceAccountToken: {{ .Values.registry.automountServiceAccountToken | default false }}
+      terminationGracePeriodSeconds: 120
       containers:
       - name: registry
         image: {{ .Values.registry.registry.image.repository }}:{{ .Values.registry.registry.image.tag }}
@@ -80,11 +87,11 @@ spec:
         - name: INTERNAL_TLS_ENABLED
           value: "true"
         - name: INTERNAL_TLS_KEY_PATH
-          value: /etc/harbor/tls/registry.key
+          value: /etc/harbor/ssl/registry/tls.key
         - name: INTERNAL_TLS_CERT_PATH
-          value: /etc/harbor/tls/registry.crt
+          value: /etc/harbor/ssl/registry/tls.crt
         - name: INTERNAL_TLS_TRUST_CA_PATH
-          value: /harbor_cust_cert/harbor_internal_ca.crt
+          value: /etc/harbor/ssl/registry/ca.crt
         {{- end }}
         ports:
         - containerPort: {{ template "harbor.registry.containerPort" . }}
@@ -93,9 +100,6 @@ spec:
         - name: registry-data
           mountPath: {{ .Values.persistence.imageChartStorage.filesystem.rootdirectory }}
           subPath: {{ .Values.persistence.persistentVolumeClaim.registry.subPath }}
-        - name: registry-root-certificate
-          mountPath: /etc/registry/root.crt
-          subPath: tls.crt
         - name: registry-htpasswd
           mountPath: /etc/registry/passwd
           subPath: passwd
@@ -104,14 +108,7 @@ spec:
           subPath: config.yml
         {{- if .Values.internalTLS.enabled }}
         - name: registry-internal-certs
-          mountPath: /harbor_cust_cert/harbor_internal_ca.crt
-          subPath: ca.crt
-        - name: registry-internal-certs
-          mountPath: /etc/harbor/tls/registry.crt
-          subPath: tls.crt
-        - name: registry-internal-certs
-          mountPath: /etc/harbor/tls/registry.key
-          subPath: tls.key
+          mountPath: /etc/harbor/ssl/registry
         {{- end }}
         {{- if and .Values.persistence.enabled (eq .Values.persistence.imageChartStorage.type "gcs") }}
         - name: gcs-key
@@ -129,6 +126,9 @@ spec:
           mountPath: /etc/registry/pk.pem
           subPath: pk.pem
         {{- end }}
+        {{- end }}
+        {{- if .Values.caBundleSecretName }}
+{{ include "harbor.caBundleVolumeMount" . | indent 8 }}
         {{- end }}
       - name: registryctl
         image: {{ .Values.registry.controller.image.repository }}:{{ .Values.registry.controller.image.tag }}
@@ -151,10 +151,13 @@ spec:
         resources:
 {{ toYaml .Values.registry.controller.resources | indent 10 }}
 {{- end }}
-        args: ["serve", "/etc/registry/config.yml"]
         envFrom:
+        - configMapRef:
+            name: "{{ template "harbor.registryCtl" . }}"
         - secretRef:
             name: "{{ template "harbor.registry" . }}"
+        - secretRef:
+            name: "{{ template "harbor.registryCtl" . }}"
         env:
         - name: CORE_SECRET
           valueFrom:
@@ -166,15 +169,23 @@ spec:
             secretKeyRef:
               name: {{ template "harbor.jobservice" . }}
               key: JOBSERVICE_SECRET
+        {{- if has "registry" .Values.proxy.components }}
+        - name: HTTP_PROXY
+          value: "{{ .Values.proxy.httpProxy }}"
+        - name: HTTPS_PROXY
+          value: "{{ .Values.proxy.httpsProxy }}"
+        - name: NO_PROXY
+          value: "{{ template "harbor.noProxy" . }}"
+        {{- end }}
         {{- if .Values.internalTLS.enabled }}
         - name: INTERNAL_TLS_ENABLED
           value: "true"
         - name: INTERNAL_TLS_KEY_PATH
-          value: /etc/harbor/ssl/registryctl.key
+          value: /etc/harbor/ssl/registry/tls.key
         - name: INTERNAL_TLS_CERT_PATH
-          value: /etc/harbor/ssl/registryctl.crt
+          value: /etc/harbor/ssl/registry/tls.crt
         - name: INTERNAL_TLS_TRUST_CA_PATH
-          value: /harbor_cust_cert/harbor_internal_ca.crt
+          value: /etc/harbor/ssl/registry/ca.crt
         {{- end }}
         ports:
         - containerPort: {{ template "harbor.registryctl.containerPort" . }}
@@ -190,14 +201,7 @@ spec:
           subPath: ctl-config.yml
         {{- if .Values.internalTLS.enabled }}
         - name: registry-internal-certs
-          mountPath: /harbor_cust_cert/harbor_internal_ca.crt
-          subPath: ca.crt
-        - name: registry-internal-certs
-          mountPath: /etc/harbor/ssl/registryctl.crt
-          subPath: tls.crt
-        - name: registry-internal-certs
-          mountPath: /etc/harbor/ssl/registryctl.key
-          subPath: tls.key
+          mountPath: /etc/harbor/ssl/registry
         {{- end }}
         {{- if .Values.persistence.imageChartStorage.caBundleSecretName }}
         - name: storage-service-ca
@@ -209,20 +213,16 @@ spec:
           mountPath: /etc/registry/gcs-key.json
           subPath: gcs-key.json
         {{- end }}
+        {{- if .Values.caBundleSecretName }}
+{{ include "harbor.caBundleVolumeMount" . | indent 8 }}
+        {{- end }}
       volumes:
       - name: registry-htpasswd
         secret:
-          secretName: {{ template "harbor.registry" . }}
+          secretName: {{ template "harbor.registry" . }}-htpasswd
           items:
             - key: REGISTRY_HTPASSWD
               path: passwd
-      - name: registry-root-certificate
-        secret:
-          {{- if .Values.core.secretName }}
-          secretName: {{ .Values.core.secretName }}
-          {{- else }}
-          secretName: {{ template "harbor.core" . }}
-          {{- end }}
       - name: registry-config
         configMap:
           name: "{{ template "harbor.registry" . }}"
@@ -261,6 +261,9 @@ spec:
               path: pk.pem
       {{- end }}
       {{- end }}
+      {{- if .Values.caBundleSecretName }}
+{{ include "harbor.caBundleVolume" . | indent 6 }}
+      {{- end }}
     {{- with .Values.registry.nodeSelector }}
       nodeSelector:
 {{ toYaml . | indent 8 }}
@@ -272,4 +275,7 @@ spec:
     {{- with .Values.registry.tolerations }}
       tolerations:
 {{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- if .Values.registry.priorityClassName }}
+      priorityClassName: {{ .Values.registry.priorityClassName }}
     {{- end }}
