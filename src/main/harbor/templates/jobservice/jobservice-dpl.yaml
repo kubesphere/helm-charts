@@ -7,6 +7,7 @@ metadata:
     component: jobservice
 spec:
   replicas: {{ .Values.jobservice.replicas }}
+  revisionHistoryLimit: {{ .Values.jobservice.revisionHistoryLimit }}
   strategy:
     type: {{ .Values.updateStrategy.type }}
     {{- if eq .Values.updateStrategy.type "Recreate" }}
@@ -36,11 +37,17 @@ spec:
 {{- end }}
     spec:
       securityContext:
+        runAsUser: 10000
         fsGroup: 10000
+{{- if .Values.jobservice.serviceAccountName }}
+      serviceAccountName: {{ .Values.jobservice.serviceAccountName }}
+{{- end -}}
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      automountServiceAccountToken: {{ .Values.jobservice.automountServiceAccountToken | default false }}
+      terminationGracePeriodSeconds: 120
       containers:
       - name: jobservice
         image: {{ .Values.jobservice.image.repository }}:{{ .Values.jobservice.image.tag }}
@@ -73,11 +80,11 @@ spec:
           - name: INTERNAL_TLS_ENABLED
             value: "true"
           - name: INTERNAL_TLS_KEY_PATH
-            value: /etc/harbor/ssl/job_service.key
+            value: /etc/harbor/ssl/jobservice/tls.key
           - name: INTERNAL_TLS_CERT_PATH
-            value: /etc/harbor/ssl/job_service.crt
+            value: /etc/harbor/ssl/jobservice/tls.crt
           - name: INTERNAL_TLS_TRUST_CA_PATH
-            value: /harbor_cust_cert/harbor_internal_ca.crt
+            value: /etc/harbor/ssl/jobservice/ca.crt
           {{- end }}
         envFrom:
         - configMapRef:
@@ -95,21 +102,17 @@ spec:
           subPath: {{ .Values.persistence.persistentVolumeClaim.jobservice.subPath }}
         {{- if .Values.internalTLS.enabled }}
         - name: jobservice-internal-certs
-          mountPath: /harbor_cust_cert/harbor_internal_ca.crt
-          subPath: ca.crt
-        - name: jobservice-internal-certs
-          mountPath: /etc/harbor/ssl/job_service.crt
-          subPath: tls.crt
-        - name: jobservice-internal-certs
-          mountPath: /etc/harbor/ssl/job_service.key
-          subPath: tls.key
+          mountPath: /etc/harbor/ssl/jobservice
+        {{- end }}
+        {{- if .Values.caBundleSecretName }}
+{{ include "harbor.caBundleVolumeMount" . | indent 8 }}
         {{- end }}
       volumes:
       - name: jobservice-config
         configMap:
           name: "{{ template "harbor.jobservice" . }}"
       - name: job-logs
-        {{- if and .Values.persistence.enabled (eq .Values.jobservice.jobLogger "file") }}
+        {{- if and .Values.persistence.enabled (has "file" .Values.jobservice.jobLoggers) }}
         persistentVolumeClaim:
           claimName: {{ .Values.persistence.persistentVolumeClaim.jobservice.existingClaim | default (include "harbor.jobservice" .) }}
         {{- else }}
@@ -119,6 +122,9 @@ spec:
       - name: jobservice-internal-certs
         secret:
           secretName: {{ template "harbor.internalTLS.jobservice.secretName" . }}
+      {{- end }}
+      {{- if .Values.caBundleSecretName }}
+{{ include "harbor.caBundleVolume" . | indent 6 }}
       {{- end }}
     {{- with .Values.jobservice.nodeSelector }}
       nodeSelector:
@@ -131,4 +137,7 @@ spec:
     {{- with .Values.jobservice.tolerations }}
       tolerations:
 {{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- if .Values.jobservice.priorityClassName }}
+      priorityClassName: {{ .Values.jobservice.priorityClassName }}
     {{- end }}
