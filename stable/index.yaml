@@ -3,10 +3,10 @@ entries:
   chaos-mesh:
   - apiVersion: v2
     appVersion: 2.0.4
-    created: "2022-08-23T07:01:57.574540823Z"
+    created: "2022-08-23T07:02:56.353495057Z"
     description: Chaos Mesh® is a cloud-native Chaos Engineering platform that orchestrates
       chaos on Kubernetes environments.
-    digest: 340fcb83b679a77e760686d7ab3a237935ccfb324f7d9337c04915a088807714
+    digest: c0b54c57d76cce39efc6bfe5cf1ce775c65bd2bbe5e45d735c381be824e03fb0
     home: https://chaos-mesh.org
     icon: https://raw.githubusercontent.com/pingcap/chaos-mesh/master/static/logo.svg
     keywords:
@@ -42,6 +42,34 @@ entries:
     - https://charts.kubesphere.io/stable/chaos-mesh-2.0.3.tgz
     version: 2.0.3
   crane:
+  - annotations:
+      app.kubesphere.io/category: Continuous Optimization
+    apiVersion: v2
+    appVersion: v0.5.2
+    created: "2022-08-23T07:02:56.355170887Z"
+    description: Crane (FinOps Crane) is an opensource project which manages cloud
+      resource on Kubernetes stack, it is inspired by FinOps concepts.
+    digest: fad71a2c743c4c38ccf46430a924ba22b84e3efc6fcd024b32a871236cc20ac0
+    home: https://github.com/gocrane/crane
+    icon: https://docs.gocrane.io/dev/images/crane.svg
+    keywords:
+    - kubernetes
+    - finops
+    - autoscaling
+    - hpa
+    - vpa
+    - resources
+    - qos
+    maintainers:
+    - email: brilliantroad@126.com
+      name: qmhu
+    name: crane
+    sources:
+    - https://github.com/gocrane/crane
+    type: application
+    urls:
+    - https://charts.kubesphere.io/stable/crane-0.5.2.tgz
+    version: 0.5.2
   - annotations:
       app.kubesphere.io/category: Continuous Optimization
     apiVersion: v2
@@ -388,9 +416,9 @@ entries:
   juicefs:
   - apiVersion: v2
     appVersion: 0.16.1
-    created: "2022-08-23T07:01:57.575458936Z"
+    created: "2022-08-23T07:02:56.356410409Z"
     description: A Helm chart for JuiceFS CSI Driver
-    digest: 737e3f9f118571f37384fe856fb16ba54c14c1842c9890b0b6a74dcb30bd4768
+    digest: 2017208b258acb711f11dc6865894cea3e85d768051600a0b328ff8780c5eb24
     home: https://github.com/juicedata/juicefs
     icon: https://s.juicefs.com/static/jfs/logo.svg
     keywords:
@@ -773,4 +801,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/stable/qiming-operator-2.2.2.tgz
     version: 2.2.2
-generated: "2022-08-23T07:01:57.566088205Z"
+generated: "2022-08-23T07:02:56.342996668Z"

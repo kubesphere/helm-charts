@@ -308,10 +308,10 @@ entries:
       app.kubesphere.io/category: Image Registry
     apiVersion: v1
     appVersion: 2.5.3
-    created: "2022-08-23T07:01:56.010495294Z"
+    created: "2022-08-23T07:00:57.947878291Z"
     description: An open source trusted cloud native registry that stores, signs,
       and scans content
-    digest: 164bc0f94fe5340bb57543664e31d5dd7bd1ec76fdf30bab6bc812400671b542
+    digest: de600672e4a9cf7bf090e3384619b5a88ca84895f47892ccab36ee74c5e4bfe7
     home: https://goharbor.io
     icon: https://raw.githubusercontent.com/goharbor/website/master/static/img/logos/harbor-icon-color.png
     keywords:
@@ -1193,4 +1193,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/main/tomcat-0.4.0-r1.tgz
     version: 0.4.0-r1
-generated: "2022-08-23T07:01:56.0037496Z"
+generated: "2022-08-23T07:00:57.942733724Z"
