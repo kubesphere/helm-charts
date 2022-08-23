@@ -307,6 +307,34 @@ entries:
   - annotations:
       app.kubesphere.io/category: Image Registry
     apiVersion: v1
+    appVersion: 2.5.3
+    created: "2022-08-23T07:00:57.947878291Z"
+    description: An open source trusted cloud native registry that stores, signs,
+      and scans content
+    digest: de600672e4a9cf7bf090e3384619b5a88ca84895f47892ccab36ee74c5e4bfe7
+    home: https://goharbor.io
+    icon: https://raw.githubusercontent.com/goharbor/website/master/static/img/logos/harbor-icon-color.png
+    keywords:
+    - docker
+    - registry
+    - harbor
+    maintainers:
+    - email: yinw@vmware.com
+      name: Wenkai Yin
+    - email: hweiwei@vmware.com
+      name: Weiwei He
+    - email: yshengwen@vmware.com
+      name: Shengwen Yu
+    name: harbor
+    sources:
+    - https://github.com/goharbor/harbor
+    - https://github.com/goharbor/harbor-helm
+    urls:
+    - https://charts.kubesphere.io/main/harbor-1.9.3.tgz
+    version: 1.9.3
+  - annotations:
+      app.kubesphere.io/category: Image Registry
+    apiVersion: v1
     appVersion: 2.0.1
     created: "2021-04-15T14:28:25.809958115Z"
     description: An open source trusted cloud native registry that stores, signs,
@@ -1165,4 +1193,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/main/tomcat-0.4.0-r1.tgz
     version: 0.4.0-r1
-generated: "2022-03-21T07:11:45.508456638Z"
+generated: "2022-08-23T07:00:57.942733724Z"
