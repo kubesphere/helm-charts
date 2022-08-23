@@ -9,7 +9,7 @@
 
 image:
   repository: juicedata/juicefs-csi-driver
-  tag: "v0.15.0"
+  tag: "v0.16.1"
   pullPolicy: ""
 
 sidecars:
@@ -98,11 +98,11 @@ node:
   hostNetwork: false
   resources:
     limits:
-      cpu: 2000m
-      memory: 5Gi
-    requests:
       cpu: 1000m
       memory: 1Gi
+    requests:
+      cpu: 100m
+      memory: 512Mi
   storageClassShareMount: false
   # -- Grace period to allow the node pod to shutdown before it is killed
   terminationGracePeriodSeconds: 30
@@ -145,21 +145,23 @@ storageClasses:
     configs: ""
     # -- Config for trash days
     trashDays: ""
-    # -- Options of juicefs format/auth, connected by `,`, such as `block-size=4096,capacity=10`. Read [community document](https://juicefs.com/docs/community/command_reference/) and [Cloud Service document](https://juicefs.com/docs/cloud/commands_reference#auth) for more usage.
+    # -- Options of juicefs format/auth, connected by `,`, such as `block-size=4096,capacity=10`. Read ["Community Edition document"](https://juicefs.com/docs/community/command_reference#juicefs-format) or ["Cloud Service document"](https://juicefs.com/docs/cloud/commands_reference#auth) for more information.
     formatOptions: ""
 
-
+  # -- Mount Options. Read ["Community Edition document"](https://juicefs.com/docs/community/command_reference#juicefs-mount) or ["Cloud Service document"](https://juicefs.com/docs/cloud/commands_reference#mount) to learn how to set different mount options.<br/><br/>
+  # Example:<br/>
+  # - `debug`<br/>
+  # - `cache-size=2048`<br/>
+  # - `cache-dir=/var/foo`
   mountOptions:
-  # -- Mount Options. Read [this document](https://juicefs.com/docs/community/command_reference) to learn how to set different mount options.
-  # Example:
-  # - debug
-  # - cache-size=2048
-  # - cache-dir=/var/foo
 
-  # Define subdir format in storageClass, read [this document](https://juicefs.com/docs/csi/examples/subpath/#using-pathpattern) for more details.
-  # If enabled, please make sure controller.provisioner=true
-  # Example: "${.PVC.name}"
+  # -- Define subdir format in storageClass, read [this document](https://juicefs.com/docs/csi/examples/subpath/#using-pathpattern) for more details.
+  # If enabled, please make sure `controller.provisioner=true`.
+  # Example: `"${.PVC.name}"`
   pathPattern: ""
+
+  # -- Using PVC as JuiceFS cache, read [this document](https://juicefs.com/docs/csi/examples/cache-dir/#use-pvc-as-cache-path-1) for more details.
+  cachePVC: ""
 
   mountPod:
     # mount pod resource requests & limits

@@ -2,8 +2,8 @@ apiVersion: v2
 name: juicefs
 description: A Helm chart for JuiceFS CSI Driver
 type: application
-version: 0.11.0
-appVersion: 0.15.0
+version: 0.12.1
+appVersion: 0.16.1
 kubeVersion: ">=1.14.0-0"
 home: https://github.com/juicedata/juicefs
 sources:
@@ -11,7 +11,8 @@ sources:
 icon: https://s.juicefs.com/static/jfs/logo.svg
 maintainers:
   - email: team@juicedata.io
-    name: Juicedata Inc
+    name: Juicedata Inc.
+    url: https://juicefs.com
 keywords:
   - juicefs
   - csi

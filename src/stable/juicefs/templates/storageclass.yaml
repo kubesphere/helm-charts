@@ -63,6 +63,9 @@ parameters:
   {{- if $sc.pathPattern }}
   pathPattern: {{ $sc.pathPattern }}
   {{- end }}
+  {{- if $sc.cachePVC }}
+  juicefs/mount-cache-pvc: {{ $sc.cachePVC }}
+  {{- end }}
   {{- with $sc.mountPod }}
   {{- if .resources.limits }}
   {{- if .resources.limits.cpu }}
