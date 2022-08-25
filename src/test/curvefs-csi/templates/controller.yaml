@@ -1,0 +1,81 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: curvefs-csi-controller
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    matchLabels:
+      app: curvefs-csi-controller
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: curvefs-csi-controller
+    spec:
+      serviceAccount: curvefs-csi-service-account
+      {{- with .Values.controller.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: csi-provisioner
+          image: "{{ .Values.sidecars.csiProvisionerImage.repository }}:{{ .Values.sidecars.csiProvisionerImage.tag }}"
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            privileged: true
+          args:
+            - --provisioner=csi.curvefs.com
+            - --csi-address=$(ADDRESS)
+          env:
+            - name: TZ
+              value: Asia/Shanghai
+            - name: ADDRESS
+              value: /csi/csi-controller.sock
+          resources:
+            {{- toYaml .Values.controller.resources | nindent 12 }}
+          volumeMounts:
+            - mountPath: /csi
+              name: socket-dir
+        - name: curvefs-driver
+          image: "{{ .Values.driver.repository }}:{{ .Values.driver.tag }}"
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            privileged: true
+          args:
+            - --endpoint=$(CSI_ENDPOINT)
+            - --nodeid=$(NODE_NAME)
+            - --alsologtostderr
+            - --v=5
+          env:
+            - name: TZ
+              value: Asia/Shanghai
+            - name: CSI_ENDPOINT
+              value: unix:///csi/csi-controller.sock
+            - name: KUBE_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: spec.nodeName
+          lifecycle:
+            preStop:
+              exec:
+                command: [
+                  "/bin/sh", "-c",
+                  "rm -rf /csi/csi-controller.sock"
+                ]
+          volumeMounts:
+            - mountPath: /csi
+              name: socket-dir
+            - mountPath: "{{ .Values.kubeletDir }}/pods"
+              mountPropagation: Bidirectional
+              name: mountpoint-dir
+      volumes:
+        - hostPath:
+            path: "{{ .Values.kubeletDir }}/plugins/csi.curvefs.com"
+            type: DirectoryOrCreate
+          name: socket-dir
+        - hostPath:
+            path: "{{ .Values.kubeletDir }}/pods"
+            type: Directory
+          name: mountpoint-dir
