@@ -1,0 +1,15 @@
+{{- if .Values.storageClass.enabled }}
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: {{ .Values.storageClass.name }}
+provisioner: {{ .Values.driver.name }}
+reclaimPolicy: {{ .Values.storageClass.reclaimPolicy }}
+allowVolumeExpansion: {{ .Values.storageClass.allowVolumeExpansion }}
+parameters:
+  {{- toYaml .Values.storageClass.parameters | nindent 2 }}
+{{- if .Values.storageClass.mountOptions }}
+mountOptions:
+  {{- toYaml .Values.storageClass.mountOptions | nindent 2 }}
+{{- end }}
+{{- end}}
