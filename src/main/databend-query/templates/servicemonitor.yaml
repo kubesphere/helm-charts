@@ -1,0 +1,15 @@
+{{- if .Values.serviceMonitor.enabled -}}
+apiVersion: monitoring.coreos.com/v1
+kind: ServiceMonitor
+metadata:
+  name: {{ include "databend-query.fullname" . }}
+  labels:
+    {{- include "databend-query.labels" . | nindent 4 }}
+spec:
+  jobLabel: {{ include "databend-query.fullname" . }}
+  selector:
+    matchLabels:
+      {{- include "databend-query.selectorLabels" . | nindent 6 }}
+  endpoints:
+    - port: {{ .Values.serviceMonitor.port }}
+{{- end }}
