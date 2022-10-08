@@ -24,11 +24,11 @@ prepareHelm() {
   curl -sL $helmUrl | tar --strip-components=1 -xzf - linux-amd64/helm
 }
 
-findDependsCharts() {
+findLatestCharts() {
   local repoDir=$1
-  helm dependency update $repoDir/depends
-  for dependsCharts in $(ls $repoDir/depends/charts/); do
-     tar -zxvf $repoDir/depends/charts/$dependsCharts -C $repoDir/stable
+  helm dependency update $repoDir/latest
+  for latestCharts in $(ls $repoDir/latest/charts/); do
+     tar -zxvf $repoDir/latest/charts/$latestCharts -C $repoDir/stable
   done
 }
 
@@ -99,7 +99,7 @@ updateRepo() {
   [ "$httpCode" = "404" ] && rm -f $indexFile
 
   echo "Finding updated charts ..."
-  findDependsCharts $srcDir
+  findLatestCharts $srcDir
   updatedCharts="$(findUpdatedCharts $repoSrcDir $indexFile)"
   updatedCharts="$(echo $updatedCharts)"
   if [ -z "$updatedCharts" ]; then
@@ -221,7 +221,7 @@ deploy_charts(){
     verify
     echo "checkout gh-pages"
     git checkout gh-pages
-    dirs=$(ls build/|grep -v depends)
+    dirs=$(ls build/|grep -v latest)
     for dir in ${dirs}; do
       echo "copy resource in ${dir}"
       mkdir -p ${dir}
