@@ -3,10 +3,10 @@ entries:
   chaos-mesh:
   - apiVersion: v2
     appVersion: 2.0.4
-    created: "2022-10-11T08:47:30.437112542Z"
+    created: "2022-10-12T07:19:29.881662298Z"
     description: Chaos Mesh® is a cloud-native Chaos Engineering platform that orchestrates
       chaos on Kubernetes environments.
-    digest: 3af684c50884c63dd0520bc9e6a0bde6d9a39d2b1bc723af79d530264801398a
+    digest: 014e7c11946395d49a549a8860f03eba3997ab3ddc6ed5598c47af83cbb2e27a
     home: https://chaos-mesh.org
     icon: https://raw.githubusercontent.com/pingcap/chaos-mesh/master/static/logo.svg
     keywords:
@@ -121,6 +121,38 @@ entries:
     - https://charts.kubesphere.io/stable/crane-0.5.0.tgz
     version: 0.5.0
   deepflow:
+  - apiVersion: v2
+    appVersion: 6.1.2
+    created: "2022-10-12T07:19:29.893389803Z"
+    dependencies:
+    - condition: deepflow-agent.enabled
+      name: deepflow-agent
+      repository: ""
+      version: '*.*.*'
+    - name: clickhouse
+      repository: ""
+      version: '*.*.*'
+    - name: mysql
+      repository: ""
+      version: '*.*.*'
+    - condition: grafana.enabled
+      name: grafana
+      repository: https://grafana.github.io/helm-charts
+      version: 6.*.*
+    description: An automated observability platform for cloud-native developers.
+    digest: 5b17e5f5faaad26e04e7c908e87d16ac5219ce32f15108d782de5ea3eab0423e
+    home: https://github.com/deepflowys/deepflow
+    icon: https://raw.githubusercontent.com/deepflowys/deepflow-charts/main/deepflow.svg
+    keywords:
+    - deepflow
+    kubeVersion: '>=1.16.0-0'
+    name: deepflow
+    sources:
+    - https://github.com/deepflowys/deepflow
+    type: application
+    urls:
+    - https://charts.kubesphere.io/stable/deepflow-0.1.036.tgz
+    version: 0.1.036
   - apiVersion: v2
     appVersion: 6.1.2
     created: "2022-09-22T07:47:22.100964755Z"
@@ -833,4 +865,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/stable/qiming-operator-2.2.2.tgz
     version: 2.2.2
-generated: "2022-10-11T08:47:30.425883948Z"
+generated: "2022-10-12T07:19:29.872385936Z"
