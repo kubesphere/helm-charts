@@ -3,10 +3,10 @@ entries:
   chaos-mesh:
   - apiVersion: v2
     appVersion: 2.0.4
-    created: "2022-10-12T14:54:53.698552492Z"
+    created: "2022-10-13T03:51:02.789238025Z"
     description: Chaos Mesh® is a cloud-native Chaos Engineering platform that orchestrates
       chaos on Kubernetes environments.
-    digest: af96450155e6264a6a77bd8450b966269761dc6cb9bde78a15c9cf9ab19887af
+    digest: 0c48d79a449d23a35535c74887f75cfbbe14c5b4c2741a5950da3eb36a15f17e
     home: https://chaos-mesh.org
     icon: https://raw.githubusercontent.com/pingcap/chaos-mesh/master/static/logo.svg
     keywords:
@@ -121,6 +121,43 @@ entries:
     - https://charts.kubesphere.io/stable/crane-0.5.0.tgz
     version: 0.5.0
   deepflow:
+  - apiVersion: v2
+    appVersion: 6.1.4
+    created: "2022-10-13T03:51:02.801865971Z"
+    dependencies:
+    - condition: clickhouse.enabled
+      name: clickhouse
+      repository: ""
+      version: '*.*.*'
+    - condition: mysql.enabled
+      name: mysql
+      repository: ""
+      version: '*.*.*'
+    - condition: deepflow-agent.enabled
+      name: deepflow-agent
+      repository: ""
+      version: '*.*.*'
+    - condition: grafana.enabled
+      name: grafana
+      repository: https://grafana.github.io/helm-charts
+      version: 6.*.*
+    description: An automated observability platform for cloud-native developers.
+    digest: ea0c953725b3fa90265d743f709d3427e32e5cb9b5b053ce1d1c2217e9699420
+    home: https://github.com/deepflowys/deepflow
+    icon: https://raw.githubusercontent.com/deepflowys/deepflow-charts/main/deepflow.svg
+    keywords:
+    - deepflow
+    kubeVersion: '>=1.16.0-0'
+    maintainers:
+    - name: deepflow
+      url: https://github.com/deepflowys/deepflow
+    name: deepflow
+    sources:
+    - https://github.com/deepflowys/deepflow
+    type: application
+    urls:
+    - https://charts.kubesphere.io/stable/deepflow-0.1.057.tgz
+    version: 0.1.057
   - apiVersion: v2
     appVersion: 6.1.2
     created: "2022-10-12T07:19:29.893389803Z"
@@ -865,4 +902,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/stable/qiming-operator-2.2.2.tgz
     version: 2.2.2
-generated: "2022-10-12T14:54:53.68835322Z"
+generated: "2022-10-13T03:51:02.780502662Z"
