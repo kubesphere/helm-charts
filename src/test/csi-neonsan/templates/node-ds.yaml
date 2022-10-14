@@ -51,8 +51,8 @@ spec:
       hostNetwork: true
       containers:
       - name: csi-neonsan
-        image: "{{ .Values.driver.node.repository }}:{{ .Values.driver.node.tag }}"
-        imagePullPolicy: {{ .Values.driver.node.pullPolicy }}
+        image: "{{ .Values.driver.repository }}:{{ .Values.driver.tag }}"
+        imagePullPolicy: {{ .Values.driver.pullPolicy }}
         securityContext:
           privileged: true
         args:
