@@ -54,7 +54,7 @@ spec:
                   fieldPath: spec.nodeName
             - name: CSI_ENDPOINT
               value: unix://csi/csi.sock
-          imagePullPolicy: {{ .Values.driver.pullPlociy }}
+          imagePullPolicy: {{ .Values.driver.pullPolicy }}
           volumeMounts:
             - name: socket-dir
               mountPath: /csi

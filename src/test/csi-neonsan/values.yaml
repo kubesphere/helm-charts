@@ -18,10 +18,6 @@ driver:
   tag: v1.2.2
   pullPolicy: IfNotPresent
   config: /etc/neonsan/qbd.conf
-  node:
-    repository: csiplugin/csi-neonsan
-    tag: v1.2.2
-    pullPolicy: IfNotPresent
 
 provisioner:
   repository: csiplugin/csi-provisioner
