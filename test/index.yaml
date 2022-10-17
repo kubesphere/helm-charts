@@ -901,6 +901,27 @@ entries:
     urls:
     - https://charts.kubesphere.io/test/csi-qingcloud-1.2.0.tgz
     version: 1.2.0
+  curvefs-csi:
+  - apiVersion: v2
+    appVersion: 1.0.0
+    created: "2022-10-17T07:04:07.464218441Z"
+    description: A Helm chart for CurveFs CSI Driver
+    digest: ee0516ff48ca549e100f29be5c9f0cd4c46d1cf9dc4fabcfd316617d41cbfee8
+    home: https://github.com/opencurve/curvefs-csi
+    keywords:
+    - curvefs
+    - csi
+    kubeVersion: '>=1.18.0-0'
+    maintainers:
+    - email: h0hmjcn@gmail.com
+      name: h0hmj
+    name: curvefs-csi
+    sources:
+    - https://github.com/opencurve/curvefs-csi
+    type: application
+    urls:
+    - https://charts.kubesphere.io/test/curvefs-csi-0.1.0.tgz
+    version: 0.1.0
   etcd:
   - annotations:
       app.kubesphere.io/category: Database & Cache
@@ -2091,4 +2112,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/test/xenondb-1.0.0.tgz
     version: 1.0.0
-generated: "2022-10-17T05:21:11.20918534Z"
+generated: "2022-10-17T07:04:07.463183434Z"
