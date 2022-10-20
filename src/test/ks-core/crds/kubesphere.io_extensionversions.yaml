@@ -1,0 +1,120 @@
+
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: ""
+  creationTimestamp: null
+  name: extensionversions.kubesphere.io
+spec:
+  group: kubesphere.io
+  names:
+    categories:
+    - extensions
+    kind: ExtensionVersion
+    listKind: ExtensionVersionList
+    plural: extensionversions
+    singular: extensionversion
+  scope: Cluster
+  versions:
+  - name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: ExtensionVersionSpec contains the details of a specific version
+              extension.
+            properties:
+              chartDataRef:
+                description: ChartDataRef refers to a configMap which contains raw
+                  chart data.
+                properties:
+                  key:
+                    description: The key to select.
+                    type: string
+                  name:
+                    description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                      TODO: Add other useful fields. apiVersion, kind, uid?'
+                    type: string
+                  namespace:
+                    type: string
+                  optional:
+                    description: Specify whether the ConfigMap or its key must be
+                      defined
+                    type: boolean
+                required:
+                - key
+                - namespace
+                type: object
+              chartURL:
+                type: string
+              description:
+                additionalProperties:
+                  type: string
+                type: object
+              displayName:
+                additionalProperties:
+                  type: string
+                type: object
+              home:
+                type: string
+              icon:
+                type: string
+              keywords:
+                items:
+                  type: string
+                type: array
+              ksVersion:
+                description: KSVersion is a SemVer constraint specifying the version
+                  of KubeSphere required.
+                type: string
+              kubeVersion:
+                description: KubeVersion is a SemVer constraint specifying the version
+                  of Kubernetes required.
+                type: string
+              repository:
+                type: string
+              sources:
+                items:
+                  type: string
+                type: array
+              vendor:
+                description: Vendor describes an extension vendor.
+                properties:
+                  email:
+                    description: Email is an optional email address to contact the
+                      named vendor
+                    type: string
+                  name:
+                    description: Name is a username or organization name
+                    type: string
+                  url:
+                    description: URL is an optional URL to an address for the named
+                      vendor
+                    type: string
+                type: object
+              version:
+                type: string
+            type: object
+        type: object
+    served: true
+    storage: true
+status:
+  acceptedNames:
+    kind: ""
+    plural: ""
+  conditions: []
+  storedVersions: []
