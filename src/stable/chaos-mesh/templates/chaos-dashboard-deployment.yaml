@@ -1,3 +1,18 @@
+# Copyright 2021 Chaos Mesh Authors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
 {{- if .Values.dashboard.create }}
 apiVersion: apps/v1
 kind: Deployment
@@ -19,7 +34,6 @@ spec:
         {{- include "chaos-mesh.labels" . | nindent 8 }}
         app.kubernetes.io/component: chaos-dashboard
       annotations:
-        rollme: {{ randAlphaNum 5 | quote }}
     {{- with .Values.dashboard.podAnnotations }}
 {{ toYaml . | indent 8 }}
     {{- end }}
@@ -30,19 +44,26 @@ spec:
       {{- if .Values.dashboard.serviceAccount }}
       serviceAccountName: {{ .Values.dashboard.serviceAccount }}
       {{- end }}
-      priorityClassName: {{ .Values.dashboard.priorityClassName}}
+      {{- if .Values.dashboard.priorityClassName }}
+      priorityClassName: {{ .Values.dashboard.priorityClassName }}
+      {{- end }}
+      {{- if .Values.chaosDlv.enable }}
+      shareProcessNamespace: true
+      {{- end }}
+      {{- if .Values.imagePullSecrets }}
+      imagePullSecrets: {{ toYaml .Values.imagePullSecrets | nindent 8 }}
+      {{- end }}
       containers:
         - name: chaos-dashboard
-          image: {{template "registry-prefix" .}}{{ .Values.dashboard.image }}
+          image: {{template "chaos-dashboard.image" . }}
           imagePullPolicy: {{ .Values.dashboard.imagePullPolicy | default "IfNotPresent" }}
           resources:
 {{ toYaml .Values.dashboard.resources | indent 12 }}
           command:
             - /usr/local/bin/chaos-dashboard
           env:
-            {{- range $envKey, $envVal := .Values.dashboard.env }}
-            - name: {{ $envKey | upper }}
-              value: {{ $envVal | quote }}
+            {{- if .Values.dashboard.env }}
+            {{- include "chaos-mesh.helpers.listEnvVars" .Values.dashboard | trim | nindent 12 }}
             {{- end }}
             {{- if not .Values.dashboard.env.TZ }}
             - name: TZ
@@ -56,8 +77,18 @@ spec:
               value: "{{ .Values.controllerManager.enableFilterNamespace }}"
             - name: SECURITY_MODE
               value: "{{ .Values.dashboard.securityMode }}"
+            - name: GCP_SECURITY_MODE
+              value: "{{ .Values.dashboard.gcpSecurityMode }}"
+            - name: GCP_CLIENT_ID
+              value: "{{ .Values.dashboard.gcpClientId }}"
+            - name: GCP_CLIENT_SECRET
+              value: "{{ .Values.dashboard.gcpClientSecret }}"
             - name: DNS_SERVER_CREATE
               value: "{{ .Values.dnsServer.create }}"
+            - name: ROOT_URL
+              value: "{{ .Values.dashboard.rootUrl }}"
+            - name: ENABLE_PROFILING
+              value: "{{ .Values.enableProfiling }}"
           volumeMounts:
             - name: storage-volume
               mountPath: {{ .Values.dashboard.persistentVolume.mountPath }}
@@ -65,6 +96,23 @@ spec:
           ports:
             - name: http
               containerPort: {{ .Values.dashboard.env.LISTEN_PORT }}
+            - name: metric
+              containerPort: {{ .Values.dashboard.env.METRIC_PORT }}
+        {{- if .Values.chaosDlv.enable }}
+        - name: chaos-mesh-dlv
+          image: {{template "chaos-dlv.image" . }}
+          imagePullPolicy: {{ .Values.chaosDlv.imagePullPolicy | default "IfNotPresent" }}
+          env:
+            - name: CMD_NAME
+              value: chaos-dashboard
+          securityContext:
+            capabilities:
+              add:
+              - SYS_PTRACE
+          ports:
+          - name: dlv
+            containerPort: 8000
+        {{- end }}
         {{- with .Values.dashboard.nodeSelector }}
       nodeSelector:
 {{ toYaml . | indent 8 }}
@@ -97,8 +145,10 @@ metadata:
     app.kubernetes.io/instance: {{ .Release.Name }}
     app.kubernetes.io/component: chaos-dashboard
     helm.sh/chart: {{ .Chart.Name }}-{{ .Chart.Version | replace "+"  "_" }}
-{{- with .Values.dashboard.service.annotations }}
   annotations:
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "{{ .Values.dashboard.env.METRIC_PORT }}"
+{{- with .Values.dashboard.service.annotations }}
 {{ toYaml . | indent 4 }}
 {{- end }}
 spec:
@@ -118,4 +168,14 @@ spec:
 {{- if and .Values.dashboard.service.nodePort (eq .Values.dashboard.service.type "NodePort") }}
       nodePort: {{ .Values.dashboard.service.nodePort }}
 {{- end }}
+  {{- if .Values.chaosDlv.enable }}
+    - port: 8000
+      targetPort: dlv
+      protocol: TCP
+      name: dlv
+  {{- end }}
+    - protocol: TCP
+      port: {{ .Values.dashboard.env.METRIC_PORT }}
+      targetPort: {{ .Values.dashboard.env.METRIC_PORT }}
+      name: metric
 {{- end }}
