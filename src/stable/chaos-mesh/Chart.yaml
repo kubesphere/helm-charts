@@ -1,15 +1,33 @@
+annotations:
+  artifacthub.io/containsSecurityUpdates: "false"
+  artifacthub.io/license: Apache-2.0
+  artifacthub.io/operator: "true"
+  artifacthub.io/operatorCapabilities: Seamless Upgrades
+  artifacthub.io/prerelease: "false"
 apiVersion: v2
-appVersion: "2.0.4"
-description: Chaos Mesh® is a cloud-native Chaos Engineering platform that orchestrates chaos on Kubernetes environments.
+appVersion: 2.4.1
+description: Chaos Mesh is a cloud-native Chaos Engineering platform that orchestrates
+  chaos on Kubernetes environments.
 home: https://chaos-mesh.org
 icon: https://raw.githubusercontent.com/pingcap/chaos-mesh/master/static/logo.svg
-sources:
-  - https://github.com/pingcap/chaos-mesh
-name: chaos-mesh
-version: "2.0.4"
 keywords:
-  - chaos-engineering
-  - resiliency
-  - fault-injection
-  - kubernetes
-  - testing
+- chaos-engineering
+- resiliency
+- fault-injection
+- kubernetes
+- testing
+maintainers:
+- email: cwen@pingcap.com
+  name: cwen0
+- email: yangkeao@chunibyo.icu
+  name: YangKeao
+- email: wenghao@pingcap.com
+  name: dcalvin
+- email: yb532204897@gmail.com
+  name: yeya24
+- email: tttick@gmail.com
+  name: Gallardot
+name: chaos-mesh
+sources:
+- https://github.com/pingcap/chaos-mesh
+version: 2.4.1

@@ -1,3 +1,18 @@
+# Copyright 2021 Chaos Mesh Authors.
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+# http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
@@ -7,6 +22,10 @@ metadata:
     app.kubernetes.io/component: chaos-daemon
     {{- include "chaos-mesh.labels" . | nindent 4 }}
 spec:
+  {{- if .Values.chaosDaemon.updateStrategy }}
+  updateStrategy:
+{{ toYaml .Values.chaosDaemon.updateStrategy | indent 4 }}
+  {{- end }}
   selector:
     matchLabels:
       {{- include "chaos-mesh.selectors" . | nindent 6 }}
@@ -17,25 +36,30 @@ spec:
         {{- include "chaos-mesh.labels" . | nindent 8 }}
         app.kubernetes.io/component: chaos-daemon
       annotations:
-        {{- if .Values.dashboard.securityMode }}
+        {{- /* it requires to reload the latest re-generated certs for mtls after helm upgrade*/}}
+        {{- if .Values.chaosDaemon.mtls.enabled }}
         rollme: {{ randAlphaNum 5 | quote }}
         {{- end }}
     {{- with .Values.chaosDaemon.podAnnotations }}
 {{ toYaml . | indent 8 }}
     {{- end }}
     spec:
-  {{- if .Values.chaosDaemon.hostNetwork }}
+      {{- if .Values.chaosDaemon.hostNetwork }}
       hostNetwork: true
-  {{- end }}
-  {{- if .Values.chaosDaemon.serviceAccount }}
+      {{- end }}
+      {{- if .Values.chaosDaemon.serviceAccount }}
       serviceAccountName: {{ .Values.chaosDaemon.serviceAccount }}
-  {{- end }}
-      hostIPC: true
+      {{- end }}
       hostPID: true
-      priorityClassName: {{ .Values.chaosDaemon.priorityClassName}}
+      {{- if .Values.chaosDaemon.priorityClassName }}
+      priorityClassName: {{ .Values.chaosDaemon.priorityClassName }}
+      {{- end }}
+      {{- if .Values.imagePullSecrets }}
+      imagePullSecrets: {{ toYaml .Values.imagePullSecrets | nindent 8 }}
+      {{- end }}
       containers:
         - name: chaos-daemon
-          image: {{template "registry-prefix" .}}{{ .Values.chaosDaemon.image }}
+          image: {{template "chaos-daemon.image" . }}
           imagePullPolicy: {{ .Values.chaosDaemon.imagePullPolicy | default "IfNotPresent" }}
           {{- if .Values.chaosDaemon.resources }}
           resources:
@@ -52,7 +76,7 @@ spec:
           {{- if .Values.enableProfiling }}
             - --pprof
           {{- end }}
-          {{- if .Values.dashboard.securityMode }}
+          {{- if .Values.chaosDaemon.mtls.enabled }}
             - --ca
             - /etc/chaos-daemon/cert/ca.crt
             - --cert
@@ -60,10 +84,21 @@ spec:
             - --key
             - /etc/chaos-daemon/cert/tls.key
           {{- end }}
+            - --runtime-socket-path
+        {{- if .Values.chaosDaemon.socketPath }}
+            - /host-run/{{ .Values.chaosDaemon.socketPath | base }}
+        {{- else }}
+          {{- if eq .Values.chaosDaemon.runtime "docker" }}
+            - /host-run/docker.sock
+          {{- else if eq .Values.chaosDaemon.runtime "containerd" }}
+            - /host-run/containerd.sock
+          {{- else if eq .Values.chaosDaemon.runtime "crio" }}
+            - /host-run/crio.sock
+          {{- end }}
+        {{- end }}
           env:
-            {{- range $envKey, $envVal := .Values.chaosDaemon.env }}
-            - name: {{ $envKey | upper }}
-              value: {{ $envVal | quote }}
+            {{- if .Values.chaosDaemon.env }}
+            {{- include "chaos-mesh.helpers.listEnvVars" .Values.chaosDaemon | trim | nindent 12 }}
             {{- end }}
             {{- if not .Values.chaosDaemon.env.TZ }}
             - name: TZ
@@ -89,16 +124,12 @@ spec:
             {{- end }}
           volumeMounts:
             - name: socket-path
-              {{- if eq .Values.chaosDaemon.runtime "docker" }}
-              mountPath: /var/run/docker.sock
-              {{- else if eq .Values.chaosDaemon.runtime "containerd" }}
-              mountPath: /run/containerd/containerd.sock
-              {{- else if eq .Values.chaosDaemon.runtime "crio" }}
-              mountPath: /var/run/crio/crio.sock
-              {{- end }}
+              mountPath: /host-run
             - name: sys-path
               mountPath: /host-sys
-            {{- if .Values.dashboard.securityMode}}
+            - name: lib-modules
+              mountPath: /lib/modules
+            {{- if .Values.chaosDaemon.mtls.enabled}}
             - name: chaos-daemon-cert
               mountPath: /etc/chaos-daemon/cert
               readOnly: true
@@ -106,12 +137,11 @@ spec:
           ports:
             - name: grpc
               containerPort: {{ .Values.chaosDaemon.grpcPort }}
-              hostPort: {{ .Values.chaosDaemon.grpcPort }}
             - name: http
               containerPort: {{ .Values.chaosDaemon.httpPort }}
 {{- if .Values.bpfki.create }}
         - name: bpfki
-          image: {{template "registry-prefix" .}}{{ .Values.bpfki.image }}
+          image: {{template "chaos-kernel.image" . }}
           imagePullPolicy: {{ .Values.bpfki.imagePullPolicy | default "IfNotPresent" }}
           {{- if .Values.bpfki.resources }}
           resources:
@@ -136,16 +166,33 @@ spec:
           ports:
             - name: grpc
               containerPort: {{ .Values.bpfki.grpcPort }}
-              hostPort: {{ .Values.bpfki.grpcPort }}
 {{- end }}
+        {{- if .Values.chaosDlv.enable }}
+        - name: chaos-mesh-dlv
+          image: {{template "chaos-dlv.image" . }}
+          imagePullPolicy: {{ .Values.chaosDlv.imagePullPolicy | default "IfNotPresent" }}
+          env:
+            - name: CMD_NAME
+              value: chaos-daemon
+          securityContext:
+            capabilities:
+              add:
+              - SYS_PTRACE
+          ports:
+          - name: dlv
+            containerPort: 8000
+        {{- end }}
       volumes:
         - name: socket-path
-          hostPath:
-            path: {{ .Values.chaosDaemon.socketPath | default "/var/run/docker.sock" }}
+          hostPath: 
+            path: {{template "chaos-daemon.socket-path" . }}
         - name: sys-path
           hostPath:
             path: /sys
-        {{- if .Values.dashboard.securityMode}}
+        - name: lib-modules
+          hostPath:
+            path: /lib/modules
+        {{- if .Values.chaosDaemon.mtls.enabled}}
         - name: chaos-daemon-cert
           secret:
             secretName:  {{ template "chaos-mesh.daemon.certs" . }}
