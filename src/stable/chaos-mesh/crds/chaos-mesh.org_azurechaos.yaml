@@ -6,14 +6,14 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: v0.4.1
   creationTimestamp: null
-  name: awschaos.chaos-mesh.org
+  name: azurechaos.chaos-mesh.org
 spec:
   group: chaos-mesh.org
   names:
-    kind: AWSChaos
-    listKind: AWSChaosList
-    plural: awschaos
-    singular: awschaos
+    kind: AzureChaos
+    listKind: AzureChaosList
+    plural: azurechaos
+    singular: azurechaos
   scope: Namespaced
   versions:
   - additionalPrinterColumns:
@@ -26,7 +26,7 @@ spec:
     name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: AWSChaos is the Schema for the awschaos API
+        description: AzureChaos is the Schema for the azurechaos API
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -41,47 +41,48 @@ spec:
           metadata:
             type: object
           spec:
-            description: AWSChaosSpec is the content of the specification for an AWSChaos
+            description: AzureChaosSpec is the content of the specification for an
+              AzureChaos
             properties:
               action:
-                description: 'Action defines the specific aws chaos action. Supported
-                  action: ec2-stop / ec2-restart / detach-volume Default action: ec2-stop'
+                description: 'Action defines the specific azure chaos action. Supported
+                  action: vm-stop / vm-restart / disk-detach Default action: vm-stop'
                 enum:
-                - ec2-stop
-                - ec2-restart
-                - detach-volume
+                - vm-stop
+                - vm-restart
+                - disk-detach
                 type: string
-              awsRegion:
-                description: AWSRegion defines the region of aws.
-                type: string
-              deviceName:
-                description: DeviceName indicates the name of the device. Needed in
-                  detach-volume.
+              diskName:
+                description: DiskName indicates the name of the disk. Needed in disk-detach.
                 type: string
               duration:
                 description: Duration represents the duration of the chaos action.
                 type: string
-              ec2Instance:
-                description: Ec2Instance indicates the ID of the ec2 instance.
-                type: string
-              endpoint:
-                description: Endpoint indicates the endpoint of the aws server. Just
-                  used it in test now.
+              lun:
+                description: LUN indicates the Logical Unit Number of the data disk.
+                  Needed in disk-detach.
+                type: integer
+              resourceGroupName:
+                description: ResourceGroupName defines the name of ResourceGroup
                 type: string
               secretName:
-                description: SecretName defines the name of kubernetes secret.
+                description: SecretName defines the name of kubernetes secret. It
+                  is used for Azure credentials.
                 type: string
-              volumeID:
-                description: EbsVolume indicates the ID of the EBS volume. Needed
-                  in detach-volume.
+              subscriptionID:
+                description: SubscriptionID defines the id of Azure subscription.
+                type: string
+              vmName:
+                description: VMName defines the name of Virtual Machine
                 type: string
             required:
             - action
-            - awsRegion
-            - ec2Instance
+            - resourceGroupName
+            - subscriptionID
+            - vmName
             type: object
           status:
-            description: AWSChaosStatus represents the status of an AWSChaos
+            description: AzureChaosStatus represents the status of an AzureChaos
             properties:
               conditions:
                 description: Conditions represents the current global condition of
