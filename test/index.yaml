@@ -991,6 +991,17 @@ entries:
     urls:
     - https://charts.kubesphere.io/test/etcd-0.1.0.tgz
     version: 0.1.0
+  ks-core:
+  - apiVersion: v2
+    appVersion: v4.0.0-alpha.1
+    created: "2022-11-03T02:39:20.7275161Z"
+    description: A Helm chart for KubeSphere Core components
+    digest: f037f20ed66c1979a2953a6c286766282b643381946062f1305b9f4a85f67d53
+    name: ks-core
+    type: application
+    urls:
+    - https://charts.kubesphere.io/test/ks-core-0.2.0.tgz
+    version: 0.2.0
   ks-installer:
   - apiVersion: v2
     appVersion: 3.2.1
@@ -2112,4 +2123,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/test/xenondb-1.0.0.tgz
     version: 1.0.0
-generated: "2022-10-17T07:04:07.463183434Z"
+generated: "2022-11-03T02:39:20.721480129Z"
