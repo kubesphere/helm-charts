@@ -1,5 +1,5 @@
 apiVersion: v2
-name: radondb-mysql
+name: mysql
 description: High Availability MySQL Cluster, Open Source.
 home: https://github.com/radondb/radondb-mysql-kubernetes.git
 
@@ -16,7 +16,7 @@ type: application
 # This is the chart version. This version number should be incremented each time you make changes
 # to the chart and its templates, including the app version.
 # Versions are expected to follow Semantic Versioning (https://semver.org/)
-version: 1.0.1
+version: 1.0.2
 
 # This is the version number of the application being deployed. This version number should be
 # incremented each time you make changes to the application. Versions are not expected to
@@ -37,6 +37,5 @@ maintainers:
 - email: radondb@yunify.com
   name: RadonDB
 
-icon: https://xenondb.pek3b.qingstor.com/icons/radondb-mysql.svg
 annotations:
   "app.kubesphere.io/category": "Database & Cache"
