@@ -157,6 +157,27 @@ entries:
     urls:
     - https://charts.kubesphere.io/stable/crane-0.5.0.tgz
     version: 0.5.0
+  curvefs-csi:
+  - apiVersion: v2
+    appVersion: 1.0.0
+    created: "2022-11-23T09:11:10.950147102Z"
+    description: A Helm chart for CurveFs CSI Driver
+    digest: d3cb073e4b090d462aacb24179200cc6bbcb8696b57e36ecd5cc67ac1d687f43
+    home: https://github.com/opencurve/curvefs-csi
+    keywords:
+    - curvefs
+    - csi
+    kubeVersion: '>=1.18.0-0'
+    maintainers:
+    - email: h0hmjcn@gmail.com
+      name: h0hmj
+    name: curvefs-csi
+    sources:
+    - https://github.com/opencurve/curvefs-csi
+    type: application
+    urls:
+    - https://charts.kubesphere.io/stable/curvefs-csi-0.1.0.tgz
+    version: 0.1.0
   deepflow:
   - apiVersion: v2
     appVersion: 6.1.6
@@ -1087,4 +1108,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/stable/qiming-operator-2.2.2.tgz
     version: 2.2.2
-generated: "2022-11-23T06:49:38.913682594Z"
+generated: "2022-11-23T09:11:10.949331593Z"
