@@ -160,6 +160,43 @@ entries:
   deepflow:
   - apiVersion: v2
     appVersion: 6.1.6
+    created: "2022-11-23T06:49:38.93108886Z"
+    dependencies:
+    - condition: clickhouse.enabled
+      name: clickhouse
+      repository: ""
+      version: '*.*.*'
+    - condition: mysql.enabled
+      name: mysql
+      repository: ""
+      version: '*.*.*'
+    - condition: deepflow-agent.enabled
+      name: deepflow-agent
+      repository: ""
+      version: '*.*.*'
+    - condition: grafana.enabled
+      name: grafana
+      repository: https://grafana.github.io/helm-charts
+      version: 6.*.*
+    description: An automated observability platform for cloud-native developers.
+    digest: 40e826e1d3818e31c83f503ccb99318a02d459e50b5fda04aec365e0ba51234a
+    home: https://github.com/deepflowys/deepflow
+    icon: https://raw.githubusercontent.com/deepflowys/deepflow-charts/main/deepflow.svg
+    keywords:
+    - deepflow
+    kubeVersion: '>=1.16.0-0'
+    maintainers:
+    - name: deepflow
+      url: https://github.com/deepflowys/deepflow
+    name: deepflow
+    sources:
+    - https://github.com/deepflowys/deepflow
+    type: application
+    urls:
+    - https://charts.kubesphere.io/stable/deepflow-0.1.075.tgz
+    version: 0.1.075
+  - apiVersion: v2
+    appVersion: 6.1.6
     created: "2022-11-10T07:25:15.569969499Z"
     dependencies:
     - condition: clickhouse.enabled
@@ -1050,4 +1087,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/stable/qiming-operator-2.2.2.tgz
     version: 2.2.2
-generated: "2022-11-10T07:25:15.557159567Z"
+generated: "2022-11-23T06:49:38.913682594Z"
