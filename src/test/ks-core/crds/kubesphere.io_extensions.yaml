@@ -137,7 +137,7 @@ spec:
                   - type
                   type: object
                 type: array
-              recommendVersion:
+              recommendedVersion:
                 type: string
               state:
                 type: string
