@@ -73,17 +73,21 @@ spec:
                 type: string
               icon:
                 type: string
+              installationMode:
+                type: string
               keywords:
                 items:
                   type: string
                 type: array
               ksVersion:
-                description: KSVersion is a SemVer constraint specifying the version
-                  of KubeSphere required.
+                description: 'KSVersion is a SemVer constraint specifying the version
+                  of KubeSphere required. eg: >= 1.2.0, see https://github.com/Masterminds/semver
+                  for more info.'
                 type: string
               kubeVersion:
-                description: KubeVersion is a SemVer constraint specifying the version
-                  of Kubernetes required.
+                description: 'KubeVersion is a SemVer constraint specifying the version
+                  of Kubernetes required. eg: >= 1.2.0, see https://github.com/Masterminds/semver
+                  for more info.'
                 type: string
               repository:
                 type: string
