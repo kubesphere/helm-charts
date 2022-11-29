@@ -8,50 +8,86 @@ data:
   config.toml: |-
     # databend query config
     [query]
-    max_active_sessions = {{ .Values.config.query.maxActiveSessions | default 256 }}
-    wait_timeout_mills = {{ .Values.config.query.waitTimeoutMills | default 5000 }}
+      max_active_sessions = {{ .Values.config.query.maxActiveSessions | default 1024 }}
+      wait_timeout_mills = {{ .Values.config.query.waitTimeoutMills | default 5000 }}
 
-    tenant_id = {{ .Values.config.query.tenantId | quote }}
-    cluster_id = {{ .Values.config.query.clusterId | quote }}
+      tenant_id = {{ .Values.config.query.tenantId | default .Release.Name | quote }}
+      cluster_id = {{ .Values.config.query.clusterId | quote }}
 
-    table_cache_enabled = {{ .Values.config.query.tableCacheEnabled }}
-    {{- if .Values.config.query.tableCacheEnabled }}
-    table_memory_cache_mb_size = {{ .Values.config.query.tableMemoryCacheMbSize | default 1024 }}
-    table_disk_cache_root = {{ .Values.config.query.tableDiskCacheRoot | quote }}
-    table_disk_cache_mb_size = {{ .Values.config.query.tableDiskCacheMbSize }}
-    {{- end }}
-    management_mode = {{ .Values.config.query.managementMode }}
-    jwt_key_file = {{ .Values.config.query.jwtKeyFile | quote }}
+      table_cache_enabled = {{ .Values.config.query.tableCacheEnabled }}
+
+      {{- if .Values.config.query.tableCacheEnabled }}
+      table_memory_cache_mb_size = {{ .Values.config.query.tableMemoryCacheMbSize | default 1024 }}
+      table_disk_cache_root = {{ .Values.config.query.tableDiskCacheRoot | quote }}
+      table_disk_cache_mb_size = {{ .Values.config.query.tableDiskCacheMbSize }}
+      {{- end }}
+
+      management_mode = {{ .Values.config.query.managementMode }}
+      jwt_key_file = {{ .Values.config.query.jwtKeyFile | quote }}
+
+      {{- if .Values.config.query.users }}
+      {{- range .Values.config.query.users }}
+      [[query.users]]
+        name = {{ .name | quote }}
+        auth_type = {{ .authType | quote }}
+        {{- if eq .authType "sha256_password"}}
+        auth_string = {{ .authString | quote }}
+        {{- else if eq .authType "double_sha1_password"}}
+        auth_string = {{ .authString | quote }}
+        {{- end }}
+      {{- end }}
+      {{- end }}
 
     [log]
-    log_level = {{ .Values.config.log.level | default "ERROR" | quote }}
-    log_dir = {{ .Values.config.log.dir | default "/var/log/query" | quote }}
-    query_enabled = {{ .Values.config.log.queryEnabled }}
+      [log.file]
+        on = {{ .Values.config.log.file.enabled }}
+        level = {{ .Values.config.log.file.level | default "INFO" | quote }}
+        dir = "/var/log/databend"
+      [log.stderr]
+        on = {{ .Values.config.log.stderr.enabled }}
+        level = {{ .Values.config.log.stderr.level | default "WARN" | quote }}
 
     [meta]
-    meta_embedded_dir = {{ .Values.config.meta.embeddedDir | quote }}
-    meta_address = {{ .Values.config.meta.address | quote }}
-    meta_username = {{ .Values.config.meta.username | quote }}
-    meta_password = {{ .Values.config.meta.password | quote }}
-    meta_client_timeout_in_second = {{ .Values.config.meta.clientTimeoutInSecond | default 60 }}
+      endpoints = [{{ range .Values.config.meta.endpoints }}{{ . | quote }},{{ end }}]
+      username = {{ .Values.config.meta.username | quote }}
+      password = {{ .Values.config.meta.password | quote }}
+      client_timeout_in_second = {{ .Values.config.meta.clientTimeoutInSecond | default 60 }}
 
     [storage]
-    storage_type = {{ .Values.config.storage.type | quote }}
-    {{- if eq .Values.config.storage.type "fs" }}
+      storage_type = {{ .Values.config.storage.type | quote }}
 
-    [storage.fs]
-    data_path = {{ .Values.config.storage.fs.dataPath | quote }}
-    {{- else if eq .Values.config.storage.type "s3"}}
-
-    [storage.s3]
-    bucket = {{ .Values.config.storage.s3.bucket | quote }}
-    {{- if .Values.minio.enabled }}
-    endpoint_url = "http://{{ printf "%s-%s.%s" .Release.Name "minio" .Release.Namespace }}:{{ .Values.minio.minioAPIPort }}"
-    access_key_id = {{ .Values.minio.rootUser | quote }}
-    secret_access_key = {{ .Values.minio.rootPassword | quote }}
-    {{- else }}
-    endpoint_url = {{ .Values.config.storage.s3.endpointUrl | quote}}
-    access_key_id = {{ .Values.config.storage.s3.accessKeyId | quote}}
-    secret_access_key = {{ .Values.config.storage.s3.secretAccessKey | quote }}
-    {{- end }}
-    {{- end }}
+      {{- if eq .Values.config.storage.type "fs" }}
+      [storage.fs]
+        {{- range $field, $value := .Values.config.storage.fs }}
+        {{- if (kindIs "string" $value) }}
+        {{ $field }} = {{ $value | quote }}
+        {{- else }}
+        {{ $field }} = {{ $value }}
+        {{- end }}
+        {{- end }}
+      {{- else if eq .Values.config.storage.type "s3"}}
+      [storage.s3]
+        {{- if .Values.minio.enabled }}
+        bucket = {{ .Values.config.storage.s3.bucket | quote }}
+        endpoint_url = "http://{{ printf "%s-%s.%s" .Release.Name "minio" .Release.Namespace }}:{{ .Values.minio.minioAPIPort }}"
+        access_key_id = {{ .Values.minio.rootUser | quote }}
+        secret_access_key = {{ .Values.minio.rootPassword | quote }}
+        {{- else }}
+        {{- range $field, $value := .Values.config.storage.s3 }}
+        {{- if (kindIs "string" $value) }}
+        {{ $field }} = {{ $value | quote }}
+        {{- else }}
+        {{ $field }} = {{ $value }}
+        {{- end }}
+        {{- end }}
+        {{- end }}
+      {{- else if eq .Values.config.storage.type "oss"}}
+      [storage.oss]
+        {{- range $field, $value := .Values.config.storage.oss }}
+        {{- if (kindIs "string" $value) }}
+        {{ $field }} = {{ $value | quote }}
+        {{- else }}
+        {{ $field }} = {{ $value }}
+        {{- end }}
+        {{- end }}
+      {{- end }}

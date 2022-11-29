@@ -28,6 +28,8 @@ service:
   ports:
     admin: 28002
     grpc: 9191
+  # Annotations to add to the service
+  annotations: {}
 
 serviceMonitor:
   enabled: false

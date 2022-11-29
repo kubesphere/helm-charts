@@ -49,13 +49,37 @@ spec:
                 case ${BASH_REMATCH[2]} in
                   0)
                     echo "initialize leader node";
-                    /databend-meta --id ${ID} --raft-advertise-host ${POD_NAME}.{{ $fullName }}.${POD_NAMESPACE}.svc.cluster.local \
-                                  --config-id ${ID} --single
+                    /databend-meta --id ${ID} \
+                      --log-stderr-on \
+                      --log-stderr-level ERROR \
+                      --log-file-level INFO \
+                      --log-file-dir "{{ .Values.config.logDir }}" \
+                      --max-applied-log-to-keep 102400 \
+                      --raft-dir "{{ .Values.config.raft.dir }}" \
+                      --admin-api-address ${POD_IP}:28002 \
+                      --grpc-api-address ${POD_IP}:9191 \
+                      --raft-api-port 28004 \
+                      --raft-listen-host ${POD_IP} \
+                      --raft-advertise-host ${POD_NAME}.{{ $fullName }}.${POD_NAMESPACE}.svc.cluster.local \
+                      --config-id ${ID} \
+                      --single
                   ;;
                   *)
                     echo "initialize follower node";
-                    /databend-meta --id ${ID} --raft-advertise-host ${POD_NAME}.{{ $fullName }}.${POD_NAMESPACE}.svc.cluster.local \
-                                  --config-id ${ID} --join ${NAME}-0.{{ $fullName }}:28004
+                    /databend-meta --id ${ID} \
+                      --log-stderr-on \
+                      --log-stderr-level ERROR \
+                      --log-file-level INFO \
+                      --log-file-dir "{{ .Values.config.logDir }}" \
+                      --max-applied-log-to-keep 102400 \
+                      --raft-dir "{{ .Values.config.raft.dir }}" \
+                      --admin-api-address ${POD_IP}:28002 \
+                      --grpc-api-address ${POD_IP}:9191 \
+                      --raft-api-port 28004 \
+                      --raft-listen-host ${POD_IP} \
+                      --raft-advertise-host ${POD_NAME}.{{ $fullName }}.${POD_NAMESPACE}.svc.cluster.local \
+                      --config-id ${ID} \
+                      --join ${NAME}-0.{{ $fullName }}:28004
                   ;;
                 esac
               else
@@ -94,20 +118,6 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: status.podIP
-            - name: METASRV_LOG_DIR
-              value: {{ .Values.config.logDir }}
-            - name: METASRV_LOG_LEVEL
-              value: {{ .Values.config.logLevel }}
-            - name: ADMIN_API_ADDRESS
-              value: 0.0.0.0:28002
-            - name: METASRV_GRPC_API_ADDRESS
-              value: 0.0.0.0:9191
-            - name: KVSRV_RAFT_DIR
-              value: {{ .Values.config.raft.dir }}
-            - name: KVSRV_LISTEN_HOST
-              value: 0.0.0.0
-            - name: KVSRV_API_PORT
-              value: "28004"
           volumeMounts:
             {{- if .Values.persistence.enabled }}
             - name: data

@@ -33,7 +33,7 @@ spec:
       containers:
         - name: {{ .Chart.Name }}
           command:
-            - ./databend-query
+            - /databend-query
             - -c
             - /etc/databend-query/config.toml
           securityContext:
@@ -80,11 +80,11 @@ spec:
                 fieldRef:
                   fieldPath: status.podIP
             - name: QUERY_METRIC_API_ADDRESS
-              value: 0.0.0.0:7070
+              value: "$(POD_IP):7070"
             - name: QUERY_ADMIN_API_ADDRESS
-              value: 0.0.0.0:8080
+              value: "$(POD_IP):8080"
             - name: QUERY_FLIGHT_API_ADDRESS
-              value: 0.0.0.0:9090
+              value: "$(POD_IP):9090"
             - name: QUERY_MYSQL_HANDLER_HOST
               value: 0.0.0.0
             - name: QUERY_MYSQL_HANDLER_PORT

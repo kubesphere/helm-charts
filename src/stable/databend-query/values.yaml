@@ -32,6 +32,8 @@ service:
     metric: 7070
     admin: 8080
     flight: 9090
+  # Annotations to add to the service
+  annotations: {}
 
 serviceMonitor:
   enabled: false
@@ -44,7 +46,7 @@ config:
     maxActiveSessions: 256
     waitTimeoutMills: 5000
 
-    tenantId: default
+    tenantId: ""
     clusterId: default
 
     # table cache config
@@ -56,18 +58,30 @@ config:
     managementMode: false
     jwtKeyFile: ""
 
+    users: []
+      # - name: databend
+      #   # available type: sha256_password, double_sha1_password, no_password, jwt
+      #   # sha1sum: echo -n "password" | sha1sum | cut -d' ' -f1 | xxd -r -p | sha1sum
+      #   authType: double_sha1_password
+      #   authString: 3081f32caef285c232d066033c89a78d88a6d8a5  # databend
+
   # [log]
   log:
-    level: "ERROR"
-    dir: "/data/databend-query/_log"
-    queryEnabled: false
+    file:
+      enabled: false
+      level: "INFO"
+      dir: "/data/databend-query/_log"
+    stderr:
+      enabled: true
+      level: "WARN"
 
   # [meta]
   meta:
-    # Not recommended for production
-    embeddedDir: "/data/databend-query/_meta_embedded"
-    # Set address to use remote meta service
-    address: ""
+    # Set endpoints to use remote meta service
+    endpoints:
+      - "databend-meta-0.databend-meta.databend-meta.svc:9191"
+      - "databend-meta-1.databend-meta.databend-meta.svc:9191"
+      - "databend-meta-2.databend-meta.databend-meta.svc:9191"
     username: "root"
     password: "root"
     clientTimeoutInSecond: 60
@@ -77,14 +91,22 @@ config:
     type: "fs"
     # [storage.fs]
     fs:
-      dataPath: "/data/databend-query/_data"
+      data_path: "/data/databend-query/_data"
 
     # [storage.s3]
     s3:
       bucket: "databend"
-      endpointUrl: "https://s3.amazonaws.com"
-      accessKeyId: ""
-      secretAccessKey: ""
+      endpoint_url: "https://s3.amazonaws.com"
+      access_key_id: ""
+      secret_access_key: ""
+      enable_virtual_host_style: false
+
+    # [storage.oss]
+    oss:
+      bucket: "databend"
+      endpoint_url: "https://oss.aliyuncs.com"
+      access_key_id: ""
+      access_key_secret: ""
 
 persistence:
   enabled: false
