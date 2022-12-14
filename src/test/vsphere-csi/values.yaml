@@ -1,0 +1,2737 @@
+## @section Global parameters
+## Global Docker image parameters
+## Please, note that this will override the image parameters, including dependencies, configured to use the global value
+## Current available global Docker image parameters: imageRegistry, imagePullSecrets and storageClass
+
+## @param global.imageRegistry Global Docker image registry
+## @param global.imagePullSecrets Global Docker registry secret names as an array
+## @param global.storageClass Global StorageClass for Persistent Volume(s)
+## @param global.logLevel Global logLevel for CSI, can be PRODUCTION or DEVELOPMENT
+
+##
+global:
+  imageRegistry:
+  ## E.g.
+  ## imagePullSecrets:
+  ##   - myRegistryKeySecretName
+  ##
+  imagePullSecrets: []
+  storageClass:
+  logLevel: PRODUCTION
+## @section global.config Global Configuration for both CPI and CSI
+## @param global.config.csidriver.enabled Enable CSI-Driver
+
+  config:
+    csidriver:
+      enabled: true
+## @param global.config.storageclass.enabled Enable creation of StorageClass
+## @param global.config.storageclass.storagepolicyname Set storagePolicyName
+## @param global.config.storageclass.expansion Enable VolumeExpansion for storageclass, see https://vsphere-csi-driver.sigs.k8s.io/features/volume_expansion.html
+## @param global.config.storageclass.default Make created storageClass default
+
+    storageclass:
+      enabled: false
+      storagepolicyname: ""
+      expansion: false # https://vsphere-csi-driver.sigs.k8s.io/features/volume_expansion.html
+      default: false
+## @param global.config.netconfig Configre Network config for Filebased-Volumes
+
+    netconfig: {}
+      # A:
+      #   create: true
+      #   ips: "*"
+      #   permissions: "READ_WRITE"
+      #   rootsquash: true
+      #   datastore: "datastore"
+## @section global.config.global Global properties in this section will be used for all specified vCenters unless overriden in VirtualCenter section.
+
+    # Global properties in this section will be used for all specified vCenters unless overriden in VirtualCenter section.
+    global:
+## @param global.config.global.port Default port to use if not specified different for vCenter
+## @param global.config.global.insecure-flag Whether to default to insecure connections to vCenters by default
+
+      port: 443
+      # set insecure-flag to true if the vCenter uses a self-signed cert
+      insecure-flag: true
+      # settings for using k8s secret
+      #secretName: vsphere-cloud-secret
+      #secretNamespace: kube-system
+      #cluster-id: your-unique-cluster-id
+    # vcenter section
+## @param global.config.vcenter vCenter-specifc confguration
+
+    vcenter: {}
+      # your-vcenter-name-here:
+      #   server: 10.0.0.1
+      #   user: use-your-vcenter-user-here
+      #   password: use-your-vcenter-password-here
+      #   datacenters:
+      #     - hrwest
+      #     - hreast
+      # could-be-a-tenant-label:
+      #   server: 1.2.3.4
+      #   datacenters:
+      #     - mytenantdc
+      #   secretName: cpi-engineering-secret
+      #   secretNamespace: kube-system
+    # labels for regions and zones
+## @param global.config.labels Used to configure Toplogy-awareness
+
+    labels: {}
+      # region: k8s-region
+      # zone: k8s-zone
+
+
+
+## @section Common parameters
+
+## @param kubeVersion Override Kubernetes version
+##
+kubeVersion:
+## @param nameOverride String to partially override common.names.fullname
+##
+nameOverride:
+## @param fullnameOverride String to fully override common.names.fullname
+##
+fullnameOverride:
+## @param commonLabels Labels to add to all deployed objects
+##
+commonLabels: {}
+## @param commonAnnotations Annotations to add to all deployed objects
+##
+commonAnnotations: {}
+## @param clusterDomain Kubernetes cluster domain name
+##
+clusterDomain: cluster.local
+## @param extraDeploy Array of extra objects to deploy with the release
+##
+extraDeploy: []
+
+## @section Traffic Exposure Parameters
+
+## vsphere-csi service parameters
+##
+service:
+  ## @param service.type vsphere-csi service type
+  ##
+  type: ClusterIP
+  ## @param service.port vsphere-csi service HTTP port
+  ##
+  port: 80
+  ## @param service.httpsPort vsphere-csi service HTTPS port
+  ##
+  httpsPort: 443
+  ## Node ports to expose
+  ## @param service.nodePorts.http Node port for HTTP
+  ## @param service.nodePorts.https Node port for HTTPS
+  ## NOTE: choose port between <30000-32767>
+  ##
+  nodePorts:
+    http:
+    https:
+  ## @param service.clusterIP vsphere-csi service Cluster IP
+  ## e.g.:
+  ## clusterIP: None
+  ##
+  clusterIP:
+  ## @param service.loadBalancerIP vsphere-csi service Load Balancer IP
+  ## ref: https://kubernetes.io/docs/concepts/services-networking/service/#type-loadbalancer
+  ##
+  loadBalancerIP:
+  ## @param service.loadBalancerSourceRanges vsphere-csi service Load Balancer sources
+  ## ref: https://kubernetes.io/docs/tasks/access-application-cluster/configure-cloud-provider-firewall/#restrict-access-for-loadbalancer-service
+  ## e.g:
+  ## loadBalancerSourceRanges:
+  ##   - 10.10.10.0/24
+  ##
+  loadBalancerSourceRanges: []
+  ## @param service.externalTrafficPolicy vsphere-csi service external traffic policy
+  ## ref http://kubernetes.io/docs/tasks/access-application-cluster/create-external-load-balancer/#preserving-the-client-source-ip
+  ##
+  externalTrafficPolicy: Cluster
+  ## @param service.annotations Additional custom annotations for vsphere-csi service
+  ##
+  annotations: {}
+
+## @section controller Parameters
+
+## Configuration for the csi controller deployment
+##
+controller:
+  ## @param controller.name name used for the deployment, if unset defaults to "{{ template "common.names.fullname" . }}"
+  name: vsphere-csi-controller
+  ## @param controller.config block to freely define options for the controller configmap
+  ## see https://github.com/kubernetes-sigs/vsphere-csi-driver/blob/61d981a1a1641693a2a6727e1994c82d26fed14b/pkg/csi/service/common/constants.go#L258
+  config:
+    csi-migration: false
+    csi-auth-check: true
+    online-volume-extend: true
+    trigger-csi-fullsync: false
+    async-query-volume: true
+    improved-csi-idempotency: true
+    improved-volume-topology: true
+    block-volume-snapshot: true
+    csi-windows-support: false
+    use-csinode-id: true
+    list-volumes: false
+    pv-to-backingdiskobjectid-mapping: false
+    cnsmgr-suspend-create-volume: true
+    topology-preferential-datastores: true
+    max-pvscsi-targets-per-vm: true
+
+
+  ## controller image
+  ## @param controller.image.registry controller image registry
+  ## @param controller.image.repository controller image repository
+  ## @param controller.image.tag controller image tag (immutable tags are recommended)
+  ## @param controller.image.pullPolicy controller image pull policy
+  ## @param controller.image.pullSecrets controller image pull secrets
+  ## @param controller.image.debug Enable image debug mode
+  ##
+  image:
+    registry: gcr.io
+    repository: cloud-provider-vsphere/csi/release/driver
+    tag: v2.7.0
+    ## Specify a imagePullPolicy
+    ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
+    ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
+    ##
+    pullPolicy: IfNotPresent
+    ## Optionally specify an array of imagePullSecrets.
+    ## Secrets must be manually created in the namespace.
+    ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+    ## e.g:
+    ## pullSecrets:
+    ##   - myRegistryKeySecretName
+    ##
+    pullSecrets: []
+    ## Enable debug mode
+    ##
+    debug: false
+
+  global:
+    ## @param controller.global.extraEnvVars Array with extra environment variables for all controller containers
+    ## e.g:
+    ## extraEnvVars:
+    ##   - name: FOO
+    ##     value: "bar"
+    ##
+    extraEnvVars: []
+    ## @param controller.global.extraEnvVarsCM Name of existing ConfigMap containing extra env vars for all controller containers
+    ##
+    extraEnvVarsCM:
+    ## @param controller.global.extraEnvVarsSecret Name of existing Secret containing extra env vars for all controller containers
+    ##
+    extraEnvVarsSecret:
+    ## @param controller.global.extraVolumeMounts Optionally specify extra list of additional volumeMounts for all controller containers
+    ##
+    extraVolumeMounts: []
+
+  ## controller.resizer image
+  ## @param controller.resizer.image.registry controller.resizer image registry
+  ## @param controller.resizer.image.repository controller.resizer image repository
+  ## @param controller.resizer.image.tag controller.resizer image tag (immutable tags are recommended)
+  ## @param controller.resizer.image.pullPolicy controller.resizer image pull policy
+  ## @param controller.resizer.image.pullSecrets controller.resizer image pull secrets
+  ## @param controller.resizer.image.debug Enable image debug mode
+  ##
+  resizer:
+    image:
+      registry: k8s.gcr.io
+      repository: sig-storage/csi-resizer
+      tag: v1.5.0
+      ## Specify a imagePullPolicy
+      ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
+      ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
+      ##
+      pullPolicy: IfNotPresent
+      ## Optionally specify an array of imagePullSecrets.
+      ## Secrets must be manually created in the namespace.
+      ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+      ## e.g:
+      ## pullSecrets:
+      ##   - myRegistryKeySecretName
+      ##
+      pullSecrets: []
+      ## Enable debug mode
+      ##
+      debug: false
+    ## @param controller.resizer.lifecycleHooks for the controller.resizer container(s) to automate configuration before or after startup
+    ##
+    lifecycleHooks: {}
+    ## @param controller.extraEnvVars Array with extra environment variables to add to controller.resizer nodes
+    ## e.g:
+    ## extraEnvVars:
+    ##   - name: FOO
+    ##     value: "bar"
+    ##
+
+    ## Configure Container Security Context
+    ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+    ## @param controller.resizer.containerSecurityContext.enabled Enabled controller.resizer containers' Security Context
+    ## @param controller.resizer.containerSecurityContext.runAsUser Set controller.resizer containers' Security Context runAsUser
+    ##
+    containerSecurityContext:
+      enabled: false
+      runAsUser: 1001
+    ## @param controller.resizer.command Override default container command (useful when using custom images)
+    ##
+    command: []
+    ## @param controller.resizer.args Override default container args (useful when using custom images)
+    ##
+    args:
+      - "--v=4"
+      - "--timeout=300s"
+      - "--handle-volume-inuse-error=false"
+      - "--csi-address=$(ADDRESS)"
+      - "--kube-api-qps=100"
+      - "--kube-api-burst=100"
+      - "--leader-election"
+    ## @param controller.resizer.extraEnvVars Array with extra environment variables to add to controller.resizer nodes
+    ## e.g:
+    ## extraEnvVars:
+    ##   - name: FOO
+    ##     value: "bar"
+    ##
+    extraEnvVars: []
+    ## @param controller.resizer.extraEnvVarsCM Name of existing ConfigMap containing extra env vars for controller.resizer nodes
+    ##
+    extraEnvVarsCM:
+    ## @param controller.resizer.extraEnvVarsSecret Name of existing Secret containing extra env vars for controller.resizer nodes
+    ##
+    extraEnvVarsSecret:
+    ## controller.resizer resource requests and limits
+    ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
+    ## @param controller.resizer.resources.limits The resources limits for the controller.resizer containers
+    ## @param controller.resizer.resources.requests The requested resources for the controller.resizer containers
+    ##
+    resources:
+      limits: {}
+      requests: {}
+    ## Configure extra options for controller.resizer containers' liveness and readiness probes
+    ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/#configure-probes
+    ## @param controller.resizer.livenessProbe.enabled Enable livenessProbe on controller.resizer nodes
+    ## @param controller.resizer.livenessProbe.initialDelaySeconds Initial delay seconds for livenessProbe
+    ## @param controller.resizer.livenessProbe.periodSeconds Period seconds for livenessProbe
+    ## @param controller.resizer.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
+    ## @param controller.resizer.livenessProbe.failureThreshold Failure threshold for livenessProbe
+    ## @param controller.resizer.livenessProbe.successThreshold Success threshold for livenessProbe
+    ##
+    livenessProbe:
+      enabled: false
+      # httpGet:
+      #   path: /
+      initialDelaySeconds: foo
+      periodSeconds: bar
+      timeoutSeconds: foo
+      failureThreshold: bar
+      successThreshold: foo
+    ## @param controller.resizer.readinessProbe.enabled Enable readinessProbe on controller.resizer nodes
+    ## @param controller.resizer.readinessProbe.initialDelaySeconds Initial delay seconds for readinessProbe
+    ## @param controller.resizer.readinessProbe.periodSeconds Period seconds for readinessProbe
+    ## @param controller.resizer.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
+    ## @param controller.resizer.readinessProbe.failureThreshold Failure threshold for readinessProbe
+    ## @param controller.resizer.readinessProbe.successThreshold Success threshold for readinessProbe
+    ##
+    readinessProbe:
+      enabled: false
+      # httpGet:
+      #   path: /
+      initialDelaySeconds: foo
+      periodSeconds: bar
+      timeoutSeconds: foo
+      failureThreshold: bar
+      successThreshold: foo
+    ## @param controller.resizer.customLivenessProbe Custom livenessProbe that overrides the default one
+    ##
+    customLivenessProbe: {}
+    ## @param controller.resizer.customReadinessProbe Custom readinessProbe that overrides the default one
+    ##
+    customReadinessProbe: {}
+    ## @param controller.resizer.extraVolumeMounts Optionally specify extra list of additional volumeMounts for the controller.resizer container(s)
+    ##
+    extraVolumeMounts: []
+
+
+  attacher:
+  ## controller.attacher image
+  ## @param controller.attacher.image.registry controller.attacher image registry
+  ## @param controller.attacher.image.repository controller.attacher image repository
+  ## @param controller.attacher.image.tag controller.attacher image tag (immutable tags are recommended)
+  ## @param controller.attacher.image.pullPolicy controller.attacher image pull policy
+  ## @param controller.attacher.image.pullSecrets controller.attacher image pull secrets
+  ## @param controller.attacher.image.debug Enable image debug mode
+  ##
+    image:
+      registry: k8s.gcr.io
+      repository: sig-storage/csi-attacher
+      tag: v3.5.0
+      ## Specify a imagePullPolicy
+      ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
+      ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
+      ##
+      pullPolicy: IfNotPresent
+      ## Optionally specify an array of imagePullSecrets.
+      ## Secrets must be manually created in the namespace.
+      ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+      ## e.g:
+      ## pullSecrets:
+      ##   - myRegistryKeySecretName
+      ##
+      pullSecrets: []
+      ## Enable debug mode
+      ##
+      debug: false
+        ## @param controller.attacher.lifecycleHooks for the controller.attacher container(s) to automate configuration before or after startup
+    ##
+    lifecycleHooks: {}
+    ## @param controller.extraEnvVars Array with extra environment variables to add to controller.attacher nodes
+    ## e.g:
+    ## extraEnvVars:
+    ##   - name: FOO
+    ##     value: "bar"
+    ##
+
+    ## Configure Container Security Context
+    ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+    ## @param controller.attacher.containerSecurityContext.enabled Enabled controller.attacher containers' Security Context
+    ## @param controller.attacher.containerSecurityContext.runAsUser Set controller.attacher containers' Security Context runAsUser
+    ##
+    containerSecurityContext:
+      enabled: false
+      runAsUser: 1001
+    ## @param controller.attacher.command Override default container command (useful when using custom images)
+    ##
+    command: []
+    ## @param controller.attacher.args Override default container args (useful when using custom images)
+    ##
+    args:
+      - "--v=4"
+      - "--timeout=300s"
+      - "--csi-address=$(ADDRESS)"
+      - "--leader-election"
+      - "--kube-api-qps=100"
+      - "--kube-api-burst=100"
+    ## @param controller.attacher.extraEnvVars Array with extra environment variables to add to controller.attacher nodes
+    ## e.g:
+    ## extraEnvVars:
+    ##   - name: FOO
+    ##     value: "bar"
+    ##
+    extraEnvVars: []
+    ## @param controller.attacher.extraEnvVarsCM Name of existing ConfigMap containing extra env vars for controller.attacher nodes
+    ##
+    extraEnvVarsCM:
+    ## @param controller.attacher.extraEnvVarsSecret Name of existing Secret containing extra env vars for controller.attacher nodes
+    ##
+    extraEnvVarsSecret:
+    ## controller.attacher resource requests and limits
+    ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
+    ## @param controller.attacher.resources.limits The resources limits for the controller.attacher containers
+    ## @param controller.attacher.resources.requests The requested resources for the controller.attacher containers
+    ##
+    resources:
+      limits: {}
+      requests: {}
+    ## Configure extra options for controller.attacher containers' liveness and readiness probes
+    ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/#configure-probes
+    ## @param controller.attacher.livenessProbe.enabled Enable livenessProbe on controller.attacher nodes
+    ## @param controller.attacher.livenessProbe.initialDelaySeconds Initial delay seconds for livenessProbe
+    ## @param controller.attacher.livenessProbe.periodSeconds Period seconds for livenessProbe
+    ## @param controller.attacher.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
+    ## @param controller.attacher.livenessProbe.failureThreshold Failure threshold for livenessProbe
+    ## @param controller.attacher.livenessProbe.successThreshold Success threshold for livenessProbe
+    ##
+    livenessProbe:
+      enabled: false
+      # httpGet:
+        # path: /
+      initialDelaySeconds: foo
+      periodSeconds: bar
+      timeoutSeconds: foo
+      failureThreshold: bar
+      successThreshold: foo
+    ## @param controller.attacher.readinessProbe.enabled Enable readinessProbe on controller.attacher nodes
+    ## @param controller.attacher.readinessProbe.initialDelaySeconds Initial delay seconds for readinessProbe
+    ## @param controller.attacher.readinessProbe.periodSeconds Period seconds for readinessProbe
+    ## @param controller.attacher.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
+    ## @param controller.attacher.readinessProbe.failureThreshold Failure threshold for readinessProbe
+    ## @param controller.attacher.readinessProbe.successThreshold Success threshold for readinessProbe
+    ##
+    readinessProbe:
+      enabled: false
+      # httpGet:
+      #   path: /
+      initialDelaySeconds: foo
+      periodSeconds: bar
+      timeoutSeconds: foo
+      failureThreshold: bar
+      successThreshold: foo
+    ## @param controller.attacher.customLivenessProbe Custom livenessProbe that overrides the default one
+    ##
+    customLivenessProbe: {}
+    ## @param controller.attacher.customReadinessProbe Custom readinessProbe that overrides the default one
+    ##
+    customReadinessProbe: {}
+    ## @param controller.attacher.extraVolumeMounts Optionally specify extra list of additional volumeMounts for the controller.attacher container(s)
+    ##
+    extraVolumeMounts: []
+
+  livenessprobe:
+  ## controller.livenessprobe image
+  ## @param controller.livenessprobe.image.registry controller.livenessprobe image registry
+  ## @param controller.livenessprobe.image.repository controller.livenessprobe image repository
+  ## @param controller.livenessprobe.image.tag controller.livenessprobe image tag (immutable tags are recommended)
+  ## @param controller.livenessprobe.image.pullPolicy controller.livenessprobe image pull policy
+  ## @param controller.livenessprobe.image.pullSecrets controller.livenessprobe image pull secrets
+  ## @param controller.livenessprobe.image.debug Enable image debug mode
+  ##
+    image:
+      registry: k8s.gcr.io
+      repository: sig-storage/livenessprobe
+      tag: v2.7.0
+      ## Specify a imagePullPolicy
+      ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
+      ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
+      ##
+      pullPolicy: IfNotPresent
+      ## Optionally specify an array of imagePullSecrets.
+      ## Secrets must be manually created in the namespace.
+      ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+      ## e.g:
+      ## pullSecrets:
+      ##   - myRegistryKeySecretName
+      ##
+      pullSecrets: []
+      ## Enable debug mode
+      ##
+      debug: false
+        ## @param controller.livenessprobe.lifecycleHooks for the controller.livenessprobe container(s) to automate configuration before or after startup
+    ##
+    lifecycleHooks: {}
+    ## @param controller.livenessprobe.extraEnvVars Array with extra environment variables to add to controller.livenessprobe nodes
+    ## e.g:
+    ## extraEnvVars:
+    ##   - name: FOO
+    ##     value: "bar"
+    ##
+
+    ## Configure Container Security Context
+    ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+    ## @param controller.livenessprobe.containerSecurityContext.enabled Enabled controller.livenessprobe containers' Security Context
+    ## @param controller.livenessprobe.containerSecurityContext.runAsUser Set controller.livenessprobe containers' Security Context runAsUser
+    ##
+    containerSecurityContext:
+      enabled: false
+      runAsUser: 1001
+    ## @param controller.livenessprobe.command Override default container command (useful when using custom images)
+    ##
+    command: []
+    ## @param controller.livenessprobe.args Override default container args (useful when using custom images)
+    ##
+    args:
+      - "--v=4"
+      - "--csi-address=/csi/csi.sock"
+    ## @param controller.livenessprobe.extraEnvVars Array with extra environment variables to add to controller.livenessprobe nodes
+    ## e.g:
+    ## extraEnvVars:
+    ##   - name: FOO
+    ##     value: "bar"
+    ##
+    extraEnvVars: []
+    ## @param controller.livenessprobe.extraEnvVarsCM Name of existing ConfigMap containing extra env vars for controller.livenessprobe nodes
+    ##
+    extraEnvVarsCM:
+    ## @param controller.livenessprobe.extraEnvVarsSecret Name of existing Secret containing extra env vars for controller.livenessprobe nodes
+    ##
+    extraEnvVarsSecret:
+
+    ## controller.livenessprobe resource requests and limits
+    ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
+    ## @param controller.livenessprobe.resources.limits The resources limits for the controller.livenessprobe containers
+    ## @param controller.livenessprobe.resources.requests The requested resources for the controller.livenessprobe containers
+    ##
+    resources:
+      limits: {}
+      requests: {}
+    ## Configure extra options for controller.livenessprobe containers' liveness and readiness probes
+    ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/#configure-probes
+    ## @param controller.livenessprobe.livenessProbe.enabled Enable livenessProbe on controller.livenessprobe nodes
+    ## @param controller.livenessprobe.livenessProbe.initialDelaySeconds Initial delay seconds for livenessProbe
+    ## @param controller.livenessprobe.livenessProbe.periodSeconds Period seconds for livenessProbe
+    ## @param controller.livenessprobe.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
+    ## @param controller.livenessprobe.livenessProbe.failureThreshold Failure threshold for livenessProbe
+    ## @param controller.livenessprobe.livenessProbe.successThreshold Success threshold for livenessProbe
+    ##
+    livenessProbe:
+      enabled: false
+      # httpGet:
+      #   path: /
+      initialDelaySeconds: foo
+      periodSeconds: bar
+      timeoutSeconds: foo
+      failureThreshold: bar
+      successThreshold: foo
+    ## @param controller.livenessprobe.readinessProbe.enabled Enable readinessProbe on controller.livenessprobe nodes
+    ## @param controller.livenessprobe.readinessProbe.initialDelaySeconds Initial delay seconds for readinessProbe
+    ## @param controller.livenessprobe.readinessProbe.periodSeconds Period seconds for readinessProbe
+    ## @param controller.livenessprobe.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
+    ## @param controller.livenessprobe.readinessProbe.failureThreshold Failure threshold for readinessProbe
+    ## @param controller.livenessprobe.readinessProbe.successThreshold Success threshold for readinessProbe
+    ##
+    readinessProbe:
+      enabled: false
+      # httpGet:
+      #   path: /
+      initialDelaySeconds: foo
+      periodSeconds: bar
+      timeoutSeconds: foo
+      failureThreshold: bar
+      successThreshold: foo
+    ## @param controller.livenessprobe.customLivenessProbe Custom livenessProbe that overrides the default one
+    ##
+    customLivenessProbe: {}
+    ## @param controller.livenessprobe.customReadinessProbe Custom readinessProbe that overrides the default one
+    ##
+    customReadinessProbe: {}
+    ## @param controller.livenessprobe.extraVolumeMounts Optionally specify extra list of additional volumeMounts for the controller.livenessprobe container(s)
+    ##
+    extraVolumeMounts: []
+
+  syncer:
+  ## controller.syncer image
+  ## @param controller.syncer.image.registry controller.syncer image registry
+  ## @param controller.syncer.image.repository controller.syncer image repository
+  ## @param controller.syncer.image.tag controller.syncer image tag (immutable tags are recommended)
+  ## @param controller.syncer.image.pullPolicy controller.syncer image pull policy
+  ## @param controller.syncer.image.pullSecrets controller.syncer image pull secrets
+  ## @param controller.syncer.image.debug Enable image debug mode
+  ##
+    image:
+      registry: gcr.io
+      repository: cloud-provider-vsphere/csi/release/syncer
+      tag: v2.7.0
+      ## Specify a imagePullPolicy
+      ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
+      ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
+      ##
+      pullPolicy: IfNotPresent
+      ## Optionally specify an array of imagePullSecrets.
+      ## Secrets must be manually created in the namespace.
+      ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+      ## e.g:
+      ## pullSecrets:
+      ##   - myRegistryKeySecretName
+      ##
+      pullSecrets: []
+      ## Enable debug mode
+      ##
+      debug: false
+        ## @param controller.syncer.lifecycleHooks for the controller.syncer container(s) to automate configuration before or after startup
+    ##
+    lifecycleHooks: {}
+    ## @param controller.syncer.extraEnvVars Array with extra environment variables to add to controller.syncer nodes
+    ## e.g:
+    ## extraEnvVars:
+    ##   - name: FOO
+    ##     value: "bar"
+    ##
+
+    ## Configure Container Security Context
+    ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+    ## @param controller.syncer.containerSecurityContext.enabled Enabled controller.syncer containers' Security Context
+    ## @param controller.syncer.containerSecurityContext.runAsUser Set controller.syncer containers' Security Context runAsUser
+    ##
+    containerSecurityContext:
+      enabled: false
+      runAsUser: 1001
+    ## @param controller.syncer.command Override default container command (useful when using custom images)
+    ##
+    command: []
+    ## @param controller.syncer.args Override default container args (useful when using custom images)
+    ##
+    args:
+      - "--leader-election"
+      - "--fss-name=internal-feature-states.csi.vsphere.vmware.com"
+      - "--fss-namespace=$(CSI_NAMESPACE)"
+    ## @param controller.syncer.extraEnvVars Array with extra environment variables to add to controller.syncer nodes
+    ## e.g:
+    ## extraEnvVars:
+    ##   - name: FOO
+    ##     value: "bar"
+    ##
+    extraEnvVars: []
+    ## @param controller.syncer.extraEnvVarsCM Name of existing ConfigMap containing extra env vars for controller.syncer nodes
+    ##
+    extraEnvVarsCM:
+    ## @param controller.syncer.extraEnvVarsSecret Name of existing Secret containing extra env vars for controller.syncer nodes
+    ##
+    extraEnvVarsSecret:
+    ## controller.syncer resource requests and limits
+    ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
+    ## @param controller.syncer.resources.limits The resources limits for the controller.syncer containers
+    ## @param controller.syncer.resources.requests The requested resources for the controller.syncer containers
+    ##
+    resources:
+      limits: {}
+      requests: {}
+    ## Configure extra options for controller.syncer containers' liveness and readiness probes
+    ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/#configure-probes
+    ## @param controller.syncer.livenessProbe.enabled Enable livenessProbe on controller.syncer nodes
+    ## @param controller.syncer.livenessProbe.initialDelaySeconds Initial delay seconds for livenessProbe
+    ## @param controller.syncer.livenessProbe.periodSeconds Period seconds for livenessProbe
+    ## @param controller.syncer.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
+    ## @param controller.syncer.livenessProbe.failureThreshold Failure threshold for livenessProbe
+    ## @param controller.syncer.livenessProbe.successThreshold Success threshold for livenessProbe
+    ##
+    livenessProbe:
+      enabled: false
+      # httpGet:
+      #   path: /
+      initialDelaySeconds: foo
+      periodSeconds: bar
+      timeoutSeconds: foo
+      failureThreshold: bar
+      successThreshold: foo
+    ## @param controller.syncer.readinessProbe.enabled Enable readinessProbe on controller.syncer nodes
+    ## @param controller.syncer.readinessProbe.initialDelaySeconds Initial delay seconds for readinessProbe
+    ## @param controller.syncer.readinessProbe.periodSeconds Period seconds for readinessProbe
+    ## @param controller.syncer.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
+    ## @param controller.syncer.readinessProbe.failureThreshold Failure threshold for readinessProbe
+    ## @param controller.syncer.readinessProbe.successThreshold Success threshold for readinessProbe
+    ##
+    readinessProbe:
+      enabled: false
+      # httpGet:
+      #   path: /
+      initialDelaySeconds: foo
+      periodSeconds: bar
+      timeoutSeconds: foo
+      failureThreshold: bar
+      successThreshold: foo
+    ## @param controller.syncer.customLivenessProbe Custom livenessProbe that overrides the default one
+    ##
+    customLivenessProbe: {}
+    ## @param controller.syncer.customReadinessProbe Custom readinessProbe that overrides the default one
+    ##
+    customReadinessProbe: {}
+    ## @param controller.syncer.extraVolumeMounts Optionally specify extra list of additional volumeMounts for the controller.syncer container(s)
+    ##
+    extraVolumeMounts: []
+
+  provisioner:
+  ## controller.provisioner image
+  ## @param controller.provisioner.image.registry controller.provisioner image registry
+  ## @param controller.provisioner.image.repository controller.provisioner image repository
+  ## @param controller.provisioner.image.tag controller.provisioner image tag (immutable tags are recommended)
+  ## @param controller.provisioner.image.pullPolicy controller.provisioner image pull policy
+  ## @param controller.provisioner.image.pullSecrets controller.provisioner image pull secrets
+  ## @param controller.provisioner.image.debug Enable image debug mode
+  ##
+    image:
+      registry: k8s.gcr.io
+      repository: sig-storage/csi-provisioner
+      tag: v3.2.1
+      ## Specify a imagePullPolicy
+      ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
+      ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
+      ##
+      pullPolicy: IfNotPresent
+      ## Optionally specify an array of imagePullSecrets.
+      ## Secrets must be manually created in the namespace.
+      ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+      ## e.g:
+      ## pullSecrets:
+      ##   - myRegistryKeySecretName
+      ##
+      pullSecrets: []
+      ## Enable debug mode
+      ##
+      debug: false
+        ## @param controller.provisioner.lifecycleHooks for the controller.provisioner container(s) to automate configuration before or after startup
+    ##
+    lifecycleHooks: {}
+    ## @param controller.provisioner.extraEnvVars Array with extra environment variables to add to controller.provisioner nodes
+    ## e.g:
+    ## extraEnvVars:
+    ##   - name: FOO
+    ##     value: "bar"
+    ##
+
+    ## Configure Container Security Context
+    ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+    ## @param controller.provisioner.containerSecurityContext.enabled Enabled controller.provisioner containers' Security Context
+    ## @param controller.provisioner.containerSecurityContext.runAsUser Set controller.provisioner containers' Security Context runAsUser
+    ##
+    containerSecurityContext:
+      enabled: false
+      runAsUser: 1001
+    ## @param controller.provisioner.command Override default container command (useful when using custom images)
+    ##
+    command: []
+    ## @param controller.provisioner.args Override default container args (useful when using custom images)
+    ##
+    args:
+      - "--v=4"
+      - "--timeout=300s"
+      - "--csi-address=$(ADDRESS)"
+      - "--kube-api-qps=100"
+      - "--kube-api-burst=100"
+      - "--leader-election"
+      - "--default-fstype=ext4"
+
+    ## @param controller.provisioner.extraEnvVars Array with extra environment variables to add to controller.provisioner nodes
+    ## e.g:
+    ## extraEnvVars:
+    ##   - name: FOO
+    ##     value: "bar"
+    ##
+    extraEnvVars: []
+    ## @param controller.provisioner.extraEnvVarsCM Name of existing ConfigMap containing extra env vars for controller.provisioner nodes
+    ##
+    extraEnvVarsCM:
+    ## @param controller.provisioner.extraEnvVarsSecret Name of existing Secret containing extra env vars for controller.provisioner nodes
+    ##
+    extraEnvVarsSecret:
+    ## controller.provisioner resource requests and limits
+    ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
+    ## @param controller.provisioner.resources.limits The resources limits for the controller.provisioner containers
+    ## @param controller.provisioner.resources.requests The requested resources for the controller.provisioner containers
+    ##
+    resources:
+      limits: {}
+      requests: {}
+    ## Configure extra options for controller.provisioner containers' liveness and readiness probes
+    ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/#configure-probes
+    ## @param controller.provisioner.livenessProbe.enabled Enable livenessProbe on controller.provisioner nodes
+    ## @param controller.provisioner.livenessProbe.initialDelaySeconds Initial delay seconds for livenessProbe
+    ## @param controller.provisioner.livenessProbe.periodSeconds Period seconds for livenessProbe
+    ## @param controller.provisioner.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
+    ## @param controller.provisioner.livenessProbe.failureThreshold Failure threshold for livenessProbe
+    ## @param controller.provisioner.livenessProbe.successThreshold Success threshold for livenessProbe
+    ##
+    livenessProbe:
+      enabled: false
+      # httpGet:
+      #   path: /
+      initialDelaySeconds: foo
+      periodSeconds: bar
+      timeoutSeconds: foo
+      failureThreshold: bar
+      successThreshold: foo
+    ## @param controller.provisioner.readinessProbe.enabled Enable readinessProbe on controller.provisioner nodes
+    ## @param controller.provisioner.readinessProbe.initialDelaySeconds Initial delay seconds for readinessProbe
+    ## @param controller.provisioner.readinessProbe.periodSeconds Period seconds for readinessProbe
+    ## @param controller.provisioner.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
+    ## @param controller.provisioner.readinessProbe.failureThreshold Failure threshold for readinessProbe
+    ## @param controller.provisioner.readinessProbe.successThreshold Success threshold for readinessProbe
+    ##
+    readinessProbe:
+      enabled: false
+      # httpGet:
+      #   path: /
+      initialDelaySeconds: foo
+      periodSeconds: bar
+      timeoutSeconds: foo
+      failureThreshold: bar
+      successThreshold: foo
+    ## @param controller.provisioner.customLivenessProbe Custom livenessProbe that overrides the default one
+    ##
+    customLivenessProbe: {}
+    ## @param controller.provisioner.customReadinessProbe Custom readinessProbe that overrides the default one
+    ##
+    customReadinessProbe: {}
+    ## @param controller.provisioner.extraVolumeMounts Optionally specify extra list of additional volumeMounts for the controller.provisioner container(s)
+    ##
+    extraVolumeMounts: []
+
+  snapshotter:
+  ## controller.snapshotter image
+  ## @param controller.snapshotter.image.registry controller.snapshotter image registry
+  ## @param controller.snapshotter.image.repository controller.snapshotter image repository
+  ## @param controller.snapshotter.image.tag controller.snapshotter image tag (immutable tags are recommended)
+  ## @param controller.snapshotter.image.pullPolicy controller.snapshotter image pull policy
+  ## @param controller.snapshotter.image.pullSecrets controller.snapshotter image pull secrets
+  ## @param controller.snapshotter.image.debug Enable image debug mode
+  ##
+    image:
+      registry: k8s.gcr.io
+      repository: sig-storage/csi-snapshotter
+      tag: v6.0.1
+      ## Specify a imagePullPolicy
+      ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
+      ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
+      ##
+      pullPolicy: IfNotPresent
+      ## Optionally specify an array of imagePullSecrets.
+      ## Secrets must be manually created in the namespace.
+      ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+      ## e.g:
+      ## pullSecrets:
+      ##   - myRegistryKeySecretName
+      ##
+      pullSecrets: []
+      ## Enable debug mode
+      ##
+      debug: false
+        ## @param controller.snapshotter.lifecycleHooks for the controller.snapshotter container(s) to automate configuration before or after startup
+    ##
+    lifecycleHooks: {}
+    ## @param controller.snapshotter.extraEnvVars Array with extra environment variables to add to controller.snapshotter nodes
+    ## e.g:
+    ## extraEnvVars:
+    ##   - name: FOO
+    ##     value: "bar"
+    ##
+
+    ## Configure Container Security Context
+    ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+    ## @param controller.snapshotter.containerSecurityContext.enabled Enabled controller.snapshotter containers' Security Context
+    ## @param controller.snapshotter.containerSecurityContext.runAsUser Set controller.snapshotter containers' Security Context runAsUser
+    ##
+    containerSecurityContext:
+      enabled: false
+      runAsUser: 1001
+    ## @param controller.snapshotter.command Override default container command (useful when using custom images)
+    ##
+    command: []
+    ## @param controller.snapshotter.args Override default container args (useful when using custom images)
+    ##
+    args:
+      - "--v=4"
+      - "--kube-api-qps=100"
+      - "--kube-api-burst=100"
+      - "--timeout=300s"
+      - "--csi-address=$(ADDRESS)"
+      - "--leader-election"
+
+    ## @param controller.snapshotter.extraEnvVars Array with extra environment variables to add to controller.snapshotter nodes
+    ## e.g:
+    ## extraEnvVars:
+    ##   - name: FOO
+    ##     value: "bar"
+    ##
+    extraEnvVars: []
+    ## @param controller.snapshotter.extraEnvVarsCM Name of existing ConfigMap containing extra env vars for controller.snapshotter nodes
+    ##
+    extraEnvVarsCM:
+    ## @param controller.snapshotter.extraEnvVarsSecret Name of existing Secret containing extra env vars for controller.snapshotter nodes
+    ##
+    extraEnvVarsSecret:
+    ## controller.snapshotter resource requests and limits
+    ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
+    ## @param controller.snapshotter.resources.limits The resources limits for the controller.snapshotter containers
+    ## @param controller.snapshotter.resources.requests The requested resources for the controller.snapshotter containers
+    ##
+    resources:
+      limits: {}
+      requests: {}
+    ## Configure extra options for controller.snapshotter containers' liveness and readiness probes
+    ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/#configure-probes
+    ## @param controller.snapshotter.livenessProbe.enabled Enable livenessProbe on controller.snapshotter nodes
+    ## @param controller.snapshotter.livenessProbe.initialDelaySeconds Initial delay seconds for livenessProbe
+    ## @param controller.snapshotter.livenessProbe.periodSeconds Period seconds for livenessProbe
+    ## @param controller.snapshotter.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
+    ## @param controller.snapshotter.livenessProbe.failureThreshold Failure threshold for livenessProbe
+    ## @param controller.snapshotter.livenessProbe.successThreshold Success threshold for livenessProbe
+    ##
+    livenessProbe:
+      enabled: false
+      # httpGet:
+      #   path: /
+      initialDelaySeconds: foo
+      periodSeconds: bar
+      timeoutSeconds: foo
+      failureThreshold: bar
+      successThreshold: foo
+    ## @param controller.snapshotter.readinessProbe.enabled Enable readinessProbe on controller.snapshotter nodes
+    ## @param controller.snapshotter.readinessProbe.initialDelaySeconds Initial delay seconds for readinessProbe
+    ## @param controller.snapshotter.readinessProbe.periodSeconds Period seconds for readinessProbe
+    ## @param controller.snapshotter.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
+    ## @param controller.snapshotter.readinessProbe.failureThreshold Failure threshold for readinessProbe
+    ## @param controller.snapshotter.readinessProbe.successThreshold Success threshold for readinessProbe
+    ##
+    readinessProbe:
+      enabled: false
+      # httpGet:
+      #   path: /
+      initialDelaySeconds: foo
+      periodSeconds: bar
+      timeoutSeconds: foo
+      failureThreshold: bar
+      successThreshold: foo
+    ## @param controller.snapshotter.customLivenessProbe Custom livenessProbe that overrides the default one
+    ##
+    customLivenessProbe: {}
+    ## @param controller.snapshotter.customReadinessProbe Custom readinessProbe that overrides the default one
+    ##
+    customReadinessProbe: {}
+    ## @param controller.snapshotter.extraVolumeMounts Optionally specify extra list of additional volumeMounts for the controller.snapshotter container(s)
+    ##
+    extraVolumeMounts: []
+  ## @param controller.replicaCount Number of controller replicas to deploy
+  ##
+  replicaCount: 3
+  ## Configure extra options for controller containers' liveness and readiness probes
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/#configure-probes
+  ## @param controller.livenessProbe.enabled Enable livenessProbe on controller nodes
+  ## @param controller.livenessProbe.httpGet.path Path for HTTPGet Livenessprobe
+  ## @param controller.livenessProbe.httpGet.port Path for HTTPGet Livenessprobe
+
+  ## @param controller.livenessProbe.initialDelaySeconds Initial delay seconds for livenessProbe
+  ## @param controller.livenessProbe.periodSeconds Period seconds for livenessProbe
+  ## @param controller.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
+  ## @param controller.livenessProbe.failureThreshold Failure threshold for livenessProbe
+  ## @skip controller.livenessProbe.successThreshold Success threshold for livenessProbe
+  ##
+  livenessProbe:
+    enabled: true
+    httpGet:
+      path: /healthz
+      port: healthz
+    initialDelaySeconds: 25
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3
+    #successThreshold: foo
+  ## @param controller.readinessProbe.enabled Enable readinessProbe on controller nodes
+  ## @param controller.readinessProbe.initialDelaySeconds Initial delay seconds for readinessProbe
+  ## @param controller.readinessProbe.periodSeconds Period seconds for readinessProbe
+  ## @param controller.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
+  ## @param controller.readinessProbe.failureThreshold Failure threshold for readinessProbe
+  ## @param controller.readinessProbe.successThreshold Success threshold for readinessProbe
+  ##
+  readinessProbe:
+    enabled: false
+    # httpGet:
+    #   path: /
+    initialDelaySeconds: foo
+    periodSeconds: bar
+    timeoutSeconds: foo
+    failureThreshold: bar
+    successThreshold: foo
+  ## @param controller.customLivenessProbe Custom livenessProbe that overrides the default one
+  ##
+  customLivenessProbe: {}
+  ## @param controller.customReadinessProbe Custom readinessProbe that overrides the default one
+  ##
+  customReadinessProbe: {}
+  ## @param controller.dnsPolicy set DNS Policy
+  ##
+  dnsPolicy: "Default"
+  ## controller resource requests and limits
+  ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
+  ## @param controller.resources.limits The resources limits for the controller containers
+  ## @param controller.resources.requests The requested resources for the controller containers
+  ##
+  resources:
+    limits: {}
+    requests: {}
+  ## Configure Pods Security Context
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+  ## @param controller.podSecurityContext.enabled Enabled controller pods' Security Context
+  ## @param controller.podSecurityContext.fsGroup Set controller pod's Security Context fsGroup
+  ##
+  podSecurityContext:
+    enabled: false
+    fsGroup: 1001
+  ## Configure Container Security Context
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+  ## @param controller.containerSecurityContext.enabled Enabled controller containers' Security Context
+  ## @param controller.containerSecurityContext.runAsUser Set controller containers' Security Context runAsUser
+  ##
+  containerSecurityContext:
+    enabled: false
+    runAsUser: 1001
+
+  ## @param controller.existingConfigmap The name of an existing ConfigMap with your custom configuration for controller
+  ##
+  existingConfigmap:
+  ## @param controller.command Override default container command (useful when using custom images)
+  ##
+  command: []
+  ## @param controller.args Override default container args (useful when using custom images)
+  ##
+  args:
+    - "--fss-name=internal-feature-states.csi.vsphere.vmware.com"
+    - "--fss-namespace=$(CSI_NAMESPACE)"
+  ## @param controller.hostAliases controller pods host aliases
+  ## https://kubernetes.io/docs/concepts/services-networking/add-entries-to-pod-etc-hosts-with-host-aliases/
+  ##
+  hostAliases: []
+  ## @param controller.podLabels Extra labels for controller pods
+  ## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+  ##
+  podLabels: {}
+  ## @param controller.podAnnotations Annotations for controller pods
+  ## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+  ##
+  podAnnotations: {}
+  ## @param controller.podAffinityPreset Pod affinity preset. Ignored if `controller.affinity` is set. Allowed values: `soft` or `hard`
+  ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+  ##
+  podAffinityPreset: ""
+  ## @param controller.podAntiAffinityPreset Pod anti-affinity preset. Ignored if `controller.affinity` is set. Allowed values: `soft` or `hard`
+  ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+  ##
+  podAntiAffinityPreset: soft
+  ## Node controller.affinity preset
+  ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
+  ##
+  nodeAffinityPreset:
+    ## @param controller.nodeAffinityPreset.type Node affinity preset type. Ignored if `controller.affinity` is set. Allowed values: `soft` or `hard`
+    ##
+    type: ""
+    ## @param controller.nodeAffinityPreset.key Node label key to match. Ignored if `controller.affinity` is set
+    ##
+    key: ""
+    ## @param controller.nodeAffinityPreset.values Node label values to match. Ignored if `controller.affinity` is set
+    ## E.g.
+    ## values:
+    ##   - e2e-az1
+    ##   - e2e-az2
+    ##
+    values: []
+  ## @param controller.affinity Affinity for controller pods assignment
+  ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+  ## NOTE: `controller.podAffinityPreset`, `controller.podAntiAffinityPreset`, and `controller.nodeAffinityPreset` will be ignored when it's set
+  ##
+  affinity: {}
+  ## @param controller.nodeSelector Node labels for controller pods assignment
+  ## ref: https://kubernetes.io/docs/user-guide/node-selection/
+  ##
+  nodeSelector:
+  ## @skip controller.nodeSelector.node-role.kubernetes.io/master
+  ## @skip "controller.nodeSelector.node-role.kubernetes.io/master"
+  ## @skip controller.nodeSelector.node-role.kubernetes.io\/master
+
+    node-role.kubernetes.io/control-plane: ""
+  ## @param controller.tolerations Tolerations for controller pods assignment
+  ## ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+  ##
+  tolerations:
+    - key: node-role.kubernetes.io/control-plane
+      operator: Exists
+      effect: NoSchedule
+    - key: node-role.kubernetes.io/master
+      operator: Exists
+      effect: NoSchedule
+  ## @param controller.updateStrategy.type controller statefulset strategy type
+  ## ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#update-strategies
+  ##
+  updateStrategy:
+    ## StrategyType
+    ## Can be set to RollingUpdate or OnDelete
+    ##
+    type: RollingUpdate
+  ## @param controller.priorityClassName controller pods' priorityClassName
+  ##
+  priorityClassName: ""
+  ## @param controller.lifecycleHooks for the controller container(s) to automate configuration before or after startup
+  ##
+  lifecycleHooks: {}
+  ## @param controller.extraEnvVars Array with extra environment variables to add to controller nodes
+  ## e.g:
+  ## extraEnvVars:
+  ##   - name: FOO
+  ##     value: "bar"
+  ##
+  extraEnvVars: []
+  ## @param controller.extraEnvVarsCM Name of existing ConfigMap containing extra env vars for controller nodes
+  ##
+  extraEnvVarsCM:
+  ## @param controller.extraEnvVarsSecret Name of existing Secret containing extra env vars for controller nodes
+  ##
+  extraEnvVarsSecret:
+  ## @param controller.extraVolumes Optionally specify extra list of additional volumes for the controller pod(s)
+  ##
+  extraVolumes: []
+  ## @param controller.extraVolumeMounts Optionally specify extra list of additional volumeMounts for the controller container(s)
+  ##
+  extraVolumeMounts: []
+  ## @param controller.sidecars Add additional sidecar containers to the controller pod(s)
+  ## e.g:
+  ## sidecars:
+  ##   - name: your-image-name
+  ##     image: your-image
+  ##     imagePullPolicy: Always
+  ##     ports:
+  ##       - name: portname
+  ##         containerPort: 1234
+  ##
+  sidecars: {}
+  ## @param controller.initContainers Add additional init containers to the controller pod(s)
+  ## ref: https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
+  ## e.g:
+  ## initContainers:
+  ##  - name: your-image-name
+  ##    image: your-image
+  ##    imagePullPolicy: Always
+  ##    command: ['sh', '-c', 'echo "hello world"']
+  ##
+  initContainers: {}
+  ## ServiceAccount configuration
+  ##
+  serviceAccount:
+    ## @param controller.serviceAccount.create Specifies whether a ServiceAccount should be created
+    ##
+    create: true
+    ## @param controller.serviceAccount.name The name of the ServiceAccount to use.
+    ## If not set and create is true, a name is generated using the common.names.fullname template
+    ##
+    name: ""
+
+## Configuration for the csi snapshotwebhook deployment
+##
+snapshotwebhook:
+  ## @param snapshotwebhook.name name used for the deployment, if unset defaults to "{{ template "common.names.fullname" . }}"
+  name: vsphere-csi-snapshotwebhook
+  ## snapshotwebhook image
+  ## @param snapshotwebhook.image.registry snapshotwebhook image registry
+  ## @param snapshotwebhook.image.repository snapshotwebhook image repository
+  ## @param snapshotwebhook.image.tag snapshotwebhook image tag (immutable tags are recommended)
+  ## @param snapshotwebhook.image.pullPolicy snapshotwebhook image pull policy
+  ## @param snapshotwebhook.image.pullSecrets snapshotwebhook image pull secrets
+  ## @param snapshotwebhook.image.debug Enable image debug mode
+  ##
+  image:
+    registry: k8s.gcr.io
+    repository: sig-storage/snapshot-validation-webhook
+    tag: v6.0.1
+    ## Specify a imagePullPolicy
+    ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
+    ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
+    ##
+    pullPolicy: IfNotPresent
+    ## Optionally specify an array of imagePullSecrets.
+    ## Secrets must be manually created in the namespace.
+    ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+    ## e.g:
+    ## pullSecrets:
+    ##   - myRegistryKeySecretName
+    ##
+    pullSecrets: []
+    ## Enable debug mode
+    ##
+    debug: false
+
+  ## @param snapshotwebhook.replicaCount Number of snapshotwebhook replicas to deploy
+  ##
+  replicaCount: 3
+  ## Configure extra options for snapshotwebhook containers' liveness and readiness probes
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/#configure-probes
+  ## @param snapshotwebhook.livenessProbe.enabled Enable livenessProbe on snapshotwebhook nodes
+  ## @param snapshotwebhook.livenessProbe.httpGet.path Path for HTTPGet Livenessprobe
+  ## @param snapshotwebhook.livenessProbe.httpGet.port Path for HTTPGet Livenessprobe
+
+  ## @param snapshotwebhook.livenessProbe.initialDelaySeconds Initial delay seconds for livenessProbe
+  ## @param snapshotwebhook.livenessProbe.periodSeconds Period seconds for livenessProbe
+  ## @param snapshotwebhook.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
+  ## @param snapshotwebhook.livenessProbe.failureThreshold Failure threshold for livenessProbe
+  ## @skip snapshotwebhook.livenessProbe.successThreshold Success threshold for livenessProbe
+  ##
+  livenessProbe:
+    enabled: false
+    httpGet:
+      path: /healthz
+      port: healthz
+    initialDelaySeconds: 25
+    periodSeconds: 5
+    timeoutSeconds: 3
+    failureThreshold: 3
+    #successThreshold: foo
+  ## @param snapshotwebhook.readinessProbe.enabled Enable readinessProbe on snapshotwebhook nodes
+  ## @param snapshotwebhook.readinessProbe.initialDelaySeconds Initial delay seconds for readinessProbe
+  ## @param snapshotwebhook.readinessProbe.periodSeconds Period seconds for readinessProbe
+  ## @param snapshotwebhook.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
+  ## @param snapshotwebhook.readinessProbe.failureThreshold Failure threshold for readinessProbe
+  ## @param snapshotwebhook.readinessProbe.successThreshold Success threshold for readinessProbe
+  ##
+  readinessProbe:
+    enabled: false
+    # httpGet:
+    #   path: /
+    initialDelaySeconds: foo
+    periodSeconds: bar
+    timeoutSeconds: foo
+    failureThreshold: bar
+    successThreshold: foo
+  ## @param snapshotwebhook.customLivenessProbe Custom livenessProbe that overrides the default one
+  ##
+  customLivenessProbe: {}
+  ## @param snapshotwebhook.customReadinessProbe Custom readinessProbe that overrides the default one
+  ##
+  customReadinessProbe: {}
+  ## @param snapshotwebhook.dnsPolicy set DNS Policy
+  ##
+  dnsPolicy: "Default"
+  ## snapshotwebhook resource requests and limits
+  ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
+  ## @param snapshotwebhook.resources.limits The resources limits for the snapshotwebhook containers
+  ## @param snapshotwebhook.resources.requests The requested resources for the snapshotwebhook containers
+  ##
+  resources:
+    limits: {}
+    requests: {}
+  ## Configure Pods Security Context
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+  ## @param snapshotwebhook.podSecurityContext.enabled Enabled snapshotwebhook pods' Security Context
+  ## @param snapshotwebhook.podSecurityContext.fsGroup Set snapshotwebhook pod's Security Context fsGroup
+  ##
+  podSecurityContext:
+    enabled: false
+    fsGroup: 1001
+  ## Configure Container Security Context
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+  ## @param snapshotwebhook.containerSecurityContext.enabled Enabled snapshotwebhook containers' Security Context
+  ## @param snapshotwebhook.containerSecurityContext.runAsUser Set snapshotwebhook containers' Security Context runAsUser
+  ##
+  containerSecurityContext:
+    enabled: false
+    runAsUser: 1001
+
+  ## @param snapshotwebhook.existingConfigmap The name of an existing ConfigMap with your custom configuration for snapshotwebhook
+  ##
+  existingConfigmap:
+  ## @param snapshotwebhook.command Override default container command (useful when using custom images)
+  ##
+  command: []
+  ## @param snapshotwebhook.args Override default container args (useful when using custom images)
+  ##
+  args: ['--tls-cert-file=/run/secrets/tls/tls.crt', '--tls-private-key-file=/run/secrets/tls/tls.key']
+  ## @param snapshotwebhook.hostAliases snapshotwebhook pods host aliases
+  ## https://kubernetes.io/docs/concepts/services-networking/add-entries-to-pod-etc-hosts-with-host-aliases/
+  ##
+  hostAliases: []
+  ## @param snapshotwebhook.podLabels Extra labels for snapshotwebhook pods
+  ## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+  ##
+  podLabels: {}
+  ## @param snapshotwebhook.podAnnotations Annotations for snapshotwebhook pods
+  ## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+  ##
+  podAnnotations: {}
+  ## @param snapshotwebhook.podAffinityPreset Pod affinity preset. Ignored if `snapshotwebhook.affinity` is set. Allowed values: `soft` or `hard`
+  ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+  ##
+  podAffinityPreset: ""
+  ## @param snapshotwebhook.podAntiAffinityPreset Pod anti-affinity preset. Ignored if `snapshotwebhook.affinity` is set. Allowed values: `soft` or `hard`
+  ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+  ##
+  podAntiAffinityPreset: soft
+  ## Node snapshotwebhook.affinity preset
+  ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
+  ##
+  nodeAffinityPreset:
+    ## @param snapshotwebhook.nodeAffinityPreset.type Node affinity preset type. Ignored if `snapshotwebhook.affinity` is set. Allowed values: `soft` or `hard`
+    ##
+    type: ""
+    ## @param snapshotwebhook.nodeAffinityPreset.key Node label key to match. Ignored if `snapshotwebhook.affinity` is set
+    ##
+    key: ""
+    ## @param snapshotwebhook.nodeAffinityPreset.values Node label values to match. Ignored if `snapshotwebhook.affinity` is set
+    ## E.g.
+    ## values:
+    ##   - e2e-az1
+    ##   - e2e-az2
+    ##
+    values: []
+  ## @param snapshotwebhook.affinity Affinity for snapshotwebhook pods assignment
+  ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+  ## NOTE: `snapshotwebhook.podAffinityPreset`, `snapshotwebhook.podAntiAffinityPreset`, and `snapshotwebhook.nodeAffinityPreset` will be ignored when it's set
+  ##
+  affinity: {}
+  ## @param snapshotwebhook.nodeSelector Node labels for snapshotwebhook pods assignment
+  ## ref: https://kubernetes.io/docs/user-guide/node-selection/
+  ##
+  nodeSelector:
+  ## @skip snapshotwebhook.nodeSelector.node-role.kubernetes.io/master
+  ## @skip "snapshotwebhook.nodeSelector.node-role.kubernetes.io/master"
+  ## @skip snapshotwebhook.nodeSelector.node-role.kubernetes.io\/master
+    node-role.kubernetes.io/control-plane: ""
+  ## @param snapshotwebhook.tolerations Tolerations for snapshotwebhook pods assignment
+  ## ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+  ##
+  tolerations:
+    - key: node-role.kubernetes.io/control-plane
+      operator: Exists
+      effect: NoSchedule
+    - key: node-role.kubernetes.io/master
+      operator: Exists
+      effect: NoSchedule
+  ## @param snapshotwebhook.updateStrategy.type snapshotwebhook statefulset strategy type
+  ## ref: https://kubernetes.io/docs/concepts/workloads/snapshotwebhooks/statefulset/#update-strategies
+  ##
+  updateStrategy:
+    ## StrategyType
+    ## Can be set to RollingUpdate or OnDelete
+    ##
+    type: RollingUpdate
+  ## @param snapshotwebhook.priorityClassName snapshotwebhook pods' priorityClassName
+  ##
+  priorityClassName: ""
+  ## @param snapshotwebhook.lifecycleHooks for the snapshotwebhook container(s) to automate configuration before or after startup
+  ##
+  lifecycleHooks: {}
+  ## @param snapshotwebhook.extraEnvVars Array with extra environment variables to add to snapshotwebhook nodes
+  ## e.g:
+  ## extraEnvVars:
+  ##   - name: FOO
+  ##     value: "bar"
+  ##
+  extraEnvVars: []
+  ## @param snapshotwebhook.extraEnvVarsCM Name of existing ConfigMap containing extra env vars for snapshotwebhook nodes
+  ##
+  extraEnvVarsCM:
+  ## @param snapshotwebhook.extraEnvVarsSecret Name of existing Secret containing extra env vars for snapshotwebhook nodes
+  ##
+  extraEnvVarsSecret:
+  ## @param snapshotwebhook.extraVolumes Optionally specify extra list of additional volumes for the snapshotwebhook pod(s)
+  ##
+  extraVolumes: []
+  ## @param snapshotwebhook.extraVolumeMounts Optionally specify extra list of additional volumeMounts for the snapshotwebhook container(s)
+  ##
+  extraVolumeMounts: []
+  ## @param snapshotwebhook.sidecars Add additional sidecar containers to the snapshotwebhook pod(s)
+  ## e.g:
+  ## sidecars:
+  ##   - name: your-image-name
+  ##     image: your-image
+  ##     imagePullPolicy: Always
+  ##     ports:
+  ##       - name: portname
+  ##         containerPort: 1234
+  ##
+  sidecars: {}
+  ## @param snapshotwebhook.initContainers Add additional init containers to the snapshotwebhook pod(s)
+  ## ref: https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
+  ## e.g:
+  ## initContainers:
+  ##  - name: your-image-name
+  ##    image: your-image
+  ##    imagePullPolicy: Always
+  ##    command: ['sh', '-c', 'echo "hello world"']
+  ##
+  initContainers: {}
+  ## ServiceAccount configuration
+  ##
+  serviceAccount:
+    ## @param snapshotwebhook.serviceAccount.create Specifies whether a ServiceAccount should be created
+    ##
+    create: true
+    ## @param snapshotwebhook.serviceAccount.name The name of the ServiceAccount to use.
+    ## If not set and create is true, a name is generated using the common.names.fullname template
+    ##
+    name: ""
+
+## Configuration for the node daemonset
+##
+node:
+  ## @param winnode.name name used for the demonset, if unset defaults to "{{ template "common.names.fullname" . }}"
+  name: vsphere-csi-node
+  ## @param node.image.registry node image registry
+  ## @param node.image.repository node image repository
+  ## @param node.image.tag node image tag (immutable tags are recommended)
+  ## @param node.image.pullPolicy node image pull policy
+  ## @param node.image.pullSecrets node image pull secrets
+  ## @param node.image.debug Enable image debug mode
+  ##
+
+  image:
+    registry: gcr.io
+    repository: cloud-provider-vsphere/csi/release/driver
+    tag: v2.7.0
+    ## Specify a imagePullPolicy
+    ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
+    ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
+    ##
+    pullPolicy: IfNotPresent
+    ## Optionally specify an array of imagePullSecrets.
+    ## Secrets must be manually created in the namespace.
+    ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+    ## e.g:
+    ## pullSecrets:
+    ##   - myRegistryKeySecretName
+    ##
+    pullSecrets: []
+    ## Enable debug mode
+    ##
+    debug: false
+
+
+
+  registrar:
+  ## @param node.registrar.image.registry node image registry
+  ## @param node.registrar.image.repository node image repository
+  ## @param node.registrar.image.tag node image tag (immutable tags are recommended)
+  ## @param node.registrar.image.pullPolicy node image pull policy
+  ## @param node.registrar.image.pullSecrets node image pull secrets
+  ## @param node.registrar.image.debug Enable image debug mode
+  ##
+    image:
+      registry: k8s.gcr.io
+      repository: sig-storage/csi-node-driver-registrar
+      tag: v2.5.1
+      ## Specify a imagePullPolicy
+      ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
+      ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
+      ##
+      pullPolicy: IfNotPresent
+      ## Optionally specify an array of imagePullSecrets.
+      ## Secrets must be manually created in the namespace.
+      ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+      ## e.g:
+      ## pullSecrets:
+      ##   - myRegistryKeySecretName
+      ##
+      pullSecrets: []
+      ## Enable debug mode
+      ##
+      debug: false
+        ## @param node.registrar.lifecycleHooks for the node.registrar container(s) to automate configuration before or after startup
+    ##
+    lifecycleHooks: {}
+    ## @param node.registrar.extraEnvVars Array with extra environment variables to add to node.registrar nodes
+    ## e.g:
+    ## extraEnvVars:
+    ##   - name: FOO
+    ##     value: "bar"
+    ##
+
+    ## Configure Container Security Context
+    ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+    ## @param node.registrar.containerSecurityContext.enabled Enabled node.registrar containers' Security Context
+    ## @skip node.registrar.containerSecurityContext.runAsUser Set node.registrar containers' Security Context runAsUser
+    ##
+    containerSecurityContext:
+      enabled: false
+      #runAsUser: 1001
+    ## @param node.registrar.command Override default container command (useful when using custom images)
+    ##
+    command: []
+    ## @param node.registrar.args Override default container args (useful when using custom images)
+    ##
+    args:
+      - "--v=5"
+      - "--csi-address=$(ADDRESS)"
+      - "--kubelet-registration-path=$(DRIVER_REG_SOCK_PATH)"
+    ## @param node.registrar.extraEnvVars Array with extra environment variables to add to node.registrar nodes
+    ## e.g:
+    ## extraEnvVars:
+    ##   - name: FOO
+    ##     value: "bar"
+    ##
+    extraEnvVars: []
+    ## @param node.registrar.extraEnvVarsCM Name of existing ConfigMap containing extra env vars for node.registrar nodes
+    ##
+    extraEnvVarsCM:
+    ## @param node.registrar.extraEnvVarsSecret Name of existing Secret containing extra env vars for node.registrar nodes
+    ##
+    extraEnvVarsSecret:
+    ## node.registrar resource requests and limits
+    ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
+    ## @param node.registrar.resources.limits The resources limits for the node.registrar containers
+    ## @param node.registrar.resources.requests The requested resources for the node.registrar containers
+    ##
+    resources:
+      limits: {}
+      requests: {}
+    ## Configure extra options for node.registrar containers' liveness and readiness probes
+    ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/#configure-probes
+    ## @param node.registrar.livenessProbe.enabled Enable livenessProbe on node.registrar nodes
+    ## @param node.registrar.livenessProbe.httpGet.path Path for HTTPGet Livenessprobe
+    ## @param node.registrar.livenessProbe.httpGet.port Path for HTTPGet Livenessprobe
+    ## @param node.registrar.livenessProbe.initialDelaySeconds Initial delay seconds for livenessProbe
+    ## @skip node.registrar.livenessProbe.periodSeconds Period seconds for livenessProbe
+    ## @param node.registrar.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
+    ## @skip node.registrar.livenessProbe.failureThreshold Failure threshold for livenessProbe
+    ## @skip node.registrar.livenessProbe.successThreshold Success threshold for livenessProbe
+    ##
+    livenessProbe:
+      enabled: true
+      exec:
+        command:
+        - /csi-node-driver-registrar
+        - --kubelet-registration-path=/var/lib/kubelet/plugins/csi.vsphere.vmware.com/csi.sock
+        - --mode=kubelet-registration-probe
+      initialDelaySeconds: 3
+      #periodSeconds: bar
+      #timeoutSeconds: 5
+      #failureThreshold: bar
+      #successThreshold: foo
+    ## @param node.registrar.readinessProbe.enabled Enable readinessProbe on node.registrar nodes
+    ## @param node.registrar.readinessProbe.initialDelaySeconds Initial delay seconds for readinessProbe
+    ## @param node.registrar.readinessProbe.periodSeconds Period seconds for readinessProbe
+    ## @param node.registrar.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
+    ## @param node.registrar.readinessProbe.failureThreshold Failure threshold for readinessProbe
+    ## @param node.registrar.readinessProbe.successThreshold Success threshold for readinessProbe
+    ##
+    readinessProbe:
+      enabled: false
+      # httpGet:
+      #   path: /
+      initialDelaySeconds: foo
+      periodSeconds: bar
+      timeoutSeconds: foo
+      failureThreshold: bar
+      successThreshold: foo
+    ## @param node.registrar.customLivenessProbe Custom livenessProbe that overrides the default one
+    ##
+    customLivenessProbe: {}
+    ## @param node.registrar.customReadinessProbe Custom readinessProbe that overrides the default one
+    ##
+    customReadinessProbe: {}
+    ## @param node.registrar.extraVolumeMounts Optionally specify extra list of additional volumeMounts for the node.registrar container(s)
+    ##
+    extraVolumeMounts: []
+
+  livenessprobe:
+  ## @param node.livenessprobe.image.registry node image registry
+  ## @param node.livenessprobe.image.repository node image repository
+  ## @param node.livenessprobe.image.tag node image tag (immutable tags are recommended)
+  ## @param node.livenessprobe.image.pullPolicy node image pull policy
+  ## @param node.livenessprobe.image.pullSecrets node image pull secrets
+  ## @param node.livenessprobe.image.debug Enable image debug mode
+  ##
+    image:
+      registry: k8s.gcr.io
+      repository: sig-storage/livenessprobe
+      tag: v2.7.0
+      ## Specify a imagePullPolicy
+      ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
+      ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
+      ##
+      pullPolicy: IfNotPresent
+      ## Optionally specify an array of imagePullSecrets.
+      ## Secrets must be manually created in the namespace.
+      ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+      ## e.g:
+      ## pullSecrets:
+      ##   - myRegistryKeySecretName
+      ##
+      pullSecrets: []
+      ## Enable debug mode
+      ##
+      debug: false
+    ## @param node.livenessprobe.lifecycleHooks for the node.livenessprobes container(s) to automate configuration before or after startup
+    ##
+    lifecycleHooks: {}
+    ## @param node.livenessprobe.extraEnvVars Array with extra environment variables to add to node.livenessprobes nodes
+    ## e.g:
+    ## extraEnvVars:
+    ##   - name: FOO
+    ##     value: "bar"
+    ##
+
+    ## Configure Container Security Context
+    ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+    ## @param node.livenessprobe.containerSecurityContext.enabled Enabled node.livenessprobes containers' Security Context
+    ## @skip node.livenessprobe.containerSecurityContext.runAsUser Set node.livenessprobes containers' Security Context runAsUser
+    ##
+    containerSecurityContext:
+      enabled: false
+      #runAsUser: 1001
+    ## @param node.livenessprobe.command Override default container command (useful when using custom images)
+    ##
+    command: []
+    ## @param node.livenessprobe.args Override default container args (useful when using custom images)
+    ##
+    args:
+      - "--v=4"
+      - "--csi-address=/csi/csi.sock"
+    ## @param node.livenessprobe.extraEnvVars Array with extra environment variables to add to node.livenessprobes nodes
+    ## e.g:
+    ## extraEnvVars:
+    ##   - name: FOO
+    ##     value: "bar"
+    ##
+    extraEnvVars: []
+    ## @param node.livenessprobe.extraEnvVarsCM Name of existing ConfigMap containing extra env vars for node.livenessprobes nodes
+    ##
+    extraEnvVarsCM:
+    ## @param node.livenessprobe.extraEnvVarsSecret Name of existing Secret containing extra env vars for node.livenessprobes nodes
+    ##
+    extraEnvVarsSecret:
+    ## node.livenessprobes resource requests and limits
+    ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
+    ## @param node.livenessprobe.resources.limits The resources limits for the node.livenessprobes containers
+    ## @param node.livenessprobe.resources.requests The requested resources for the node.livenessprobes containers
+    ##
+    resources:
+      limits: {}
+      requests: {}
+    ## Configure extra options for node.livenessprobes containers' liveness and readiness probes
+    ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/#configure-probes
+    ## @param node.livenessprobe.livenessProbe.enabled Enable livenessProbe on node.livenessprobes nodes
+    ## @param node.livenessprobe.livenessProbe.initialDelaySeconds Initial delay seconds for livenessProbe
+    ## @param node.livenessprobe.livenessProbe.periodSeconds Period seconds for livenessProbe
+    ## @param node.livenessprobe.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
+    ## @param node.livenessprobe.livenessProbe.failureThreshold Failure threshold for livenessProbe
+    ## @param node.livenessprobe.livenessProbe.successThreshold Success threshold for livenessProbe
+    ##
+    livenessProbe:
+      enabled: false
+      # httpGet:
+      #   path: /
+      initialDelaySeconds: foo
+      periodSeconds: bar
+      timeoutSeconds: foo
+      failureThreshold: bar
+      successThreshold: foo
+    ## @param node.livenessprobe.readinessProbe.enabled Enable readinessProbe on node.livenessprobes nodes
+    ## @param node.livenessprobe.readinessProbe.initialDelaySeconds Initial delay seconds for readinessProbe
+    ## @param node.livenessprobe.readinessProbe.periodSeconds Period seconds for readinessProbe
+    ## @param node.livenessprobe.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
+    ## @param node.livenessprobe.readinessProbe.failureThreshold Failure threshold for readinessProbe
+    ## @param node.livenessprobe.readinessProbe.successThreshold Success threshold for readinessProbe
+    ##
+    readinessProbe:
+      enabled: false
+      # httpGet:
+      #   path: /
+      initialDelaySeconds: foo
+      periodSeconds: bar
+      timeoutSeconds: foo
+      failureThreshold: bar
+      successThreshold: foo
+    ## @param node.livenessprobe.customLivenessProbe Custom livenessProbe that overrides the default one
+    ##
+    customLivenessProbe: {}
+    ## @param node.livenessprobe.customReadinessProbe Custom readinessProbe that overrides the default one
+    ##
+    customReadinessProbe: {}
+    ## @param node.livenessprobe.extraVolumeMounts Optionally specify extra list of additional volumeMounts for the node.livenessprobes container(s)
+    ##
+    extraVolumeMounts: []
+
+  ## Configure extra options for node containers' liveness and readiness probes
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/#configure-probes
+  ## @param node.livenessProbe.enabled Enable livenessProbe on node nodes
+  ## @param node.livenessProbe.httpGet.path Path for HTTPGet Livenessprobe
+  ## @param node.livenessProbe.httpGet.port Path for HTTPGet Livenessprobe
+  ## @param node.livenessProbe.initialDelaySeconds Initial delay seconds for livenessProbe
+  ## @param node.livenessProbe.periodSeconds Period seconds for livenessProbe
+  ## @param node.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
+  ## @param node.livenessProbe.failureThreshold Failure threshold for livenessProbe
+  ##
+  livenessProbe:
+    enabled: true
+    httpGet:
+      path: /healthz
+      port: healthz
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    timeoutSeconds: 5
+    failureThreshold: 3
+    #successThreshold: foo
+  ## @param node.readinessProbe.enabled Enable readinessProbe on node nodes
+  ## @param node.readinessProbe.initialDelaySeconds Initial delay seconds for readinessProbe
+  ## @param node.readinessProbe.periodSeconds Period seconds for readinessProbe
+  ## @param node.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
+  ## @param node.readinessProbe.failureThreshold Failure threshold for readinessProbe
+  ## @param node.readinessProbe.successThreshold Success threshold for readinessProbe
+  ##
+  readinessProbe:
+    enabled: false
+    # httpGet:
+    #   path: /
+    initialDelaySeconds: foo
+    periodSeconds: bar
+    timeoutSeconds: foo
+    failureThreshold: bar
+    successThreshold: foo
+  ## @param node.customLivenessProbe Custom livenessProbe that overrides the default one
+  ##
+  customLivenessProbe: {}
+  ## @param node.customReadinessProbe Custom readinessProbe that overrides the default one
+  ##
+  customReadinessProbe: {}
+  ## node resource requests and limits
+  ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
+  ## @param node.resources.limits The resources limits for the node containers
+  ## @param node.resources.requests The requested resources for the node containers
+  ##
+  resources:
+    limits: {}
+    requests: {}
+  ## @param node.hostNetwork set use of hostNetwork for node containers
+  ##
+  hostNetwork: true
+  ## @param node.dnsPolicy set DNS Policy
+  ##
+  dnsPolicy: "ClusterFirstWithHostNet"
+  ## Configure Pods Security Context
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+  ## @param node.podSecurityContext.enabled Enabled node pods' Security Context
+  ## @param node.podSecurityContext.fsGroup Set node pod's Security Context fsGroup
+  ##
+  podSecurityContext:
+    enabled: false
+    fsGroup: 1001
+  ## Configure Container Security Context
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+  ## @param node.containerSecurityContext.enabled Enabled node containers' Security Context
+  ## @param node.containerSecurityContext.privileged Set node containers' Security Context privileged
+  ## @param node.containerSecurityContext.allowPrivilegeEscalation Set node containers' Security Context allowPrivilegeEscalation
+  ## @skip node.containerSecurityContext.capabilities.add
+  containerSecurityContext:
+    enabled: true
+    privileged: true
+    capabilities:
+      add: ["SYS_ADMIN"]
+    allowPrivilegeEscalation: true
+
+  ## @param node.existingConfigmap The name of an existing ConfigMap with your custom configuration for node
+  ##
+  existingConfigmap:
+  ## @param node.command Override default container command (useful when using custom images)
+  ##
+  command: []
+  ## @param node.args Override default container args (useful when using custom images)
+  ##
+  args:
+    - "--fss-name=internal-feature-states.csi.vsphere.vmware.com"
+    - "--fss-namespace=$(CSI_NAMESPACE)"
+  ## @param node.hostAliases node pods host aliases
+  ## https://kubernetes.io/docs/concepts/services-networking/add-entries-to-pod-etc-hosts-with-host-aliases/
+  ##
+  hostAliases: []
+  ## @param node.podLabels Extra labels for node pods
+  ## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+  ##
+  podLabels: {}
+  ## @param node.podAnnotations Annotations for node pods
+  ## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+  ##
+  podAnnotations: {}
+  ## @param node.podAffinityPreset Pod affinity preset. Ignored if `node.affinity` is set. Allowed values: `soft` or `hard`
+  ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+  ##
+  podAffinityPreset: ""
+  ## @param node.podAntiAffinityPreset Pod anti-affinity preset. Ignored if `node.affinity` is set. Allowed values: `soft` or `hard`
+  ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+  ##
+  podAntiAffinityPreset: soft
+  ## Node node.affinity preset
+  ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
+  ##
+  nodeAffinityPreset:
+    ## @param node.nodeAffinityPreset.type Node affinity preset type. Ignored if `node.affinity` is set. Allowed values: `soft` or `hard`
+    ##
+    type: ""
+    ## @param node.nodeAffinityPreset.key Node label key to match. Ignored if `node.affinity` is set
+    ##
+    key: ""
+    ## @param node.nodeAffinityPreset.values Node label values to match. Ignored if `node.affinity` is set
+    ## E.g.
+    ## values:
+    ##   - e2e-az1
+    ##   - e2e-az2
+    ##
+    values: []
+  ## @param node.affinity Affinity for node pods assignment
+  ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+  ## NOTE: `node.podAffinityPreset`, `node.podAntiAffinityPreset`, and `node.nodeAffinityPreset` will be ignored when it's set
+  ##
+  affinity: {}
+  ## @param node.nodeSelector Node labels for node pods assignment
+  ## ref: https://kubernetes.io/docs/user-guide/node-selection/
+  ##
+  nodeSelector: {}
+  ## @param node.tolerations Tolerations for node pods assignment
+  ## ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+  ##
+  tolerations:
+    - effect: NoExecute
+      operator: Exists
+    - effect: NoSchedule
+      operator: Exists
+  ## @param node.updateStrategy.type node statefulset strategy type
+  ## ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#update-strategies
+  ##
+  updateStrategy:
+    ## StrategyType
+    ## Can be set to RollingUpdate or OnDelete
+    ##
+    type: RollingUpdate
+  ## @param node.priorityClassName node pods' priorityClassName
+  ##
+  priorityClassName: ""
+  ## @param node.lifecycleHooks for the node container(s) to automate configuration before or after startup
+  ##
+  lifecycleHooks: {}
+  ## @param node.extraEnvVars Array with extra environment variables to add to node nodes
+  ## e.g:
+  ## extraEnvVars:
+  ##   - name: FOO
+  ##     value: "bar"
+  ##
+  extraEnvVars: []
+  ## @param node.extraEnvVarsCM Name of existing ConfigMap containing extra env vars for node nodes
+  ##
+  extraEnvVarsCM:
+  ## @param node.extraEnvVarsSecret Name of existing Secret containing extra env vars for node nodes
+  ##
+  extraEnvVarsSecret:
+  ## @param node.extraVolumes Optionally specify extra list of additional volumes for the node pod(s)
+  ##
+  extraVolumes: []
+  ## @param node.extraVolumeMounts Optionally specify extra list of additional volumeMounts for the node container(s)
+  ##
+  extraVolumeMounts: []
+  ## @param node.sidecars Add additional sidecar containers to the node pod(s)
+  ## e.g:
+  ## sidecars:
+  ##   - name: your-image-name
+  ##     image: your-image
+  ##     imagePullPolicy: Always
+  ##     ports:
+  ##       - name: portname
+  ##         containerPort: 1234
+  ##
+  sidecars: {}
+  ## @param node.initContainers Add additional init containers to the node pod(s)
+  ## ref: https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
+  ## e.g:
+  ## initContainers:
+  ##  - name: your-image-name
+  ##    image: your-image
+  ##    imagePullPolicy: Always
+  ##    command: ['sh', '-c', 'echo "hello world"']
+  ##
+  initContainers: {}
+
+  ## ServiceAccount configuration
+  ##
+  serviceAccount:
+    ## @param node.serviceAccount.create Specifies whether a ServiceAccount should be created
+    ##
+    create: true
+    ## @param node.serviceAccount.name The name of the ServiceAccount to use.
+    ## If not set and create is true, a name is generated using the common.names.fullname template
+    ##
+    name: ""
+
+## Configuration for the windows node daemonset
+##
+winnode:
+  ## @param winnode.name name used for the demonset, if unset defaults to "{{ template "common.names.fullname" . }}"
+  name: vsphere-csi-node-windows
+  ## @param winnode.image.registry node image registry
+  ## @param winnode.image.repository node image repository
+  ## @param winnode.image.tag node image tag (immutable tags are recommended)
+  ## @param winnode.image.pullPolicy node image pull policy
+  ## @param winnode.image.pullSecrets node image pull secrets
+  ## @param winnode.image.debug Enable image debug mode
+  ##
+
+  image:
+    registry: gcr.io
+    repository: cloud-provider-vsphere/csi/release/driver
+    tag: v2.7.0
+    ## Specify a imagePullPolicy
+    ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
+    ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
+    ##
+    pullPolicy: IfNotPresent
+    ## Optionally specify an array of imagePullSecrets.
+    ## Secrets must be manually created in the namespace.
+    ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+    ## e.g:
+    ## pullSecrets:
+    ##   - myRegistryKeySecretName
+    ##
+    pullSecrets: []
+    ## Enable debug mode
+    ##
+    debug: false
+
+
+
+  registrar:
+  ## @param winnode.registrar.image.registry node image registry
+  ## @param winnode.registrar.image.repository node image repository
+  ## @param winnode.registrar.image.tag node image tag (immutable tags are recommended)
+  ## @param winnode.registrar.image.pullPolicy node image pull policy
+  ## @param winnode.registrar.image.pullSecrets node image pull secrets
+  ## @param winnode.registrar.image.debug Enable image debug mode
+  ##
+    image:
+      registry: k8s.gcr.io
+      repository: sig-storage/csi-node-driver-registrar
+      tag: v2.5.1
+      ## Specify a imagePullPolicy
+      ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
+      ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
+      ##
+      pullPolicy: IfNotPresent
+      ## Optionally specify an array of imagePullSecrets.
+      ## Secrets must be manually created in the namespace.
+      ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+      ## e.g:
+      ## pullSecrets:
+      ##   - myRegistryKeySecretName
+      ##
+      pullSecrets: []
+      ## Enable debug mode
+      ##
+      debug: false
+        ## @param winnode.registrar.lifecycleHooks for the winnode.registrar container(s) to automate configuration before or after startup
+    ##
+    lifecycleHooks: {}
+    ## @param winnode.registrar.extraEnvVars Array with extra environment variables to add to winnode.registrar nodes
+    ## e.g:
+    ## extraEnvVars:
+    ##   - name: FOO
+    ##     value: "bar"
+    ##
+
+    ## Configure Container Security Context
+    ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+    ## @param winnode.registrar.containerSecurityContext.enabled Enabled winnode.registrar containers' Security Context
+    ## @skip winnode.registrar.containerSecurityContext.runAsUser Set winnode.registrar containers' Security Context runAsUser
+    ##
+    containerSecurityContext:
+      enabled: false
+      #runAsUser: 1001
+    ## @param winnode.registrar.command Override default container command (useful when using custom images)
+    ##
+    command: []
+    ## @param winnode.registrar.args Override default container args (useful when using custom images)
+    ##
+    args:
+      - "--v=5"
+      - "--csi-address=$(ADDRESS)"
+      - "--kubelet-registration-path=$(DRIVER_REG_SOCK_PATH)"
+    ## @param winnode.registrar.extraEnvVars Array with extra environment variables to add to winnode.registrar nodes
+    ## e.g:
+    ## extraEnvVars:
+    ##   - name: FOO
+    ##     value: "bar"
+    ##
+    extraEnvVars: []
+    ## @param winnode.registrar.extraEnvVarsCM Name of existing ConfigMap containing extra env vars for winnode.registrar nodes
+    ##
+    extraEnvVarsCM:
+    ## @param winnode.registrar.extraEnvVarsSecret Name of existing Secret containing extra env vars for winnode.registrar nodes
+    ##
+    extraEnvVarsSecret:
+    ## winnode.registrar resource requests and limits
+    ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
+    ## @param winnode.registrar.resources.limits The resources limits for the winnode.registrar containers
+    ## @param winnode.registrar.resources.requests The requested resources for the winnode.registrar containers
+    ##
+    resources:
+      limits: {}
+      requests: {}
+    ## Configure extra options for winnode.registrar containers' liveness and readiness probes
+    ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/#configure-probes
+    ## @param winnode.registrar.livenessProbe.enabled Enable livenessProbe on winnode.registrar nodes
+    ## @param winnode.registrar.livenessProbe.httpGet.path Path for HTTPGet Livenessprobe
+    ## @param winnode.registrar.livenessProbe.httpGet.port Path for HTTPGet Livenessprobe
+    ## @param winnode.registrar.livenessProbe.initialDelaySeconds Initial delay seconds for livenessProbe
+    ## @skip winnode.registrar.livenessProbe.periodSeconds Period seconds for livenessProbe
+    ## @param winnode.registrar.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
+    ## @skip winnode.registrar.livenessProbe.failureThreshold Failure threshold for livenessProbe
+    ## @skip winnode.registrar.livenessProbe.successThreshold Success threshold for livenessProbe
+    ##
+    livenessProbe:
+      enabled: true
+      exec:
+        command:
+        - /csi-node-driver-registrar
+        - --kubelet-registration-path=/var/lib/kubelet/plugins/csi.vsphere.vmware.com/csi.sock
+        - --mode=kubelet-registration-probe
+      initialDelaySeconds: 3
+      #periodSeconds: bar
+      #timeoutSeconds: 5
+      #failureThreshold: bar
+      #successThreshold: foo
+    ## @param winnode.registrar.readinessProbe.enabled Enable readinessProbe on winnode.registrar nodes
+    ## @param winnode.registrar.readinessProbe.initialDelaySeconds Initial delay seconds for readinessProbe
+    ## @param winnode.registrar.readinessProbe.periodSeconds Period seconds for readinessProbe
+    ## @param winnode.registrar.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
+    ## @param winnode.registrar.readinessProbe.failureThreshold Failure threshold for readinessProbe
+    ## @param winnode.registrar.readinessProbe.successThreshold Success threshold for readinessProbe
+    ##
+    readinessProbe:
+      enabled: false
+      # httpGet:
+      #   path: /
+      initialDelaySeconds: foo
+      periodSeconds: bar
+      timeoutSeconds: foo
+      failureThreshold: bar
+      successThreshold: foo
+    ## @param winnode.registrar.customLivenessProbe Custom livenessProbe that overrides the default one
+    ##
+    customLivenessProbe: {}
+    ## @param winnode.registrar.customReadinessProbe Custom readinessProbe that overrides the default one
+    ##
+    customReadinessProbe: {}
+    ## @param winnode.registrar.extraVolumeMounts Optionally specify extra list of additional volumeMounts for the winnode.registrar container(s)
+    ##
+    extraVolumeMounts: []
+
+  livenessprobe:
+  ## @param winnode.livenessprobe.image.registry node image registry
+  ## @param winnode.livenessprobe.image.repository node image repository
+  ## @param winnode.livenessprobe.image.tag node image tag (immutable tags are recommended)S
+  ## @param winnode.livenessprobe.image.pullPolicy node image pull policy
+  ## @param winnode.livenessprobe.image.pullSecrets node image pull secrets
+  ## @param winnode.livenessprobe.image.debug Enable image debug mode
+  ##
+    image:
+      registry: k8s.gcr.io
+      repository: sig-storage/livenessprobe
+      tag: v2.7.0
+      ## Specify a imagePullPolicy
+      ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
+      ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
+      ##
+      pullPolicy: IfNotPresent
+      ## Optionally specify an array of imagePullSecrets.
+      ## Secrets must be manually created in the namespace.
+      ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+      ## e.g:
+      ## pullSecrets:
+      ##   - myRegistryKeySecretName
+      ##
+      pullSecrets: []
+      ## Enable debug mode
+      ##
+      debug: false
+    ## @param winnode.livenessprobe.lifecycleHooks for the winnode.livenessprobes container(s) to automate configuration before or after startup
+    ##
+    lifecycleHooks: {}
+    ## @param winnode.livenessprobe.extraEnvVars Array with extra environment variables to add to winnode.livenessprobes nodes
+    ## e.g:
+    ## extraEnvVars:
+    ##   - name: FOO
+    ##     value: "bar"
+    ##
+
+    ## Configure Container Security Context
+    ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+    ## @param winnode.livenessprobe.containerSecurityContext.enabled Enabled winnode.livenessprobes containers' Security Context
+    ## @skip winnode.livenessprobe.containerSecurityContext.runAsUser Set winnode.livenessprobes containers' Security Context runAsUser
+    ##
+    containerSecurityContext:
+      enabled: false
+      #runAsUser: 1001
+    ## @param winnode.livenessprobe.command Override default container command (useful when using custom images)
+    ##
+    command: []
+    ## @param winnode.livenessprobe.args Override default container args (useful when using custom images)
+    ##
+    args:
+      - "--v=4"
+      - "--csi-address=/csi/csi.sock"
+    ## @param winnode.livenessprobe.extraEnvVars Array with extra environment variables to add to winnode.livenessprobes nodes
+    ## e.g:
+    ## extraEnvVars:
+    ##   - name: FOO
+    ##     value: "bar"
+    ##
+    extraEnvVars: []
+    ## @param winnode.livenessprobe.extraEnvVarsCM Name of existing ConfigMap containing extra env vars for winnode.livenessprobes nodes
+    ##
+    extraEnvVarsCM:
+    ## @param winnode.livenessprobe.extraEnvVarsSecret Name of existing Secret containing extra env vars for winnode.livenessprobes nodes
+    ##
+    extraEnvVarsSecret:
+    ## winnode.livenessprobes resource requests and limits
+    ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
+    ## @param winnode.livenessprobe.resources.limits The resources limits for the winnode.livenessprobes containers
+    ## @param winnode.livenessprobe.resources.requests The requested resources for the winnode.livenessprobes containers
+    ##
+    resources:
+      limits: {}
+      requests: {}
+    ## Configure extra options for winnode.livenessprobes containers' liveness and readiness probes
+    ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/#configure-probes
+    ## @param winnode.livenessprobe.livenessProbe.enabled Enable livenessProbe on winnode.livenessprobes nodes
+    ## @param winnode.livenessprobe.livenessProbe.initialDelaySeconds Initial delay seconds for livenessProbe
+    ## @param winnode.livenessprobe.livenessProbe.periodSeconds Period seconds for livenessProbe
+    ## @param winnode.livenessprobe.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
+    ## @param winnode.livenessprobe.livenessProbe.failureThreshold Failure threshold for livenessProbe
+    ## @param winnode.livenessprobe.livenessProbe.successThreshold Success threshold for livenessProbe
+    ##
+    livenessProbe:
+      enabled: false
+      # httpGet:
+      #   path: /
+      initialDelaySeconds: foo
+      periodSeconds: bar
+      timeoutSeconds: foo
+      failureThreshold: bar
+      successThreshold: foo
+    ## @param winnode.livenessprobe.readinessProbe.enabled Enable readinessProbe on winnode.livenessprobes nodes
+    ## @param winnode.livenessprobe.readinessProbe.initialDelaySeconds Initial delay seconds for readinessProbe
+    ## @param winnode.livenessprobe.readinessProbe.periodSeconds Period seconds for readinessProbe
+    ## @param winnode.livenessprobe.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
+    ## @param winnode.livenessprobe.readinessProbe.failureThreshold Failure threshold for readinessProbe
+    ## @param winnode.livenessprobe.readinessProbe.successThreshold Success threshold for readinessProbe
+    ##
+    readinessProbe:
+      enabled: false
+      # httpGet:
+      #   path: /
+      initialDelaySeconds: foo
+      periodSeconds: bar
+      timeoutSeconds: foo
+      failureThreshold: bar
+      successThreshold: foo
+    ## @param winnode.livenessprobe.customLivenessProbe Custom livenessProbe that overrides the default one
+    ##
+    customLivenessProbe: {}
+    ## @param winnode.livenessprobe.customReadinessProbe Custom readinessProbe that overrides the default one
+    ##
+    customReadinessProbe: {}
+    ## @param winnode.livenessprobe.extraVolumeMounts Optionally specify extra list of additional volumeMounts for the winnode.livenessprobes container(s)
+    ##
+    extraVolumeMounts: []
+
+  ## Configure extra options for node containers' liveness and readiness probes
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/#configure-probes
+  ## @param winnode.livenessProbe.enabled Enable livenessProbe on node nodes
+  ## @param winnode.livenessProbe.httpGet.path Path for HTTPGet Livenessprobe
+  ## @param winnode.livenessProbe.httpGet.port Path for HTTPGet Livenessprobe
+  ## @param winnode.livenessProbe.initialDelaySeconds Initial delay seconds for livenessProbe
+  ## @param winnode.livenessProbe.periodSeconds Period seconds for livenessProbe
+  ## @param winnode.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
+  ## @param winnode.livenessProbe.failureThreshold Failure threshold for livenessProbe
+  ##
+  livenessProbe:
+    enabled: true
+    httpGet:
+      path: /healthz
+      port: healthz
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    timeoutSeconds: 5
+    failureThreshold: 3
+    #successThreshold: foo
+  ## @param winnode.readinessProbe.enabled Enable readinessProbe on node nodes
+  ## @param winnode.readinessProbe.initialDelaySeconds Initial delay seconds for readinessProbe
+  ## @param winnode.readinessProbe.periodSeconds Period seconds for readinessProbe
+  ## @param winnode.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
+  ## @param winnode.readinessProbe.failureThreshold Failure threshold for readinessProbe
+  ## @param winnode.readinessProbe.successThreshold Success threshold for readinessProbe
+  ##
+  readinessProbe:
+    enabled: false
+    # httpGet:
+    #   path: /
+    initialDelaySeconds: foo
+    periodSeconds: bar
+    timeoutSeconds: foo
+    failureThreshold: bar
+    successThreshold: foo
+  ## @param winnode.customLivenessProbe Custom livenessProbe that overrides the default one
+  ##
+  customLivenessProbe: {}
+  ## @param winnode.customReadinessProbe Custom readinessProbe that overrides the default one
+  ##
+  customReadinessProbe: {}
+  ## node resource requests and limits
+  ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
+  ## @param winnode.resources.limits The resources limits for the node containers
+  ## @param winnode.resources.requests The requested resources for the node containers
+  ##
+  resources:
+    limits: {}
+    requests: {}
+  ## @param winnode.hostNetwork set use of hostNetwork for node containers
+  ##
+  hostNetwork: true
+  ## @param winnode.dnsPolicy set DNS Policy
+  ##
+  dnsPolicy: "ClusterFirstWithHostNet"
+  ## Configure Pods Security Context
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+  ## @param winnode.podSecurityContext.enabled Enabled node pods' Security Context
+  ## @param winnode.podSecurityContext.fsGroup Set node pod's Security Context fsGroup
+  ##
+  podSecurityContext:
+    enabled: false
+    fsGroup: 1001
+  ## Configure Container Security Context
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+  ## @param winnode.containerSecurityContext.enabled Enabled node containers' Security Context
+  ## @param winnode.containerSecurityContext.privileged Set node containers' Security Context privileged
+  ## @param winnode.containerSecurityContext.allowPrivilegeEscalation Set node containers' Security Context allowPrivilegeEscalation
+  ## @skip winnode.containerSecurityContext.capabilities.add
+  containerSecurityContext:
+    enabled: true
+    privileged: true
+    capabilities:
+      add: ["SYS_ADMIN"]
+    allowPrivilegeEscalation: true
+
+  ## @param winnode.existingConfigmap The name of an existing ConfigMap with your custom configuration for node
+  ##
+  existingConfigmap:
+  ## @param winnode.command Override default container command (useful when using custom images)
+  ##
+  command: []
+  ## @param winnode.args Override default container args (useful when using custom images)
+  ##
+  args:
+    - "--fss-name=internal-feature-states.csi.vsphere.vmware.com"
+    - "--fss-namespace=$(CSI_NAMESPACE)"
+  ## @param winnode.hostAliases node pods host aliases
+  ## https://kubernetes.io/docs/concepts/services-networking/add-entries-to-pod-etc-hosts-with-host-aliases/
+  ##
+  hostAliases: []
+  ## @param winnode.podLabels Extra labels for node pods
+  ## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+  ##
+  podLabels: {}
+  ## @param winnode.podAnnotations Annotations for node pods
+  ## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+  ##
+  podAnnotations: {}
+  ## @param winnode.podAffinityPreset Pod affinity preset. Ignored if `winnode.affinity` is set. Allowed values: `soft` or `hard`
+  ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+  ##
+  podAffinityPreset: ""
+  ## @param winnode.podAntiAffinityPreset Pod anti-affinity preset. Ignored if `winnode.affinity` is set. Allowed values: `soft` or `hard`
+  ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+  ##
+  podAntiAffinityPreset: soft
+  ## Node winnode.affinity preset
+  ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
+  ##
+  nodeAffinityPreset:
+    ## @param winnode.nodeAffinityPreset.type Node affinity preset type. Ignored if `winnode.affinity` is set. Allowed values: `soft` or `hard`
+    ##
+    type: ""
+    ## @param winnode.nodeAffinityPreset.key Node label key to match. Ignored if `winnode.affinity` is set
+    ##
+    key: ""
+    ## @param winnode.nodeAffinityPreset.values Node label values to match. Ignored if `winnode.affinity` is set
+    ## E.g.
+    ## values:
+    ##   - e2e-az1
+    ##   - e2e-az2
+    ##
+    values: []
+  ## @param winnode.affinity Affinity for node pods assignment
+  ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+  ## NOTE: `winnode.podAffinityPreset`, `winnode.podAntiAffinityPreset`, and `winnode.nodeAffinityPreset` will be ignored when it's set
+  ##
+  affinity: {}
+  ## @param winnode.nodeSelector Node labels for node pods assignment
+  ## ref: https://kubernetes.io/docs/user-guide/node-selection/
+  ##
+  nodeSelector: {}
+  ## @param winnode.tolerations Tolerations for node pods assignment
+  ## ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+  ##
+  tolerations:
+    - effect: NoExecute
+      operator: Exists
+    - effect: NoSchedule
+      operator: Exists
+  ## @param winnode.updateStrategy.type node statefulset strategy type
+  ## ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#update-strategies
+  ##
+  updateStrategy:
+    ## StrategyType
+    ## Can be set to RollingUpdate or OnDelete
+    ##
+    type: RollingUpdate
+  ## @param winnode.priorityClassName node pods' priorityClassName
+  ##
+  priorityClassName: ""
+  ## @param winnode.lifecycleHooks for the node container(s) to automate configuration before or after startup
+  ##
+  lifecycleHooks: {}
+  ## @param winnode.extraEnvVars Array with extra environment variables to add to node nodes
+  ## e.g:
+  ## extraEnvVars:
+  ##   - name: FOO
+  ##     value: "bar"
+  ##
+  extraEnvVars: []
+  ## @param winnode.extraEnvVarsCM Name of existing ConfigMap containing extra env vars for node nodes
+  ##
+  extraEnvVarsCM:
+  ## @param winnode.extraEnvVarsSecret Name of existing Secret containing extra env vars for node nodes
+  ##
+  extraEnvVarsSecret:
+  ## @param winnode.extraVolumes Optionally specify extra list of additional volumes for the node pod(s)
+  ##
+  extraVolumes: []
+  ## @param winnode.extraVolumeMounts Optionally specify extra list of additional volumeMounts for the node container(s)
+  ##
+  extraVolumeMounts: []
+  ## @param winnode.sidecars Add additional sidecar containers to the node pod(s)
+  ## e.g:
+  ## sidecars:
+  ##   - name: your-image-name
+  ##     image: your-image
+  ##     imagePullPolicy: Always
+  ##     ports:
+  ##       - name: portname
+  ##         containerPort: 1234
+  ##
+  sidecars: {}
+  ## @param winnode.initContainers Add additional init containers to the node pod(s)
+  ## ref: https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
+  ## e.g:
+  ## initContainers:
+  ##  - name: your-image-name
+  ##    image: your-image
+  ##    imagePullPolicy: Always
+  ##    command: ['sh', '-c', 'echo "hello world"']
+  ##
+  initContainers: {}
+
+  ## ServiceAccount configuration
+  ##
+  serviceAccount:
+    ## @param winnode.serviceAccount.create Specifies whether a ServiceAccount should be created
+    ##
+    create: true
+    ## @param winnode.serviceAccount.name The name of the ServiceAccount to use.
+    ## If not set and create is true, a name is generated using the common.names.fullname template
+    ##
+    name: ""
+
+
+linuxnode:
+  kubelet:
+    ## @param linuxnode.kubelet.linuxPath Path to kubelet location on the node
+    linuxPath: /var/lib/kubelet
+
+
+## Configuration for the webhook deployment
+##
+webhook:
+  ## @param webhook.enabled enable or disable webhook
+
+  enabled: false
+  ## @param webhook.image.registry webhook image registry
+  ## @param webhook.image.repository webhook image repository
+  ## @param webhook.image.tag webhook image tag (immutable tags are recommended)
+  ## @param webhook.image.pullPolicy webhook image pull policy
+  ## @param webhook.image.pullSecrets webhook image pull secrets
+  ## @param webhook.image.debug Enable image debug mode
+  ##
+
+  image:
+    registry: gcr.io
+    repository: cloud-provider-vsphere/csi/release/syncer
+    tag: v2.7.0
+    ## Specify a imagePullPolicy
+    ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
+    ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
+    ##
+    pullPolicy: IfNotPresent
+    ## Optionally specify an array of imagePullSecrets.
+    ## Secrets must be manually created in the namespace.
+    ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+    ## e.g:
+    ## pullSecrets:
+    ##   - myRegistryKeySecretName
+    ##
+    pullSecrets: []
+    ## Enable debug mode
+    ##
+    debug: false
+  ## @param webhook.replicaCount Number of webhook replicas to deploy
+  ##
+  replicaCount: 1
+  ## Configure extra options for webhook containers' liveness and readiness probes
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/#configure-probes
+  ## @param webhook.livenessProbe.enabled Enable livenessProbe on webhook pods
+  ## @param webhook.livenessProbe.httpGet.path Path for HTTPGet Livenessprobe
+  ## @param webhook.livenessProbe.httpGet.port Path for HTTPGet Livenessprobe
+  ## @param webhook.livenessProbe.initialDelaySeconds Initial delay seconds for livenessProbe
+  ## @param webhook.livenessProbe.periodSeconds Period seconds for livenessProbe
+  ## @param webhook.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
+  ## @param webhook.livenessProbe.failureThreshold Failure threshold for livenessProbe
+  ##
+  livenessProbe:
+    enabled: false
+    httpGet:
+      path: /healthz
+      port: healthz
+    initialDelaySeconds: 10
+    periodSeconds: 5
+    timeoutSeconds: 5
+    failureThreshold: 3
+    #successThreshold: foo
+  ## @param webhook.readinessProbe.enabled Enable readinessProbe on webhook pods
+  ## @param webhook.readinessProbe.initialDelaySeconds Initial delay seconds for readinessProbe
+  ## @param webhook.readinessProbe.periodSeconds Period seconds for readinessProbe
+  ## @param webhook.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
+  ## @param webhook.readinessProbe.failureThreshold Failure threshold for readinessProbe
+  ## @param webhook.readinessProbe.successThreshold Success threshold for readinessProbe
+  ##
+  readinessProbe:
+    enabled: false
+    # httpGet:
+    #   path: /
+    initialDelaySeconds: foo
+    periodSeconds: bar
+    timeoutSeconds: foo
+    failureThreshold: bar
+    successThreshold: foo
+  ## @param webhook.customLivenessProbe Custom livenessProbe that overrides the default one
+  ##
+  customLivenessProbe: {}
+  ## @param webhook.customReadinessProbe Custom readinessProbe that overrides the default one
+  ##
+  customReadinessProbe: {}
+  ## webhook resource requests and limits
+  ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
+  ## @param webhook.resources.limits The resources limits for the webhook containers
+  ## @param webhook.resources.requests The requested resources for the webhook containers
+  ##
+  resources:
+    limits: {}
+    requests: {}
+  ## @param webhook.dnsPolicy set DNS Policy
+  ##
+  dnsPolicy: "Default"
+  ## Configure Pods Security Context
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+  ## @param webhook.podSecurityContext.enabled Enabled webhook pods' Security Context
+  ## @param webhook.podSecurityContext.fsGroup Set webhook pod's Security Context fsGroup
+  ##
+  podSecurityContext:
+    enabled: false
+    fsGroup: 1001
+  ## Configure Container Security Context
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+  ## @param webhook.containerSecurityContext.enabled Enabled webhook containers' Security Context
+  ## @param webhook.containerSecurityContext.privileged Set webhook containers' Security Context privileged
+  ## @param webhook.containerSecurityContext.allowPrivilegeEscalation Set webhook containers' Security Context allowPrivilegeEscalation
+  ## @skip webhook.containerSecurityContext.capabilities.add
+  containerSecurityContext: {}
+
+  ## @param webhook.existingConfigmap The name of an existing ConfigMap with your custom configuration for webhook
+  ##
+  existingConfigmap:
+  ## @param webhook.command Override default container command (useful when using custom images)
+  ##
+  command: []
+  ## @param webhook.args Override default container args (useful when using custom images)
+  ##
+  args:
+    - "--operation-mode=WEBHOOK_SERVER"
+    - "--fss-name=internal-feature-states.csi.vsphere.vmware.com"
+    - "--fss-namespace=$(CSI_NAMESPACE)"
+  ## @param webhook.hostAliases webhook pods host aliases
+  ## https://kubernetes.io/docs/concepts/services-networking/add-entries-to-pod-etc-hosts-with-host-aliases/
+  ##
+  hostAliases: []
+  ## @param webhook.podLabels Extra labels for webhook pods
+  ## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+  ##
+  podLabels: {}
+  ## @param webhook.podAnnotations Annotations for webhook pods
+  ## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+  ##
+  podAnnotations: {}
+  ## @param webhook.podAffinityPreset Pod affinity preset. Ignored if `webhook.affinity` is set. Allowed values: `soft` or `hard`
+  ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+  ##
+  podAffinityPreset: ""
+  ## @param webhook.podAntiAffinityPreset Pod anti-affinity preset. Ignored if `webhook.affinity` is set. Allowed values: `soft` or `hard`
+  ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+  ##
+  podAntiAffinityPreset: soft
+  ## Node webhook.affinity preset
+  ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
+  ##
+  nodeAffinityPreset:
+    ## @param webhook.nodeAffinityPreset.type webhook affinity preset type. Ignored if `webhook.affinity` is set. Allowed values: `soft` or `hard`
+    ##
+    type: ""
+    ## @param webhook.nodeAffinityPreset.key webhook label key to match. Ignored if `webhook.affinity` is set
+    ##
+    key: ""
+    ## @param webhook.nodeAffinityPreset.values webhook label values to match. Ignored if `webhook.affinity` is set
+    ## E.g.
+    ## values:
+    ##   - e2e-az1
+    ##   - e2e-az2
+    ##
+    values: []
+  ## @param webhook.affinity Affinity for webhook pods assignment
+  ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+  ## NOTE: `webhook.podAffinityPreset`, `webhook.podAntiAffinityPreset`, and `webhook.nodeAffinityPreset` will be ignored when it's set
+  ##
+  affinity: {}
+  ## @param webhook.nodeSelector Node labels for webhook pods assignment
+  ## ref: https://kubernetes.io/docs/user-guide/node-selection/
+  ##
+  ## @skip webhook.nodeSelector.node-role.kubernetes.io/master
+  nodeSelector:
+    node-role.kubernetes.io/control-plane: ""
+
+  ## @param webhook.tolerations Tolerations for webhook pods assignment
+  ## ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+  ##
+  tolerations:
+    - key: node-role.kubernetes.io/control-plane
+      operator: Exists
+      effect: NoSchedule
+    - key: node-role.kubernetes.io/master
+      operator: Exists
+      effect: NoSchedule
+
+  ## @param webhook.updateStrategy.type webhook statefulset strategy type
+  ## ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#update-strategies
+  ##
+  updateStrategy:
+    ## StrategyType
+    ## Can be set to RollingUpdate or OnDelete
+    ##
+    type: RollingUpdate
+  ## @param webhook.priorityClassName webhook pods' priorityClassName
+  ##
+  priorityClassName: ""
+  ## @param webhook.lifecycleHooks for the webhook container(s) to automate configuration before or after startup
+  ##
+  lifecycleHooks: {}
+  ## @param webhook.extraEnvVars Array with extra environment variables to add to webhook pods
+  ## e.g:
+  ## extraEnvVars:
+  ##   - name: FOO
+  ##     value: "bar"
+  ##
+  extraEnvVars: []
+  ## @param webhook.extraEnvVarsCM Name of existing ConfigMap containing extra env vars for webhook pods
+  ##
+  extraEnvVarsCM:
+  ## @param webhook.extraEnvVarsSecret Name of existing Secret containing extra env vars for webhook pods
+  ##
+  extraEnvVarsSecret:
+  ## @param webhook.extraVolumes Optionally specify extra list of additional volumes for the webhook pod(s)
+  ##
+  extraVolumes: []
+  ## @param webhook.extraVolumeMounts Optionally specify extra list of additional volumeMounts for the webhook container(s)
+  ##
+  extraVolumeMounts: []
+  ## @param webhook.sidecars Add additional sidecar containers to the webhook pod(s)
+  ## e.g:
+  ## sidecars:
+  ##   - name: your-image-name
+  ##     image: your-image
+  ##     imagePullPolicy: Always
+  ##     ports:
+  ##       - name: portname
+  ##         containerPort: 1234
+  ##
+  sidecars: {}
+  ## @param webhook.initContainers Add additional init containers to the webhook pod(s)
+  ## ref: https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
+  ## e.g:
+  ## initContainers:
+  ##  - name: your-image-name
+  ##    image: your-image
+  ##    imagePullPolicy: Always
+  ##    command: ['sh', '-c', 'echo "hello world"']
+  ##
+  initContainers: {}
+
+  ## ServiceAccount configuration
+  ##
+  serviceAccount:
+    ## @param webhook.serviceAccount.create Specifies whether a ServiceAccount should be created
+    ##
+    create: true
+    ## @param webhook.serviceAccount.name The name of the ServiceAccount to use.
+    ## If not set and create is true, a name is generated using the common.names.fullname template
+    ##
+    name: ""
+
+
+## @section Metrics Parameters
+
+metrics:
+  ## @param metrics.enabled Start metrics
+  ##
+  enabled: false
+  ## Prometheus Service Monitor
+  ## ref: https://github.com/coreos/prometheus-operator
+  ##      https://github.com/coreos/prometheus-operator/blob/master/Documentation/api.md#endpoint
+  ##
+  ## @param metrics.podAnnotations [object] Annotations for Cert Manager exporter pods
+  ## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+  ##
+  podAnnotations:
+    prometheus.io/path: "/metrics"
+    prometheus.io/scrape: "true"
+    prometheus.io/port: "{{ .Values.controller.containerPort }}"
+
+  ## Prometheus Operator ServiceMonitor resource
+  ##
+  serviceMonitor:
+    enabled: false
+    ## @param metrics.serviceMonitor.namespace Namespace which Prometheus is running in
+    ## e.g:
+    ## namespace: monitoring
+    ##
+    namespace: ""
+    ## @param metrics.serviceMonitor.jobLabel The name of the label on the target service to use as the job name in prometheus.
+    ##
+    jobLabel: ""
+    ## @param metrics.serviceMonitor.interval Interval at which metrics should be scraped
+    ## ref: https://github.com/coreos/prometheus-operator/blob/master/Documentation/api.md#endpoint
+    ##
+    interval: 60s
+    ## @param metrics.serviceMonitor.scrapeTimeout Timeout after which the scrape is ended
+    ## ref: https://github.com/coreos/prometheus-operator/blob/master/Documentation/api.md#endpoint
+    ##
+    scrapeTimeout: 30s
+    ## @param metrics.serviceMonitor.relabelings RelabelConfigs to apply to samples before scraping
+    ## ref: https://github.com/coreos/prometheus-operator/blob/master/Documentation/api.md#relabelconfig
+    ##
+    relabelings: []
+    ## @param metrics.serviceMonitor.metricRelabelings MetricRelabelConfigs to apply to samples before ingestion
+    ## ref: https://github.com/coreos/prometheus-operator/blob/master/Documentation/api.md#relabelconfig
+    ##
+    metricRelabelings: []
+    ## @param metrics.serviceMonitor.selector ServiceMonitor selector labels
+    ## ref: https://github.com/bitnami/charts/tree/master/bitnami/prometheus-operator#prometheus-configuration
+    ##
+    ## selector:
+    ##   prometheus: my-prometheus
+    ##
+    selector: {}
+    ## @param metrics.serviceMonitor.labels Extra labels for the ServiceMonitor
+    ##
+    labels: {}
+    ## @param metrics.serviceMonitor.additionalLabels DEPRECATED. Use metrics.serviceMonitor.labels instead.
+    ##
+    additionalLabels: {}
+    ## @param metrics.serviceMonitor.honorLabels honorLabels chooses the metric's labels on collisions with target labels
+    ##
+    honorLabels: false
+
+## @section Init Container Parameters
+
+## @section Other Parameters
+
+## RBAC configuration
+##
+rbac:
+  ## @param rbac.create Specifies whether RBAC resources should be created
+  ##
+  create: true
+
+
+## @section Subchart parameters
+
+## vsphere-cpi subcharz config
+##
+## @param vsphere-cpi.enabled Specifies whether CPI subchart resources should be deployed
+
+vsphere-cpi:
+  enabled: false

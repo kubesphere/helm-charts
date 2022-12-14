@@ -1,0 +1,328 @@
+## @section Global parameters
+## Global Docker image parameters
+## Please, note that this will override the image parameters, including dependencies, configured to use the global value
+## Current available global Docker image parameters: imageRegistry, imagePullSecrets and storageClass
+
+## @param global.imageRegistry Global Docker image registry
+## @param global.imagePullSecrets Global Docker registry secret names as an array
+##
+global:
+  imageRegistry:
+  ## E.g.
+  ## imagePullSecrets:
+  ##   - myRegistryKeySecretName
+  ##
+  imagePullSecrets: []
+  config:
+    externalKubeconfig:
+      enabled: false
+      secretName: ""
+      keyName: "value"
+    secretsInline: true
+    # Global properties in this section will be used for all specified vCenters unless overriden in VirtualCenter section.
+    # global:
+    #   port: 443
+    #   # set insecureFlag to true if the vCenter uses a self-signed cert
+    #   insecureFlag: true
+    #   # settings for using k8s secret
+    #   #secretName: vsphere-cloud-secret
+    #   #secretNamespace: kube-system
+    # # vcenter section
+    # vcenter:
+    #   your-vcenter-name-here:
+    #     server: 10.0.0.1
+    #     user: use-your-vcenter-user-here
+    #     password: use-your-vcenter-password-here
+    #     datacenters:
+    #       - hrwest
+    #       - hreast
+    #   could-be-a-tenant-label:
+    #     server: 1.2.3.4
+    #     datacenters:
+    #       - mytenantdc
+    #     secretName: cpi-engineering-secret
+    #     secretNamespace: kube-system
+    # # labels for regions and zones
+    # labels:
+    #   region: k8s-region
+    #   zone: k8s-zone
+
+
+## @section Common parameters
+
+## @param kubeVersion Override Kubernetes version
+##
+kubeVersion:
+## @param nameOverride String to partially override common.names.fullname
+##
+nameOverride:
+## @param fullnameOverride String to fully override common.names.fullname
+##
+fullnameOverride:
+## @param commonLabels Labels to add to all deployed objects
+##
+commonLabels: {}
+## @param commonAnnotations Annotations to add to all deployed objects
+##
+commonAnnotations: {}
+## @param clusterDomain Kubernetes cluster domain name
+##
+clusterDomain: cluster.local
+## @param extraDeploy Array of extra objects to deploy with the release
+##
+extraDeploy: []
+
+## @section Traffic Exposure Parameters
+
+## @section vSphereCPI Parameters
+
+## %%MAIN_CONTAINER/POD_DESCRIPTION%%
+##
+vSphereCPI:
+  ## @param vSphereCPI.image.registry vSphereCPI image registry
+  ## @param vSphereCPI.image.repository vSphereCPI image repository
+  ## @param vSphereCPI.image.tag vSphereCPI image tag (immutable tags are recommended)
+  ## @param vSphereCPI.image.pullPolicy vSphereCPI image pull policy
+  ## @param vSphereCPI.image.pullSecrets vSphereCPI image pull secrets
+  ## @param vSphereCPI.image.debug Enable image debug mode
+  ##
+  image:
+    registry: gcr.io
+    repository: cloud-provider-vsphere/cpi/release/manager
+    tag: v1.22.5
+    ## Specify a imagePullPolicy
+    ## Defaults to 'Always' if image tag is 'latest', else set to 'IfNotPresent'
+    ## ref: http://kubernetes.io/docs/user-guide/images/#pre-pulling-images
+    ##
+    pullPolicy: IfNotPresent
+    ## Optionally specify an array of imagePullSecrets.
+    ## Secrets must be manually created in the namespace.
+    ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+    ## e.g:
+    ## pullSecrets:
+    ##   - myRegistryKeySecretName
+    ##
+    pullSecrets: []
+    ## Enable debug mode
+    ##
+    debug: false
+
+  ## Deployment mode of the vSphereCPI, can be deployment or daemonset
+  ## @param vSphereCPI.deploymentMode deployment mode of vSphereCPI
+  deploymentMode: daemonset
+  ## @param vSphereCPI.replicaCount Number of vSphereCPI replicas to deploy
+  ##
+  replicaCount: 1
+  ## Configure extra options for vSphereCPI containers' liveness and readiness probes
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/configure-liveness-readiness-probes/#configure-probes
+  ## @param vSphereCPI.livenessProbe.enabled Enable livenessProbe on vSphereCPI nodes
+  ## @param vSphereCPI.livenessProbe.initialDelaySeconds Initial delay seconds for livenessProbe
+  ## @param vSphereCPI.livenessProbe.periodSeconds Period seconds for livenessProbe
+  ## @param vSphereCPI.livenessProbe.timeoutSeconds Timeout seconds for livenessProbe
+  ## @param vSphereCPI.livenessProbe.failureThreshold Failure threshold for livenessProbe
+  ## @param vSphereCPI.livenessProbe.successThreshold Success threshold for livenessProbe
+  ##
+  useHostNet: true
+  livenessProbe:
+    enabled: false
+    # %%httpGet || command || etc%%
+    # initialDelaySeconds: foo
+    # periodSeconds: bar
+    # timeoutSeconds: foo
+    # failureThreshold: bar
+    # successThreshold: foo
+  ## @param vSphereCPI.readinessProbe.enabled Enable readinessProbe on vSphereCPI nodes
+  ## @param vSphereCPI.readinessProbe.initialDelaySeconds Initial delay seconds for readinessProbe
+  ## @param vSphereCPI.readinessProbe.periodSeconds Period seconds for readinessProbe
+  ## @param vSphereCPI.readinessProbe.timeoutSeconds Timeout seconds for readinessProbe
+  ## @param vSphereCPI.readinessProbe.failureThreshold Failure threshold for readinessProbe
+  ## @param vSphereCPI.readinessProbe.successThreshold Success threshold for readinessProbe
+  ##
+  readinessProbe:
+    enabled: false
+    # %%httpGet || command || etc%%
+    # initialDelaySeconds: foo
+    # periodSeconds: bar
+    # timeoutSeconds: foo
+    # failureThreshold: bar
+    # successThreshold: foo
+  ## @param vSphereCPI.customLivenessProbe Custom livenessProbe that overrides the default one
+  ##
+  customLivenessProbe: {}
+  ## @param vSphereCPI.customReadinessProbe Custom readinessProbe that overrides the default one
+  ##
+  customReadinessProbe: {}
+  ## vSphereCPI resource requests and limits
+  ## ref: http://kubernetes.io/docs/user-guide/compute-resources/
+  ## @param vSphereCPI.resources.limits The resources limits for the vSphereCPI containers
+  ## @param vSphereCPI.resources.requests The requested resources for the vSphereCPI containers
+  ##
+  resources:
+    limits: {}
+    requests:
+      cpu: 200m
+  ## Configure Pods Security Context
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+  ## @param vSphereCPI.podSecurityContext.enabled Enabled vSphereCPI pods' Security Context
+  ## @param vSphereCPI.podSecurityContext.fsGroup Set vSphereCPI pod's Security Context fsGroup
+  ##
+  podSecurityContext:
+    enabled: true
+    fsGroup: 1001
+  ## Configure Container Security Context
+  ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/security-context/#set-the-security-context-for-a-pod
+  ## @param vSphereCPI.containerSecurityContext.enabled Enabled vSphereCPI containers' Security Context
+  ## @param vSphereCPI.containerSecurityContext.runAsUser Set vSphereCPI containers' Security Context runAsUser
+  ##
+  containerSecurityContext:
+    enabled: true
+    runAsUser: 1001
+
+  ## @param vSphereCPI.existingConfigmap The name of an existing ConfigMap with your custom configuration for vSphereCPI
+  ##
+  existingConfigmap:
+  ## @param vSphereCPI.command Override default container command (useful when using custom images)
+  ##
+  command: []
+  ## @param vSphereCPI.args Override default container args (useful when using custom images)
+  ##
+  args:
+    - --cloud-provider=vsphere
+    - --v=7
+    - --cloud-config=/etc/cloud/vsphere.conf
+  ## @param vSphereCPI.hostAliases vSphereCPI pods host aliases
+  ## https://kubernetes.io/docs/concepts/services-networking/add-entries-to-pod-etc-hosts-with-host-aliases/
+  ##
+  hostAliases: []
+  ## @param vSphereCPI.podLabels Extra labels for vSphereCPI pods
+  ## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/labels/
+  ##
+  podLabels: {}
+  ## @param vSphereCPI.podAnnotations Annotations for vSphereCPI pods
+  ## ref: https://kubernetes.io/docs/concepts/overview/working-with-objects/annotations/
+  ##
+  podAnnotations: {}
+  ## @param vSphereCPI.podAffinityPreset Pod affinity preset. Ignored if `vSphereCPI.affinity` is set. Allowed values: `soft` or `hard`
+  ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+  ##
+  podAffinityPreset: ""
+  ## @param vSphereCPI.podAntiAffinityPreset Pod anti-affinity preset. Ignored if `vSphereCPI.affinity` is set. Allowed values: `soft` or `hard`
+  ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#inter-pod-affinity-and-anti-affinity
+  ##
+  podAntiAffinityPreset: soft
+  ## Node vSphereCPI.affinity preset
+  ## ref: https://kubernetes.io/docs/concepts/scheduling-eviction/assign-pod-node/#node-affinity
+  ##
+  nodeAffinityPreset:
+    ## @param vSphereCPI.nodeAffinityPreset.type Node affinity preset type. Ignored if `vSphereCPI.affinity` is set. Allowed values: `soft` or `hard`
+    ##
+    type: ""
+    ## @param vSphereCPI.nodeAffinityPreset.key Node label key to match. Ignored if `vSphereCPI.affinity` is set
+    ##
+    key: ""
+    ## @param vSphereCPI.nodeAffinityPreset.values Node label values to match. Ignored if `vSphereCPI.affinity` is set
+    ## E.g.
+    ## values:
+    ##   - e2e-az1
+    ##   - e2e-az2
+    ##
+    values: []
+  ## @param vSphereCPI.affinity Affinity for vSphereCPI pods assignment
+  ## ref: https://kubernetes.io/docs/concepts/configuration/assign-pod-node/#affinity-and-anti-affinity
+  ## NOTE: `vSphereCPI.podAffinityPreset`, `vSphereCPI.podAntiAffinityPreset`, and `vSphereCPI.nodeAffinityPreset` will be ignored when it's set
+  ##
+  affinity: {}
+  ## @param vSphereCPI.nodeSelector Node labels for vSphereCPI pods assignment
+  ## ref: https://kubernetes.io/docs/user-guide/node-selection/
+  ##
+  nodeSelector:
+    node-role.kubernetes.io/master: ""
+  ## @param vSphereCPI.tolerations Tolerations for vSphereCPI pods assignment
+  ## ref: https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/
+  ##
+  tolerations:
+    - key: node.cloudprovider.kubernetes.io/uninitialized
+      value: "true"
+      effect: NoSchedule
+    - key: node-role.kubernetes.io/master
+      effect: NoSchedule
+      operator: Exists
+    - key: node.kubernetes.io/not-ready
+      effect: NoSchedule
+      operator: Exists
+  ## @param vSphereCPI.updateStrategy.type vSphereCPI statefulset strategy type
+  ## ref: https://kubernetes.io/docs/concepts/workloads/controllers/statefulset/#update-strategies
+  ##
+  updateStrategy:
+    ## StrategyType
+    ## Can be set to RollingUpdate or OnDelete
+    ##
+    type: RollingUpdate
+  ## @param vSphereCPI.priorityClassName vSphereCPI pods' priorityClassName
+  ##
+  priorityClassName: ""
+  ## @param vSphereCPI.lifecycleHooks for the vSphereCPI container(s) to automate configuration before or after startup
+  ##
+  lifecycleHooks: {}
+  ## @param vSphereCPI.extraEnvVars Array with extra environment variables to add to vSphereCPI nodes
+  ## e.g:
+  ## extraEnvVars:
+  ##   - name: FOO
+  ##     value: "bar"
+  ##
+  extraEnvVars: []
+  ## @param vSphereCPI.extraEnvVarsCM Name of existing ConfigMap containing extra env vars for vSphereCPI nodes
+  ##
+  extraEnvVarsCM:
+  ## @param vSphereCPI.extraEnvVarsSecret Name of existing Secret containing extra env vars for vSphereCPI nodes
+  ##
+  extraEnvVarsSecret:
+  ## @param vSphereCPI.extraVolumes Optionally specify extra list of additional volumes for the vSphereCPI pod(s)
+  ##
+  extraVolumes: []
+  ## @param vSphereCPI.extraVolumeMounts Optionally specify extra list of additional volumeMounts for the vSphereCPI container(s)
+  ##
+  extraVolumeMounts: []
+  ## @param vSphereCPI.sidecars Add additional sidecar containers to the vSphereCPI pod(s)
+  ## e.g:
+  ## sidecars:
+  ##   - name: your-image-name
+  ##     image: your-image
+  ##     imagePullPolicy: Always
+  ##     ports:
+  ##       - name: portname
+  ##         containerPort: 1234
+  ##
+  sidecars: {}
+  ## @param vSphereCPI.initContainers Add additional init containers to the vSphereCPI pod(s)
+  ## ref: https://kubernetes.io/docs/concepts/workloads/pods/init-containers/
+  ## e.g:
+  ## initContainers:
+  ##  - name: your-image-name
+  ##    image: your-image
+  ##    imagePullPolicy: Always
+  ##    command: ['sh', '-c', 'echo "hello world"']
+  ##
+  initContainers: {}
+
+## @section Init Container Parameters
+
+## @section Other Parameters
+
+## RBAC configuration
+##
+rbac:
+  ## @param rbac.create Specifies whether RBAC resources should be created
+  ##
+  create: true
+
+## ServiceAccount configuration
+##
+serviceAccount:
+  ## @param serviceAccount.create Specifies whether a ServiceAccount should be created
+  ##
+  create: true
+  ## @param serviceAccount.name The name of the ServiceAccount to use.
+  ## If not set and create is true, a name is generated using the common.names.fullname template
+  ##
+  name: ""
