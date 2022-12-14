@@ -1,0 +1,53 @@
+{{- if .Values.webhook.enabled }}
+{{- $ca := genCA "vsphere-csi-ca" 365 }}
+{{- $coreCN := include "common.names.fullname"  . }}
+{{- $altNames := list ( printf "%s%s.%s" (include "common.names.fullname" .) "-webhook" .Release.Namespace ) ( printf "%s%s.%s.svc" (include "common.names.fullname" .) "-webhook" .Release.Namespace ) ( printf "%s.%s" (include "common.names.fullname" .)  .Release.Namespace ) ( printf "%s.%s.svc" (include "common.names.fullname" .)  .Release.Namespace ) -}}
+
+{{- $coreCrt := genSignedCert $coreCN (list "127.0.0.1") $altNames 365 $ca }}
+
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: validation.csi.vsphere.vmware.com
+  labels: {{- include "common.labels.standard" . | nindent 4 }}
+    app.kubernetes.io/component: {{ template "common.names.fullname" . }}-webhook
+webhooks:
+  - name: validation.csi.vsphere.vmware.com
+    clientConfig:
+      service:
+        name: {{ template "common.names.fullname" . }}-webhook
+        namespace: {{ .Release.Namespace | quote }}
+        path: "/validate"
+      caBundle: {{ $ca.Cert | b64enc | quote }}
+    rules:
+      - apiGroups:   ["storage.k8s.io"]
+        apiVersions: ["v1", "v1beta1"]
+        operations:  ["CREATE", "UPDATE"]
+        resources:   ["storageclasses"]
+    sideEffects: None
+    admissionReviewVersions: ["v1"]
+    failurePolicy: Fail
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ template "common.names.fullname" . }}-webhook-certs
+  namespace: {{ .Release.Namespace | quote }}
+  labels: {{- include "common.labels.standard" . | nindent 4 }}
+    app.kubernetes.io/component: {{ template "common.names.fullname" . }}-webhook
+    {{- if .Values.commonLabels }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
+type: Opaque
+stringData:
+  key.pem:  {{ $coreCrt.Key  | quote }}
+  cert.pem: {{ $coreCrt.Cert | quote }}
+  webhook.config: |
+    [WebHookConfig]
+    port = "8443"
+    cert-file = "/run/secrets/tls/cert.pem"
+    key-file = "/run/secrets/tls/key.pem"
+{{- end }}

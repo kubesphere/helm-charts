@@ -1,0 +1,20 @@
+{{- if .Values.sparkOperator.enable }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: {{ .Values.sparkOperator.name }}-spark-operator
+  annotations:
+    "helm.sh/hook": pre-install, pre-upgrade
+    "helm.sh/hook-delete-policy": hook-failed, before-hook-creation
+    "helm.sh/hook-weight": "-10"
+  labels:
+    app.kubernetes.io/name: spark-operator
+subjects:
+  - kind: ServiceAccount
+    name: {{ .Values.sparkOperator.name }}-spark-operator
+    namespace: {{ .Release.Namespace }}
+roleRef:
+  kind: ClusterRole
+  name: {{ .Values.sparkOperator.name }}-spark-operator
+  apiGroup: rbac.authorization.k8s.io
+{{- end }}
