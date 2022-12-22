@@ -46,7 +46,7 @@ The command removes ks-core with the chart and deletes the release.
 | Parameter                 | Description                                     | Value                              |
 |---------------------------|-------------------------------------------------|------------------------------------|
 | `global.imageRegistry`    | Global Docker image registry                    | `registry.cn-beijing.aliyuncs.com` |
-| `global.tag`              | Global Docker image tag                         | `kse`                              |
+| `global.tag`              | Global Docker image tag                         | `ksc`                              |
 | `global.imagePullSecrets` | Global Docker registry secret names as an array | `[]`                               |
 
 ### KSE Parameters
