@@ -205,7 +205,6 @@ data:
   "volume-health": "true"
   "csi-migration": "false"
   "csi-auth-check": "true"
-  "online-volume-extend": "true"
 kind: ConfigMap
 metadata:
   name: internal-feature-states.csi.vsphere.vmware.com
