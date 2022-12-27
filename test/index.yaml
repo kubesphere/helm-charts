@@ -1,5 +1,33 @@
 apiVersion: v1
 entries:
+  antrea:
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      artifacthub.io/operator: "false"
+      artifacthub.io/prerelease: "false"
+    apiVersion: v2
+    appVersion: 1.9.0
+    created: "2022-12-27T08:49:42.861113501Z"
+    description: Kubernetes networking based on Open vSwitch
+    digest: 020b8d66827b9c194873058150813cbb47d8ccc6b3c8676ee691accd0dad4367
+    home: https://antrea.io/
+    icon: https://raw.githubusercontent.com/antrea-io/antrea/main/docs/assets/logo/antrea_logo.svg
+    keywords:
+    - Kubernetes
+    - CNCF
+    - Networking
+    - CNI
+    - Security
+    - Open vSwitch
+    - OVS
+    kubeVersion: '>= 1.16.0-0'
+    name: antrea
+    sources:
+    - https://github.com/antrea-io/antrea
+    type: application
+    urls:
+    - https://charts.kubesphere.io/test/antrea-1.9.0.tgz
+    version: 1.9.0
   apisix:
   - annotations:
       app.kubesphere.io/category: Networking
@@ -991,6 +1019,38 @@ entries:
     urls:
     - https://charts.kubesphere.io/test/etcd-0.1.0.tgz
     version: 0.1.0
+  flow-aggregator:
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      artifacthub.io/operator: "false"
+      artifacthub.io/prerelease: "false"
+    apiVersion: v2
+    appVersion: 1.9.0
+    created: "2022-12-27T08:49:42.86184101Z"
+    description: Antrea Flow Aggregator
+    digest: 95326541c9f06b46dea594837e03856a6cf9f19662c2eebe6a5c9a7f4cfe02c0
+    home: https://antrea.io/
+    icon: https://raw.githubusercontent.com/antrea-io/antrea/main/docs/assets/logo/antrea_logo.svg
+    keywords:
+    - Kubernetes
+    - CNCF
+    - Networking
+    - CNI
+    - Security
+    - Open vSwitch
+    - OVS
+    - Antrea
+    - Observability
+    - Flow Visibility
+    - Flow Aggregator
+    kubeVersion: '>= 1.16.0-0'
+    name: flow-aggregator
+    sources:
+    - https://github.com/antrea-io/antrea
+    type: application
+    urls:
+    - https://charts.kubesphere.io/test/flow-aggregator-1.9.0.tgz
+    version: 1.9.0
   ks-core:
   - apiVersion: v2
     appVersion: v4.0.0-alpha.1
@@ -2143,6 +2203,113 @@ entries:
     urls:
     - https://charts.kubesphere.io/test/snapshot-controller-0.1.0.tgz
     version: 0.1.0
+  theia:
+  - annotations:
+      artifacthub.io/license: Apache-2.0
+      artifacthub.io/operator: "false"
+      artifacthub.io/prerelease: "false"
+    apiVersion: v2
+    appVersion: 0.3.0
+    created: "2022-12-27T08:49:42.86671597Z"
+    description: Antrea Network Flow Visibility
+    digest: a5ff7883aab8d17a45095919b7327213c7ea9d56e79b991079e61888f98e0d98
+    home: https://antrea.io/
+    icon: https://raw.githubusercontent.com/antrea-io/antrea/main/docs/assets/logo/antrea_logo.svg
+    keywords:
+    - Kubernetes
+    - CNCF
+    - Networking
+    - CNI
+    - Security
+    - Open vSwitch
+    - OVS
+    - Antrea
+    - Observability
+    - Flow visibility
+    kubeVersion: '>= 1.16.0-0'
+    name: theia
+    sources:
+    - https://github.com/antrea-io/theia
+    type: application
+    urls:
+    - https://charts.kubesphere.io/test/theia-0.3.0.tgz
+    version: 0.3.0
+  vsphere-cpi:
+  - annotations:
+      category: cpi
+    apiVersion: v2
+    appVersion: v1.22.5
+    created: "2022-12-27T08:49:42.869657707Z"
+    dependencies:
+    - name: common
+      repository: https://charts.bitnami.com/bitnami
+      tags:
+      - bitnami-common
+      version: 1.x.x
+    description: Helm chart for the vSphere-CPI
+    digest: 5830c77dc25ab3307720cd8d3313cd0eb704702266369c591cb2cca944a449c7
+    home: https://github.com/kubernetes/cloud-provider-vsphere
+    keywords:
+    - vSphere
+    - CPI
+    maintainers:
+    - email: maximilian.rink@telekom.de
+      name: Maximilian Rink
+    - email: myles@vmware.com
+      name: Myles Gray
+    name: vsphere-cpi
+    urls:
+    - https://charts.kubesphere.io/test/vsphere-cpi-1.3.0.tgz
+    version: 1.3.0
+  vsphere-csi:
+  - apiVersion: v2
+    appVersion: 2.7.0
+    created: "2022-12-27T08:49:42.882152261Z"
+    dependencies:
+    - condition: vsphere-cpi.enabled
+      name: vsphere-cpi
+      repository: https://vsphere-tmm.github.io/helm-charts
+      version: 1.x.x
+    - name: common
+      repository: https://charts.bitnami.com/bitnami
+      tags:
+      - bitnami-common
+      version: 1.x.x
+    description: A Helm chart for vSphere CSI Driver
+    digest: b4ced413854fcc8464e89f3c04bd3d54d41ff89cb686fdb0a450a96c0e824a52
+    home: https://github.com/kubernetes-sigs/vsphere-csi-driver
+    icon: https://raw.githubusercontent.com/kubernetes-sigs/vsphere-csi-driver/master/docs/images/vmware_logo.png
+    keywords:
+    - vsphere
+    - vmware
+    - csi
+    maintainers:
+    - email: maximilian.rink@telekom.de
+      name: Maximilian Rink
+    - email: myles@vmware.com
+      name: Myles Gray
+    name: vsphere-csi
+    sources:
+    - https://github.com/kubernetes-sigs/vsphere-csi-driver
+    urls:
+    - https://charts.kubesphere.io/test/vsphere-csi-2.5.0.tgz
+    version: 2.5.0
+  vsphere-csi-driver:
+  - apiVersion: v1
+    appVersion: 2.2.0
+    created: "2022-12-27T08:49:42.882745769Z"
+    description: vSphere Container Storage Interface (CSI) driver
+    digest: d39f8e26ee63c7e5746c964f31354791503cac38666616900e6781850d658135
+    home: https://vsphere-csi-driver.sigs.k8s.io
+    kubeVersion: '>=1.16.0'
+    maintainers:
+    - name: sebbrandt87
+    name: vsphere-csi-driver
+    sources:
+    - https://github.com/kubernetes-sigs/vsphere-csi-driver
+    urls:
+    - https://charts.kubesphere.io/test/vsphere-csi-driver-1.3.0.tgz
+    version: 1.3.0
   xenondb:
   - annotations:
       app.kubesphere.io/category: Database & Cache
@@ -2181,4 +2348,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/test/xenondb-1.0.0.tgz
     version: 1.0.0
-generated: "2022-11-03T02:40:19.052724099Z"
+generated: "2022-12-27T08:49:42.858706371Z"
