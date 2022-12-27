@@ -1,0 +1,14 @@
+{{- if (index .Values.controller.config "block-volume-snapshot" ) }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: snapshot-validation-service
+  namespace: {{ .Release.Namespace | quote }}
+spec:
+  selector:
+    app: snapshot-validation
+  ports:
+  - protocol: TCP
+    port: 443   # Change if needed
+    targetPort: 443   # Change if the webserver image expects a different port
+{{- end }}

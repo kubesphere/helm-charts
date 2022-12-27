@@ -1,0 +1,18 @@
+{{- if .Values.grafana.enable }}
+{{- if eq .Values.grafana.storage.createPersistentVolume.type "NFS" }}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: grafana-pv
+spec:
+  storageClassName: grafana-storage
+  capacity:
+    storage: {{ .Values.grafana.storage.size }}
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  nfs:
+    path: {{ .Values.grafana.storage.createPersistentVolume.nfs.path }}
+    server: {{ .Values.grafana.storage.createPersistentVolume.nfs.host }}
+{{- end }}
+{{- end }}

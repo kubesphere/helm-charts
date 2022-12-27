@@ -1,0 +1,281 @@
+{{  if false  }}
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: {{ template "common.names.fullname" . }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels: {{- include "common.labels.standard" . | nindent 4 }}
+    app.kubernetes.io/component: {{ template "common.names.fullname" . }}-node
+    {{- if .Values.commonLabels }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
+spec:
+  {{- if .Values.winnode.updateStrategy }}
+  updateStrategy: {{- toYaml .Values.winnode.updateStrategy | nindent 4 }}
+  {{- end }}
+  selector:
+    matchLabels: {{- include "common.labels.matchLabels" . | nindent 6 }}
+      app.kubernetes.io/component: {{ template "common.names.fullname" . }}-node
+  template:
+    metadata:
+      {{- if .Values.winnode.podAnnotations }}
+      annotations: {{- include "common.tplvalues.render" (dict "value" .Values.winnode.podAnnotations "context" $) | nindent 8 }}
+      {{- end }}
+      labels: {{- include "common.labels.standard" . | nindent 8 }}
+        app.kubernetes.io/component: {{ template "common.names.fullname" . }}-node
+        {{- if .Values.winnode.podLabels }}
+        {{- include "common.tplvalues.render" (dict "value" .Values.winnode.podLabels "context" $) | nindent 8 }}
+        {{- end }}
+    spec:
+      serviceAccountName: {{ template "vsphere-csi.winnode.serviceAccountName" . }}
+      {{- include "vsphere-csi.imagePullSecrets" . | nindent 6 }}
+      {{- if .Values.winnode.dnsPolicy }}
+      dnsPolicy: {{- include "common.tplvalues.render" (dict "value" .Values.winnode.dnsPolicy "context" $) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.winnode.hostAliases }}
+      hostAliases: {{- include "common.tplvalues.render" (dict "value" .Values.winnode.hostAliases "context" $) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.winnode.affinity }}
+      affinity: {{- include "common.tplvalues.render" ( dict "value" .Values.winnode.affinity "context" $) | nindent 8 }}
+      {{- else }}
+      affinity:
+        podAffinity: {{- include "common.affinities.pods" (dict "type" .Values.winnode.podAffinityPreset "context" $) | nindent 10 }}
+        podAntiAffinity: {{- include "common.affinities.pods" (dict "type" .Values.winnode.podAntiAffinityPreset  "context" $) | nindent 10 }}
+        nodeAffinity: {{- include "common.affinities.nodes" (dict "type" .Values.winnode.nodeAffinityPreset.type "key" .Values.winnode.nodeAffinityPreset.key "values" .Values.winnode.nodeAffinityPreset.values) | nindent 10 }}
+      {{- end }}
+      {{- if .Values.winnode.nodeSelector }}
+      nodeSelector: {{- include "common.tplvalues.render" ( dict "value" .Values.winnode.nodeSelector "context" $) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.winnode.tolerations }}
+      tolerations: {{- include "common.tplvalues.render" (dict "value" .Values.winnode.tolerations "context" .) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.winnode.priorityClassName }}
+      priorityClassName: {{ .Values.winnode.priorityClassName | quote }}
+      {{- end }}
+      {{- if .Values.winnode.podSecurityContext.enabled }}
+      securityContext: {{- omit .Values.winnode.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      {{- end }}
+      initContainers:
+        {{- if .Values.winnode.initContainers }}
+          {{- include "common.tplvalues.render" (dict "value" .Values.winnode.initContainers "context" $) | nindent 8 }}
+        {{- end }}
+      containers:
+        - name: node-driver-registrar
+          image: {{ template "vsphere-csi.winnode.registrar.image" . }}
+          imagePullPolicy: {{ .Values.winnode.registrar.image.pullPolicy }}
+          {{- if .Values.winnode.registrar.lifecycleHooks }}
+          lifecycle: {{- include "common.tplvalues.render" (dict "value" .Values.winnode.registrar.lifecycleHooks "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.winnode.registrar.containerSecurityContext.enabled }}
+          securityContext: {{- omit .Values.winnode.registrar.containerSecurityContext "enabled" | toYaml | nindent 12 }}
+          {{- end }}
+          {{- if .Values.winnode.registrar.command }}
+          command: {{- include "common.tplvalues.render" (dict "value" .Values.winnode.registrar.command "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.winnode.registrar.args }}
+          args: {{- include "common.tplvalues.render" (dict "value" .Values.winnode.registrar.args "context" $) | nindent 12 }}
+          {{- end }}
+          env:
+            - name: ADDRESS
+              value: /csi/csi.sock
+            - name: DRIVER_REG_SOCK_PATH
+              value: /var/lib/kubelet/plugins/csi.vsphere.vmware.com/csi.sock
+            {{- if .Values.winnode.registrar.extraEnvVars }}
+            {{- include "common.tplvalues.render" (dict "value" .Values.winnode.registrar.extraEnvVars "context" $) | nindent 12 }}
+            {{- end }}
+          envFrom:
+            {{- if .Values.winnode.registrar.extraEnvVarsCM }}
+            - configMapRef:
+                name: {{ include "common.tplvalues.render" (dict "value" .Values.winnode.registrar.extraEnvVarsCM "context" $) }}
+            {{- end }}
+            {{- if .Values.winnode.registrar.extraEnvVarsSecret }}
+            - secretRef:
+                name: {{ include "common.tplvalues.render" (dict "value" .Values.winnode.registrar.extraEnvVarsSecret "context" $) }}
+            {{- end }}
+          ports:
+          - containerPort: 9808
+            name: healthz
+          {{- if .Values.winnode.registrar.resources }}
+          resources: {{- toYaml .Values.winnode.registrar.resources | nindent 12 }}
+          {{- end }}
+          {{- if .Values.winnode.registrar.livenessProbe.enabled }}
+          livenessProbe: {{- include "common.tplvalues.render" (dict "value" (omit .Values.winnode.registrar.livenessProbe "enabled") "context" $) | nindent 12 }}
+          {{- else if .Values.winnode.registrar.customLivenessProbe }}
+          livenessProbe: {{- include "common.tplvalues.render" (dict "value" .Values.winnode.registrar.customLivenessProbe "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.winnode.registrar.readinessProbe.enabled }}
+          readinessProbe: {{- include "common.tplvalues.render" (dict "value" (omit .Values.winnode.registrar.readinessProbe "enabled") "context" $) | nindent 12 }}
+          {{- else if .Values.winnode.registrar.customReadinessProbe }}
+          readinessProbe: {{- include "common.tplvalues.render" (dict "value" .Values.winnode.registrar.customReadinessProbe "context" $) | nindent 12 }}
+          {{ end }}
+          volumeMounts:
+            - name: plugin-dir
+              mountPath: /csi
+            - name: registration-dir
+              mountPath: /registration
+            {{- if .Values.winnode.registrar.extraVolumeMounts }}
+            {{- include "common.tplvalues.render" (dict "value" .Values.winnode.extraVolumeMounts "context" $) | nindent 12 }}
+            {{- end }}
+
+        - name: vsphere-csi-node
+          image: {{ template "vsphere-csi.winnode.image" . }}
+          imagePullPolicy: {{ .Values.winnode.image.pullPolicy }}
+          {{- if .Values.winnode.lifecycleHooks }}
+          lifecycle: {{- include "common.tplvalues.render" (dict "value" .Values.winnode.lifecycleHooks "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.winnode.containerSecurityContext.enabled }}
+          securityContext: {{- omit .Values.winnode.containerSecurityContext "enabled" | toYaml | nindent 12 }}
+          {{- end }}
+          {{- if .Values.winnode.command }}
+          command: {{- include "common.tplvalues.render" (dict "value" .Values.winnode.command "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.winnode.args }}
+          args: {{- include "common.tplvalues.render" (dict "value" .Values.winnode.args "context" $) | nindent 12 }}
+          {{- end }}
+          env:
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: CSI_ENDPOINT
+              value: unix:///csi/csi.sock
+            - name: X_CSI_MODE
+              value: "node"
+            - name: X_CSI_SPEC_REQ_VALIDATION
+              value: "false"
+            - name: X_CSI_DEBUG
+              value: "true"
+            - name: LOGGER_LEVEL
+              value: "PRODUCTION" # Options: DEVELOPMENT, PRODUCTION
+            - name: MAX_VOLUMES_PER_NODE
+              value: "59"     # Maximum number of volumes that controller can publish to the node. If value is not set or zero Kubernetes decide how many volumes can be published by the controller to the node.
+            - name: CSI_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: NODEGETINFO_WATCH_TIMEOUT_MINUTES
+              value: "1"
+            {{- if .Values.winnode.extraEnvVars }}
+            {{- include "common.tplvalues.render" (dict "value" .Values.winnode.extraEnvVars "context" $) | nindent 12 }}
+            {{- end }}
+          envFrom:
+            {{- if .Values.winnode.extraEnvVarsCM }}
+            - configMapRef:
+                name: {{ include "common.tplvalues.render" (dict "value" .Values.winnode.extraEnvVarsCM "context" $) }}
+            {{- end }}
+            {{- if .Values.winnode.extraEnvVarsSecret }}
+            - secretRef:
+                name: {{ include "common.tplvalues.render" (dict "value" .Values.winnode.extraEnvVarsSecret "context" $) }}
+            {{- end }}
+          ports:
+          {{- if .Values.winnode.resources }}
+          resources: {{- toYaml .Values.winnode.resources | nindent 12 }}
+          {{- end }}
+          {{- if .Values.winnode.livenessProbe.enabled }}
+          livenessProbe: {{- include "common.tplvalues.render" (dict "value" (omit .Values.winnode.livenessProbe "enabled") "context" $) | nindent 12 }}
+          {{- else if .Values.winnode.customLivenessProbe }}
+          livenessProbe: {{- include "common.tplvalues.render" (dict "value" .Values.winnode.customLivenessProbe "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.winnode.readinessProbe.enabled }}
+          readinessProbe: {{- include "common.tplvalues.render" (dict "value" (omit .Values.winnode.readinessProbe "enabled") "context" $) | nindent 12 }}
+          {{- else if .Values.winnode.customReadinessProbe }}
+          readinessProbe: {{- include "common.tplvalues.render" (dict "value" .Values.winnode.customReadinessProbe "context" $) | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: plugin-dir
+              mountPath: /csi
+            - name: pods-mount-dir
+              mountPath: /var/lib/kubelet
+              # needed so that any mounts setup inside this container are
+              # propagated back to the host machine.
+              mountPropagation: "Bidirectional"
+            - name: device-dir
+              mountPath: /dev
+            - name: blocks-dir
+              mountPath: /sys/block
+            - name: sys-devices-dir
+              mountPath: /sys/devices
+            {{- if .Values.winnode.extraVolumeMounts }}
+            {{- include "common.tplvalues.render" (dict "value" .Values.winnode.extraVolumeMounts "context" $) | nindent 12 }}
+            {{- end }}
+        - name: liveness-probe
+          image: {{ template "vsphere-csi.winnode.livenessprobe.image" . }}
+          imagePullPolicy: {{ .Values.winnode.livenessprobe.image.pullPolicy }}
+          {{- if .Values.winnode.livenessprobe.lifecycleHooks }}
+          lifecycle: {{- include "common.tplvalues.render" (dict "value" .Values.winnode.livenessprobe.lifecycleHooks "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.winnode.livenessprobe.containerSecurityContext.enabled }}
+          securityContext: {{- omit .Values.winnode.livenessprobe.containerSecurityContext "enabled" | toYaml | nindent 12 }}
+          {{- end }}
+          {{- if .Values.winnode.livenessprobe.command }}
+          command: {{- include "common.tplvalues.render" (dict "value" .Values.winnode.livenessprobe.command "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.winnode.livenessprobe.args }}
+          args: {{- include "common.tplvalues.render" (dict "value" .Values.winnode.livenessprobe.args "context" $) | nindent 12 }}
+          {{- end }}
+          env:
+            {{- if .Values.winnode.livenessprobe.extraEnvVars }}
+            {{- include "common.tplvalues.render" (dict "value" .Values.winnode.livenessprobe.extraEnvVars "context" $) | nindent 12 }}
+            {{- end }}
+          envFrom:
+            {{- if .Values.winnode.livenessprobe.extraEnvVarsCM }}
+            - configMapRef:
+                name: {{ include "common.tplvalues.render" (dict "value" .Values.winnode.livenessprobe.extraEnvVarsCM "context" $) }}
+            {{- end }}
+            {{- if .Values.winnode.livenessprobe.extraEnvVarsSecret }}
+            - secretRef:
+                name: {{ include "common.tplvalues.render" (dict "value" .Values.winnode.livenessprobe.extraEnvVarsSecret "context" $) }}
+            {{- end }}
+          {{- if .Values.winnode.livenessprobe.resources }}
+          resources: {{- toYaml .Values.winnode.livenessprobe.resources | nindent 12 }}
+          {{- end }}
+          {{- if .Values.winnode.livenessprobe.livenessProbe.enabled }}
+          livenessProbe: {{- include "common.tplvalues.render" (dict "value" (omit .Values.winnode.livenessprobe.livenessProbe "enabled") "context" $) | nindent 12 }}
+          {{- else if .Values.winnode.livenessprobe.customLivenessProbe }}
+          livenessProbe: {{- include "common.tplvalues.render" (dict "value" .Values.winnode.livenessprobe.customLivenessProbe "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.winnode.livenessprobe.readinessProbe.enabled }}
+          readinessProbe: {{- include "common.tplvalues.render" (dict "value" (omit .Values.winnode.livenessprobe.readinessProbe "enabled") "context" $) | nindent 12 }}
+          {{- else if .Values.winnode.livenessprobe.customReadinessProbe }}
+          readinessProbe: {{- include "common.tplvalues.render" (dict "value" .Values.winnode.livenessprobe.customReadinessProbe "context" $) | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: plugin-dir
+              mountPath: /csi
+            {{- if .Values.winnode.livenessprobe.extraVolumeMounts }}
+            {{- include "common.tplvalues.render" (dict "value" .Values.winnode.livenessprobe.extraVolumeMounts "context" $) | nindent 12 }}
+            {{- end }}
+        {{- if .Values.winnode.sidecars }}
+        {{- include "common.tplvalues.render" ( dict "value" .Values.winnode.sidecars "context" $) | nindent 8 }}
+        {{- end }}
+      volumes:
+      - name: registration-dir
+        hostPath:
+          path: /var/lib/kubelet/plugins_registry
+          type: Directory
+      - name: plugin-dir
+        hostPath:
+          path: /var/lib/kubelet/plugins/csi.vsphere.vmware.com
+          type: DirectoryOrCreate
+      - name: pods-mount-dir
+        hostPath:
+          path: /var/lib/kubelet
+          type: Directory
+      - name: device-dir
+        hostPath:
+          path: /dev
+      - name: blocks-dir
+        hostPath:
+          path: /sys/block
+          type: Directory
+      - name: sys-devices-dir
+        hostPath:
+          path: /sys/devices
+          type: Directory
+        {{- if .Values.winnode.extraVolumes }}
+        {{- include "common.tplvalues.render" (dict "value" .Values.winnode.extraVolumes "context" $) | nindent 8 }}
+        {{- end }}
+{{- end }}
