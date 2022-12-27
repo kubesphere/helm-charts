@@ -1,0 +1,10 @@
+{{- if .Values.clickhouse.storage.createPersistentVolume.type }}
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: clickhouse-storage
+provisioner: kubernetes.io/no-provisioner
+volumeBindingMode: WaitForFirstConsumer
+reclaimPolicy: Retain
+allowVolumeExpansion: True
+{{- end }}

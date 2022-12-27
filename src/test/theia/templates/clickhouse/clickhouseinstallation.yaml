@@ -1,0 +1,108 @@
+{{- $enablePV := or .Values.clickhouse.storage.createPersistentVolume.type .Values.clickhouse.storage.persistentVolumeClaimSpec }}
+apiVersion: "clickhouse.altinity.com/v1"
+kind: "ClickHouseInstallation"
+metadata:
+  name: clickhouse
+  labels:
+    app: clickhouse
+  namespace: {{ .Release.Namespace }}
+spec:
+  configuration:
+    users:
+      {{ .Values.clickhouse.connectionSecret.username }}/k8s_secret_password: {{ .Release.Namespace }}/clickhouse-secret/password
+      {{ .Values.clickhouse.connectionSecret.username }}/networks/ip: "::/0"
+    clusters:
+      - name: "clickhouse"
+        layout:
+          {{- if gt (int .Values.clickhouse.cluster.replicas) 1 }}
+          shards:
+            {{- range $i, $_ := until (int .Values.clickhouse.cluster.shards) }}
+              - name: {{ $i | quote }}
+                replicasCount: {{ $.Values.clickhouse.cluster.replicas }}
+                replicas:
+                  {{- range $j, $_ := until (int $.Values.clickhouse.cluster.replicas) }}
+                    - name: {{ $i }}-{{ $j }}
+                      templates:
+                      {{- if eq $j (sub $.Values.clickhouse.cluster.replicas 1) }}
+                        podTemplate: pod-template
+                      {{- else }}
+                        podTemplate: pod-template-without-monitor
+                      {{- end }}
+                  {{- end }}
+            {{- end }}
+          {{- end }}
+          shardsCount: {{ .Values.clickhouse.cluster.shards }}
+          replicasCount: {{ .Values.clickhouse.cluster.replicas }}
+    zookeeper:
+      nodes:
+      {{- if eq (len .Values.clickhouse.cluster.zookeeperHosts) 0 }}
+      - host: zookeeper.{{ .Release.Namespace }}
+      {{- else }}
+      {{- range $host := .Values.clickhouse.cluster.zookeeperHosts }}
+      - host: {{ $host }}
+      {{- end }}
+      {{- end }}
+  defaults:
+    templates:
+      podTemplate: pod-template
+      serviceTemplate: service-template
+      {{- if $enablePV }}
+      dataVolumeClaimTemplate: clickhouse-storage-template
+      {{- end }}
+  templates:
+    serviceTemplates:
+      - name: service-template
+        spec:
+          type: {{ .Values.clickhouse.service.type }}
+          ports:
+            - name: http
+              port: {{ .Values.clickhouse.service.httpPort }}
+            - name: tcp
+              port: {{ .Values.clickhouse.service.tcpPort }}
+    podTemplates:
+      {{- if gt (int .Values.clickhouse.cluster.replicas) 1 }}
+      - name: pod-template-without-monitor
+        spec:
+          containers:
+            {{- include "clickhouse.server.container" (dict "clickhouse" .Values.clickhouse "enablePV" $enablePV "Chart" .Chart) | indent 12 }}
+          volumes:
+            {{- include "clickhouse.volume" (dict "clickhouse" .Values.clickhouse "enablePV" $enablePV "Files" .Files) | indent 12 }}
+        {{- if .Values.clickhouse.cluster.podDistribution }}
+        podDistribution:
+        {{- with .Values.clickhouse.cluster.podDistribution }}
+          {{ toJson . | trim }}
+        {{- end }}
+        {{- end }}
+      {{- end }}
+      - name: pod-template
+        spec:
+          containers:
+            {{- include "clickhouse.server.container" (dict "clickhouse" .Values.clickhouse "enablePV" $enablePV "Chart" .Chart) | indent 12 }}
+            {{- if .Values.clickhouse.monitor.enable }}
+            {{- include "clickhouse.monitor.container" (dict "clickhouse" .Values.clickhouse "Chart" .Chart) | indent 12 }}
+            {{- end }}
+          volumes:
+            {{- include "clickhouse.volume" (dict "clickhouse" .Values.clickhouse "enablePV" $enablePV "Files" .Files) | indent 12 }}
+        {{- if .Values.clickhouse.cluster.podDistribution }}
+        podDistribution:
+        {{- with .Values.clickhouse.cluster.podDistribution }}
+          {{ toJson . | trim }}
+        {{- end }}
+        {{- end }}
+    {{- if $enablePV }}
+    volumeClaimTemplates: 
+      - name: clickhouse-storage-template
+        spec:
+          {{- if .Values.clickhouse.storage.createPersistentVolume.type }}
+          storageClassName: clickhouse-storage
+          {{- else }}
+          {{- with .Values.clickhouse.storage.persistentVolumeClaimSpec }}
+          {{- toYaml . | trim | nindent 10 }}
+          {{- end }}
+          {{- end }}
+          accessModes:
+            - ReadWriteOnce
+          resources:
+            requests:
+              storage: {{ .Values.clickhouse.storage.size }}
+    {{- end }}

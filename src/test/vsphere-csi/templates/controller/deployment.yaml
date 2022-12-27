@@ -1,0 +1,575 @@
+apiVersion: {{ include "common.capabilities.deployment.apiVersion" . }}
+kind: Deployment
+metadata:
+  name: {{ template "vsphere-csi.controllerName" . }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels: {{- include "common.labels.standard" . | nindent 4 }}
+    app.kubernetes.io/component: {{ template "vsphere-csi.controllerName" . }}
+    {{- if .Values.commonLabels }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
+spec:
+  replicas: {{ .Values.controller.replicaCount }}
+  {{- if .Values.controller.updateStrategy }}
+  strategy: {{- toYaml .Values.controller.updateStrategy | nindent 4 }}
+  {{- end }}
+  selector:
+    matchLabels: {{- include "common.labels.matchLabels" . | nindent 6 }}
+      app.kubernetes.io/component: {{ template "vsphere-csi.controllerName" . }}
+  template:
+    metadata:
+      {{- if .Values.controller.podAnnotations }}
+      annotations: {{- include "common.tplvalues.render" (dict "value" .Values.controller.podAnnotations "context" $) | nindent 8 }}
+      {{- end }}
+      labels: {{- include "common.labels.standard" . | nindent 8 }}
+        app.kubernetes.io/component: {{ template "vsphere-csi.controllerName" . }}
+        {{- if .Values.controller.podLabels }}
+        {{- include "common.tplvalues.render" (dict "value" .Values.controller.podLabels "context" $) | nindent 8 }}
+        {{- end }}
+    spec:
+      serviceAccountName: {{ template "vsphere-csi.controller.serviceAccountName" . }}
+      {{- include "vsphere-csi.imagePullSecrets" . | nindent 6 }}
+      {{- if .Values.controller.dnsPolicy }}
+      dnsPolicy: {{- include "common.tplvalues.render" (dict "value" .Values.controller.dnsPolicy "context" $) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.controller.hostAliases }}
+      hostAliases: {{- include "common.tplvalues.render" (dict "value" .Values.controller.hostAliases "context" $) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.controller.affinity }}
+      affinity: {{- include "common.tplvalues.render" ( dict "value" .Values.controller.affinity "context" $) | nindent 8 }}
+      {{- else }}
+      affinity:
+        podAffinity: {{- include "common.affinities.pods" (dict "type" .Values.controller.podAffinityPreset  "context" $) | nindent 10 }}
+        podAntiAffinity: {{- include "common.affinities.pods" (dict "type" .Values.controller.podAntiAffinityPreset "component" ( include  "vsphere-csi.controllerName" .) "context" $) | nindent 10 }}
+        nodeAffinity: {{- include "common.affinities.nodes" (dict "type" .Values.controller.nodeAffinityPreset.type "key" .Values.controller.nodeAffinityPreset.key "values" .Values.controller.nodeAffinityPreset.values) | nindent 10 }}
+      {{- end }}
+      {{- if .Values.controller.nodeSelector }}
+      nodeSelector: {{- include "common.tplvalues.render" ( dict "value" .Values.controller.nodeSelector "context" $) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.controller.tolerations }}
+      tolerations: {{- include "common.tplvalues.render" (dict "value" .Values.controller.tolerations "context" .) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.controller.priorityClassName }}
+      priorityClassName: {{ .Values.controller.priorityClassName | quote }}
+      {{- end }}
+      {{- if .Values.controller.podSecurityContext.enabled }}
+      securityContext: {{- omit .Values.controller.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      {{- end }}
+      initContainers:
+        {{- if .Values.controller.initContainers }}
+          {{- include "common.tplvalues.render" (dict "value" .Values.controller.initContainers "context" $) | nindent 8 }}
+        {{- end }}
+      containers:
+        - name: csi-attacher
+          image: {{ template "vsphere-csi.controller.attacher.image" . }}
+          imagePullPolicy: {{ .Values.controller.attacher.image.pullPolicy }}
+          {{- if .Values.controller.attacher.lifecycleHooks }}
+          lifecycle: {{- include "common.tplvalues.render" (dict "value" .Values.controller.attacher.lifecycleHooks "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.controller.attacher.containerSecurityContext.enabled }}
+          securityContext: {{- omit .Values.controller.attacher.containerSecurityContext "enabled" | toYaml | nindent 12 }}
+          {{- end }}
+          {{- if .Values.controller.attacher.command }}
+          command: {{- include "common.tplvalues.render" (dict "value" .Values.controller.attacher.command "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.controller.attacher.args }}
+          args: {{- include "common.tplvalues.render" (dict "value" .Values.controller.attacher.args "context" $) | nindent 12 }}
+          {{- end }}
+          env:
+            - name: ADDRESS
+              value: /csi/csi.sock
+            {{- if .Values.controller.global.extraEnvVars }}
+            {{- include "common.tplvalues.render" (dict "value" .Values.controller.global.extraEnvVars "context" $) | nindent 12 }}
+            {{- end }}
+            {{- if .Values.controller.attacher.extraEnvVars }}
+            {{- include "common.tplvalues.render" (dict "value" .Values.controller.attacher.extraEnvVars "context" $) | nindent 12 }}
+            {{- end }}
+          envFrom:
+            {{- if .Values.controller.global.extraEnvVarsCM }}
+            - configMapRef:
+                name: {{ include "common.tplvalues.render" (dict "value" .Values.controller.global.extraEnvVarsCM "context" $) }}
+            {{- end }}
+            {{- if .Values.controller.global.extraEnvVarsSecret }}
+            - secretRef:
+                name: {{ include "common.tplvalues.render" (dict "value" .Values.controller.global.extraEnvVarsSecret "context" $) }}
+            {{- end }}
+            {{- if .Values.controller.attacher.extraEnvVarsCM }}
+            - configMapRef:
+                name: {{ include "common.tplvalues.render" (dict "value" .Values.controller.attacher.extraEnvVarsCM "context" $) }}
+            {{- end }}
+            {{- if .Values.controller.attacher.extraEnvVarsSecret }}
+            - secretRef:
+                name: {{ include "common.tplvalues.render" (dict "value" .Values.controller.attacher.extraEnvVarsSecret "context" $) }}
+            {{- end }}
+          {{- if .Values.controller.attacher.resources }}
+          resources: {{- toYaml .Values.controller.attacher.resources | nindent 12 }}
+          {{- end }}
+          {{- if .Values.controller.attacher.livenessProbe.enabled }}
+          livenessProbe: {{- include "common.tplvalues.render" (dict "value" (omit .Values.controller.attacher.livenessProbe "enabled") "context" $) | nindent 12 }}
+          {{- else if .Values.controller.attacher.customLivenessProbe }}
+          livenessProbe: {{- include "common.tplvalues.render" (dict "value" .Values.controller.attacher.customLivenessProbe "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.controller.attacher.readinessProbe.enabled }}
+          readinessProbe: {{- include "common.tplvalues.render" (dict "value" (omit .Values.controller.attacher.readinessProbe "enabled") "context" $) | nindent 12 }}
+          {{- else if .Values.controller.attacher.customReadinessProbe }}
+          readinessProbe: {{- include "common.tplvalues.render" (dict "value" .Values.controller.attacher.customReadinessProbe "context" $) | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - mountPath: /csi
+              name: socket-dir
+          {{- if .Values.controller.global.extraVolumeMounts }}
+          {{- include "common.tplvalues.render" (dict "value" .Values.controller.global.extraVolumeMounts "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.controller.attacher.extraVolumeMounts }}
+          {{- include "common.tplvalues.render" (dict "value" .Values.controller.attacher.extraVolumeMounts "context" $) | nindent 12 }}
+          {{- end }}
+        - name: csi-resizer
+          image: {{ template "vsphere-csi.controller.resizer.image" . }}
+          imagePullPolicy: {{ .Values.controller.resizer.image.pullPolicy }}
+          {{- if .Values.controller.resizer.lifecycleHooks }}
+          lifecycle: {{- include "common.tplvalues.render" (dict "value" .Values.controller.resizer.lifecycleHooks "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.controller.resizer.containerSecurityContext.enabled }}
+          securityContext: {{- omit .Values.controller.resizer.containerSecurityContext "enabled" | toYaml | nindent 12 }}
+          {{- end }}
+          {{- if .Values.controller.resizer.command }}
+          command: {{- include "common.tplvalues.render" (dict "value" .Values.controller.resizer.command "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.controller.resizer.args }}
+          args: {{- include "common.tplvalues.render" (dict "value" .Values.controller.resizer.args "context" $) | nindent 12 }}
+          {{- end }}
+          env:
+            - name: ADDRESS
+              value: /csi/csi.sock
+            {{- if .Values.controller.global.extraEnvVars }}
+            {{- include "common.tplvalues.render" (dict "value" .Values.controller.global.extraEnvVars "context" $) | nindent 12 }}
+            {{- end }}
+            {{- if .Values.controller.resizer.extraEnvVars }}
+            {{- include "common.tplvalues.render" (dict "value" .Values.controller.resizer.extraEnvVars "context" $) | nindent 12 }}
+            {{- end }}
+          envFrom:
+            {{- if .Values.controller.global.extraEnvVarsCM }}
+            - configMapRef:
+                name: {{ include "common.tplvalues.render" (dict "value" .Values.controller.global.extraEnvVarsCM "context" $) }}
+            {{- end }}
+            {{- if .Values.controller.global.extraEnvVarsSecret }}
+            - secretRef:
+                name: {{ include "common.tplvalues.render" (dict "value" .Values.controller.global.extraEnvVarsSecret "context" $) }}
+            {{- end }}
+            {{- if .Values.controller.resizer.extraEnvVarsCM }}
+            - configMapRef:
+                name: {{ include "common.tplvalues.render" (dict "value" .Values.controller.resizer.extraEnvVarsCM "context" $) }}
+            {{- end }}
+            {{- if .Values.controller.resizer.extraEnvVarsSecret }}
+            - secretRef:
+                name: {{ include "common.tplvalues.render" (dict "value" .Values.controller.resizer.extraEnvVarsSecret "context" $) }}
+            {{- end }}
+          {{- if .Values.controller.resizer.resources }}
+          resources: {{- toYaml .Values.controller.resizer.resources | nindent 12 }}
+          {{- end }}
+          {{- if .Values.controller.resizer.livenessProbe.enabled }}
+          livenessProbe: {{- include "common.tplvalues.render" (dict "value" (omit .Values.controller.resizer.livenessProbe "enabled") "context" $) | nindent 12 }}
+          {{- else if .Values.controller.resizer.customLivenessProbe }}
+          livenessProbe: {{- include "common.tplvalues.render" (dict "value" .Values.controller.resizer.customLivenessProbe "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.controller.resizer.readinessProbe.enabled }}
+          readinessProbe: {{- include "common.tplvalues.render" (dict "value" (omit .Values.controller.resizer.readinessProbe "enabled") "context" $) | nindent 12 }}
+          {{- else if .Values.controller.resizer.customReadinessProbe }}
+          readinessProbe: {{- include "common.tplvalues.render" (dict "value" .Values.controller.resizer.customReadinessProbe "context" $) | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - mountPath: /csi
+              name: socket-dir
+          {{- if .Values.controller.global.extraVolumeMounts }}
+          {{- include "common.tplvalues.render" (dict "value" .Values.controller.global.extraVolumeMounts "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.controller.resizer.extraVolumeMounts }}
+          {{- include "common.tplvalues.render" (dict "value" .Values.controller.resizer.extraVolumeMounts "context" $) | nindent 12 }}
+          {{- end }}
+        - name: vsphere-csi-controller
+          image: {{ template "vsphere-csi.controller.image" . }}
+          imagePullPolicy: {{ .Values.controller.image.pullPolicy }}
+          {{- if .Values.controller.lifecycleHooks }}
+          lifecycle: {{- include "common.tplvalues.render" (dict "value" .Values.controller.lifecycleHooks "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.controller.containerSecurityContext.enabled }}
+          securityContext: {{- omit .Values.controller.containerSecurityContext "enabled" | toYaml | nindent 12 }}
+          {{- end }}
+          {{- if .Values.controller.command }}
+          command: {{- include "common.tplvalues.render" (dict "value" .Values.controller.command "context" $) | nindent 12 }}
+          {{- end }}
+          args:
+          {{- if .Values.controller.args }}
+          {{- include "common.tplvalues.render" (dict "value" .Values.controller.args "context" $) | nindent 12 }}
+          {{- end }}
+            - "--fss-name=internal-feature-states.csi.vsphere.vmware.com"
+            - "--fss-namespace=$(CSI_NAMESPACE)"
+          env:
+            - name: CSI_ENDPOINT
+              value: unix:///csi/csi.sock
+            - name: X_CSI_MODE
+              value: "controller"
+            - name: X_CSI_SPEC_DISABLE_LEN_CHECK
+              value: "true"
+            - name: X_CSI_SERIAL_VOL_ACCESS_TIMEOUT
+              value: 3m
+            - name: VSPHERE_CSI_CONFIG
+              value: "/etc/cloud/csi-vsphere.conf"
+            - name: LOGGER_LEVEL
+              value: {{ include "common.tplvalues.render" (dict "value" .Values.global.logLevel "context" $) }}
+            - name: INCLUSTER_CLIENT_QPS
+              value: "100"
+            - name: INCLUSTER_CLIENT_BURST
+              value: "100"
+            - name: CSI_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            {{- if .Values.controller.global.extraEnvVars }}
+            {{- include "common.tplvalues.render" (dict "value" .Values.controller.global.extraEnvVars "context" $) | nindent 12 }}
+            {{- end }}
+            {{- if .Values.controller.extraEnvVars }}
+            {{- include "common.tplvalues.render" (dict "value" .Values.controller.extraEnvVars "context" $) | nindent 12 }}
+            {{- end }}
+          envFrom:
+            {{- if .Values.controller.global.extraEnvVarsCM }}
+            - configMapRef:
+                name: {{ include "common.tplvalues.render" (dict "value" .Values.controller.global.extraEnvVarsCM "context" $) }}
+            {{- end }}
+            {{- if .Values.controller.global.extraEnvVarsSecret }}
+            - secretRef:
+                name: {{ include "common.tplvalues.render" (dict "value" .Values.controller.global.extraEnvVarsSecret "context" $) }}
+            {{- end }}
+            {{- if .Values.controller.extraEnvVarsCM }}
+            - configMapRef:
+                name: {{ include "common.tplvalues.render" (dict "value" .Values.controller.extraEnvVarsCM "context" $) }}
+            {{- end }}
+            {{- if .Values.controller.extraEnvVarsSecret }}
+            - secretRef:
+                name: {{ include "common.tplvalues.render" (dict "value" .Values.controller.extraEnvVarsSecret "context" $) }}
+            {{- end }}
+          {{- if .Values.controller.resources }}
+          resources: {{- toYaml .Values.controller.resources | nindent 12 }}
+          {{- end }}
+          {{- if .Values.controller.livenessProbe.enabled }}
+          livenessProbe: {{- include "common.tplvalues.render" (dict "value" (omit .Values.controller.livenessProbe "enabled") "context" $) | nindent 12 }}
+          {{- else if .Values.controller.customLivenessProbe }}
+          livenessProbe: {{- include "common.tplvalues.render" (dict "value" .Values.controller.customLivenessProbe "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.controller.readinessProbe.enabled }}
+          readinessProbe: {{- include "common.tplvalues.render" (dict "value" (omit .Values.controller.readinessProbe "enabled") "context" $) | nindent 12 }}
+          {{- else if .Values.controller.customReadinessProbe }}
+          readinessProbe: {{- include "common.tplvalues.render" (dict "value" .Values.controller.customReadinessProbe "context" $) | nindent 12 }}
+          {{- end }}
+          ports:
+            - name: healthz
+              containerPort: 9808
+              protocol: TCP
+            - name: prometheus
+              containerPort: 2112
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /etc/cloud
+              name: vsphere-config-volume
+              readOnly: true
+            - mountPath: /csi
+              name: socket-dir
+          {{- if .Values.controller.global.extraVolumeMounts }}
+          {{- include "common.tplvalues.render" (dict "value" .Values.controller.global.extraVolumeMounts "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.controller.extraVolumeMounts }}
+          {{- include "common.tplvalues.render" (dict "value" .Values.controller.extraVolumeMounts "context" $) | nindent 12 }}
+          {{- end }}
+        - name: liveness-probe
+          image: {{ template "vsphere-csi.controller.livenessprobe.image" . }}
+          imagePullPolicy: {{ .Values.controller.livenessprobe.image.pullPolicy }}
+          {{- if .Values.controller.livenessprobe.lifecycleHooks }}
+          lifecycle: {{- include "common.tplvalues.render" (dict "value" .Values.controller.livenessprobe.lifecycleHooks "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.controller.livenessprobe.containerSecurityContext.enabled }}
+          securityContext: {{- omit .Values.controller.livenessprobe.containerSecurityContext "enabled" | toYaml | nindent 12 }}
+          {{- end }}
+          {{- if .Values.controller.livenessprobe.command }}
+          command: {{- include "common.tplvalues.render" (dict "value" .Values.controller.livenessprobe.command "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.controller.livenessprobe.args }}
+          args: {{- include "common.tplvalues.render" (dict "value" .Values.controller.livenessprobe.args "context" $) | nindent 12 }}
+          {{- end }}
+          env:
+            {{- if .Values.controller.global.extraEnvVars }}
+            {{- include "common.tplvalues.render" (dict "value" .Values.controller.global.extraEnvVars "context" $) | nindent 12 }}
+            {{- end }}
+            {{- if .Values.controller.livenessprobe.extraEnvVars }}
+            {{- include "common.tplvalues.render" (dict "value" .Values.controller.livenessprobe.extraEnvVars "context" $) | nindent 12 }}
+            {{- end }}
+          envFrom:
+            {{- if .Values.controller.global.extraEnvVarsCM }}
+            - configMapRef:
+                name: {{ include "common.tplvalues.render" (dict "value" .Values.controller.global.extraEnvVarsCM "context" $) }}
+            {{- end }}
+            {{- if .Values.controller.global.extraEnvVarsSecret }}
+            - secretRef:
+                name: {{ include "common.tplvalues.render" (dict "value" .Values.controller.global.extraEnvVarsSecret "context" $) }}
+            {{- end }}
+            {{- if .Values.controller.livenessprobe.extraEnvVarsCM }}
+            - configMapRef:
+                name: {{ include "common.tplvalues.render" (dict "value" .Values.controller.livenessprobe.extraEnvVarsCM "context" $) }}
+            {{- end }}
+            {{- if .Values.controller.livenessprobe.extraEnvVarsSecret }}
+            - secretRef:
+                name: {{ include "common.tplvalues.render" (dict "value" .Values.controller.livenessprobe.extraEnvVarsSecret "context" $) }}
+            {{- end }}
+          {{- if .Values.controller.livenessprobe.resources }}
+          resources: {{- toYaml .Values.controller.livenessprobe.resources | nindent 12 }}
+          {{- end }}
+          {{- if .Values.controller.livenessprobe.livenessProbe.enabled }}
+          livenessProbe: {{- include "common.tplvalues.render" (dict "value" (omit .Values.controller.livenessprobe.livenessProbe "enabled") "context" $) | nindent 12 }}
+          {{- else if .Values.controller.livenessprobe.customLivenessProbe }}
+          livenessProbe: {{- include "common.tplvalues.render" (dict "value" .Values.controller.livenessprobe.customLivenessProbe "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.controller.livenessprobe.readinessProbe.enabled }}
+          readinessProbe: {{- include "common.tplvalues.render" (dict "value" (omit .Values.controller.livenessprobe.readinessProbe "enabled") "context" $) | nindent 12 }}
+          {{- else if .Values.controller.livenessprobe.customReadinessProbe }}
+          readinessProbe: {{- include "common.tplvalues.render" (dict "value" .Values.controller.livenessprobe.customReadinessProbe "context" $) | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: socket-dir
+              mountPath: /csi
+          {{- if .Values.controller.global.extraVolumeMounts }}
+          {{- include "common.tplvalues.render" (dict "value" .Values.controller.global.extraVolumeMounts "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.controller.livenessprobe.extraVolumeMounts }}
+          {{- include "common.tplvalues.render" (dict "value" .Values.controller.livenessprobe.extraVolumeMounts "context" $) | nindent 12 }}
+          {{- end }}
+        - name: vsphere-syncer
+          image: {{ template "vsphere-csi.controller.syncer.image" . }}
+          imagePullPolicy: {{ .Values.controller.syncer.image.pullPolicy }}
+          {{- if .Values.controller.syncer.lifecycleHooks }}
+          lifecycle: {{- include "common.tplvalues.render" (dict "value" .Values.controller.syncer.lifecycleHooks "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.controller.syncer.containerSecurityContext.enabled }}
+          securityContext: {{- omit .Values.controller.syncer.containerSecurityContext "enabled" | toYaml | nindent 12 }}
+          {{- end }}
+          {{- if .Values.controller.syncer.command }}
+          command: {{- include "common.tplvalues.render" (dict "value" .Values.controller.syncer.command "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.controller.syncer.args }}
+          args: {{- include "common.tplvalues.render" (dict "value" .Values.controller.syncer.args "context" $) | nindent 12 }}
+          {{- end }}
+          env:
+            - name: FULL_SYNC_INTERVAL_MINUTES
+              value: "30"
+            - name: VSPHERE_CSI_CONFIG
+              value: "/etc/cloud/csi-vsphere.conf"
+            - name: LOGGER_LEVEL
+              value: {{ include "common.tplvalues.render" (dict "value" .Values.global.logLevel "context" $) }}
+            - name: INCLUSTER_CLIENT_QPS
+              value: "100"
+            - name: INCLUSTER_CLIENT_BURST
+              value: "100"
+            - name: GODEBUG
+              value: x509sha1=1
+            - name: CSI_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            {{- if .Values.controller.global.extraEnvVars }}
+            {{- include "common.tplvalues.render" (dict "value" .Values.controller.global.extraEnvVars "context" $) | nindent 12 }}
+            {{- end }}
+            {{- if .Values.controller.syncer.extraEnvVars }}
+            {{- include "common.tplvalues.render" (dict "value" .Values.controller.syncer.extraEnvVars "context" $) | nindent 12 }}
+            {{- end }}
+          envFrom:
+            {{- if .Values.controller.global.extraEnvVarsCM }}
+            - configMapRef:
+                name: {{ include "common.tplvalues.render" (dict "value" .Values.controller.global.extraEnvVarsCM "context" $) }}
+            {{- end }}
+            {{- if .Values.controller.global.extraEnvVarsSecret }}
+            - secretRef:
+                name: {{ include "common.tplvalues.render" (dict "value" .Values.controller.global.extraEnvVarsSecret "context" $) }}
+            {{- end }}
+            {{- if .Values.controller.syncer.extraEnvVarsCM }}
+            - configMapRef:
+                name: {{ include "common.tplvalues.render" (dict "value" .Values.controller.syncer.extraEnvVarsCM "context" $) }}
+            {{- end }}
+            {{- if .Values.controller.syncer.extraEnvVarsSecret }}
+            - secretRef:
+                name: {{ include "common.tplvalues.render" (dict "value" .Values.controller.syncer.extraEnvVarsSecret "context" $) }}
+            {{- end }}
+          {{- if .Values.controller.syncer.resources }}
+          resources: {{- toYaml .Values.controller.syncer.resources | nindent 12 }}
+          {{- end }}
+          {{- if .Values.controller.syncer.livenessProbe.enabled }}
+          livenessProbe: {{- include "common.tplvalues.render" (dict "value" (omit .Values.controller.syncer.livenessProbe "enabled") "context" $) | nindent 12 }}
+          {{- else if .Values.controller.syncer.customLivenessProbe }}
+          livenessProbe: {{- include "common.tplvalues.render" (dict "value" .Values.controller.syncer.customLivenessProbe "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.controller.syncer.readinessProbe.enabled }}
+          readinessProbe: {{- include "common.tplvalues.render" (dict "value" (omit .Values.controller.syncer.readinessProbe "enabled") "context" $) | nindent 12 }}
+          {{- else if .Values.controller.syncer.customReadinessProbe }}
+          readinessProbe: {{- include "common.tplvalues.render" (dict "value" .Values.controller.syncer.customReadinessProbe "context" $) | nindent 12 }}
+          {{- end }}
+          ports:
+            - containerPort: 2113
+              name: prometheus
+              protocol: TCP
+          volumeMounts:
+            - mountPath: /etc/cloud
+              name: vsphere-config-volume
+              readOnly: true
+          {{- if .Values.controller.global.extraVolumeMounts }}
+          {{- include "common.tplvalues.render" (dict "value" .Values.controller.global.extraVolumeMounts "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.controller.syncer.extraVolumeMounts }}
+          {{- include "common.tplvalues.render" (dict "value" .Values.controller.syncer.extraVolumeMounts "context" $) | nindent 12 }}
+          {{- end }}
+        - name: csi-provisioner
+          image: {{ template "vsphere-csi.controller.provisioner.image" . }}
+          imagePullPolicy: {{ .Values.controller.provisioner.image.pullPolicy }}
+          {{- if .Values.controller.provisioner.lifecycleHooks }}
+          lifecycle: {{- include "common.tplvalues.render" (dict "value" .Values.controller.provisioner.lifecycleHooks "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.controller.provisioner.containerSecurityContext.enabled }}
+          securityContext: {{- omit .Values.controller.provisioner.containerSecurityContext "enabled" | toYaml | nindent 12 }}
+          {{- end }}
+          {{- if .Values.controller.provisioner.command }}
+          command: {{- include "common.tplvalues.render" (dict "value" .Values.controller.provisioner.command "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.controller.provisioner.args }}
+          args:
+          {{- include "common.tplvalues.render" (dict "value" .Values.controller.provisioner.args "context" $) | nindent 12 }}
+          {{- if .Values.global.config.labels }}
+            # needed only for topology aware setup
+            - "--feature-gates=Topology=true"
+            - "--strict-topology"
+          {{- end }}
+          {{- end }}
+          env:
+            - name: ADDRESS
+              value: /csi/csi.sock
+            {{- if .Values.controller.global.extraEnvVars }}
+            {{- include "common.tplvalues.render" (dict "value" .Values.controller.global.extraEnvVars "context" $) | nindent 12 }}
+            {{- end }}
+            {{- if .Values.controller.provisioner.extraEnvVars }}
+            {{- include "common.tplvalues.render" (dict "value" .Values.controller.provisioner.extraEnvVars "context" $) | nindent 12 }}
+            {{- end }}
+          envFrom:
+            {{- if .Values.controller.global.extraEnvVarsCM }}
+            - configMapRef:
+                name: {{ include "common.tplvalues.render" (dict "value" .Values.controller.global.extraEnvVarsCM "context" $) }}
+            {{- end }}
+            {{- if .Values.controller.global.extraEnvVarsSecret }}
+            - secretRef:
+                name: {{ include "common.tplvalues.render" (dict "value" .Values.controller.global.extraEnvVarsSecret "context" $) }}
+            {{- end }}
+            {{- if .Values.controller.provisioner.extraEnvVarsCM }}
+            - configMapRef:
+                name: {{ include "common.tplvalues.render" (dict "value" .Values.controller.provisioner.extraEnvVarsCM "context" $) }}
+            {{- end }}
+            {{- if .Values.controller.provisioner.extraEnvVarsSecret }}
+            - secretRef:
+                name: {{ include "common.tplvalues.render" (dict "value" .Values.controller.provisioner.extraEnvVarsSecret "context" $) }}
+            {{- end }}
+          {{- if .Values.controller.provisioner.resources }}
+          resources: {{- toYaml .Values.controller.provisioner.resources | nindent 12 }}
+          {{- end }}
+          {{- if .Values.controller.provisioner.livenessProbe.enabled }}
+          livenessProbe: {{- include "common.tplvalues.render" (dict "value" (omit .Values.controller.provisioner.livenessProbe "enabled") "context" $) | nindent 12 }}
+          {{- else if .Values.controller.provisioner.customLivenessProbe }}
+          livenessProbe: {{- include "common.tplvalues.render" (dict "value" .Values.controller.provisioner.customLivenessProbe "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.controller.provisioner.readinessProbe.enabled }}
+          readinessProbe: {{- include "common.tplvalues.render" (dict "value" (omit .Values.controller.provisioner.readinessProbe "enabled") "context" $) | nindent 12 }}
+          {{- else if .Values.controller.provisioner.customReadinessProbe }}
+          readinessProbe: {{- include "common.tplvalues.render" (dict "value" .Values.controller.provisioner.customReadinessProbe "context" $) | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - mountPath: /csi
+              name: socket-dir
+          {{- if .Values.controller.global.extraVolumeMounts }}
+          {{- include "common.tplvalues.render" (dict "value" .Values.controller.global.extraVolumeMounts "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.controller.provisioner.extraVolumeMounts }}
+          {{- include "common.tplvalues.render" (dict "value" .Values.controller.provisioner.extraVolumeMounts "context" $) | nindent 12 }}
+          {{- end }}
+
+
+        - name: csi-snapshotter
+          image: {{ template "vsphere-csi.controller.snapshotter.image" . }}
+          imagePullPolicy: {{ .Values.controller.snapshotter.image.pullPolicy }}
+          {{- if .Values.controller.snapshotter.lifecycleHooks }}
+          lifecycle: {{- include "common.tplvalues.render" (dict "value" .Values.controller.snapshotter.lifecycleHooks "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.controller.snapshotter.containerSecurityContext.enabled }}
+          securityContext: {{- omit .Values.controller.snapshotter.containerSecurityContext "enabled" | toYaml | nindent 12 }}
+          {{- end }}
+          {{- if .Values.controller.snapshotter.command }}
+          command: {{- include "common.tplvalues.render" (dict "value" .Values.controller.snapshotter.command "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.controller.snapshotter.args }}
+          args:
+          {{- include "common.tplvalues.render" (dict "value" .Values.controller.snapshotter.args "context" $) | nindent 12 }}
+          {{- end }}
+          env:
+            - name: ADDRESS
+              value: /csi/csi.sock
+            {{- if .Values.controller.global.extraEnvVars }}
+            {{- include "common.tplvalues.render" (dict "value" .Values.controller.global.extraEnvVars "context" $) | nindent 12 }}
+            {{- end }}
+            {{- if .Values.controller.snapshotter.extraEnvVars }}
+            {{- include "common.tplvalues.render" (dict "value" .Values.controller.snapshotter.extraEnvVars "context" $) | nindent 12 }}
+            {{- end }}
+          envFrom:
+            {{- if .Values.controller.global.extraEnvVarsCM }}
+            - configMapRef:
+                name: {{ include "common.tplvalues.render" (dict "value" .Values.controller.global.extraEnvVarsCM "context" $) }}
+            {{- end }}
+            {{- if .Values.controller.global.extraEnvVarsSecret }}
+            - secretRef:
+                name: {{ include "common.tplvalues.render" (dict "value" .Values.controller.global.extraEnvVarsSecret "context" $) }}
+            {{- end }}
+            {{- if .Values.controller.snapshotter.extraEnvVarsCM }}
+            - configMapRef:
+                name: {{ include "common.tplvalues.render" (dict "value" .Values.controller.snapshotter.extraEnvVarsCM "context" $) }}
+            {{- end }}
+            {{- if .Values.controller.snapshotter.extraEnvVarsSecret }}
+            - secretRef:
+                name: {{ include "common.tplvalues.render" (dict "value" .Values.controller.snapshotter.extraEnvVarsSecret "context" $) }}
+            {{- end }}
+          {{- if .Values.controller.snapshotter.resources }}
+          resources: {{- toYaml .Values.controller.snapshotter.resources | nindent 12 }}
+          {{- end }}
+          {{- if .Values.controller.snapshotter.livenessProbe.enabled }}
+          livenessProbe: {{- include "common.tplvalues.render" (dict "value" (omit .Values.controller.snapshotter.livenessProbe "enabled") "context" $) | nindent 12 }}
+          {{- else if .Values.controller.snapshotter.customLivenessProbe }}
+          livenessProbe: {{- include "common.tplvalues.render" (dict "value" .Values.controller.snapshotter.customLivenessProbe "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.controller.snapshotter.readinessProbe.enabled }}
+          readinessProbe: {{- include "common.tplvalues.render" (dict "value" (omit .Values.controller.snapshotter.readinessProbe "enabled") "context" $) | nindent 12 }}
+          {{- else if .Values.controller.snapshotter.customReadinessProbe }}
+          readinessProbe: {{- include "common.tplvalues.render" (dict "value" .Values.controller.snapshotter.customReadinessProbe "context" $) | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - mountPath: /csi
+              name: socket-dir
+          {{- if .Values.controller.global.extraVolumeMounts }}
+          {{- include "common.tplvalues.render" (dict "value" .Values.controller.global.extraVolumeMounts "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.controller.snapshotter.extraVolumeMounts }}
+          {{- include "common.tplvalues.render" (dict "value" .Values.controller.snapshotter.extraVolumeMounts "context" $) | nindent 12 }}
+          {{- end }}
+        {{- if .Values.controller.sidecars }}
+        {{- include "common.tplvalues.render" ( dict "value" .Values.controller.sidecars "context" $) | nindent 8 }}
+        {{- end }}
+      volumes:
+        - name: vsphere-config-volume
+          secret:
+            secretName: {{ template "common.names.fullname" . }}
+        - name: socket-dir
+          emptyDir: {}
+        {{- if .Values.controller.extraVolumes }}
+        {{- include "common.tplvalues.render" (dict "value" .Values.controller.extraVolumes "context" $) | nindent 8 }}
+        {{- end }}
