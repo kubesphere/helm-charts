@@ -1,0 +1,199 @@
+# Default values for databend-query.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: datafuselabs/databend-query
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+service:
+  type: ClusterIP
+  ports:
+    mysql: 3307
+    http: 8000
+    clickhouse: 9000
+    metric: 7070
+    admin: 8080
+    flight: 9090
+  # Annotations to add to the service
+  annotations: {}
+
+serviceMonitor:
+  enabled: false
+  port: metric
+
+# Config settings to go into the mounted config.toml
+config:
+  # [query]
+  query:
+    maxActiveSessions: 256
+    waitTimeoutMills: 5000
+
+    tenantId: ""
+    clusterId: default
+
+    # table cache config
+    tableCacheEnabled: true
+    tableMemoryCacheMbSize: 1024
+    tableDiskCacheRoot: "/data/databend-query/_cache"
+    tableDiskCacheMbSize: 10240
+
+    managementMode: false
+    jwtKeyFile: ""
+
+    users: []
+      # - name: databend
+      #   # available type: sha256_password, double_sha1_password, no_password, jwt
+      #   # sha1sum: echo -n "password" | sha1sum | cut -d' ' -f1 | xxd -r -p | sha1sum
+      #   authType: double_sha1_password
+      #   authString: 3081f32caef285c232d066033c89a78d88a6d8a5  # databend
+
+  # [log]
+  log:
+    file:
+      enabled: false
+      level: "INFO"
+      dir: "/data/databend-query/_log"
+    stderr:
+      enabled: true
+      level: "WARN"
+
+  # [meta]
+  meta:
+    # Set endpoints to use remote meta service
+    endpoints:
+      - "databend-meta-0.databend-meta.databend-meta.svc:9191"
+      - "databend-meta-1.databend-meta.databend-meta.svc:9191"
+      - "databend-meta-2.databend-meta.databend-meta.svc:9191"
+    username: "root"
+    password: "root"
+    clientTimeoutInSecond: 60
+
+  # [storage]
+  storage:
+    type: "fs"
+    # [storage.fs]
+    fs:
+      data_path: "/data/databend-query/_data"
+
+    # [storage.s3]
+    s3:
+      bucket: "databend"
+      endpoint_url: "https://s3.amazonaws.com"
+      access_key_id: ""
+      secret_access_key: ""
+      enable_virtual_host_style: false
+
+    # [storage.oss]
+    oss:
+      bucket: "databend"
+      endpoint_url: "https://oss.aliyuncs.com"
+      access_key_id: ""
+      access_key_secret: ""
+
+persistence:
+  enabled: false
+  existingClaim: ""
+  storageClass: ""
+  size: 10Gi
+  mountPath: /data/databend-query
+
+# Configuration for minio subchart
+# Not recommended for production
+minio:
+  enabled: false
+  replicas: 5
+  rootUser: rootuser
+  rootPassword: rootpassword
+  persistence:
+    enabled: true
+    storageClass: ""
+    size: 10Gi
+  minioAPIPort: 9000
+  resources:
+    requests:
+      memory: 500Mi
+
+ingress:
+  enabled: false
+  className: ""
+  annotations: {}
+    # kubernetes.io/ingress.class: nginx
+    # kubernetes.io/tls-acme: "true"
+  hosts:
+    - host: chart-example.local
+      paths:
+        - path: /
+          pathType: ImplementationSpecific
+          # servicePort defaults to service.ports.http
+          # servicePort: 8000
+  tls: []
+  #  - secretName: chart-example-tls
+  #    hosts:
+  #      - chart-example.local
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+sidecars: []
+# Attach additional containers to the pod
+# - name: your-image-name
+#   image: your-image
+#   imagePullPolicy: Always
+#   ports:
+#   - name: portname
+#     containerPort: 1234
+
+initContainers: []
+# Add additional init containers to the pod
+# - name: your-image-name
+#   image: your-image
+#   imagePullPolicy: Always
+#   ports:
+#   - name: portname
+#     containerPort: 1234

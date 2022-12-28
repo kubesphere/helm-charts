@@ -1,0 +1,135 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "databend-query.fullname" . }}
+  labels:
+    {{- include "databend-query.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "databend-query.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      annotations:
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+      {{- with .Values.podAnnotations }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      labels:
+        {{- include "databend-query.selectorLabels" . | nindent 8 }}
+    spec:
+      {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "databend-query.serviceAccountName" . }}
+      securityContext:
+        {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers:
+        {{- if .Values.initContainers }}
+        {{- include "common.tplvalues.render" (dict "value" .Values.initContainers "context" $) | trim | nindent 8 }}
+        {{- end }}
+      containers:
+        - name: {{ .Chart.Name }}
+          command:
+            - /databend-query
+            - -c
+            - /etc/databend-query/config.toml
+          securityContext:
+            {{- toYaml .Values.securityContext | nindent 12 }}
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          ports:
+            - name: metric
+              containerPort: 7070
+            - name: admin
+              containerPort: 8080
+            - name: flight
+              containerPort: 9090
+            - name: mysql
+              containerPort: 3307
+            - name: clickhouse
+              containerPort: 9000
+            - name: http
+              containerPort: 8000
+          livenessProbe:
+            httpGet:
+              path: /v1/health
+              port: admin
+          readinessProbe:
+            httpGet:
+              path: /v1/health
+              port: admin
+            initialDelaySeconds: 5
+            periodSeconds: 15
+            failureThreshold: 3
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: POD_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.podIP
+            - name: QUERY_METRIC_API_ADDRESS
+              value: "$(POD_IP):7070"
+            - name: QUERY_ADMIN_API_ADDRESS
+              value: "$(POD_IP):8080"
+            - name: QUERY_FLIGHT_API_ADDRESS
+              value: "$(POD_IP):9090"
+            - name: QUERY_MYSQL_HANDLER_HOST
+              value: 0.0.0.0
+            - name: QUERY_MYSQL_HANDLER_PORT
+              value: "3307"
+            - name: QUERY_CLICKHOUSE_HANDLER_HOST
+              value: 0.0.0.0
+            - name: QUERY_CLICKHOUSE_HANDLER_PORT
+              value: "9000"
+            - name: QUERY_HTTP_HANDLER_HOST
+              value: 0.0.0.0
+            - name: QUERY_HTTP_HANDLER_PORT
+              value: "8000"
+          volumeMounts:
+            - name: config
+              # Note: subPath volume mount will not receive ConfigMap update.
+              mountPath: /etc/databend-query
+            {{- if .Values.persistence.enabled }}
+            - name: data
+              mountPath: {{ .Values.persistence.mountPath }}
+            {{- end }}
+        {{- if .Values.sidecars }}
+        {{- include "common.tplvalues.render" (dict "value" .Values.sidecars "context" $) | nindent 8 }}
+        {{- end }}
+      volumes:
+        - name: config
+          configMap:
+            name: {{ include "databend-query.fullname" .}}
+        {{- if .Values.persistence.enabled }}
+        - name: data
+          persistentVolumeClaim:
+          {{- if .Values.persistence.existingClaim }}
+            claimName: {{ .Values.persistence.existingClaim }}
+          {{- else }}
+            claimName: {{ include "databend-query.fullname" . }}
+          {{- end }}
+        {{- end }}
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
