@@ -1,0 +1,98 @@
+# Default values for databend-meta.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+replicaCount: 1
+
+image:
+  repository: datafuselabs/databend-meta
+  pullPolicy: IfNotPresent
+  # Overrides the image tag whose default is the chart appVersion.
+  tag: ""
+
+imagePullSecrets: []
+nameOverride: ""
+fullnameOverride: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: ""
+
+service:
+  type: ClusterIP
+  ports:
+    admin: 28002
+    grpc: 9191
+  # Annotations to add to the service
+  annotations: {}
+
+serviceMonitor:
+  enabled: false
+  port: admin
+
+config:
+  logDir: /data/databend-meta/log
+  logLevel: INFO
+
+  raft:
+    dir: /data/databend-meta/raft
+
+persistence:
+  enabled: true
+  storageClass: ""
+  size: 10Gi
+  mountPath: /data/databend-meta
+
+resources: {}
+  # We usually recommend not to specify default resources and to leave this as a conscious
+  # choice for the user. This also increases chances charts run on environments with little
+  # resources, such as Minikube. If you do want to specify resources, uncomment the following
+  # lines, adjust them as necessary, and remove the curly braces after 'resources:'.
+  # limits:
+  #   cpu: 100m
+  #   memory: 128Mi
+  # requests:
+  #   cpu: 100m
+  #   memory: 128Mi
+
+podAnnotations: {}
+
+podSecurityContext: {}
+  # fsGroup: 2000
+
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+nodeSelector: {}
+
+tolerations: []
+
+affinity: {}
+
+sidecars: []
+# Attach additional containers to the pod
+# - name: your-image-name
+#   image: your-image
+#   imagePullPolicy: Always
+#   ports:
+#   - name: portname
+#     containerPort: 1234
+
+initContainers: []
+# Add additional init containers to the pod
+# - name: your-image-name
+#   image: your-image
+#   imagePullPolicy: Always
+#   ports:
+#   - name: portname
+#     containerPort: 1234
