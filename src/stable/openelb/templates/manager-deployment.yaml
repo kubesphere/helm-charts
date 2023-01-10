@@ -66,6 +66,8 @@ spec:
             add:
             - NET_ADMIN
             - SYS_TIME
+            - NET_RAW
+            - NET_BIND_SERVICE
         volumeMounts:
           - mountPath: /tmp/k8s-webhook-server/serving-certs/
             name: webhook-cert
