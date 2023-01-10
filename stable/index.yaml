@@ -225,6 +225,43 @@ entries:
     version: 0.3.0
   deepflow:
   - apiVersion: v2
+    appVersion: 6.2.0
+    created: "2023-01-10T03:42:49.904058521Z"
+    dependencies:
+    - condition: clickhouse.enabled
+      name: clickhouse
+      repository: ""
+      version: '*.*.*'
+    - condition: mysql.enabled
+      name: mysql
+      repository: ""
+      version: '*.*.*'
+    - condition: deepflow-agent.enabled
+      name: deepflow-agent
+      repository: ""
+      version: '*.*.*'
+    - condition: grafana.enabled
+      name: grafana
+      repository: https://grafana.github.io/helm-charts
+      version: 6.*.*
+    description: An automated observability platform for cloud-native developers.
+    digest: e46e8182f3bff98a2cb17152bad2f2242736996de0ba24be5a4492b220b64777
+    home: https://github.com/deepflowys/deepflow
+    icon: https://raw.githubusercontent.com/deepflowys/deepflow-charts/main/deepflow.svg
+    keywords:
+    - deepflow
+    kubeVersion: '>=1.16.0-0'
+    maintainers:
+    - name: deepflow
+      url: https://github.com/deepflowys/deepflow
+    name: deepflow
+    sources:
+    - https://github.com/deepflowys/deepflow
+    type: application
+    urls:
+    - https://charts.kubesphere.io/stable/deepflow-6.2.0.tgz
+    version: 6.2.0
+  - apiVersion: v2
     appVersion: 6.1.8
     created: "2022-12-27T08:49:31.742463311Z"
     dependencies:
@@ -1201,6 +1238,22 @@ entries:
   openelb:
   - apiVersion: v2
     appVersion: 0.4.4
+    created: "2023-01-10T03:42:49.905165433Z"
+    description: Bare Metal Load-balancer for Kubernetes Cluster
+    digest: 106bbbec0d195d87077a1801f77d39e6d8f7477c03a47434f29aec7c4b9b6704
+    icon: https://github.com/openelb/openelb/blob/master/doc/logo/openelb-vertical.svg
+    maintainers:
+    - email: kubesphere@gmail.com
+      name: KubeSphere
+    name: openelb
+    sources:
+    - https://github.com/openelb/openelb
+    type: application
+    urls:
+    - https://charts.kubesphere.io/stable/openelb-0.2.6.tgz
+    version: 0.2.6
+  - apiVersion: v2
+    appVersion: 0.4.4
     created: "2022-04-27T08:02:11.815586908Z"
     description: Bare Metal Load-balancer for Kubernetes Cluster
     digest: 8d380d4fd6bc3a4f311048b482aafb4fe69f6187e655e5511343cfbc0d5a8380
@@ -1264,4 +1317,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/stable/qiming-operator-2.2.2.tgz
     version: 2.2.2
-generated: "2022-12-28T02:55:32.773512623Z"
+generated: "2023-01-10T03:42:49.88676593Z"
