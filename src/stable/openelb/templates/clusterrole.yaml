@@ -46,9 +46,13 @@ rules:
     resources:
       - configmaps
     verbs:
-      - get
-      - list
-      - watch
+    - create
+    - delete
+    - get
+    - list
+    - patch
+    - update
+    - watch
   - apiGroups:
       - ""
     resources:
@@ -183,3 +187,23 @@ rules:
       - get
       - patch
       - update
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  labels:
+    {{- include "openelb.keepalived.labels" . | nindent 4 }}
+  name: {{ template "openelb.keepalived.fullname" . }}
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+      - nodes
+      - endpoints
+      - services
+      - configmaps
+    verbs:
+      - get
+      - list
+      - watch
