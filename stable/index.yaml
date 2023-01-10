@@ -1237,6 +1237,22 @@ entries:
     version: 0.5.7
   openelb:
   - apiVersion: v2
+    appVersion: 0.5.0
+    created: "2023-01-10T08:56:44.418631759Z"
+    description: Bare Metal Load-balancer for Kubernetes Cluster
+    digest: fe6d62a30c3cb3dc07824e04ae02edaaa58d716d56931eaffc77f9284a1b2751
+    icon: https://raw.githubusercontent.com/openelb/openelb/master/docs/logo/openelb-vertical.svg
+    maintainers:
+    - email: kubesphere@gmail.com
+      name: KubeSphere
+    name: openelb
+    sources:
+    - https://github.com/openelb/openelb
+    type: application
+    urls:
+    - https://charts.kubesphere.io/stable/openelb-0.5.0.tgz
+    version: 0.5.0
+  - apiVersion: v2
     appVersion: 0.4.4
     created: "2023-01-10T03:42:49.905165433Z"
     description: Bare Metal Load-balancer for Kubernetes Cluster
@@ -1317,4 +1333,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/stable/qiming-operator-2.2.2.tgz
     version: 2.2.2
-generated: "2023-01-10T03:42:49.88676593Z"
+generated: "2023-01-10T08:56:44.417593065Z"
