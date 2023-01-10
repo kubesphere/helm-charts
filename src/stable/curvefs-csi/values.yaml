@@ -1,0 +1,54 @@
+# Default values for curvefs-csi.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+kubeletDir: /var/lib/kubelet
+
+driver:
+  name: csi.curvefs.com
+  repository: harbor.cloud.netease.com/curve/curvefs
+  tag: "csi-v1.0.0"
+
+sidecars:
+  csiProvisionerImage:
+    repository: quay.io/k8scsi/csi-provisioner
+    tag: "v1.6.0"
+  nodeDriverRegistrarImage:
+    repository: quay.io/k8scsi/csi-node-driver-registrar
+    tag: "v1.3.0"
+
+controller:
+  resources:
+    limits:
+      cpu: 1000m
+      memory: 1Gi
+    requests:
+      cpu: 100m
+      memory: 512Mi
+  nodeSelector: {}
+
+node:
+  hostNetwork: false
+  resources:
+    limits:
+      cpu: 4000m
+      memory: 4Gi
+    requests:
+      cpu: 100m
+      memory: 512Mi
+  nodeSelector: {}
+
+storageClass:
+  name: curvefs-cs
+  enabled: true
+  allowVolumeExpansion: false
+  reclaimPolicy: Delete
+  parameters:
+    mdsAddr: ""
+    fsType: "s3"
+    s3Endpoint: ""
+    s3AccessKey: ""
+    s3SecretKey: ""
+    s3Bucket: ""
+  mountOptions:
+  # - client.loglevel=8

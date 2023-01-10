@@ -1,0 +1,51 @@
+{{- if (index .Values.controller.config "block-volume-snapshot" ) }}
+{{- $ca := genCA "vsphere-csi-ca" 365 }}
+{{- $coreCN := include "common.names.fullname"  . }}
+
+{{- $altNames := list ( printf "%s%s.%s" (include "common.names.fullname" .) "-snapshot-validation-service" .Release.Namespace ) ( printf "%s%s.%s.svc" (include "common.names.fullname" .) "-snapshot-validation-service" .Release.Namespace ) ( printf "%s.%s" (include "common.names.fullname" .)  .Release.Namespace ) ( printf "%s.%s.svc" (include "common.names.fullname" .)  .Release.Namespace ) -}}
+
+{{- $coreCrt := genSignedCert $coreCN (list "127.0.0.1") $altNames 365 $ca }}
+
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: "validation-webhook.snapshot.storage.k8s.io"
+  labels: {{- include "common.labels.standard" . | nindent 4 }}
+    app.kubernetes.io/component: {{ template "vsphere-csi.snapshotwebhookName" . }}
+webhooks:
+- name: "validation-webhook.snapshot.storage.k8s.io"
+  rules:
+  - apiGroups: ["snapshot.storage.k8s.io"]
+    apiVersions: ["v1", "v1beta1"]
+    operations: ["CREATE", "UPDATE"]
+    resources: ["volumesnapshots", "volumesnapshotcontents"]
+    scope: "*"
+  clientConfig:
+    service:
+      namespace: {{ .Release.Namespace | quote }}
+      name: {{ template "common.names.fullname" . }}-snapshot-validation-service
+      path: "/volumesnapshot"
+    caBundle: {{ $ca.Cert | b64enc | quote }}
+  admissionReviewVersions: ["v1"]
+  sideEffects: None
+  failurePolicy: Ignore   # We recommend switching to Fail only after successful installation of the webhook server and webhook.
+  timeoutSeconds: 2   # This will affect the latency and performance. Finetune this value based on your application's tolerance.
+---
+apiVersion: v1
+kind: Secret
+metadata:
+  name: {{ template "common.names.fullname" . }}-snapshot-webhook-certs
+  namespace: {{ .Release.Namespace | quote }}
+  labels: {{- include "common.labels.standard" . | nindent 4 }}
+    app.kubernetes.io/component: {{ template "vsphere-csi.snapshotwebhookName" . }}
+    {{- if .Values.commonLabels }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
+type: Opaque
+stringData:
+  tls.key:  {{ $coreCrt.Key  | quote }}
+  tls.crt: {{ $coreCrt.Cert | quote }}
+{{- end }}

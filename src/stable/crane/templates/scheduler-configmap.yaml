@@ -1,0 +1,33 @@
+{{ if .Values.scheduler.enable }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: scheduler-config
+  namespace: {{ .Release.Namespace }}
+  labels:
+    {{- include "crane.labels" . | nindent 4 }}
+data:
+  scheduler-config.yaml: |
+    {{- if ge .Capabilities.KubeVersion.Minor "22" }}
+    apiVersion: kubescheduler.config.k8s.io/v1beta2
+    {{- else }}
+    apiVersion: kubescheduler.config.k8s.io/v1beta1
+    {{- end }}
+    kind: KubeSchedulerConfiguration
+    leaderElection:
+      leaderElect: false
+    profiles:
+    - schedulerName: crane-scheduler
+      plugins:
+        filter:
+          enabled:
+          - name: Dynamic
+        score:
+          enabled:
+          - name: Dynamic
+            weight: 3
+      pluginConfig:
+      - name: Dynamic
+        args:
+          policyConfigPath: /etc/kubernetes/policy.yaml
+{{ end }}

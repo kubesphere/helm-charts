@@ -1,0 +1,50 @@
+{{ if .Values.controller.enable }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    {{- include "crane.labels" . | nindent 4 }}
+    app: crane-scheduler-controller
+  name: {{ .Values.controller.name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: crane-scheduler-controller
+  template:
+    metadata:
+      labels:
+        app: crane-scheduler-controller
+    spec:
+      serviceAccountName: crane-scheduler-controller
+      containers:
+        - name: {{ .Values.controller.name }}
+          env:
+            - name: TZ
+              value: Asia/Shanghai
+            - name: CRANE_SYSTEM_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          command:
+            - /controller
+            - --policy-config-path=/data/policy.yaml
+            - --prometheus-address={{ .Values.global.prometheusAddr }}
+          image:  "{{ .Values.controller.image.repository }}:{{ .Values.controller.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - mountPath: /data
+              name: dynamic-scheduler-policy
+          resources:
+            requests:
+              cpu: 200m
+              memory: 200Mi
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      volumes:
+        - configMap:
+            defaultMode: 420
+            name: dynamic-scheduler-policy
+          name: dynamic-scheduler-policy
+{{ end }}

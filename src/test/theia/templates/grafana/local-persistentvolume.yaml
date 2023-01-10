@@ -1,0 +1,29 @@
+{{- if .Values.grafana.enable }}
+{{- if eq .Values.grafana.storage.createPersistentVolume.type "Local" }}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: grafana-pv
+spec:
+  storageClassName: grafana-storage
+  capacity:
+    storage: {{ .Values.grafana.storage.size }}
+  accessModes:
+    - ReadWriteOnce
+  volumeMode: Filesystem
+  local:
+    path: {{ .Values.grafana.storage.createPersistentVolume.local.path }}
+  nodeAffinity:
+  {{- if .Values.grafana.storage.createPersistentVolume.local.affinity }}
+  {{- with .Values.grafana.storage.createPersistentVolume.local.affinity }}
+    {{- toYaml . | trim | nindent 4 }}
+  {{- end }}
+  {{- else }}
+    required:
+      nodeSelectorTerms:
+      - matchExpressions:
+        - key: antrea.io/grafana-config-node
+          operator: Exists
+  {{- end }}
+{{- end }}
+{{- end }}

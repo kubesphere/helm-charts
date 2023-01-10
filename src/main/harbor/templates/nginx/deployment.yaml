@@ -8,6 +8,7 @@ metadata:
     component: nginx
 spec:
   replicas: {{ .Values.nginx.replicas }}
+  revisionHistoryLimit: {{ .Values.nginx.revisionHistoryLimit }}
   selector:
     matchLabels:
 {{ include "harbor.matchLabels" . | indent 6 }}
@@ -30,12 +31,17 @@ spec:
 {{ toYaml .Values.nginx.podAnnotations | indent 8 }}
 {{- end }}
     spec:
+{{- if .Values.nginx.serviceAccountName }}
+      serviceAccountName: {{ .Values.nginx.serviceAccountName }}
+{{- end }}
       securityContext:
+        runAsUser: 10000
         fsGroup: 10000
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      automountServiceAccountToken: {{ .Values.nginx.automountServiceAccountToken | default false }}
       containers:
       - name: nginx
         image: "{{ .Values.nginx.image.repository }}:{{ .Values.nginx.image.tag }}"
@@ -83,11 +89,7 @@ spec:
       {{- if .Values.expose.tls.enabled }}
       - name: certificate
         secret:
-          {{- if .Values.expose.tls.secretName }}
-          secretName: {{ .Values.expose.tls.secretName }}
-          {{- else }}
-          secretName: {{ template "harbor.nginx" . }}
-          {{- end }}
+          secretName: {{ template "harbor.tlsSecretForNginx" . }}
       {{- end }}
     {{- with .Values.nginx.nodeSelector }}
       nodeSelector:
@@ -100,5 +102,8 @@ spec:
     {{- with .Values.nginx.tolerations }}
       tolerations:
 {{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- if .Values.nginx.priorityClassName }}
+      priorityClassName: {{ .Values.nginx.priorityClassName }}
     {{- end }}
 {{- end }}

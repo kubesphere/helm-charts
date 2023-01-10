@@ -1,0 +1,64 @@
+{{ if .Values.scheduler.enable }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    {{- include "crane.labels" . | nindent 4 }}
+    component: scheduler
+  name: {{ .Values.scheduler.name }}
+  namespace: {{ .Release.Namespace }}
+spec:
+  selector:
+    matchLabels:
+      component: scheduler
+  replicas: {{ .Values.scheduler.replicaCount }}
+  template:
+    metadata:
+      labels:
+        component: scheduler
+    spec:
+      serviceAccountName: scheduler
+      containers:
+      - command:
+        - /scheduler
+        - --leader-elect=false
+        - --config=/etc/kubernetes/kube-scheduler/scheduler-config.yaml
+        {{- if ge .Capabilities.KubeVersion.Minor "22" }}
+        image: "{{ .Values.scheduler.image.repository }}:0.0.23"
+        {{- else }}
+        image: "{{ .Values.scheduler.image.repository }}:0.0.20"
+        {{- end }}
+        livenessProbe:
+          httpGet:
+            path: /healthz
+            port: 10259
+            scheme: HTTPS
+          initialDelaySeconds: 15
+        name: {{ .Values.scheduler.name }}
+        readinessProbe:
+          httpGet:
+            path: /healthz
+            port: 10259
+            scheme: HTTPS
+        resources:
+          requests:
+            cpu: '0.2'
+        securityContext:
+          privileged: false
+        volumeMounts:
+        - name: scheduler-config
+          mountPath: /etc/kubernetes/kube-scheduler
+          readOnly: true
+        - name: dynamic-scheduler-policy
+          mountPath: /etc/kubernetes
+          readOnly: true
+      hostNetwork: false
+      hostPID: false
+      volumes:
+      - name: scheduler-config
+        configMap:
+          name: scheduler-config
+      - name: dynamic-scheduler-policy
+        configMap:
+          name: dynamic-scheduler-policy
+{{ end }}

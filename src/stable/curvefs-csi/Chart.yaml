@@ -1,0 +1,18 @@
+apiVersion: v2
+name: curvefs-csi
+description: A Helm chart for CurveFs CSI Driver
+type: application
+version: 0.1.0
+appVersion: "1.0.0"
+kubeVersion: ">=1.18.0-0"
+home: https://github.com/opencurve/curvefs-csi
+sources:
+  - https://github.com/opencurve/curvefs-csi
+icon: 
+maintainers:
+  - email: h0hmjcn@gmail.com
+    name: h0hmj
+keywords:
+  - curvefs
+  - csi
+

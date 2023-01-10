@@ -1,0 +1,23 @@
+annotations:
+  artifacthub.io/license: Apache-2.0
+  artifacthub.io/operator: "false"
+  artifacthub.io/prerelease: "false"
+apiVersion: v2
+appVersion: 1.9.0
+description: Kubernetes networking based on Open vSwitch
+home: https://antrea.io/
+icon: https://raw.githubusercontent.com/antrea-io/antrea/main/docs/assets/logo/antrea_logo.svg
+keywords:
+- Kubernetes
+- CNCF
+- Networking
+- CNI
+- Security
+- Open vSwitch
+- OVS
+kubeVersion: '>= 1.16.0-0'
+name: antrea
+sources:
+- https://github.com/antrea-io/antrea
+type: application
+version: 1.9.0

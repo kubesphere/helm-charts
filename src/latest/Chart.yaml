@@ -1,0 +1,10 @@
+apiVersion: v2
+name: latest
+description: A Helm chart for Kubernetes
+type: application
+version: 0.1.0
+appVersion: "1.16.0"
+dependencies:
+- name: deepflow
+  version: "*.*.*"
+  repository: https://deepflowys.github.io/deepflow

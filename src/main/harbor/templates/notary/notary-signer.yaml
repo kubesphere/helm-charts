@@ -19,17 +19,39 @@ spec:
         component: notary-signer
       annotations:
         checksum/secret: {{ include (print $.Template.BasePath "/notary/notary-secret.yaml") . | sha256sum }}
+{{- if .Values.notary.signer.podAnnotations }}
+{{ toYaml .Values.notary.signer.podAnnotations | indent 8 }}
+{{- end }}
     spec:
       securityContext:
+        runAsUser: 10000
         fsGroup: 10000
+{{- if .Values.notary.signer.serviceAccountName }}
+      serviceAccountName: {{ .Values.notary.signer.serviceAccountName }}
+{{- end -}}
       {{- with .Values.imagePullSecrets }}
       imagePullSecrets:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      automountServiceAccountToken: {{ .Values.notary.signer.automountServiceAccountToken | default false }}
       containers:
       - name: notary-signer
         image: {{ .Values.notary.signer.image.repository }}:{{ .Values.notary.signer.image.tag }}
         imagePullPolicy: {{ .Values.imagePullPolicy }}
+        livenessProbe:
+          httpGet:
+            path: /
+            scheme: "HTTPS"
+            port: 7899
+          initialDelaySeconds: 300
+          periodSeconds: 10
+        readinessProbe:
+          httpGet:
+            path: /
+            scheme: "HTTPS"
+            port: 7899
+          initialDelaySeconds: 20
+          periodSeconds: 10
 {{- if .Values.notary.signer.resources }}
         resources:
 {{ toYaml .Values.notary.signer.resources | indent 10 }}
@@ -62,16 +84,19 @@ spec:
           {{- else }}
           secretName: {{ template "harbor.notary-server" . }}
           {{- end }}
-    {{- with .Values.notary.nodeSelector }}
+    {{- with .Values.notary.signer.nodeSelector }}
       nodeSelector:
 {{ toYaml . | indent 8 }}
     {{- end }}
-    {{- with .Values.notary.affinity }}
+    {{- with .Values.notary.signer.affinity }}
       affinity:
 {{ toYaml . | indent 8 }}
     {{- end }}
-    {{- with .Values.notary.tolerations }}
+    {{- with .Values.notary.signer.tolerations }}
       tolerations:
 {{ toYaml . | indent 8 }}
+    {{- end }}
+    {{- if .Values.notary.signer.priorityClassName }}
+      priorityClassName: {{ .Values.notary.signer.priorityClassName }}
     {{- end }}
 {{ end }}
