@@ -12,3 +12,18 @@ roleRef:
   kind: ClusterRole
   name: {{ template "openelb.fullname" . }}
   apiGroup: rbac.authorization.k8s.io
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  labels:
+    {{- include "openelb.keepalived.labels" . | nindent 4 }}
+  name: {{ template "openelb.keepalived.fullname" . }}
+subjects:
+  - kind: ServiceAccount
+    name: kube-keepalived-vip
+    namespace: {{ template "openelb.namespace" . }}
+roleRef:
+  kind: ClusterRole
+  name: {{ template "openelb.keepalived.fullname" . }}
+  apiGroup: rbac.authorization.k8s.io

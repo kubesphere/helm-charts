@@ -38,21 +38,21 @@ The command removes all the Kubernetes components associated with the chart and 
 
 ## Configuration
 
-The following table lists the configurable parameters of the MSOMS chart and their default values.
+The following table lists the configurable parameters of the OpenELB chart and their default values.
 
-| Parameter | Description  | Default |
-| -----------------------    | -----------------------| -----------------------|
+| Parameter | Description  | Default              |
+| -----------------------    | -----------------------|----------------------|
 | `manager.image.repository`| `manager` image name.        | `kubesphere/openelb` |
-| `manager.image.tag`       | `manager` image tag.         | `v0.4.4`  |
-| `manager.image.pullPolicy`| `manager` image pull Policy. | `IfNotPresent`  |
-| `manager.resources`       | openelb manager resource requests and limits      | `{}`   |
-| `manager.nodeSelector`     | Node labels for pod assignment             | `{}`   |
-| `manager.terminationGracePeriodSeconds`  | Wait up to this many seconds for a broker to shut down gracefully, after which it is killed   | `10`       |
-| `manager.tolerations` | List of node tolerations for the pods. https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/  | `[]`       |
-| `manager.serviceAccount.name`    | Name of Kubernetes serviceAccount.   | `default`          |
-| `manager.serviceAccount.create`    | Whether to create a serviceaccount   | `false`      |
-| `manager.apiHosts`    | GoBGP will listen to the address.   | `:50051`      |
-| `manager.readinessPort`    | The openelb manager readinessprobe listens to addresses.   | `8000`      |
+| `manager.image.tag`       | `manager` image tag.         | `v0.5.0`             |
+| `manager.image.pullPolicy`| `manager` image pull Policy. | `IfNotPresent`       |
+| `manager.resources`       | openelb manager resource requests and limits      | `{}`                 |
+| `manager.nodeSelector`     | Node labels for pod assignment             | `{}`                 |
+| `manager.terminationGracePeriodSeconds`  | Wait up to this many seconds for a broker to shut down gracefully, after which it is killed   | `10`                 |
+| `manager.tolerations` | List of node tolerations for the pods. https://kubernetes.io/docs/concepts/configuration/taint-and-toleration/  | `[]`                 |
+| `manager.serviceAccount.name`    | Name of Kubernetes serviceAccount.   | `default`            |
+| `manager.serviceAccount.create`    | Whether to create a serviceaccount   | `false`              |
+| `manager.apiHosts`    | GoBGP will listen to the address.   | `:50051`             |
+| `manager.readinessPort`    | The openelb manager readinessprobe listens to addresses.   | `8000`               |
 
 Specify parameters using `--set key=value[,key=value]` argument to `helm install`
 
