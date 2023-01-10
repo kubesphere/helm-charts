@@ -7,49 +7,66 @@ replicaCount: 1
 image:
   repository: registry.cn-shanghai.aliyuncs.com/jibudata/qiming-operator
   pullPolicy: Always
-  tag: "v2.2.2"
+  tag: "v2.6.0"
+
+restore: false
+uploadToS3: false
+
+selfBackup:
+  enabled: false
+  frequency: 0 */3 * * *
+  retention: 168
 
 componentImages:
   uiImage:
     repository: registry.cn-shanghai.aliyuncs.com/jibudata/mig-ui
-    tag: "v2.2.2"
+    tag: "v2.6.3"
   discoveryImage:
     repository: registry.cn-shanghai.aliyuncs.com/jibudata/mig-discovery
-    tag: "v2.2.2"
+    tag: "v2.6.0"
   migControllerImage:
     repository: registry.cn-shanghai.aliyuncs.com/jibudata/mig-controller
-    tag: "v2.2.2"
+    tag: "v2.6.2"
   resticHelperImage:
     repository: registry.cn-shanghai.aliyuncs.com/jibudata/velero-restic-restore-helper
     tag: "v1.7.0"
   veleroInstallerImage:
     repository: registry.cn-shanghai.aliyuncs.com/jibudata/velero-installer
-    tag: "v2.2.2"
+    tag: "v2.6.1"
   hookRunnerImage:
     repository: registry.cn-shanghai.aliyuncs.com/jibudata/hook-runner
     tag: "latest"
+  cron:
+    repository: registry.cn-shanghai.aliyuncs.com/jibudata/cron
+    tag: "v2.6.0"
+  helmTool:
+    repository: registry.cn-shanghai.aliyuncs.com/jibudata/helm-tool
+    tag: "v2.6.0"
+  selfRestore:
+    repository: registry.cn-shanghai.aliyuncs.com/jibudata/self-restore
+    tag: "v2.6.0"
 imagePullSecrets: []
 nameOverride: ""
 fullnameOverride: ""
 
 migconfig:
-  version: "v2.2.2"
+  version: "2.6.3"
   clientName: "default"
   deploymentMode: "standalone"
   isAdminCluster: false
-  isUINodePortEnabled: false
-  backupIntervalMinutes: 0
+  isUINodePortEnabled: true
+  UIadminPassword: "passw0rd"
   keys: "f81b8dc8062486f3837472ce249c99805c2ec891a150fb20f4f33a1f9aa858b593154f669209af3202596e6ae9d789467a3cdf68877b0233ad5ba963562452ef977def301e7c6b3aaea8f9d00fdc32e27d7a85e4ab405fab8ad8f07c7c7aceb7ba9da53aca65a54d5f12d97cf6e63d7f37b816a2c3f805658767d79f429d9d01588fd120fc813d92e3ca76fb6fb4c4fb0937bf99f211983ab3bbd21f2945eb933b8fcb2d4c414ffd01023fc73cf3046df1b2a0038f907dcf0c9ced7ab560a90e3765104a0c48c21062f90b902241da7ae518424ec44d377ef7e39c5052bdf19824b7dc721628d888e5b13501993f5db277b7926ee6cc634258c7c3a3810a2236b3fe1160d91bacf635dac070844c77b37e5b9fbef340820aa572650884f7baf67ff644aec42f68b7f07c36ede59f8d3afd44e4aaece34b8aa497fefe49c29361257a53c17530af2446416e97c056b22a600377d7ecf7a4741bd894334a1a8acdffef417f76ad0e4600527a465681a67784f5aa2a476df832b4d1b2bce248de8bfc9f"
 
   amberappRegistry: "registry.cn-shanghai.aliyuncs.com"
   amberappRepo: "jibudata/amberapp"
-  amberappTag: "0.0.5"
+  amberappTag: "0.0.6"
   amberappEnabled: true
   amberappClusters: "all"
 
   datamoverRegistry: "registry.cn-shanghai.aliyuncs.com"
   datamoverRepo: "jibudata/data-mover"
-  datamoverTag: "v0.1.1"
+  datamoverTag: "v2.6.0"
   datamoverEnabled: true
   datamoverClusters: "all"
 
@@ -60,13 +77,14 @@ s3Config:
   accessKey: "abc"
   secretKey: "xyz"
   bucket: "default"
-  s3Url: "http://172.16.0.10:9000"
+  s3Url: ""
   region: "default"
 
 velero:
   enabled: true
-  image: registry.cn-shanghai.aliyuncs.com/jibudata/velero:v1.7.0
-  plugins: registry.cn-shanghai.aliyuncs.com/jibudata/velero-plugin-for-aws:v1.3.0,registry.cn-shanghai.aliyuncs.com/jibudata/velero-plugin-for-csi:v0.2.0
+  namespace: qiming-backend
+  image: registry.cn-shanghai.aliyuncs.com/jibudata/velero:v1.7.0-jibu-2280867-202206231040
+  plugins: registry.cn-shanghai.aliyuncs.com/jibudata/velero-plugin-for-aws:v1.3.0,registry.cn-shanghai.aliyuncs.com/jibudata/velero-plugin-for-csi:v0.2.0-jibu-39ad34c,registry.cn-shanghai.aliyuncs.com/jibudata/velero-plugin-ys1000:v0.3.0
   useRestic: true
   disableSnapshot: false
   s3ForcePathStyle: true

@@ -1,0 +1,99 @@
+kind: DaemonSet
+apiVersion: apps/v1
+metadata:
+  name: curvefs-csi-node
+  namespace: {{ .Release.Namespace }}
+spec:
+  updateStrategy:
+    type: OnDelete
+  selector:
+    matchLabels:
+      app: curvefs-csi-node
+  template:
+    metadata:
+      labels:
+        app: curvefs-csi-node
+    spec:
+      serviceAccount: curvefs-csi-service-account
+      {{- with .Values.node.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.node.hostNetwork }}
+      hostNetwork: true
+      {{- end }}
+      containers:
+        - name: csi-node-driver-registrar
+          image: "{{ .Values.sidecars.nodeDriverRegistrarImage.repository }}:{{ .Values.sidecars.nodeDriverRegistrarImage.tag }}"
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            privileged: true
+          args:
+            - --csi-address=$(ADDRESS)
+            - --kubelet-registration-path=$(DRIVER_REG_SOCK_PATH)
+          env:
+            - name: TZ
+              value: Asia/Shanghai
+            - name: ADDRESS
+              value: /csi/csi.sock
+            - name: DRIVER_REG_SOCK_PATH
+              value: {{ .Values.kubeletDir }}/plugins/csi.curvefs.com/csi.sock
+            - name: KUBE_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: spec.nodeName
+          volumeMounts:
+            - mountPath: /csi
+              name: socket-dir
+            - mountPath: /registration
+              name: registration-dir
+        - name: curvefs-driver
+          image: "{{ .Values.driver.repository }}:{{ .Values.driver.tag }}"
+          imagePullPolicy: IfNotPresent
+          securityContext:
+            privileged: true
+          args:
+            - --endpoint=$(CSI_ENDPOINT)
+            - --nodeid=$(NODE_NAME)
+            - --alsologtostderr
+            - --v=5
+          env:
+            - name: TZ
+              value: Asia/Shanghai
+            - name: CSI_ENDPOINT
+              value: unix:///csi/csi.sock
+            - name: KUBE_NODE_NAME
+              valueFrom:
+                fieldRef:
+                  apiVersion: v1
+                  fieldPath: spec.nodeName
+          lifecycle:
+            preStop:
+              exec:
+                command: [
+                  "/bin/sh", "-c",
+                  "rm -rf /csi/csi.sock"
+                ]
+          resources:
+            {{- toYaml .Values.node.resources | nindent 12 }}
+          volumeMounts:
+            - mountPath: /csi
+              name: socket-dir
+            - mountPath: {{ .Values.kubeletDir }}/pods
+              mountPropagation: Bidirectional
+              name: mountpoint-dir
+      volumes:
+        - hostPath:
+            path: {{ .Values.kubeletDir }}/plugins/csi.curvefs.com
+            type: DirectoryOrCreate
+          name: socket-dir
+        - hostPath:
+            path: {{ .Values.kubeletDir }}/plugins_registry
+            type: DirectoryOrCreate
+          name: registration-dir
+        - hostPath:
+            path: {{ .Values.kubeletDir }}/pods
+            type: Directory
+          name: mountpoint-dir
+

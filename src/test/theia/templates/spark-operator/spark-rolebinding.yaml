@@ -1,0 +1,17 @@
+{{- if .Values.sparkOperator.enable }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: RoleBinding
+metadata:
+  name: spark
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: spark-operator
+subjects:
+- kind: ServiceAccount
+  name: {{ .Values.sparkOperator.name }}-spark
+  namespace: {{ .Release.Namespace }}
+roleRef:
+  kind: Role
+  name: spark-role
+  apiGroup: rbac.authorization.k8s.io
+{{- end }}

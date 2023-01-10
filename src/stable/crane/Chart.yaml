@@ -1,0 +1,26 @@
+apiVersion: v2
+name: crane
+icon: https://docs.gocrane.io/dev/images/crane.svg
+home: https://github.com/gocrane/crane
+description: Crane (FinOps Crane) is an opensource project which manages cloud resource on Kubernetes stack, it is inspired by FinOps concepts.
+keywords:
+  - kubernetes
+  - finops
+  - autoscaling
+  - hpa
+  - vpa
+  - resources
+  - qos
+sources:
+  - https://github.com/gocrane/crane
+maintainers:
+  - name: qmhu
+    email: brilliantroad@126.com
+annotations:
+  "app.kubesphere.io/category": "Continuous Optimization"
+
+type: application
+
+version: 0.5.2
+
+appVersion: v0.5.2

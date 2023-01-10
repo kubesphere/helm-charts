@@ -1,0 +1,52 @@
+craned:
+  image:
+    repository: docker.io/gocrane/craned
+    pullPolicy: IfNotPresent
+    # Overrides the image tag whose default is the chart appVersion.
+    tag: "v0.5.1"
+
+  replicaCount: 1
+
+  # Specifies container args for craned
+  containerArgs:
+    feature-gates: Analysis=true,TimeSeriesPrediction=true,Autoscaling=true
+    v: 2
+
+  # additional pod annotations for craned
+  podAnnotations: { }
+
+  # resources spec for craned
+  resources: { }
+
+  # node selectors of Craned deployment
+  nodeSelector: { }
+
+  # tolerations of Craned deployment
+  tolerations: [ ]
+
+  # affinity of Craned deployment
+  affinity: { }
+
+cranedDashboard:
+  image:
+    repository: docker.io/gocrane/dashboard
+    pullPolicy: IfNotPresent
+
+scheduler:
+  enable: true   # enable crane scheduler
+  name: crane-scheduler
+  image:
+    repository: docker.io/gocrane/crane-scheduler
+    tag: 0.0.23
+  replicaCount: 1
+
+controller:
+  enable: true  # enable crane scheduler controller
+  name: crane-scheduler-controller
+  image:
+    repository: docker.io/gocrane/crane-scheduler-controller
+    tag: 0.1.23
+  replicaCount: 1
+
+global:
+  prometheusAddr: http://prometheus-k8s.kubesphere-monitoring-system.svc.cluster.local:9090   # prometheus address
