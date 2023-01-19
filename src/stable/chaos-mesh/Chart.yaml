@@ -5,7 +5,7 @@ annotations:
   artifacthub.io/operatorCapabilities: Seamless Upgrades
   artifacthub.io/prerelease: "false"
 apiVersion: v2
-appVersion: 2.5.0
+appVersion: 2.5.1
 description: Chaos Mesh is a cloud-native Chaos Engineering platform that orchestrates
   chaos on Kubernetes environments.
 home: https://chaos-mesh.org
@@ -30,4 +30,4 @@ maintainers:
 name: chaos-mesh
 sources:
 - https://github.com/pingcap/chaos-mesh
-version: 2.5.0
+version: 2.5.1
