@@ -1,10 +1,9 @@
-
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: ""
+    controller-gen.kubebuilder.io/version: (unknown)
   creationTimestamp: null
   name: namespacenetworkpolicies.network.kubesphere.io
 spec:
@@ -74,8 +73,7 @@ spec:
                               the policy. This field cannot be defined if the port
                               field is not defined or if the port field is defined
                               as a named (string) port. The endPort must be equal
-                              or greater than port. This feature is in Alpha state
-                              and should be enabled using the Feature Gate "NetworkPolicyEndPort".
+                              or greater than port.
                             format: int32
                             type: integer
                           port:
@@ -232,8 +230,7 @@ spec:
                               the policy. This field cannot be defined if the port
                               field is not defined or if the port field is defined
                               as a named (string) port. The endPort must be equal
-                              or greater than port. This feature is in Alpha state
-                              and should be enabled using the Feature Gate "NetworkPolicyEndPort".
+                              or greater than port.
                             format: int32
                             type: integer
                           port:
@@ -278,9 +275,3 @@ spec:
         type: object
     served: true
     storage: true
-status:
-  acceptedNames:
-    kind: ""
-    plural: ""
-  conditions: []
-  storedVersions: []

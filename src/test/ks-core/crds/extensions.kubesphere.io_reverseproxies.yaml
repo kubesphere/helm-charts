@@ -1,10 +1,9 @@
-
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: ""
+    controller-gen.kubebuilder.io/version: (unknown)
   creationTimestamp: null
   name: reverseproxies.extensions.kubesphere.io
 spec:
@@ -62,7 +61,7 @@ spec:
                   interceptRedirects:
                     description: InterceptRedirects determines whether the proxy should
                       sniff backend responses for redirects, only allows redirects
-                      to the same host.
+                      to the same host. Deprecated, https://github.com/kubernetes/kubernetes/pull/106830
                     type: boolean
                   method:
                     description: Changes the request's HTTP verb.
@@ -86,9 +85,9 @@ spec:
                       type: string
                     type: array
                   wrapTransport:
-                    description: ' WrapTransport indicates whether the provided Transport
+                    description: WrapTransport indicates whether the provided Transport
                       should be wrapped with default proxy transport behavior (URL
-                      rewriting, X-Forwarded-* header setting)'
+                      rewriting, X-Forwarded-* header setting)
                     type: boolean
                 type: object
               matcher:
@@ -143,13 +142,12 @@ spec:
                   description: "Condition contains details for one aspect of the current
                     state of this API Resource. --- This struct is intended for direct
                     use as an array at the field path .status.conditions.  For example,
-                    type FooStatus struct{     // Represents the observations of a
-                    foo's current state.     // Known .status.conditions.type are:
-                    \"Available\", \"Progressing\", and \"Degraded\"     // +patchMergeKey=type
-                    \    // +patchStrategy=merge     // +listType=map     // +listMapKey=type
-                    \    Conditions []metav1.Condition `json:\"conditions,omitempty\"
-                    patchStrategy:\"merge\" patchMergeKey:\"type\" protobuf:\"bytes,1,rep,name=conditions\"`
-                    \n     // other fields }"
+                    \n type FooStatus struct{ // Represents the observations of a
+                    foo's current state. // Known .status.conditions.type are: \"Available\",
+                    \"Progressing\", and \"Degraded\" // +patchMergeKey=type // +patchStrategy=merge
+                    // +listType=map // +listMapKey=type Conditions []metav1.Condition
+                    `json:\"conditions,omitempty\" patchStrategy:\"merge\" patchMergeKey:\"type\"
+                    protobuf:\"bytes,1,rep,name=conditions\"` \n // other fields }"
                   properties:
                     lastTransitionTime:
                       description: lastTransitionTime is the last time the condition
@@ -213,9 +211,3 @@ spec:
         type: object
     served: true
     storage: true
-status:
-  acceptedNames:
-    kind: ""
-    plural: ""
-  conditions: []
-  storedVersions: []

@@ -1,10 +1,9 @@
-
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: ""
+    controller-gen.kubebuilder.io/version: (unknown)
   creationTimestamp: null
   name: clusterrulegroups.alerting.kubesphere.io
 spec:
@@ -70,11 +69,11 @@ spec:
                                 cpu:
                                   description: Only one of its members may be specified.
                                   properties:
-                                    load1m:
-                                      type: number
                                     load5m:
                                       type: number
                                     load15m:
+                                      type: number
+                                    load1m:
                                       type: number
                                     utilization:
                                       type: number
@@ -166,9 +165,3 @@ spec:
     storage: true
     subresources:
       status: {}
-status:
-  acceptedNames:
-    kind: ""
-    plural: ""
-  conditions: []
-  storedVersions: []
