@@ -1,10 +1,9 @@
-
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: ""
+    controller-gen.kubebuilder.io/version: (unknown)
   creationTimestamp: null
   name: clusters.cluster.kubesphere.io
 spec:
@@ -90,10 +89,10 @@ spec:
                     type: string
                   type:
                     description: type defines how host cluster will connect to host
-                      cluster ConnectionTypeDirect means direct connection, this requires   kubeconfig
-                      and kubesphere apiserver endpoint provided ConnectionTypeProxy
-                      means using kubesphere proxy, no kubeconfig   or kubesphere
-                      apiserver endpoint required
+                      cluster ConnectionTypeDirect means direct connection, this requires
+                      kubeconfig and kubesphere apiserver endpoint provided ConnectionTypeProxy
+                      means using kubesphere proxy, no kubeconfig or kubesphere apiserver
+                      endpoint required
                     type: string
                 type: object
               enable:
@@ -182,9 +181,3 @@ spec:
     served: true
     storage: true
     subresources: {}
-status:
-  acceptedNames:
-    kind: ""
-    plural: ""
-  conditions: []
-  storedVersions: []

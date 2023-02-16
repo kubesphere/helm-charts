@@ -19,36 +19,36 @@ kind: ValidatingWebhookConfiguration
 metadata:
   name: users.iam.kubesphere.io
 webhooks:
-- admissionReviewVersions:
-  - v1beta1
-  clientConfig:
-    caBundle: {{ b64enc $ca.Cert | quote }}
-    service:
-      name: ks-controller-manager
-      namespace: {{ .Release.Namespace }}
-      path: /validate-email-iam-kubesphere-io-v1alpha2
-      port: 443
-  failurePolicy: Fail
-  matchPolicy: Exact
-  name: users.iam.kubesphere.io
-  namespaceSelector:
-    matchExpressions:
-    - key: control-plane
-      operator: DoesNotExist
-  objectSelector: {}
-  rules:
-  - apiGroups:
-    - iam.kubesphere.io
-    apiVersions:
-    - v1alpha2
-    operations:
-    - CREATE
-    - UPDATE
-    resources:
-    - users
-    scope: '*'
-  sideEffects: None
-  timeoutSeconds: 30
+  - admissionReviewVersions:
+      - v1beta1
+    clientConfig:
+      caBundle: {{ b64enc $ca.Cert | quote }}
+      service:
+        name: ks-controller-manager
+        namespace: {{ .Release.Namespace }}
+        path: /validate-email-iam-kubesphere-io-v1alpha2
+        port: 443
+    failurePolicy: Fail
+    matchPolicy: Exact
+    name: users.iam.kubesphere.io
+    namespaceSelector:
+      matchExpressions:
+        - key: control-plane
+          operator: DoesNotExist
+    objectSelector: {}
+    rules:
+      - apiGroups:
+          - iam.kubesphere.io
+        apiVersions:
+          - v1alpha2
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - users
+        scope: '*'
+    sideEffects: None
+    timeoutSeconds: 30
 
 ---
 

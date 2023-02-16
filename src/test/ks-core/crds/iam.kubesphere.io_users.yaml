@@ -1,10 +1,9 @@
-
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: ""
+    controller-gen.kubebuilder.io/version: (unknown)
   creationTimestamp: null
   name: users.iam.kubesphere.io
 spec:
@@ -79,7 +78,7 @@ spec:
                   ... Last but not least, the bcrypt string is also included to match
                   the encrypted password. ^(\$2[ayb]\$.{56})$'
                 maxLength: 64
-                minLength: 6
+                minLength: 8
                 pattern: ^(.*[a-z].*[A-Z].*[0-9].*)$|^(.*[a-z].*[0-9].*[A-Z].*)$|^(.*[A-Z].*[a-z].*[0-9].*)$|^(.*[A-Z].*[0-9].*[a-z].*)$|^(.*[0-9].*[a-z].*[A-Z].*)$|^(.*[0-9].*[A-Z].*[a-z].*)$|^(\$2[ayb]\$.{56})$
                 type: string
             required:
@@ -107,9 +106,3 @@ spec:
     served: true
     storage: true
     subresources: {}
-status:
-  acceptedNames:
-    kind: ""
-    plural: ""
-  conditions: []
-  storedVersions: []

@@ -24,6 +24,8 @@ commonLabels: {}
 ##
 commonAnnotations: {}
 
+role: host
+
 adminPassword: ""
 
 config:
@@ -32,10 +34,10 @@ config:
   authentication:
     oauthOptions:
       clients:
-      - name: kubesphere
-        secret: kubesphere
-        redirectURIs:
-        - '*'
+        - name: kubesphere
+          secret: kubesphere
+          redirectURIs:
+            - '*'
   # Jwt Secret is required by ks-apiserver, a random string would be generated if it's empty
   jwtSecret: ""
   multicluster: {}
@@ -54,7 +56,7 @@ serviceAccount:
 podAnnotations: {}
 
 podSecurityContext: {}
-  # fsGroup: 2000
+# fsGroup: 2000
 
 securityContext: {}
   # capabilities:
@@ -62,9 +64,9 @@ securityContext: {}
   #   - ALL
   # readOnlyRootFilesystem: true
   # runAsNonRoot: true
-  # runAsUser: 1000
+# runAsUser: 1000
 
-tolerations: 
+tolerations:
   - key: node-role.kubernetes.io/master
     effect: NoSchedule
   - key: CriticalAddonsOnly
@@ -219,7 +221,7 @@ controller:
     - controller-manager
     - --logtostderr=true
     - --leader-elect=true
-    - --controllers=*,-volumesnapshot,-helmrepo,-helmcategory,-helmapplication,-helmapplicationversion,-helmrelease,-helm,-job,-application
+    - --controllers=user,workspacetemplate,workspace,workspacerole,workspacerolebinding,namespace,globalrole,globalrolebinding,cluster,repository,extension,subscription
   ## @param extraEnvVars Array with extra environment variables to add to haproxy nodes
   ##
   extraEnvVars: []
