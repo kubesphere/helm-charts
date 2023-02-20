@@ -99,12 +99,12 @@ metadata:
   name: ks-console
 spec:
   ports:
-    - name: nginx
-      port: 80
-      protocol: TCP
-      targetPort: 8000
+  - name: nginx
+    port: 80
+    protocol: TCP
+    targetPort: 8000
     {{- with .Values.console.nodePort }}
-      nodePort:
+    nodePort:
       {{- toYaml . | nindent 6 }}
     {{- end }}
   selector:
