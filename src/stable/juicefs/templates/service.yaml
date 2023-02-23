@@ -1,0 +1,18 @@
+{{- if eq .Values.mountMode "sidecar" }}
+apiVersion: v1
+kind: Service
+metadata:
+  name: juicefs-admission-webhook
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    app.kubernetes.io/component: service
+    {{- include "juicefs-csi.labels" . | nindent 4 }}
+spec:
+  ports:
+    - name: https-rest
+      port: 443
+      targetPort: 9444
+  selector:
+    app: juicefs-csi-controller
+    {{- include "juicefs-csi.selectorLabels" . | nindent 4 }}
+{{ end }}
