@@ -1,6 +1,88 @@
-Examples on how to configure a storage class and start using the driver are here:
-https://github.com/juicedata/juicefs-csi-driver/tree/master/examples
-# You can refer demos in 'juicefs-csi-driver/examples'
+Guide on how to configure a StorageClass or PV and start using the driver are here:
+https://juicefs.com/docs/csi/guide/pv
+
+{{- define "all_sc" }}
+
+Before start, you need to configure file system credentials in Secret:
+
+- If you are using JuiceFS enterprise, you should create a file system in JuiceFS console, refer to this guide: https://juicefs.com/docs/cloud/getting_started/#create-file-system
+
+- If you are using JuiceFS community, you should prepare a metadata engine and object storage:
+  1. For metadata server, you can refer to this guide: https://juicefs.com/docs/community/databases_for_metadata
+  2. For object storage, you can refer to this guide: https://juicefs.com/docs/community/how_to_setup_object_storage
+
+Then you can use this file to test:
+
+```
+apiVersion: v1
+kind: Secret
+metadata:
+  name: juicefs-secret
+  namespace: default
+type: Opaque
+stringData:
+  name: juicefs-vol              # The JuiceFS file system name
+  access-key: <ACCESS_KEY>       # Object storage credentials
+  secret-key: <SECRET_KEY>       # Object storage credentials
+  # follows are for JuiceFS enterprise
+  token: ${JUICEFS_TOKEN}        # Token used to authenticate against JuiceFS Volume
+  # follows are for JuiceFS community
+  metaurl: <META_URL>            # Connection URL for metadata engine.
+  storage: s3                    # Object storage type, such as s3, gs, oss.
+  bucket: <BUCKET>               # Bucket URL of object storage.
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: juicefs-sc
+provisioner: csi.juicefs.com
+parameters:
+  csi.storage.k8s.io/provisioner-secret-name: juicefs-secret
+  csi.storage.k8s.io/provisioner-secret-namespace: default
+  csi.storage.k8s.io/node-publish-secret-name: juicefs-secret
+  csi.storage.k8s.io/node-publish-secret-namespace: default
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: juicefs-pvc
+  namespace: default
+spec:
+  accessModes:
+  - ReadWriteMany
+  resources:
+    requests:
+      storage: 10Pi
+  storageClassName: juicefs-sc
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  name: juicefs-app
+  namespace: default
+spec:
+  containers:
+  - args:
+    - -c
+    - while true; do echo $(date -u) >> /data/out.txt; sleep 5; done
+    command:
+    - /bin/sh
+    image: busybox
+    name: app
+    volumeMounts:
+    - mountPath: /data
+      name: juicefs-pv
+  volumes:
+  - name: juicefs-pv
+    persistentVolumeClaim:
+      claimName: juicefs-pvc
+```
+{{- end }}
+
+{{- if .Values.storageClasses }}
+{{- $sc := index .Values.storageClasses 0 }}
+{{- if $sc.enabled }}
+
 For quickly test, you can use this file to test:
 
 ```
@@ -15,7 +97,7 @@ spec:
   resources:
     requests:
       storage: 10Pi
-  storageClassName: {{ (index .Values.storageClasses 0).name }}
+  storageClassName: {{ $sc.name }}
 ---
 apiVersion: v1
 kind: Pod
@@ -39,3 +121,10 @@ spec:
     persistentVolumeClaim:
       claimName: juicefs-pvc
 ```
+{{- else }}
+{{- template "all_sc" }}
+{{- end }}
+
+{{- else }}
+{{- template "all_sc" }}
+{{- end }}
