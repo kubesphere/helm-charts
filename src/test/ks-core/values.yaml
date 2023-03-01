@@ -232,6 +232,9 @@ controller:
   ##
   extraVolumes: []
 
+agent:
+  replicaCount: 1
+
 kubectl:
   image:
     registry: ""
