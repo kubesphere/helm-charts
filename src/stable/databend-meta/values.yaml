@@ -2,6 +2,7 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+bootstrap: false
 replicaCount: 1
 
 image:
@@ -38,6 +39,7 @@ serviceMonitor:
 config:
   logDir: /data/databend-meta/log
   logLevel: INFO
+  stdLogLevel: WARN
 
   raft:
     dir: /data/databend-meta/raft
