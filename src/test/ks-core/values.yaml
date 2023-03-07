@@ -107,6 +107,7 @@ apiserver:
   containerPorts:
     - protocol: TCP
       containerPort: 9090
+  nodePort:
   ## ks-apiserver resource requests and limits
   ## ref: https://kubernetes.io/docs/user-guide/compute-resources/
   ## @param resources.limits The resources limits for the haproxy containers
