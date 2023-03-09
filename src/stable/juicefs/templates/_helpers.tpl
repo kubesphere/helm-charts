@@ -62,6 +62,20 @@ Create the name of the service account to use
 {{- end }}
 
 {{/*
+Define the svc's name of juicefs webhook controller
+*/}}
+{{- define "juicefs-csi.webhook.svc" -}}
+{{- default "default" "juicefs-admission-webhook" }}
+{{- end -}}
+
+{{/*
+Define the secret's name of juicefs webhook controller
+*/}}
+{{- define "juicefs-csi.webhook.secret" -}}
+{{- default "default" "juicefs-webhook-certs" }}
+{{- end -}}
+
+{{/*
 Create the name of the service account to use
 */}}
 {{- define "juicefs-csi.node.serviceAccountName" -}}
