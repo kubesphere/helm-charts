@@ -14,18 +14,9 @@ data:
       tenant_id = {{ .Values.config.query.tenantId | default .Release.Name | quote }}
       cluster_id = {{ .Values.config.query.clusterId | quote }}
 
-      table_cache_enabled = {{ .Values.config.query.tableCacheEnabled }}
-
-      {{- if .Values.config.query.tableCacheEnabled }}
-      table_memory_cache_mb_size = {{ .Values.config.query.tableMemoryCacheMbSize | default 1024 }}
-      table_disk_cache_root = {{ .Values.config.query.tableDiskCacheRoot | quote }}
-      table_disk_cache_mb_size = {{ .Values.config.query.tableDiskCacheMbSize }}
-      {{- end }}
-
       management_mode = {{ .Values.config.query.managementMode }}
       jwt_key_file = {{ .Values.config.query.jwtKeyFile | quote }}
 
-      {{- if .Values.config.query.users }}
       {{- range .Values.config.query.users }}
       [[query.users]]
         name = {{ .name | quote }}
@@ -35,6 +26,13 @@ data:
         {{- else if eq .authType "double_sha1_password"}}
         auth_string = {{ .authString | quote }}
         {{- end }}
+      {{- end }}
+
+      {{- range $field, $value := .Values.config.query.extra }}
+      {{- if (kindIs "string" $value) }}
+      {{ $field }} = {{ $value | quote }}
+      {{- else }}
+      {{ $field }} = {{ $value }}
       {{- end }}
       {{- end }}
 
@@ -79,6 +77,14 @@ data:
         {{- else }}
         {{ $field }} = {{ $value }}
         {{- end }}
+        {{- end }}
+        {{- end }}
+      {{- else if eq .Values.config.storage.type "gcs"}}
+        {{- range $field, $value := .Values.config.storage.gcs }}
+        {{- if (kindIs "string" $value) }}
+        {{ $field }} = {{ $value | quote }}
+        {{- else }}
+        {{ $field }} = {{ $value }}
         {{- end }}
         {{- end }}
       {{- else if eq .Values.config.storage.type "oss"}}

@@ -49,12 +49,6 @@ config:
     tenantId: ""
     clusterId: default
 
-    # table cache config
-    tableCacheEnabled: true
-    tableMemoryCacheMbSize: 1024
-    tableDiskCacheRoot: "/data/databend-query/_cache"
-    tableDiskCacheMbSize: 10240
-
     managementMode: false
     jwtKeyFile: ""
 
@@ -64,6 +58,8 @@ config:
       #   # sha1sum: echo -n "password" | sha1sum | cut -d' ' -f1 | xxd -r -p | sha1sum
       #   authType: double_sha1_password
       #   authString: 3081f32caef285c232d066033c89a78d88a6d8a5  # databend
+
+    extra: {}
 
   # [log]
   log:
@@ -100,6 +96,12 @@ config:
       access_key_id: ""
       secret_access_key: ""
       enable_virtual_host_style: false
+
+    # [storage.gcs]
+    gcs:
+      bucket: "databend"
+      endpoint_url: "https://storage.googleapis.com/"
+      credential: ""
 
     # [storage.oss]
     oss:
