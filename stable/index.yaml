@@ -9,10 +9,10 @@ entries:
       artifacthub.io/prerelease: "false"
     apiVersion: v2
     appVersion: 2.5.1
-    created: "2023-03-09T08:39:22.400208138Z"
+    created: "2023-03-09T08:38:11.215173106Z"
     description: Chaos Mesh is a cloud-native Chaos Engineering platform that orchestrates
       chaos on Kubernetes environments.
-    digest: 2410222f90d3efd6d558a126652bf58ab4b9066a5e6621e23ca11ea5ae8eb88b
+    digest: 0d783bbbb8ab44932f4b409dcadb17dd49f0e1b5da78f10eba3a517ed5d6f8ad
     home: https://chaos-mesh.org
     icon: https://raw.githubusercontent.com/pingcap/chaos-mesh/master/static/logo.svg
     keywords:
@@ -218,13 +218,13 @@ entries:
   databend-meta:
   - apiVersion: v2
     appVersion: v1.0.3-nightly
-    created: "2023-03-09T08:39:22.401718152Z"
+    created: "2023-03-09T08:40:26.816114045Z"
     dependencies:
     - name: common
       repository: https://charts.bitnami.com/bitnami
       version: 1.x.x
     description: A Helm chart for databend meta
-    digest: d65a3ee8abaefc6205d7140179cc8b42b92a084a35b35864d06796d09f64cd85
+    digest: d5d9ec8fe9c584e59d48b2042a74ed7bcdf353b5852535f888ee7bd5ee86d0fb
     home: https://databend.rs
     icon: https://databend.rs/img/favicon.svg
     keywords:
@@ -264,7 +264,7 @@ entries:
   databend-query:
   - apiVersion: v2
     appVersion: v1.0.3-nightly
-    created: "2023-03-09T08:39:22.405054681Z"
+    created: "2023-03-09T08:40:26.821599378Z"
     dependencies:
     - condition: minio.enabled
       name: minio
@@ -274,7 +274,7 @@ entries:
       repository: https://charts.bitnami.com/bitnami
       version: 1.x.x
     description: A Helm chart for databend query
-    digest: 750792f5cf0ff8496dd738fc2830df1fc4d3e3ab14386727506a7bfd1738a453
+    digest: 1a24ad8c3ecca176e52f08dd8a15ef7481476cee8844405e5bd18f3933e9afb0
     home: https://databend.rs
     icon: https://databend.rs/img/favicon.svg
     keywords:
@@ -1153,6 +1153,28 @@ entries:
     version: 5.9.2
   juicefs:
   - apiVersion: v2
+    appVersion: 0.18.0
+    created: "2023-03-09T08:40:26.822800685Z"
+    description: A Helm chart for JuiceFS CSI Driver
+    digest: 092a3c1b72b59ef8af3f343320fb4ed6a7fa75d8c3129026380048b539de9375
+    home: https://github.com/juicedata/juicefs
+    icon: https://s.juicefs.com/static/jfs/logo.svg
+    keywords:
+    - juicefs
+    - csi
+    kubeVersion: '>=1.14.0-0'
+    maintainers:
+    - email: team@juicedata.io
+      name: Juicedata Inc.
+      url: https://juicefs.com
+    name: juicefs
+    sources:
+    - https://github.com/juicedata/juicefs
+    type: application
+    urls:
+    - https://charts.kubesphere.io/stable/juicefs-0.14.1.tgz
+    version: 0.14.1
+  - apiVersion: v2
     appVersion: 0.16.1
     created: "2022-08-23T07:02:56.356410409Z"
     description: A Helm chart for JuiceFS CSI Driver
@@ -1571,4 +1593,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/stable/qiming-operator-2.2.2.tgz
     version: 2.2.2
-generated: "2023-03-09T08:39:22.384311098Z"
+generated: "2023-03-09T08:40:26.814147933Z"
