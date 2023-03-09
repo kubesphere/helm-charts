@@ -1,4 +1,4 @@
-{{- if .Values.node.enabled }}
+{{- if and (.Values.node.enabled) (ne .Values.mountMode "sidecar") }}
 apiVersion: apps/v1
 kind: DaemonSet
 metadata:
@@ -33,7 +33,12 @@ spec:
         - --logtostderr
         - --nodeid=$(NODE_NAME)
         - --v=5
+        {{- if eq .Values.mountMode "mountpod" }}
         - --enable-manager=true
+        {{- end }}
+        {{- if eq .Values.mountMode "process" }}
+        - --by-process=true
+        {{- end }}
         env:
         - name: CSI_ENDPOINT
           value: unix:/csi/csi.sock
@@ -41,6 +46,7 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: spec.nodeName
+        {{- if ne .Values.mountMode "process" }}
         - name: JUICEFS_MOUNT_NAMESPACE
           valueFrom:
             fieldRef:
@@ -59,6 +65,7 @@ spec:
           value: {{ .Values.jfsMountDir }}
         - name: JUICEFS_CONFIG_PATH
           value: {{ .Values.jfsConfigDir }}
+        {{- end }}
         {{- if .Values.node.storageClassShareMount }}
         - name: STORAGE_CLASS_SHARE_MOUNT
           value: "true"
@@ -87,21 +94,21 @@ spec:
           name: plugin-dir
         - mountPath: /dev
           name: device-dir
+        {{- if ne .Values.mountMode "process" }}
         - mountPath: /jfs
           mountPropagation: Bidirectional
           name: jfs-dir
         - mountPath: /root/.juicefs
           mountPropagation: Bidirectional
           name: jfs-root-dir
-        - name: registration-dir
-          mountPath: /registration
+        {{- end }}
         lifecycle:
           preStop:
             exec:
               command:
               - /bin/sh
               - -c
-              - rm /registration/csi.juicefs.com-reg.sock /csi/csi.sock
+              - rm /csi/csi.sock
       - name: node-driver-registrar
         image: {{ printf "%s:%s" .Values.sidecars.nodeDriverRegistrarImage.repository .Values.sidecars.nodeDriverRegistrarImage.tag }}
         args:
@@ -144,7 +151,7 @@ spec:
       priorityClassName: system-node-critical
       {{- with .Values.node.affinity }}
       affinity:
-        {{- tpl . $ | nindent 8 }}
+        {{- toYaml . | nindent 8 }}
       {{- end }}
       {{- with .Values.node.nodeSelector }}
       nodeSelector:
@@ -172,6 +179,7 @@ spec:
           path: /dev
           type: Directory
         name: device-dir
+      {{- if ne .Values.mountMode "process" }}
       - hostPath:
           path: {{ .Values.jfsMountDir }}
           type: DirectoryOrCreate
@@ -180,4 +188,5 @@ spec:
           path: {{ .Values.jfsConfigDir }}
           type: DirectoryOrCreate
         name: jfs-root-dir
+      {{- end }}
 {{- end }}
