@@ -9,10 +9,10 @@ entries:
       artifacthub.io/prerelease: "false"
     apiVersion: v2
     appVersion: 2.5.1
-    created: "2023-03-09T08:38:11.215173106Z"
+    created: "2023-03-09T08:39:22.400208138Z"
     description: Chaos Mesh is a cloud-native Chaos Engineering platform that orchestrates
       chaos on Kubernetes environments.
-    digest: 0d783bbbb8ab44932f4b409dcadb17dd49f0e1b5da78f10eba3a517ed5d6f8ad
+    digest: 2410222f90d3efd6d558a126652bf58ab4b9066a5e6621e23ca11ea5ae8eb88b
     home: https://chaos-mesh.org
     icon: https://raw.githubusercontent.com/pingcap/chaos-mesh/master/static/logo.svg
     keywords:
@@ -217,6 +217,31 @@ entries:
     version: 0.1.0
   databend-meta:
   - apiVersion: v2
+    appVersion: v1.0.3-nightly
+    created: "2023-03-09T08:39:22.401718152Z"
+    dependencies:
+    - name: common
+      repository: https://charts.bitnami.com/bitnami
+      version: 1.x.x
+    description: A Helm chart for databend meta
+    digest: d65a3ee8abaefc6205d7140179cc8b42b92a084a35b35864d06796d09f64cd85
+    home: https://databend.rs
+    icon: https://databend.rs/img/favicon.svg
+    keywords:
+    - olap
+    - cloud data warehouse
+    - meta
+    - kv
+    maintainers:
+    - email: cloud.dev@datafuselabs.com
+      name: cloud.dev
+      url: https://databend.com
+    name: databend-meta
+    type: application
+    urls:
+    - https://charts.kubesphere.io/stable/databend-meta-0.6.1.tgz
+    version: 0.6.1
+  - apiVersion: v2
     appVersion: v0.8.122-nightly
     created: "2022-12-28T02:55:32.775809841Z"
     dependencies:
@@ -237,6 +262,34 @@ entries:
     - https://charts.kubesphere.io/stable/databend-meta-0.3.0.tgz
     version: 0.3.0
   databend-query:
+  - apiVersion: v2
+    appVersion: v1.0.3-nightly
+    created: "2023-03-09T08:39:22.405054681Z"
+    dependencies:
+    - condition: minio.enabled
+      name: minio
+      repository: https://charts.min.io/
+      version: 3.6.3
+    - name: common
+      repository: https://charts.bitnami.com/bitnami
+      version: 1.x.x
+    description: A Helm chart for databend query
+    digest: 750792f5cf0ff8496dd738fc2830df1fc4d3e3ab14386727506a7bfd1738a453
+    home: https://databend.rs
+    icon: https://databend.rs/img/favicon.svg
+    keywords:
+    - olap
+    - cloud data warehouse
+    - query
+    maintainers:
+    - email: cloud.dev@datafuselabs.com
+      name: cloud.dev
+      url: https://databend.com
+    name: databend-query
+    type: application
+    urls:
+    - https://charts.kubesphere.io/stable/databend-query-0.5.1.tgz
+    version: 0.5.1
   - apiVersion: v2
     appVersion: v0.8.122-nightly
     created: "2022-12-28T02:55:32.782476695Z"
@@ -1518,4 +1571,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/stable/qiming-operator-2.2.2.tgz
     version: 2.2.2
-generated: "2023-03-09T08:38:11.19467825Z"
+generated: "2023-03-09T08:39:22.384311098Z"
