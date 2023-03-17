@@ -17,7 +17,11 @@ spec:
     singular: extension
   scope: Cluster
   versions:
-  - name: v1alpha1
+  - additionalPrinterColumns:
+    - jsonPath: .status.state
+      name: State
+      type: string
+    name: v1alpha1
     schema:
       openAPIV3Schema:
         description: Extension is synchronized from the Repository. An extension can
@@ -157,3 +161,4 @@ spec:
         type: object
     served: true
     storage: true
+    subresources: {}

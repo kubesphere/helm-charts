@@ -1,0 +1,67 @@
+apiVersion: kubesphere.io/v1alpha1
+kind: Category
+metadata:
+  name: kubernetes
+spec:
+  description:
+    en: Extending Kubernetes
+  displayName:
+    en: Kubernetes
+
+---
+apiVersion: kubesphere.io/v1alpha1
+kind: Category
+metadata:
+  name: storage
+spec:
+  displayName:
+    en: Storage
+
+---
+apiVersion: kubesphere.io/v1alpha1
+kind: Category
+metadata:
+  name: devops
+spec:
+  displayName:
+    en: DevOps
+
+
+---
+apiVersion: kubesphere.io/v1alpha1
+kind: Category
+metadata:
+  name: monitoring
+spec:
+  displayName:
+    en: Monitoring
+
+
+---
+apiVersion: kubesphere.io/v1alpha1
+kind: Category
+metadata:
+  name: logging
+spec:
+  displayName:
+    en: Logging
+
+
+---
+apiVersion: kubesphere.io/v1alpha1
+kind: Category
+metadata:
+  name: security
+spec:
+  displayName:
+    en: Security
+
+
+---
+apiVersion: kubesphere.io/v1alpha1
+kind: Category
+metadata:
+  name: database
+spec:
+  displayName:
+    en: Database

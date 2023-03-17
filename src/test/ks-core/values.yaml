@@ -2,7 +2,7 @@
 ## @param global.tag Global Docker image tag
 global:
   imageRegistry: registry.cn-beijing.aliyuncs.com
-  tag: ksc
+  tag: v4.0.0-alpha.2
   imagePullSecrets: []
 
 ## @section Common parameters
@@ -222,7 +222,7 @@ controller:
     - controller-manager
     - --logtostderr=true
     - --leader-elect=true
-    - --controllers=user,workspacetemplate,workspace,workspacerole,workspacerolebinding,namespace,globalrole,globalrolebinding,cluster,repository,extension,subscription
+    - --controllers=user,workspacetemplate,workspace,workspacerole,workspacerolebinding,namespace,globalrole,globalrolebinding,cluster,clusterrolebinding,repository,extension,subscription
   ## @param extraEnvVars Array with extra environment variables to add to haproxy nodes
   ##
   extraEnvVars: []
