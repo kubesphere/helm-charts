@@ -1,0 +1,13 @@
+apiVersion: 1
+datasources:
+  - name: ClickHouse
+    type: grafana-clickhouse-datasource
+    access: proxy
+    url: http://clickhouse-clickhouse.{{ .Release.Namespace }}.svc:{{ .Values.clickhouse.service.httpPort }}
+    editable: true
+    jsonData:
+      server: clickhouse-clickhouse.{{ .Release.Namespace }}.svc
+      port: {{ .Values.clickhouse.service.tcpPort }}
+      username: $CLICKHOUSE_USERNAME
+    secureJsonData:
+      password: $CLICKHOUSE_PASSWORD

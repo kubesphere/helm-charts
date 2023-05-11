@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: antrea
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: antrea
+spec:
+  {{- if .Values.controller.apiNodePort }}
+  type: NodePort
+  {{- end }}
+  ports:
+    - port: 443
+      protocol: TCP
+      targetPort: api
+      {{- if .Values.controller.apiNodePort }}
+      nodePort: {{ .Values.controller.apiNodePort }}
+      {{- end }}
+  selector:
+    app: antrea
+    component: antrea-controller

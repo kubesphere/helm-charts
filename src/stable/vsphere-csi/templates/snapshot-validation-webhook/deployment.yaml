@@ -1,0 +1,128 @@
+{{- if (index .Values.controller.config "block-volume-snapshot" ) }}
+apiVersion: {{ include "common.capabilities.deployment.apiVersion" . }}
+kind: Deployment
+metadata:
+  name: {{ template "vsphere-csi.snapshotwebhookName" . }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels: {{- include "common.labels.standard" . | nindent 4 }}
+    app.kubernetes.io/component: {{ template "vsphere-csi.snapshotwebhookName" . }}
+    {{- if .Values.commonLabels }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
+spec:
+  replicas: {{ .Values.snapshotwebhook.replicaCount }}
+  {{- if .Values.snapshotwebhook.updateStrategy }}
+  strategy: {{- toYaml .Values.snapshotwebhook.updateStrategy | nindent 4 }}
+  {{- end }}
+  selector:
+    matchLabels: {{- include "common.labels.matchLabels" . | nindent 6 }}
+      app.kubernetes.io/component: {{ template "vsphere-csi.snapshotwebhookName" . }}
+  template:
+    metadata:
+      {{- if .Values.snapshotwebhook.podAnnotations }}
+      annotations: {{- include "common.tplvalues.render" (dict "value" .Values.snapshotwebhook.podAnnotations "context" $) | nindent 8 }}
+      {{- end }}
+      labels: {{- include "common.labels.standard" . | nindent 8 }}
+        app.kubernetes.io/component: {{ template "vsphere-csi.snapshotwebhookName" . }}
+        {{- if .Values.snapshotwebhook.podLabels }}
+        {{- include "common.tplvalues.render" (dict "value" .Values.snapshotwebhook.podLabels "context" $) | nindent 8 }}
+        {{- end }}
+    spec:
+      #serviceAccountName: {{ template "vsphere-csi.snapshotwebhook.serviceAccountName" . }}
+      {{- include "vsphere-csi.imagePullSecrets" . | nindent 6 }}
+      {{- if .Values.snapshotwebhook.dnsPolicy }}
+      dnsPolicy: {{- include "common.tplvalues.render" (dict "value" .Values.snapshotwebhook.dnsPolicy "context" $) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.snapshotwebhook.hostAliases }}
+      hostAliases: {{- include "common.tplvalues.render" (dict "value" .Values.snapshotwebhook.hostAliases "context" $) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.snapshotwebhook.affinity }}
+      affinity: {{- include "common.tplvalues.render" ( dict "value" .Values.snapshotwebhook.affinity "context" $) | nindent 8 }}
+      {{- else }}
+      affinity:
+        podAffinity: {{- include "common.affinities.pods" (dict "type" .Values.snapshotwebhook.podAffinityPreset  "context" $) | nindent 10 }}
+        podAntiAffinity: {{- include "common.affinities.pods" (dict "type" .Values.snapshotwebhook.podAntiAffinityPreset  "context" $) | nindent 10 }}
+        nodeAffinity: {{- include "common.affinities.nodes" (dict "type" .Values.snapshotwebhook.nodeAffinityPreset.type "key" .Values.snapshotwebhook.nodeAffinityPreset.key "values" .Values.snapshotwebhook.nodeAffinityPreset.values) | nindent 10 }}
+      {{- end }}
+      {{- if .Values.snapshotwebhook.nodeSelector }}
+      nodeSelector: {{- include "common.tplvalues.render" ( dict "value" .Values.snapshotwebhook.nodeSelector "context" $) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.snapshotwebhook.tolerations }}
+      tolerations: {{- include "common.tplvalues.render" (dict "value" .Values.snapshotwebhook.tolerations "context" .) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.snapshotwebhook.priorityClassName }}
+      priorityClassName: {{ .Values.snapshotwebhook.priorityClassName | quote }}
+      {{- end }}
+      {{- if .Values.snapshotwebhook.podSecurityContext.enabled }}
+      securityContext: {{- omit .Values.snapshotwebhook.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      {{- end }}
+      initContainers:
+        {{- if .Values.snapshotwebhook.initContainers }}
+          {{- include "common.tplvalues.render" (dict "value" .Values.snapshotwebhook.initContainers "context" $) | nindent 8 }}
+        {{- end }}
+      containers:
+        - name: snapshot-validation
+          image: {{ template "vsphere-csi.snapshotwebhook.image" . }}
+          imagePullPolicy: {{ .Values.snapshotwebhook.image.pullPolicy }}
+          {{- if .Values.snapshotwebhook.lifecycleHooks }}
+          lifecycle: {{- include "common.tplvalues.render" (dict "value" .Values.snapshotwebhook.lifecycleHooks "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.snapshotwebhook.containerSecurityContext.enabled }}
+          securityContext: {{- omit .Values.snapshotwebhook.containerSecurityContext "enabled" | toYaml | nindent 12 }}
+          {{- end }}
+          {{- if .Values.snapshotwebhook.command }}
+          command: {{- include "common.tplvalues.render" (dict "value" .Values.snapshotwebhook.command "context" $) | nindent 12 }}
+          {{- end }}
+          args:
+          {{- if .Values.snapshotwebhook.args }}
+          {{- include "common.tplvalues.render" (dict "value" .Values.snapshotwebhook.args "context" $) | nindent 12 }}
+          {{- end }}
+          env:
+            {{- if .Values.snapshotwebhook.extraEnvVars }}
+            {{- include "common.tplvalues.render" (dict "value" .Values.snapshotwebhook.extraEnvVars "context" $) | nindent 12 }}
+            {{- end }}
+          envFrom:
+            {{- if .Values.snapshotwebhook.extraEnvVarsCM }}
+            - configMapRef:
+                name: {{ include "common.tplvalues.render" (dict "value" .Values.snapshotwebhook.extraEnvVarsCM "context" $) }}
+            {{- end }}
+            {{- if .Values.snapshotwebhook.extraEnvVarsSecret }}
+            - secretRef:
+                name: {{ include "common.tplvalues.render" (dict "value" .Values.snapshotwebhook.extraEnvVarsSecret "context" $) }}
+            {{- end }}
+          {{- if .Values.snapshotwebhook.resources }}
+          resources: {{- toYaml .Values.snapshotwebhook.resources | nindent 12 }}
+          {{- end }}
+          {{- if .Values.snapshotwebhook.livenessProbe.enabled }}
+          livenessProbe: {{- include "common.tplvalues.render" (dict "value" (omit .Values.snapshotwebhook.livenessProbe "enabled") "context" $) | nindent 12 }}
+          {{- else if .Values.snapshotwebhook.customLivenessProbe }}
+          livenessProbe: {{- include "common.tplvalues.render" (dict "value" .Values.snapshotwebhook.customLivenessProbe "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.snapshotwebhook.readinessProbe.enabled }}
+          readinessProbe: {{- include "common.tplvalues.render" (dict "value" (omit .Values.snapshotwebhook.readinessProbe "enabled") "context" $) | nindent 12 }}
+          {{- else if .Values.snapshotwebhook.customReadinessProbe }}
+          readinessProbe: {{- include "common.tplvalues.render" (dict "value" .Values.snapshotwebhook.customReadinessProbe "context" $) | nindent 12 }}
+          {{- end }}
+          ports:
+            - containerPort: 443 
+          volumeMounts:
+            - name: webhook-certs
+              mountPath: /run/secrets/tls
+              readOnly: true
+          {{- if .Values.snapshotwebhook.extraVolumeMounts }}
+          {{- include "common.tplvalues.render" (dict "value" .Values.snapshotwebhook.extraVolumeMounts "context" $) | nindent 12 }}
+          {{- end }}
+        {{- if .Values.snapshotwebhook.sidecars }}
+        {{- include "common.tplvalues.render" ( dict "value" .Values.snapshotwebhook.sidecars "context" $) | nindent 8 }}
+        {{- end }}
+      volumes:
+        - name: webhook-certs
+          secret:
+            secretName: {{ template "common.names.fullname" . }}-snapshot-webhook-certs
+        {{- if .Values.snapshotwebhook.extraVolumes }}
+        {{- include "common.tplvalues.render" (dict "value" .Values.snapshotwebhook.extraVolumes "context" $) | nindent 8 }}
+        {{- end }}
+{{- end }}
