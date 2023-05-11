@@ -1,0 +1,12 @@
+{{- if .Values.grafana.enable }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: grafana-dashboard-config
+  namespace: {{ .Release.Namespace }}
+data:
+{{ $files := .Files }}
+{{- range $fileName := .Values.grafana.dashboards }}
+{{ tpl ($files.Glob (printf "provisioning/dashboards/%s" $fileName)).AsConfig $ | indent 2}}
+{{- end }}
+{{- end }}

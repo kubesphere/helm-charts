@@ -1,0 +1,17 @@
+{{- if .Values.grafana.enable }}
+{{- $customizedPV := or .Values.grafana.storage.createPersistentVolume.type .Values.grafana.storage.persistentVolumeClaimSpec }}
+{{- if or (eq .Values.grafana.storage.createPersistentVolume.type "HostPath") (not $customizedPV) }}
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: grafana-pv
+spec:
+  storageClassName: grafana-storage
+  capacity:
+    storage: {{ .Values.grafana.storage.size }}
+  accessModes:
+    - ReadWriteOnce
+  hostPath:
+    path: {{ .Values.grafana.storage.createPersistentVolume.hostPath.path }}
+{{- end }}
+{{- end}}

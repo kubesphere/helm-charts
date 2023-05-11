@@ -1,0 +1,157 @@
+{{- if eq (.Values.vSphereCPI.deploymentMode | toString) "deployment" }}
+apiVersion: {{ include "common.capabilities.deployment.apiVersion" . }}
+kind: Deployment
+metadata:
+  name: {{ template "common.names.fullname" . }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels: {{- include "common.labels.standard" . | nindent 4 }}
+    app.kubernetes.io/component: cloud-controller-manager
+    {{- if .Values.commonLabels }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- if or .Values.commonAnnotations ( eq ( .Release.Namespace | toString) "kube-system" )}}
+  annotations:
+    {{- if or .Values.commonAnnotations }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+    {{- end }}
+    {{- if eq "kube-system" ( .Release.Namespace | toString ) }}
+    scheduler.alpha.kubernetes.io/critical-pod: ""
+    {{- end }}
+  {{- end }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  {{- if .Values.vSphereCPI.updateStrategy }}
+  strategy: {{- toYaml .Values.vSphereCPI.updateStrategy | nindent 4 }}
+  {{- end }}
+  selector:
+    matchLabels: {{- include "common.labels.matchLabels" . | nindent 6 }}
+      app.kubernetes.io/component: cloud-controller-manager
+  template:
+    metadata:
+      annotations:
+        {{- if not .Values.global.config.secretsInline }}
+        checksum/config: {{ include (print $.Template.BasePath "/configmap.yaml") . | sha256sum }}
+        {{- end }}
+        checksum/secret: {{ include (print $.Template.BasePath "/secret.yaml") . | sha256sum }}
+        {{- if .Values.vSphereCPI.podAnnotations }}
+        {{- include "common.tplvalues.render" (dict "value" .Values.vSphereCPI.podAnnotations "context" $) | nindent 8 }}
+        {{- end }}
+      labels: {{- include "common.labels.standard" . | nindent 8 }}
+        app.kubernetes.io/component: cloud-controller-manager
+        {{- if .Values.vSphereCPI.podLabels }}
+        {{- include "common.tplvalues.render" (dict "value" .Values.vSphereCPI.podLabels "context" $) | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- if or .Values.serviceAccount.create .Values.serviceAccount.name }}
+      serviceAccountName: {{ template "vSphereCPI.serviceAccountName" . }}
+      {{- end }}
+      {{- include "vSphereCPI.imagePullSecrets" . | nindent 6 }}
+      {{- if .Values.vSphereCPI.hostAliases }}
+      hostAliases: {{- include "common.tplvalues.render" (dict "value" .Values.vSphereCPI.hostAliases "context" $) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.vSphereCPI.affinity }}
+      affinity: {{- include "common.tplvalues.render" ( dict "value" .Values.vSphereCPI.affinity "context" $) | nindent 8 }}
+      {{- else }}
+      affinity:
+        podAffinity: {{- include "common.affinities.pods" (dict "type" .Values.vSphereCPI.podAffinityPreset "context" $) | nindent 10 }}
+        podAntiAffinity: {{- include "common.affinities.pods" (dict "type" .Values.vSphereCPI.podAntiAffinityPreset "context" $) | nindent 10 }}
+        nodeAffinity: {{- include "common.affinities.nodes" (dict "type" .Values.vSphereCPI.nodeAffinityPreset.type "key" .Values.vSphereCPI.nodeAffinityPreset.key "values" .Values.vSphereCPI.nodeAffinityPreset.values) | nindent 10 }}
+      {{- end }}
+      {{- if .Values.vSphereCPI.nodeSelector }}
+      nodeSelector: {{- include "common.tplvalues.render" ( dict "value" .Values.vSphereCPI.nodeSelector "context" $) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.vSphereCPI.tolerations }}
+      tolerations: {{- include "common.tplvalues.render" (dict "value" .Values.vSphereCPI.tolerations "context" .) | nindent 8 }}
+      {{- end }}
+      {{- if .Values.vSphereCPI.priorityClassName }}
+      priorityClassName: {{ .Values.vSphereCPI.priorityClassName | quote }}
+      {{- end }}
+      {{- if .Values.vSphereCPI.podSecurityContext.enabled }}
+      securityContext: {{- omit .Values.vSphereCPI.podSecurityContext "enabled" | toYaml | nindent 8 }}
+      {{- end }}
+      initContainers:
+        {{- if .Values.vSphereCPI.initContainers }}
+          {{- include "common.tplvalues.render" (dict "value" .Values.vSphereCPI.initContainers "context" $) | nindent 8 }}
+        {{- end }}
+      containers:
+        - name: vsphere-cloud-controller-manager
+          image: {{ template "vSphereCPI.image" . }}
+          imagePullPolicy: {{ .Values.vSphereCPI.image.pullPolicy }}
+          {{- if .Values.vSphereCPI.lifecycleHooks }}
+          lifecycle: {{- include "common.tplvalues.render" (dict "value" .Values.vSphereCPI.lifecycleHooks "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.vSphereCPI.containerSecurityContext.enabled }}
+          securityContext: {{- omit .Values.vSphereCPI.containerSecurityContext "enabled" | toYaml | nindent 12 }}
+          {{- end }}
+          {{- if .Values.vSphereCPI.command }}
+          command: {{- include "common.tplvalues.render" (dict "value" .Values.vSphereCPI.command "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.vSphereCPI.args }}
+          args: {{- include "common.tplvalues.render" (dict "value" .Values.vSphereCPI.args "context" $) | nindent 12 }}
+            {{- if .Values.global.config.externalKubeconfig.enabled }}
+            - --kubeconfig=/etc/kubernetes/{{ .Values.global.config.externalKubeconfig.keyName }}
+            - --authentication-kubeconfig=/etc/kubernetes/{{ .Values.global.config.externalKubeconfig.keyName }}
+            {{- end }}
+            {{- if le (.Values.vSphereCPI.replicaCount | int) 1 }}
+            - --leader-elect=false
+            {{- end }}
+          {{- end }}
+          env:
+            {{- if .Values.vSphereCPI.extraEnvVars }}
+            {{- include "common.tplvalues.render" (dict "value" .Values.vSphereCPI.extraEnvVars "context" $) | nindent 12 }}
+            {{- end }}
+          envFrom:
+            {{- if .Values.vSphereCPI.extraEnvVarsCM }}
+            - configMapRef:
+                name: {{ include "common.tplvalues.render" (dict "value" .Values.vSphereCPI.extraEnvVarsCM "context" $) }}
+            {{- end }}
+            {{- if .Values.vSphereCPI.extraEnvVarsSecret }}
+            - secretRef:
+                name: {{ include "common.tplvalues.render" (dict "value" .Values.vSphereCPI.extraEnvVarsSecret "context" $) }}
+            {{- end }}
+          {{- if .Values.vSphereCPI.resources }}
+          resources: {{- toYaml .Values.vSphereCPI.resources | nindent 12 }}
+          {{- end }}
+          {{- if .Values.vSphereCPI.livenessProbe.enabled }}
+          livenessProbe: {{- include "common.tplvalues.render" (dict "value" (omit .Values.vSphereCPI.livenessProbe "enabled") "context" $) | nindent 12 }}
+          {{- else if .Values.vSphereCPI.customLivenessProbe }}
+          livenessProbe: {{- include "common.tplvalues.render" (dict "value" .Values.vSphereCPI.customLivenessProbe "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.vSphereCPI.readinessProbe.enabled }}
+          readinessProbe: {{- include "common.tplvalues.render" (dict "value" (omit .Values.vSphereCPI.readinessProbe "enabled") "context" $) | nindent 12 }}
+          {{- else if .Values.vSphereCPI.customReadinessProbe }}
+          readinessProbe: {{- include "common.tplvalues.render" (dict "value" .Values.vSphereCPI.customReadinessProbe "context" $) | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - name: vsphere-config-volume
+              mountPath: /etc/cloud
+              readOnly: true
+            {{- if .Values.global.config.externalKubeconfig.enabled }}
+            - mountPath: /etc/kubernetes
+              name: kubeconfig-volume
+              readOnly: true
+            {{- end }}
+        {{- if .Values.vSphereCPI.sidecars }}
+        {{- include "common.tplvalues.render" ( dict "value" .Values.vSphereCPI.sidecars "context" $) | nindent 8 }}
+        {{- end }}
+      {{- if .Values.vSphereCPI.useHostNet }}
+      hostNetwork: true
+      {{- end }}
+      volumes:
+        - name: vsphere-config-volume
+          {{- if not .Values.global.config.secretsInline }}
+          configMap:
+            name: {{ template "common.names.fullname" . }}
+          {{- else }}
+          secret:
+            secretName: {{ template "common.names.fullname" . }}
+          {{- end }}
+        {{- if .Values.global.config.externalKubeconfig.enabled }}
+        - name: kubeconfig-volume
+          secret:
+            secretName: {{ .Values.global.config.externalKubeconfig.secretName }}
+        {{- end }}
+        {{- if .Values.vSphereCPI.extraVolumes }}
+        {{- include "common.tplvalues.render" (dict "value" .Values.vSphereCPI.extraVolumes "context" $) | nindent 8 }}
+        {{- end }}
+{{- end }}

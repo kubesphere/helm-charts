@@ -1,0 +1,11 @@
+{{- if .Values.theiaManager.enable }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: theia-manager-configmap
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: theia-manager
+data:
+{{ tpl (.Files.Glob "conf/*").AsConfig . | indent 2 | replace "  \n" "\n" }}
+{{- end }}
