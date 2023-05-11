@@ -1,0 +1,72 @@
+{{- if .Values.theiaManager.enable }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: theia-manager
+  name: theia-manager
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: theia-manager
+  template:
+    metadata:
+      labels:
+        app: theia-manager
+    spec:
+      containers:
+        - name: theia-manager
+          image: {{ include "theiaManagerImage" . | quote }}
+          imagePullPolicy: {{ .Values.theiaManager.image.pullPolicy }}
+          args:
+            - --config
+            - /etc/theia-manager/theia-manager.conf
+            - --logtostderr=false
+            - --log_dir=/var/log/antrea/theia-manager
+            - --alsologtostderr
+            - --log_file_max_size=100
+            - --log_file_max_num=4
+            {{- if .Values.theiaManager.logVerbosity }}
+            - "--v={{ .Values.theiaManager.logVerbosity }}"
+            {{- end }}
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+            - name: POD_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+          ports:
+            - name: "theia-api-http"
+              containerPort: {{ .Values.theiaManager.apiServer.apiPort }}
+          volumeMounts:
+            - mountPath: /etc/theia-manager
+              name: theia-manager-config
+              readOnly: true
+            - mountPath: /var/run/theia/theia-manager-tls
+              name: theia-manager-tls
+            - mountPath: /var/log/antrea/theia-manager
+              name: host-var-log-antrea-theia-manager
+      nodeSelector:
+        kubernetes.io/os: linux
+        kubernetes.io/arch: amd64
+      serviceAccountName: theia-manager
+      volumes:
+        - name: theia-manager-config
+          configMap:
+            name: theia-manager-configmap
+        # Make it optional as we only read it when selfSignedCert=false.
+        - name: theia-manager-tls
+          secret:
+            secretName: theia-manager-tls
+            defaultMode: 0400
+            optional: true
+        - name: host-var-log-antrea-theia-manager
+          hostPath:
+            path: /var/log/antrea/theia-manager
+            type: DirectoryOrCreate
+{{- end }}

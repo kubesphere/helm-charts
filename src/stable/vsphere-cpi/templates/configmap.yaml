@@ -1,0 +1,40 @@
+{{- if not .Values.global.config.secretsInline }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ template "common.names.fullname" . }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels: {{- include "common.labels.standard" . | nindent 4 }}
+    app.kubernetes.io/component: cloud-controller-manager
+    {{- if .Values.commonLabels }}
+    {{- include "common.tplvalues.render" ( dict "value" .Values.commonLabels "context" $ ) | nindent 4 }}
+    {{- end }}
+  {{- if .Values.commonAnnotations }}
+  annotations: {{- include "common.tplvalues.render" ( dict "value" .Values.commonAnnotations "context" $ ) | nindent 4 }}
+  {{- end }}
+data:
+  vsphere.conf: |
+    {{- if .Values.global.config.global }}
+    global:
+    {{- include "common.tplvalues.render" ( dict "value" .Values.global.config.global "context" $ ) | nindent 6 }}
+      {{- if and (not .Values.global.config.global.secretName) (not .Values.global.config.global.secretNamespace) }}
+      secretName: {{ template "common.names.fullname" . }}
+      secretNamespace: {{ .Release.Namespace | quote }}
+      {{- end }}
+    {{- end }}
+    {{- if .Values.global.config.vcenter }}
+    vcenter:
+      {{- range $k, $v := .Values.global.config.vcenter }}
+      {{ $k }}:
+        {{- omit $v "pass" "password" | toYaml | nindent 8}}
+      {{- end }}
+    {{- end }}
+    {{- if .Values.global.config.nodes }}
+    nodes:
+    {{- include "common.tplvalues.render" ( dict "value" .Values.global.config.nodes "context" $ ) | nindent 6 }}
+    {{- end }}
+    {{- if .Values.global.config.labels }}
+    labels:
+    {{- include "common.tplvalues.render" ( dict "value" .Values.global.config.labels "context" $ ) | nindent 6 }}
+    {{- end }}
+{{- end }}

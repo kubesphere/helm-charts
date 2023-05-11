@@ -1,0 +1,55 @@
+{{- if .Values.sparkOperator.enable }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Values.sparkOperator.name }}-spark-operator
+  labels:
+    app.kubernetes.io/name: spark-operator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: spark-operator
+  strategy:
+    type: Recreate
+  template:
+    metadata:
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "10254"
+        prometheus.io/path: /metrics
+      labels:
+        app.kubernetes.io/name: spark-operator
+    spec:
+      serviceAccountName: {{ .Values.sparkOperator.name }}-spark-operator
+      securityContext:
+        {}
+      containers:
+      - name: spark-operator
+        image: {{ .Values.sparkOperator.image.repository }}:{{ .Values.sparkOperator.image.tag }}
+        imagePullPolicy: {{ .Values.sparkOperator.image.imagePullPolicy }}
+        securityContext:
+          {}
+        ports:
+          - name: "metrics"
+            containerPort: 10254
+        
+        args:
+        - -v=2
+        - -logtostderr
+        - -namespace=
+        - -enable-ui-service=true
+        - -ingress-url-format=
+        - -controller-threads=10
+        - -resync-interval=30
+        - -enable-batch-scheduler=false
+        - -label-selector-filter=
+        - -enable-metrics=true
+        - -metrics-labels=app_type
+        - -metrics-port=10254
+        - -metrics-endpoint=/metrics
+        - -metrics-prefix=
+        - -enable-resource-quota-enforcement=false
+        resources:
+          {}
+{{- end }}

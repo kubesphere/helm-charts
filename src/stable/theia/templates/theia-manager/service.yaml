@@ -1,0 +1,16 @@
+{{- if .Values.theiaManager.enable }}
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: theia-manager
+  name: theia-manager
+  namespace: {{ .Release.Namespace }}
+spec:
+  ports:
+    - port: {{ .Values.theiaManager.apiServer.apiPort }}
+      protocol: TCP
+      targetPort: theia-api-http
+  selector:
+    app: theia-manager
+{{- end }}
