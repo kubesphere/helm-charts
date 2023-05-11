@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: clickhouse-mounted-configmap
+  namespace: {{ .Release.Namespace }}
+data:
+{{ tpl (.Files.Glob "provisioning/datasources/*.sh").AsConfig . | indent 2 }}
+{{ tpl (.Files.Glob "provisioning/datasources/migrators/downgrade/*").AsConfig . | indent 2 }}
+{{ (.Files.Glob "provisioning/datasources/migrators/*.sql").AsConfig | indent 2 }}

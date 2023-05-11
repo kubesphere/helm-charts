@@ -1,0 +1,88 @@
+replicas: 1
+
+image:
+  repository: gcr.io/cloud-provider-vsphere/csi/release/driver
+  version:
+  pullPolicy: Always
+
+syncer:
+  repository: gcr.io/cloud-provider-vsphere/csi/release/syncer
+  version:
+  pullPolicy: Always
+
+serviceAccount:
+  create: true
+
+enableTopologyZone: true
+
+tolerations:
+  - operator: Exists
+    effect: NoSchedule
+  - operator: Exists
+    effect: NoExecute
+  - key: CriticalAddonsOnly
+    operator: Exists
+  # uncomment below toleration if you need an aggressive pod eviction in case when
+  # node becomes not-ready or unreachable. Default is 300 seconds if not specified.
+  # - key: node.kubernetes.io/not-ready
+  #   operator: Exists
+  #   effect: NoExecute
+  #   tolerationSeconds: 30
+  # - key: node.kubernetes.io/unreachable
+  #   operator: Exists
+  #   effect: NoExecute
+  #   tolerationSeconds: 30
+
+liveness:
+  image:
+    repository: k8s.gcr.io/sig-storage/livenessprobe
+    tag: v2.2.0
+  verbose: 4
+
+registrar:
+  node:
+    image:
+      repository: k8s.gcr.io/sig-storage/csi-node-driver-registrar
+      tag: v2.1.0
+  verbose: 5
+
+provisioner:
+  image:
+    repository: k8s.gcr.io/sig-storage/csi-provisioner
+    tag: v2.1.0
+  timeout: 300s
+  retryIntervalStart: 1s
+  retryIntervalMax: 5m
+  workerThreads: 100
+  verbose: 4
+
+attacher:
+  image:
+    repository: k8s.gcr.io/sig-storage/csi-attacher
+    tag: v3.1.0
+    tagK8sUpMinor17: v3.0.2
+  timeout: 300s
+  retryIntervalStart: 1s
+  retryIntervalMax: 5m
+  workerThreads: 20
+  verbose: 4
+
+resizer:
+  image:
+    repository: k8s.gcr.io/sig-storage/csi-resizer
+    tag: v1.1.0
+  timeout: 300s
+  verbose: 4
+
+storageclass:
+  isDefault: true
+  reclaimPolicy: Delete
+  volumeBindingMode: WaitForFirstConsumer
+  # Volume Expansion is available with vSphere >= 7, so we set the default to false
+  # https://github.com/kubernetes-sigs/vsphere-csi-driver/blob/release-2.0/pkg/csi/service/vanilla/controller.go#L65-L80
+  allowVolumeExpansion: false
+  # parameters to set for storageclass
+  # e.g.
+  # parameters:
+  #   storagepolicyname: Bronze NFS
+  parameters: {}
