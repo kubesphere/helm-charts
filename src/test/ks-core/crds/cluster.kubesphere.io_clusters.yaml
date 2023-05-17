@@ -16,15 +16,9 @@ spec:
   scope: Cluster
   versions:
   - additionalPrinterColumns:
-    - jsonPath: .spec.joinFederation
-      name: Federated
-      type: boolean
     - jsonPath: .spec.provider
       name: Provider
       type: string
-    - jsonPath: .spec.enable
-      name: Active
-      type: boolean
     - jsonPath: .status.kubernetesVersion
       name: Version
       type: string
@@ -96,14 +90,16 @@ spec:
                     type: string
                 type: object
               enable:
-                description: Desired state of the cluster
+                description: 'Desired state of the cluster Deprecated: will be removed
+                  in the next version.'
                 type: boolean
               externalKubeAPIEnabled:
-                description: ExternalKubeAPIEnabled export kubeapiserver to public
+                description: ExternalKubeAPIEnabled export kube-apiserver to public
                   use a lb type service if connection type is proxy
                 type: boolean
               joinFederation:
-                description: Join cluster as a kubefed cluster
+                description: 'Join cluster as a kubefed cluster Deprecated: will be
+                  removed in the next version.'
                 type: boolean
               provider:
                 description: Provider of the cluster, this field is just for description
@@ -126,7 +122,7 @@ spec:
                       format: date-time
                       type: string
                     message:
-                      description: A human readable message indicating details about
+                      description: A human-readable message indicating details about
                         the transition.
                       type: string
                     reason:
@@ -146,9 +142,10 @@ spec:
               configz:
                 additionalProperties:
                   type: boolean
-                description: Configz is status of components enabled in the member
+                description: 'Configz is status of components enabled in the member
                   cluster. This is synchronized with member cluster every amount of
-                  time, like 5 minutes.
+                  time, like 5 minutes. Deprecated: this field will be removed in
+                  the future version.'
                 type: object
               kubeSphereVersion:
                 description: GitVersion of the /kapis/version api response, this field
