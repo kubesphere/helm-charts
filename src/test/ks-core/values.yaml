@@ -222,7 +222,7 @@ controller:
     - controller-manager
     - --logtostderr=true
     - --leader-elect=true
-    - --controllers=user,workspacetemplate,workspace,workspacerole,workspacerolebinding,namespace,globalrole,globalrolebinding,cluster,clusterrolebinding,repository,extension,subscription
+    - --controllers=user,workspacetemplate,workspace,workspacerole,workspacerolebinding,namespace,globalrole,globalrolebinding,cluster,repository,extension,subscription
   ## @param extraEnvVars Array with extra environment variables to add to haproxy nodes
   ##
   extraEnvVars: []

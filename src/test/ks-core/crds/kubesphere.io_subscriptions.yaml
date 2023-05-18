@@ -210,6 +210,19 @@ spec:
                       type: string
                     state:
                       type: string
+                    stateHistory:
+                      items:
+                        properties:
+                          lastTransitionTime:
+                            format: date-time
+                            type: string
+                          state:
+                            type: string
+                        required:
+                        - lastTransitionTime
+                        - state
+                        type: object
+                      type: array
                     targetNamespace:
                       type: string
                   type: object
@@ -290,6 +303,19 @@ spec:
                 type: string
               state:
                 type: string
+              stateHistory:
+                items:
+                  properties:
+                    lastTransitionTime:
+                      format: date-time
+                      type: string
+                    state:
+                      type: string
+                  required:
+                  - lastTransitionTime
+                  - state
+                  type: object
+                type: array
               targetNamespace:
                 type: string
             type: object

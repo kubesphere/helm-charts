@@ -63,7 +63,7 @@ spec:
             failureThreshold: 8
           volumeMounts:
             - name: ks-console-config
-              mountPath: /opt/kubesphere/console/server/local_config.yaml
+              mountPath: /opt/kubesphere/console/configs/local_config.yaml
               subPath: local_config.yaml
             - name: host-time
               mountPath: /etc/localtime
