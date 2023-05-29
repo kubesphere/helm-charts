@@ -21,6 +21,7 @@ spec:
     - jsonPath: .metadata.labels.kubesphere\.io/workspace
       name: Workspace
       type: string
+    deprecated: true
     name: v1alpha2
     schema:
       openAPIV3Schema:

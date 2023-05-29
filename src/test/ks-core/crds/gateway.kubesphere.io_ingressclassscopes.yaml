@@ -13,7 +13,7 @@ spec:
     listKind: IngressClassScopeList
     plural: ingressclassscopes
     singular: ingressclassscope
-  scope: Namespaced
+  scope: Cluster
   versions:
   - name: v1alpha2
     schema:

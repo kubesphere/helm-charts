@@ -17,7 +17,8 @@ spec:
     singular: rolebase
   scope: Cluster
   versions:
-  - name: v1alpha2
+  - deprecated: true
+    name: v1alpha2
     schema:
       openAPIV3Schema:
         properties:
