@@ -44,7 +44,9 @@ spec:
               insecureSkipVerify:
                 type: boolean
               service:
-                description: ServiceReference holds a reference to Service.legacy.k8s.io
+                description: service is a reference to the service for this endpoint.
+                  Either service or url must be specified. the scheme is default to
+                  HTTPS.
                 properties:
                   name:
                     description: name is the name of the service. Required
@@ -53,11 +55,11 @@ spec:
                     description: namespace is the namespace of the service. Required
                     type: string
                   path:
-                    description: path is an optional URL path at which the webhook
+                    description: path is an optional URL path at which the upstream
                       will be contacted.
                     type: string
                   port:
-                    description: port is an optional service port at which the webhook
+                    description: port is an optional service port at which the upstream
                       will be contacted. `port` should be a valid port number (1-65535,
                       inclusive). Defaults to 443 for backward compatibility.
                     format: int32
@@ -67,6 +69,9 @@ spec:
                 - namespace
                 type: object
               url:
+                description: '`url` gives the location of the upstream, in standard
+                  URL form (`scheme://host:port/path`). Exactly one of `url` or `service`
+                  must be specified.'
                 type: string
               version:
                 type: string
