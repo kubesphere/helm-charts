@@ -21,7 +21,7 @@ metadata:
   name: users.iam.kubesphere.io
 webhooks:
   - admissionReviewVersions:
-      - v1beta1
+      - v1
     clientConfig:
       caBundle: {{ b64enc $ca.Cert | quote }}
       service:
@@ -55,7 +55,7 @@ metadata:
   name: resourcesquotas.quota.kubesphere.io
 webhooks:
   - admissionReviewVersions:
-      - v1beta1
+      - v1
     clientConfig:
       caBundle: {{ b64enc $ca.Cert | quote }}
       service:
@@ -79,3 +79,125 @@ webhooks:
           - pods
         scope: '*'
     sideEffects: None
+
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: extensions.kubesphere.io
+webhooks:
+  - admissionReviewVersions:
+      - v1
+    clientConfig:
+      caBundle: {{ b64enc $ca.Cert | quote }}
+      service:
+        name: ks-controller-manager
+        namespace: {{ .Release.Namespace }}
+        path: /validate-extensions-kubesphere-io-v1alpha1-jsbundle
+        port: 443
+    failurePolicy: Fail
+    matchPolicy: Exact
+    name: jsbundles.extensions.kubesphere.io
+    namespaceSelector: {}
+    objectSelector: {}
+    rules:
+      - apiGroups:
+          - extensions.kubesphere.io
+        apiVersions:
+          - v1alpha1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - jsbundles
+        scope: '*'
+    sideEffects: None
+    timeoutSeconds: 30
+  - admissionReviewVersions:
+      - v1
+    clientConfig:
+      caBundle: {{ b64enc $ca.Cert | quote }}
+      service:
+        name: ks-controller-manager
+        namespace: {{ .Release.Namespace }}
+        path: /validate-extensions-kubesphere-io-v1alpha1-apiservice
+        port: 443
+    failurePolicy: Fail
+    matchPolicy: Exact
+    name: apiservices.extensions.kubesphere.io
+    namespaceSelector: {}
+    objectSelector: {}
+    rules:
+      - apiGroups:
+          - extensions.kubesphere.io
+        apiVersions:
+          - v1alpha1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - apiservices
+        scope: '*'
+    sideEffects: None
+    timeoutSeconds: 30
+  - admissionReviewVersions:
+      - v1
+    clientConfig:
+      caBundle: {{ b64enc $ca.Cert | quote }}
+      service:
+        name: ks-controller-manager
+        namespace: {{ .Release.Namespace }}
+        path: /validate-extensions-kubesphere-io-v1alpha1-reverseproxy
+        port: 443
+    failurePolicy: Fail
+    matchPolicy: Exact
+    name: reverseproxies.extensions.kubesphere.io
+    namespaceSelector: {}
+    objectSelector: {}
+    rules:
+      - apiGroups:
+          - extensions.kubesphere.io
+        apiVersions:
+          - v1alpha1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - reverseproxies
+        scope: '*'
+    sideEffects: None
+    timeoutSeconds: 30
+
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: extensions.kubesphere.io
+webhooks:
+  - admissionReviewVersions:
+      - v1
+    clientConfig:
+      caBundle: {{ b64enc $ca.Cert | quote }}
+      service:
+        name: ks-controller-manager
+        namespace: {{ .Release.Namespace }}
+        path: /mutate-extensions-kubesphere-io-v1alpha1-jsbundle
+        port: 443
+    failurePolicy: Fail
+    matchPolicy: Exact
+    name: jsbundles.extensions.kubesphere.io
+    namespaceSelector: {}
+    objectSelector: {}
+    rules:
+      - apiGroups:
+          - extensions.kubesphere.io
+        apiVersions:
+          - v1alpha1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - jsbundles
+        scope: '*'
+    sideEffects: None
+    timeoutSeconds: 30

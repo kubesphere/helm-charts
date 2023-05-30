@@ -55,7 +55,7 @@ spec:
           livenessProbe:
             failureThreshold: 8
             httpGet:
-              path: /kapis/version
+              path: /version
               port: 9090
               scheme: HTTP
             initialDelaySeconds: 15
