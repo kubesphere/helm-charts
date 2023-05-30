@@ -24,6 +24,7 @@ spec:
     - jsonPath: .users
       name: Users
       type: string
+    deprecated: true
     name: v1alpha2
     schema:
       openAPIV3Schema:

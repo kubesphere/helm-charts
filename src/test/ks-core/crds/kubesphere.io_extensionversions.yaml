@@ -69,6 +69,28 @@ spec:
                 additionalProperties:
                   type: string
                 type: object
+              externalDependencies:
+                description: ExternalDependencies
+                items:
+                  properties:
+                    name:
+                      description: Name of the external dependency
+                      type: string
+                    required:
+                      description: Indicates if the dependency is required
+                      type: boolean
+                    type:
+                      description: Type of dependency, default to extension
+                      type: string
+                    version:
+                      description: SemVer
+                      type: string
+                  required:
+                  - name
+                  - required
+                  - version
+                  type: object
+                type: array
               home:
                 type: string
               icon:
