@@ -33,7 +33,12 @@ webhooks:
     matchPolicy: Exact
     name: users.iam.kubesphere.io
     namespaceSelector: {}
-    objectSelector: {}
+    objectSelector:
+      matchExpressions:
+        - key: app.kubernetes.io/managed-by
+          operator: NotIn
+          values:
+            - Helm
     rules:
       - apiGroups:
           - iam.kubesphere.io
