@@ -39,8 +39,6 @@ spec:
             properties:
               manager:
                 type: string
-              networkIsolation:
-                type: boolean
             type: object
           status:
             description: WorkspaceStatus defines the observed state of Workspace
