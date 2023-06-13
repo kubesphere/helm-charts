@@ -128,8 +128,6 @@ spec:
                     properties:
                       manager:
                         type: string
-                      networkIsolation:
-                        type: boolean
                     type: object
                 type: object
             required:
