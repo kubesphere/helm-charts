@@ -9,6 +9,7 @@ spec:
   selector:
     matchLabels:
       {{- include "stonedb-helm.selectorLabels" . | nindent 6 }}
+  serviceName: {{ .Values.serviceName }}
   template:
     metadata:
       {{- with .Values.podAnnotations }}
