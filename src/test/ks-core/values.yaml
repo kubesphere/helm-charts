@@ -2,7 +2,7 @@
 ## @param global.tag Global Docker image tag
 global:
   imageRegistry: registry.cn-beijing.aliyuncs.com
-  tag: ksc
+  tag: v4.0.0-alpha.2
   imagePullSecrets: []
 
 ## @section Common parameters
@@ -24,23 +24,27 @@ commonLabels: {}
 ##
 commonAnnotations: {}
 
+role: host
+
 adminPassword: ""
 
 config:
   # Specifies whether the kubesphere-config configmap should be created
   create: true
   authentication:
+    authenticateRateLimiterMaxTries: 10
+    authenticationRateLimiterDuration: 10m0s
+    loginHistoryRetentionPeriod: 168h
+    maximumClockSkew: 10s
+    enableMultiLogin: true
     oauthOptions:
       clients:
-      - name: kubesphere
-        secret: kubesphere
-        redirectURIs:
-        - '*'
+        - name: kubesphere
+          secret: kubesphere
+          redirectURIs:
+            - '*'
   # Jwt Secret is required by ks-apiserver, a random string would be generated if it's empty
   jwtSecret: ""
-  multicluster: {}
-  monitoring: {}
-  notification: {}
 
 serviceAccount:
   # Specifies whether a service account should be created
@@ -54,7 +58,7 @@ serviceAccount:
 podAnnotations: {}
 
 podSecurityContext: {}
-  # fsGroup: 2000
+# fsGroup: 2000
 
 securityContext: {}
   # capabilities:
@@ -62,9 +66,9 @@ securityContext: {}
   #   - ALL
   # readOnlyRootFilesystem: true
   # runAsNonRoot: true
-  # runAsUser: 1000
+# runAsUser: 1000
 
-tolerations: 
+tolerations:
   - key: node-role.kubernetes.io/master
     effect: NoSchedule
   - key: CriticalAddonsOnly
@@ -105,6 +109,7 @@ apiserver:
   containerPorts:
     - protocol: TCP
       containerPort: 9090
+  nodePort:
   ## ks-apiserver resource requests and limits
   ## ref: https://kubernetes.io/docs/user-guide/compute-resources/
   ## @param resources.limits The resources limits for the haproxy containers
@@ -219,7 +224,7 @@ controller:
     - controller-manager
     - --logtostderr=true
     - --leader-elect=true
-    - --controllers=*,-volumesnapshot,-helmrepo,-helmcategory,-helmapplication,-helmapplicationversion,-helmrelease,-helm,-job,-application
+    - --controllers=user,workspacetemplate,workspace,workspacerole,workspacerolebinding,namespace,globalrole,globalrolebinding,cluster,repository,extension,subscription,extension-webhook
   ## @param extraEnvVars Array with extra environment variables to add to haproxy nodes
   ##
   extraEnvVars: []
@@ -229,6 +234,9 @@ controller:
   ## @param extraVolumes Optionally specify extra list of additional volumes for the haproxy pod(s)
   ##
   extraVolumes: []
+
+agent:
+  replicaCount: 1
 
 kubectl:
   image:

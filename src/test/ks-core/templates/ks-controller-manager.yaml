@@ -1,3 +1,4 @@
+{{ if eq .Values.role "host" }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -82,27 +83,6 @@ spec:
             type: ""
           name: host-time
         {{- if .Values.controller.extraVolumes }}
-        {{- include "common.tplvalues.render" (dict "value" .Values.extraVolumes "context" $) | nindent 8 }}
+        {{- include "common.tplvalues.render" (dict "value" .Values.controller.extraVolumes "context" $) | nindent 8 }}
         {{- end }}
-
----
-
-apiVersion: v1
-kind: Service
-metadata:
-  labels:
-    app: ks-controller-manager
-    tier: backend
-    version: {{ .Chart.AppVersion }}
-  name: ks-controller-manager
-spec:
-  ports:
-  - port: 443
-    protocol: TCP
-    targetPort: 8443
-  selector:
-    app: ks-controller-manager
-    tier: backend
-    # version: {{ .Chart.AppVersion }}
-  sessionAffinity: None
-  type: ClusterIP
+{{ end }}

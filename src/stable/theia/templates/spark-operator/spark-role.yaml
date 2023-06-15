@@ -1,0 +1,34 @@
+{{- if .Values.sparkOperator.enable }}
+apiVersion: rbac.authorization.k8s.io/v1
+kind: Role
+metadata:
+  name: spark-role
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/name: spark-operator
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - "*"
+- apiGroups:
+  - ""
+  resources:
+  - services
+  verbs:
+  - "*"
+- apiGroups:
+  - ""
+  resources:
+  - configmaps
+  verbs:
+  - "*"
+- apiGroups:
+  - ""
+  resources:
+  - persistentvolumeclaims
+  verbs:
+  - "*"
+{{- end }}

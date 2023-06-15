@@ -1,0 +1,1316 @@
+{
+    "annotations": {
+        "list": [
+            {
+                "builtIn": 1,
+                "datasource": "-- Grafana --",
+                "enable": true,
+                "hide": true,
+                "iconColor": "rgba(0, 211, 255, 1)",
+                "name": "Annotations & Alerts",
+                "target": {
+                    "limit": 100,
+                    "matchAny": false,
+                    "tags": [],
+                    "type": "dashboard"
+                },
+                "type": "dashboard"
+            }
+        ]
+    },
+    "editable": true,
+    "fiscalYearStartMonth": 0,
+    "graphTooltip": 0,
+    "id": 5,
+    "links": [],
+    "liveNow": false,
+    "panels": [
+        {
+            "collapsed": false,
+            "gridPos": {
+                "h": 1,
+                "w": 24,
+                "x": 0,
+                "y": 0
+            },
+            "id": 32,
+            "panels": [],
+            "title": "Cluster Overview",
+            "type": "row"
+        },
+        {
+            "datasource": {
+                "type": "grafana-clickhouse-datasource",
+                "uid": "PDEE91DDB90597936"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "continuous-BlPu"
+                    },
+                    "displayName": "Number of Pods",
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "short"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 4,
+                "x": 0,
+                "y": 1
+            },
+            "id": 12,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {},
+                "textMode": "auto"
+            },
+            "pluginVersion": "8.3.3",
+            "targets": [
+                {
+                    "builderOptions": {
+                        "database": "default",
+                        "fields": [],
+                        "filters": [],
+                        "limit": 100,
+                        "metrics": [],
+                        "mode": "list",
+                        "orderBy": [],
+                        "table": "flows"
+                    },
+                    "datasource": {
+                        "type": "grafana-clickhouse-datasource",
+                        "uid": "PDEE91DDB90597936"
+                    },
+                    "format": 1,
+                    "meta": {
+                        "builderOptions": {
+                            "database": "default",
+                            "fields": [],
+                            "filters": [],
+                            "limit": 100,
+                            "metrics": [],
+                            "mode": "list",
+                            "orderBy": [],
+                            "table": "flows"
+                        }
+                    },
+                    "queryType": "sql",
+                    "rawSql": "SELECT COUNT(derivedtable.pod) as Number_of_Pods\nFROM\n(\n    SELECT DISTINCT CONCAT(sourcePodName, sourcePodNamespace) AS pod FROM default.flows WHERE pod != '' AND $__timeFilter(flowEndSeconds)\n    UNION ALL\n    SELECT DISTINCT CONCAT(destinationPodName, destinationPodNamespace) AS pod FROM default.flows WHERE pod != '' AND $__timeFilter(flowEndSeconds)\n) derivedtable\nWHERE derivedtable.pod != ''",
+                    "refId": "A"
+                }
+            ],
+            "transformations": [
+                {
+                    "id": "labelsToFields",
+                    "options": {}
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "grafana-clickhouse-datasource",
+                "uid": "PDEE91DDB90597936"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "continuous-BlPu"
+                    },
+                    "displayName": "Number of Services",
+                    "mappings": [],
+                    "noValue": "N/A",
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 4,
+                "x": 4,
+                "y": 1
+            },
+            "id": 14,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {},
+                "textMode": "auto"
+            },
+            "pluginVersion": "8.3.3",
+            "targets": [
+                {
+                    "builderOptions": {
+                        "database": "default",
+                        "fields": [],
+                        "filters": [],
+                        "limit": 100,
+                        "metrics": [],
+                        "mode": "list",
+                        "orderBy": [],
+                        "table": "flows"
+                    },
+                    "datasource": {
+                        "type": "grafana-clickhouse-datasource",
+                        "uid": "PDEE91DDB90597936"
+                    },
+                    "format": 1,
+                    "meta": {
+                        "builderOptions": {
+                            "database": "default",
+                            "fields": [],
+                            "filters": [],
+                            "limit": 100,
+                            "metrics": [],
+                            "mode": "list",
+                            "orderBy": [],
+                            "table": "flows"
+                        }
+                    },
+                    "queryType": "sql",
+                    "rawSql": "SELECT COUNT(DISTINCT destinationServicePortName) as Number_of_Services \nFROM default.flows \nWHERE destinationServicePortName != '' AND $__timeFilter(flowEndSeconds)",
+                    "refId": "A"
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "grafana-clickhouse-datasource",
+                "uid": "PDEE91DDB90597936"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "continuous-BlPu"
+                    },
+                    "displayName": "Number of Nodes",
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 4,
+                "x": 8,
+                "y": 1
+            },
+            "id": 13,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {},
+                "textMode": "auto"
+            },
+            "pluginVersion": "8.3.3",
+            "targets": [
+                {
+                    "builderOptions": {
+                        "database": "default",
+                        "fields": [],
+                        "filters": [],
+                        "limit": 100,
+                        "metrics": [],
+                        "mode": "list",
+                        "orderBy": [],
+                        "table": "flows"
+                    },
+                    "datasource": {
+                        "type": "grafana-clickhouse-datasource",
+                        "uid": "PDEE91DDB90597936"
+                    },
+                    "format": 1,
+                    "meta": {
+                        "builderOptions": {
+                            "database": "default",
+                            "fields": [],
+                            "filters": [],
+                            "limit": 100,
+                            "metrics": [],
+                            "mode": "list",
+                            "orderBy": [],
+                            "table": "flows"
+                        }
+                    },
+                    "queryType": "sql",
+                    "rawSql": "SELECT COUNT(DISTINCT derivedtable.node) as Number_of_Nodes\nFROM\n(\n    SELECT DISTINCT sourceNodeName AS node FROM default.flows WHERE node != '' AND $__timeFilter(flowEndSeconds)\n    UNION ALL\n    SELECT DISTINCT destinationNodeName AS node FROM default.flows WHERE node != '' AND $__timeFilter(flowEndSeconds)\n) derivedtable\nWHERE derivedtable.node IS NOT NULL",
+                    "refId": "A"
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "gridPos": {
+                "h": 5,
+                "w": 12,
+                "x": 12,
+                "y": 1
+            },
+            "id": 6,
+            "options": {
+                "content": "<div style=\"display: flex; align-items:center;\">\n    <img src=\"https://raw.githubusercontent.com/antrea-io/antrea/main/docs/assets/logo/antrea_logo.svg\" width=200/>\n    <p style=\"\"><a href=\"https://github.com/antrea-io/theia\">Theia</a> is a network observability and\nanalytics platform for Kubernetes, built on top of\n<a href=\"https://github.com/antrea-io/antrea\">Antrea</a>. It supports network flow\nvisualization and monitoring with Grafana. Follow this\n<a href=\"https://github.com/antrea-io/theia/blob/main/docs/network-flow-visibility.md\">document</a>\nto know more about the Grafana Flow Collector and network flow visualization\nfunctionality of Theia.</p>\n</div>\n\n",
+                "mode": "html"
+            },
+            "pluginVersion": "8.3.3",
+            "title": "Overview of Project Theia",
+            "type": "text"
+        },
+        {
+            "datasource": {
+                "type": "grafana-clickhouse-datasource",
+                "uid": "PDEE91DDB90597936"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "fixedColor": "purple",
+                        "mode": "fixed"
+                    },
+                    "displayName": "Number of Active Connections",
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 4,
+                "x": 0,
+                "y": 5
+            },
+            "id": 15,
+            "interval": "2s",
+            "options": {
+                "colorMode": "background",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {},
+                "textMode": "value_and_name"
+            },
+            "pluginVersion": "8.3.3",
+            "targets": [
+                {
+                    "builderOptions": {
+                        "database": "default",
+                        "fields": [],
+                        "filters": [],
+                        "limit": 100,
+                        "metrics": [],
+                        "mode": "list",
+                        "orderBy": [],
+                        "table": "flows"
+                    },
+                    "datasource": {
+                        "type": "grafana-clickhouse-datasource",
+                        "uid": "PDEE91DDB90597936"
+                    },
+                    "format": 1,
+                    "meta": {
+                        "builderOptions": {
+                            "database": "default",
+                            "fields": [],
+                            "filters": [],
+                            "limit": 100,
+                            "metrics": [],
+                            "mode": "list",
+                            "orderBy": [],
+                            "table": "flows"
+                        }
+                    },
+                    "queryType": "sql",
+                    "rawSql": "SELECT COUNT(DISTINCT CONCAT(sourceIP, destinationIP)) as Number_of_Active_Connections\nfrom default.flows\nWHERE flowEndReason == 2 AND $__timeFilter(flowEndSeconds)",
+                    "refId": "A"
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "grafana-clickhouse-datasource",
+                "uid": "PDEE91DDB90597936"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "fixedColor": "purple",
+                        "mode": "fixed"
+                    },
+                    "displayName": "Number of Terminated Connections",
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 4,
+                "x": 4,
+                "y": 5
+            },
+            "id": 16,
+            "interval": "2s",
+            "options": {
+                "colorMode": "background",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {},
+                "textMode": "auto"
+            },
+            "pluginVersion": "8.3.3",
+            "targets": [
+                {
+                    "builderOptions": {
+                        "database": "default",
+                        "fields": [],
+                        "filters": [],
+                        "limit": 100,
+                        "metrics": [],
+                        "mode": "list",
+                        "orderBy": [],
+                        "table": "flows"
+                    },
+                    "datasource": {
+                        "type": "grafana-clickhouse-datasource",
+                        "uid": "PDEE91DDB90597936"
+                    },
+                    "format": 1,
+                    "meta": {
+                        "builderOptions": {
+                            "database": "default",
+                            "fields": [],
+                            "filters": [],
+                            "limit": 100,
+                            "metrics": [],
+                            "mode": "list",
+                            "orderBy": [],
+                            "table": "flows"
+                        }
+                    },
+                    "queryType": "sql",
+                    "rawSql": "SELECT COUNT(DISTINCT CONCAT(sourceIP, destinationIP)) as Number_of_Stopped_Connections\nfrom default.flows WHERE flowEndReason != 2 AND $__timeFilter(flowEndSeconds)",
+                    "refId": "A"
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "grafana-clickhouse-datasource",
+                "uid": "PDEE91DDB90597936"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "fixedColor": "purple",
+                        "mode": "fixed"
+                    },
+                    "displayName": "Number of Denied Connections",
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 4,
+                "x": 8,
+                "y": 5
+            },
+            "id": 23,
+            "interval": "2s",
+            "options": {
+                "colorMode": "background",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {},
+                "textMode": "auto"
+            },
+            "pluginVersion": "8.3.3",
+            "targets": [
+                {
+                    "builderOptions": {
+                        "database": "default",
+                        "fields": [],
+                        "filters": [],
+                        "limit": 100,
+                        "metrics": [],
+                        "mode": "list",
+                        "orderBy": [],
+                        "table": "flows"
+                    },
+                    "datasource": {
+                        "type": "grafana-clickhouse-datasource",
+                        "uid": "PDEE91DDB90597936"
+                    },
+                    "format": 1,
+                    "meta": {
+                        "builderOptions": {
+                            "database": "default",
+                            "fields": [],
+                            "filters": [],
+                            "limit": 100,
+                            "metrics": [],
+                            "mode": "list",
+                            "orderBy": [],
+                            "table": "flows"
+                        }
+                    },
+                    "queryType": "sql",
+                    "rawSql": "SELECT COUNT(DISTINCT CONCAT(sourceIP, destinationIP)) as Number_of_Denied_Connections\nfrom default.flows\nWHERE (ingressNetworkPolicyRuleAction in (2,3) OR egressNetworkPolicyRuleAction in (2,3))\nAND $__timeFilter(flowEndSeconds)",
+                    "refId": "A"
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "gridPos": {
+                "h": 11,
+                "w": 12,
+                "x": 12,
+                "y": 6
+            },
+            "id": 27,
+            "options": {
+                "content": "The following six dashboards are pre-built and are recommended for network flow\nvisualization.\n\n<span style=\"color:rgb(184, 119, 217)\">Flow Records Dashboard</span> displays the flow records being captured in the selected\ntime range.\n\n<span style=\"color:rgb(184, 119, 217)\">Pod-to-Pod Flows Dashboard</span> shows cumulative bytes and throughput of Pod-to-Pod\ntraffic.\n\n<span style=\"color:rgb(184, 119, 217)\">Pod-to-External Flows Dashboard</span> shows cumulative bytes and throughput of\ntraffic from in-cluster to out-of-cluster. The destination of such a traffic flow\nis represented by the destination IP address.\n\n<span style=\"color:rgb(184, 119, 217)\">Pod-to-Service Flows Dashboard</span> shows cumulative bytes and throughput of\nPod-to-Service flows. The destination of such a traffic is represented by the\ndestination Service metadata.\n\n<span style=\"color:rgb(184, 119, 217)\">Node-to-Node Flows Dashboard</span> visualizes the Node-to-Node traffic, including intra-Node\nand inter-Node flows.\n\n<span style=\"color:rgb(184, 119, 217)\">Network-Policy Flows Dashboard</span> visualizes both the traffic with NetworkPolicies enforced,\nand unprotected traffic.",
+                "mode": "markdown"
+            },
+            "pluginVersion": "8.3.3",
+            "title": "Introduction of Pre-built Dashboards",
+            "type": "text"
+        },
+        {
+            "datasource": {
+                "type": "grafana-clickhouse-datasource",
+                "uid": "PDEE91DDB90597936"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "fixedColor": "green",
+                        "mode": "fixed"
+                    },
+                    "displayName": "Data Transmitted",
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "decbytes"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 4,
+                "x": 0,
+                "y": 9
+            },
+            "id": 21,
+            "interval": "2s",
+            "options": {
+                "colorMode": "background",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {},
+                "textMode": "auto"
+            },
+            "pluginVersion": "8.3.3",
+            "targets": [
+                {
+                    "builderOptions": {
+                        "database": "default",
+                        "fields": [],
+                        "filters": [],
+                        "limit": 100,
+                        "metrics": [],
+                        "mode": "list",
+                        "orderBy": [],
+                        "table": "flows"
+                    },
+                    "datasource": {
+                        "type": "grafana-clickhouse-datasource",
+                        "uid": "PDEE91DDB90597936"
+                    },
+                    "format": 1,
+                    "meta": {
+                        "builderOptions": {
+                            "database": "default",
+                            "fields": [],
+                            "filters": [],
+                            "limit": 100,
+                            "metrics": [],
+                            "mode": "list",
+                            "orderBy": [],
+                            "table": "flows"
+                        }
+                    },
+                    "queryType": "sql",
+                    "rawSql": "SELECT SUM(octetDeltaCount)+SUM(reverseOctetDeltaCount) as Data_Transmitted\nfrom default.flows_pod_view WHERE $__timeFilter(flowEndSeconds)",
+                    "refId": "A"
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "grafana-clickhouse-datasource",
+                "uid": "PDEE91DDB90597936"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "fixedColor": "green",
+                        "mode": "fixed"
+                    },
+                    "displayName": "Overall Throughput",
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "Bps"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 4,
+                "x": 4,
+                "y": 9
+            },
+            "id": 22,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {},
+                "textMode": "auto"
+            },
+            "pluginVersion": "8.3.3",
+            "targets": [
+                {
+                    "builderOptions": {
+                        "database": "default",
+                        "fields": [],
+                        "filters": [],
+                        "limit": 100,
+                        "metrics": [],
+                        "mode": "list",
+                        "orderBy": [],
+                        "table": "flows"
+                    },
+                    "datasource": {
+                        "type": "grafana-clickhouse-datasource",
+                        "uid": "PDEE91DDB90597936"
+                    },
+                    "format": 1,
+                    "meta": {
+                        "builderOptions": {
+                            "database": "default",
+                            "fields": [],
+                            "filters": [],
+                            "limit": 100,
+                            "metrics": [],
+                            "mode": "list",
+                            "orderBy": [],
+                            "table": "flows"
+                        }
+                    },
+                    "queryType": "sql",
+                    "rawSql": "SELECT (SUM(octetDeltaCount)+SUM(reverseOctetDeltaCount))/60 as Overall_Throughput\nfrom default.flows_pod_view WHERE (now() - flowEndSeconds) < 60",
+                    "refId": "A"
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "grafana-clickhouse-datasource",
+                "uid": "PDEE91DDB90597936"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "fixedColor": "green",
+                        "mode": "fixed"
+                    },
+                    "displayName": "Number of NetworkPolicies",
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 4,
+                "x": 8,
+                "y": 9
+            },
+            "id": 26,
+            "interval": "2s",
+            "options": {
+                "colorMode": "background",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {},
+                "textMode": "value_and_name"
+            },
+            "pluginVersion": "8.3.3",
+            "targets": [
+                {
+                    "builderOptions": {
+                        "database": "default",
+                        "fields": [],
+                        "filters": [],
+                        "limit": 100,
+                        "metrics": [],
+                        "mode": "list",
+                        "orderBy": [],
+                        "table": "flows"
+                    },
+                    "datasource": {
+                        "type": "grafana-clickhouse-datasource",
+                        "uid": "PDEE91DDB90597936"
+                    },
+                    "format": 1,
+                    "meta": {
+                        "builderOptions": {
+                            "database": "default",
+                            "fields": [],
+                            "filters": [],
+                            "limit": 100,
+                            "metrics": [],
+                            "mode": "list",
+                            "orderBy": [],
+                            "table": "flows"
+                        }
+                    },
+                    "queryType": "sql",
+                    "rawSql": "SELECT (COUNT(DISTINCT ingressNetworkPolicyName) + COUNT(DISTINCT egressNetworkPolicyName)) as Number_of_NetworkPolicies\nfrom default.flows_policy_view\nWHERE CONCAT(ingressNetworkPolicyName, egressNetworkPolicyName) != ''\nAND $__timeFilter(flowEndSeconds)",
+                    "refId": "A"
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "grafana-clickhouse-datasource",
+                "uid": "PDEE91DDB90597936"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "fixedColor": "orange",
+                        "mode": "fixed"
+                    },
+                    "displayName": "Data Transmitted with External",
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "decbytes"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 4,
+                "x": 0,
+                "y": 13
+            },
+            "id": 28,
+            "interval": "2s",
+            "options": {
+                "colorMode": "background",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {},
+                "textMode": "auto"
+            },
+            "pluginVersion": "8.3.3",
+            "targets": [
+                {
+                    "builderOptions": {
+                        "database": "default",
+                        "fields": [],
+                        "filters": [],
+                        "limit": 100,
+                        "metrics": [],
+                        "mode": "list",
+                        "orderBy": [],
+                        "table": "flows"
+                    },
+                    "datasource": {
+                        "type": "grafana-clickhouse-datasource",
+                        "uid": "PDEE91DDB90597936"
+                    },
+                    "format": 1,
+                    "meta": {
+                        "builderOptions": {
+                            "database": "default",
+                            "fields": [],
+                            "filters": [],
+                            "limit": 100,
+                            "metrics": [],
+                            "mode": "list",
+                            "orderBy": [],
+                            "table": "flows"
+                        }
+                    },
+                    "queryType": "sql",
+                    "rawSql": "SELECT SUM(octetDeltaCount)+SUM(reverseOctetDeltaCount) as Data_Transmitted_With_External\nFROM default.flows_pod_view \nWHERE $__timeFilter(flowEndSeconds)\nAND flowType == 3",
+                    "refId": "A"
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "grafana-clickhouse-datasource",
+                "uid": "PDEE91DDB90597936"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "fixedColor": "orange",
+                        "mode": "fixed"
+                    },
+                    "displayName": "Overall Throughput with External",
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "Bps"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 4,
+                "x": 4,
+                "y": 13
+            },
+            "id": 29,
+            "options": {
+                "colorMode": "background",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {},
+                "textMode": "auto"
+            },
+            "pluginVersion": "8.3.3",
+            "targets": [
+                {
+                    "builderOptions": {
+                        "database": "default",
+                        "fields": [],
+                        "filters": [],
+                        "limit": 100,
+                        "metrics": [],
+                        "mode": "list",
+                        "orderBy": [],
+                        "table": "flows"
+                    },
+                    "datasource": {
+                        "type": "grafana-clickhouse-datasource",
+                        "uid": "PDEE91DDB90597936"
+                    },
+                    "format": 1,
+                    "meta": {
+                        "builderOptions": {
+                            "database": "default",
+                            "fields": [],
+                            "filters": [],
+                            "limit": 100,
+                            "metrics": [],
+                            "mode": "list",
+                            "orderBy": [],
+                            "table": "flows"
+                        }
+                    },
+                    "queryType": "sql",
+                    "rawSql": "SELECT (SUM(octetDeltaCount)+SUM(reverseOctetDeltaCount))/60 as Overall_Throughput_With_External\nfrom default.flows_pod_view WHERE (now() - flowEndSeconds) < 60\nAND flowType == 3",
+                    "refId": "A"
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "grafana-clickhouse-datasource",
+                "uid": "PDEE91DDB90597936"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "fixedColor": "orange",
+                        "mode": "fixed"
+                    },
+                    "displayName": "Number of ToExternal Connections",
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    },
+                    "unit": "none"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 4,
+                "w": 4,
+                "x": 8,
+                "y": 13
+            },
+            "id": 33,
+            "interval": "2s",
+            "options": {
+                "colorMode": "background",
+                "graphMode": "none",
+                "justifyMode": "auto",
+                "orientation": "auto",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": false
+                },
+                "text": {},
+                "textMode": "auto"
+            },
+            "pluginVersion": "8.3.3",
+            "targets": [
+                {
+                    "builderOptions": {
+                        "database": "default",
+                        "fields": [],
+                        "filters": [],
+                        "limit": 100,
+                        "metrics": [],
+                        "mode": "list",
+                        "orderBy": [],
+                        "table": "flows"
+                    },
+                    "datasource": {
+                        "type": "grafana-clickhouse-datasource",
+                        "uid": "PDEE91DDB90597936"
+                    },
+                    "format": 1,
+                    "meta": {
+                        "builderOptions": {
+                            "database": "default",
+                            "fields": [],
+                            "filters": [],
+                            "limit": 100,
+                            "metrics": [],
+                            "mode": "list",
+                            "orderBy": [],
+                            "table": "flows"
+                        }
+                    },
+                    "queryType": "sql",
+                    "rawSql": "SELECT COUNT(DISTINCT CONCAT(sourceIP, destinationIP)) as Number_of_ToExternal_Connections\nfrom default.flows\nWHERE flowType == 3\nAND $__timeFilter(flowEndSeconds)",
+                    "refId": "A"
+                }
+            ],
+            "type": "stat"
+        },
+        {
+            "datasource": {
+                "type": "grafana-clickhouse-datasource",
+                "uid": "PDEE91DDB90597936"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "continuous-GrYlRd"
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            },
+                            {
+                                "color": "red",
+                                "value": 80
+                            }
+                        ]
+                    },
+                    "unit": "decbytes"
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 9,
+                "w": 12,
+                "x": 0,
+                "y": 17
+            },
+            "id": 18,
+            "options": {
+                "displayMode": "gradient",
+                "orientation": "horizontal",
+                "reduceOptions": {
+                    "calcs": [
+                        "lastNotNull"
+                    ],
+                    "fields": "",
+                    "values": true
+                },
+                "showUnfilled": true
+            },
+            "pluginVersion": "8.3.3",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "grafana-clickhouse-datasource",
+                        "uid": "PDEE91DDB90597936"
+                    },
+                    "format": 1,
+                    "meta": {
+                        "builderOptions": {
+                            "fields": [],
+                            "limit": 100,
+                            "mode": "list"
+                        }
+                    },
+                    "queryType": "sql",
+                    "rawSql": "SELECT CONCAT(sourcePodNamespace, '/', sourcePodName) as pod,\nSUM(octetDeltaCount) as bytes\nFROM default.flows_pod_view\nWHERE $__timeFilter(flowEndSeconds)\nAND pod != '/'\nGROUP BY pod\nORDER BY bytes DESC LIMIT 10",
+                    "refId": "A"
+                }
+            ],
+            "title": "Top 10 Active Source Pods",
+            "type": "bargauge"
+        },
+        {
+            "datasource": {
+                "type": "grafana",
+                "uid": "grafana"
+            },
+            "gridPos": {
+                "h": 18,
+                "w": 12,
+                "x": 12,
+                "y": 17
+            },
+            "id": 4,
+            "links": [],
+            "options": {
+                "folderId": 0,
+                "maxItems": 10,
+                "query": "",
+                "showHeadings": true,
+                "showRecentlyViewed": true,
+                "showSearch": true,
+                "showStarred": true,
+                "tags": []
+            },
+            "pluginVersion": "8.3.3",
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "datasource",
+                        "uid": "grafana"
+                    },
+                    "queryType": "list",
+                    "refId": "A"
+                }
+            ],
+            "title": "Dashboard Links",
+            "type": "dashlist"
+        },
+        {
+            "datasource": {
+                "type": "grafana-clickhouse-datasource",
+                "uid": "PDEE91DDB90597936"
+            },
+            "fieldConfig": {
+                "defaults": {
+                    "color": {
+                        "mode": "continuous-GrYlRd"
+                    },
+                    "custom": {
+                        "axisLabel": "",
+                        "axisPlacement": "auto",
+                        "barAlignment": 0,
+                        "drawStyle": "bars",
+                        "fillOpacity": 80,
+                        "gradientMode": "opacity",
+                        "hideFrom": {
+                            "legend": false,
+                            "tooltip": false,
+                            "viz": false
+                        },
+                        "lineInterpolation": "linear",
+                        "lineWidth": 1,
+                        "pointSize": 5,
+                        "scaleDistribution": {
+                            "type": "linear"
+                        },
+                        "showPoints": "auto",
+                        "spanNulls": false,
+                        "stacking": {
+                            "group": "A",
+                            "mode": "none"
+                        },
+                        "thresholdsStyle": {
+                            "mode": "off"
+                        }
+                    },
+                    "mappings": [],
+                    "thresholds": {
+                        "mode": "absolute",
+                        "steps": [
+                            {
+                                "color": "green",
+                                "value": null
+                            }
+                        ]
+                    }
+                },
+                "overrides": []
+            },
+            "gridPos": {
+                "h": 9,
+                "w": 12,
+                "x": 0,
+                "y": 26
+            },
+            "id": 25,
+            "interval": "60s",
+            "options": {
+                "legend": {
+                    "calcs": [],
+                    "displayMode": "hidden",
+                    "placement": "bottom"
+                },
+                "tooltip": {
+                    "mode": "single"
+                }
+            },
+            "targets": [
+                {
+                    "datasource": {
+                        "type": "grafana-clickhouse-datasource",
+                        "uid": "PDEE91DDB90597936"
+                    },
+                    "format": 2,
+                    "meta": {
+                        "builderOptions": {
+                            "fields": [],
+                            "limit": 100,
+                            "mode": "list"
+                        }
+                    },
+                    "queryType": "sql",
+                    "rawSql": "SELECT $__timeInterval(flowEndSeconds) as time,\ncount(*) as count\nFROM default.flows\nWHERE $__timeFilter(time)\nGROUP BY time\nORDER BY time",
+                    "refId": "A"
+                }
+            ],
+            "title": "Number of Flow Records Per Minute",
+            "type": "timeseries"
+        }
+    ],
+    "refresh": "",
+    "schemaVersion": 34,
+    "style": "dark",
+    "tags": [],
+    "templating": {
+        "list": []
+    },
+    "time": {
+        "from": "now-30m",
+        "to": "now"
+    },
+    "timepicker": {},
+    "timezone": "",
+    "title": "homepage",
+    "uid": "Yw6zwRkVk",
+    "version": 6,
+    "weekStart": ""
+}

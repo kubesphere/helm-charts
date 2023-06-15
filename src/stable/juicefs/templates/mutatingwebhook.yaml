@@ -1,0 +1,32 @@
+{{- $webhookApiVersion := include "webhook.apiVersion" . -}}
+{{- $caCert := include "webhook.caBundleCertPEM" . -}}
+{{- $crtPEM := include "webhook.certPEM" . -}}
+{{- $keyPEM := include "webhook.keyPEM" . -}}
+{{- $timeoutSeconds := .Values.webhook.timeoutSeconds }}
+
+{{- if eq .Values.mountMode "sidecar" }}
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: juicefs-admission-webhook
+webhooks:
+  - name: sidecar.inject.juicefs.com
+    rules:
+      - apiGroups:   [""]
+        apiVersions: ["v1"]
+        operations:  ["CREATE"]
+        resources:   ["pods"]
+    clientConfig:
+      service:
+        namespace: {{ .Release.Namespace | quote }}
+        name: juicefs-admission-webhook
+        path: "/juicefs/inject-v1-pod"
+      caBundle: {{ ternary (b64enc $caCert) (b64enc (trim $crtPEM)) (empty $crtPEM) }}
+    timeoutSeconds: {{ $timeoutSeconds }}
+    failurePolicy: {{ $.Values.webhook.FailurePolicy }}
+    sideEffects: None
+    admissionReviewVersions: ["v1","v1beta1"]
+    namespaceSelector:
+      matchLabels:
+        juicefs.com/enable-injection: "true"
+{{- end }}

@@ -7,4 +7,4 @@ appVersion: "1.16.0"
 dependencies:
 - name: deepflow
   version: "*.*.*"
-  repository: https://deepflowys.github.io/deepflow
+  repository: https://deepflowio.github.io/deepflow

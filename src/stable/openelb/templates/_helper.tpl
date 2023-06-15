@@ -46,6 +46,10 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{- printf "%s-%s" (include "openelb.fullname" .) "admission" | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
+{{- define "openelb.keepalived.fullname" -}}
+{{- printf "%s-%s" (include "openelb.fullname" .) "keepalived" | trunc 63 | trimSuffix "-" -}}
+{{- end -}}
+
 {{/*
 Common labels
 */}}
@@ -71,6 +75,11 @@ app.kubernetes.io/component: {{ include "openelb.manager.fullname" . }}
 {{- define "openelb.admission.labels" -}}
 {{- include "openelb.labels" . }}
 app.kubernetes.io/component: {{ include "openelb.admission.fullname" . }}
+{{- end -}}
+
+{{- define "openelb.keepalived.labels" -}}
+{{- include "openelb.labels" . }}
+app.kubernetes.io/component: {{ include "openelb.keepalived.fullname" . }}
 {{- end -}}
 
 {{- define "openelb.manager.serviceAccountName" -}}

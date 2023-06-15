@@ -1,0 +1,639 @@
+{
+  "annotations": {
+    "list": [
+      {
+        "builtIn": 1,
+        "datasource": "-- Grafana --",
+        "enable": true,
+        "hide": true,
+        "iconColor": "rgba(0, 211, 255, 1)",
+        "name": "Annotations & Alerts",
+        "target": {
+          "limit": 100,
+          "matchAny": false,
+          "tags": [],
+          "type": "dashboard"
+        },
+        "type": "dashboard"
+      }
+    ]
+  },
+  "editable": true,
+  "fiscalYearStartMonth": 0,
+  "graphTooltip": 0,
+  "id": 2,
+  "iteration": 1659133512870,
+  "links": [],
+  "liveNow": false,
+  "panels": [
+    {
+      "datasource": {
+        "type": "grafana-clickhouse-datasource",
+        "uid": "PDEE91DDB90597936"
+      },
+      "gridPos": {
+        "h": 20,
+        "w": 15,
+        "x": 0,
+        "y": 0
+      },
+      "id": 2,
+      "interval": "1s",
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-clickhouse-datasource",
+            "uid": "PDEE91DDB90597936"
+          },
+          "format": 2,
+          "meta": {
+            "builderOptions": {
+              "fields": [],
+              "limit": 100,
+              "mode": "list"
+            }
+          },
+          "queryType": "sql",
+          "rawSql": "SELECT CONCAT(sourcePodNamespace, '/', sourcePodName) as srcPod,\nCONCAT(destinationPodNamespace, '/', destinationPodName) as dstPod,\nsourceTransportPort as srcPort,\ndestinationTransportPort as dstPort,\ndestinationServicePort as dstSvcPort,\ndestinationServicePortName as dstSvc,\ndestinationIP as dstIP,\nSUM(octetDeltaCount) as bytes,\nSUM(reverseOctetDeltaCount) as revBytes,\negressNetworkPolicyName,\negressNetworkPolicyRuleAction,\ningressNetworkPolicyName,\ningressNetworkPolicyRuleAction\nfrom flows_policy_view\nWHERE sourcePodNamespace NOT IN ('kube-system', 'flow-visibility', 'flow-aggregator')\n    AND destinationPodNamespace NOT IN ('kube-system', 'flow-visibility', 'flow-aggregator')\n    AND $__timeFilter(flowEndSeconds)\nGROUP BY srcPod, dstPod, srcPort, dstPort, dstSvcPort, dstSvc, dstIP, egressNetworkPolicyName, egressNetworkPolicyRuleAction, ingressNetworkPolicyName, ingressNetworkPolicyRuleAction\nHAVING bytes > 0\norder by bytes DESC\n",
+          "refId": "A"
+        }
+      ],
+      "title": "Cumulative Bytes of Flows with NetworkPolicy Information",
+      "transparent": true,
+      "type": "theia-grafana-chord-plugin"
+    },
+    {
+      "datasource": {
+        "type": "grafana-clickhouse-datasource",
+        "uid": "PDEE91DDB90597936"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": [],
+          "unit": "decbytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 8,
+        "x": 16,
+        "y": 0
+      },
+      "id": 10,
+      "options": {
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "values": [
+            "percent",
+            "value"
+          ]
+        },
+        "pieType": "donut",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "limit": 25,
+          "values": true
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-clickhouse-datasource",
+            "uid": "PDEE91DDB90597936"
+          },
+          "format": 1,
+          "queryType": "sql",
+          "rawSql": "SELECT SUM(octetDeltaCount) as bytes, \nCASE WHEN ingressNetworkPolicyNamespace != '' THEN CONCAT(ingressNetworkPolicyNamespace, '/', ingressNetworkPolicyName)\nELSE ingressNetworkPolicyName\nEND AS np\nFROM flows_policy_view\nWHERE sourcePodNamespace NOT IN ('kube-system', 'flow-visibility', 'flow-aggregator')\nAND destinationPodNamespace NOT IN ('kube-system', 'flow-visibility', 'flow-aggregator')\nAND ingressNetworkPolicyName != ''\nAND $__timeFilter(flowEndSeconds)\nGROUP BY np\nHAVING SUM(octetDeltaCount) != 0\nORDER BY bytes DESC",
+          "refId": "A"
+        }
+      ],
+      "title": "Cumulative Bytes of Ingress Network Policy",
+      "transparent": true,
+      "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "grafana-clickhouse-datasource",
+        "uid": "PDEE91DDB90597936"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            }
+          },
+          "mappings": [],
+          "unit": "decbytes"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 10,
+        "w": 8,
+        "x": 16,
+        "y": 10
+      },
+      "id": 9,
+      "options": {
+        "displayLabels": [],
+        "legend": {
+          "displayMode": "table",
+          "placement": "bottom",
+          "values": [
+            "percent",
+            "value"
+          ]
+        },
+        "pieType": "donut",
+        "reduceOptions": {
+          "calcs": [
+            "lastNotNull"
+          ],
+          "fields": "",
+          "limit": 25,
+          "values": true
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-clickhouse-datasource",
+            "uid": "PDEE91DDB90597936"
+          },
+          "format": 1,
+          "queryType": "sql",
+          "rawSql": "SELECT SUM(octetDeltaCount) as bytes,\nCASE WHEN egressNetworkPolicyNamespace != '' THEN CONCAT(egressNetworkPolicyNamespace, '/', egressNetworkPolicyName)\nELSE egressNetworkPolicyName\nEND AS np\nFROM flows_policy_view\nWHERE sourcePodNamespace NOT IN ('kube-system', 'flow-visibility', 'flow-aggregator')\nAND destinationPodNamespace NOT IN ('kube-system', 'flow-visibility', 'flow-aggregator')\nAND egressNetworkPolicyName != ''\nAND $__timeFilter(flowEndSeconds)\nGROUP BY np\nHAVING SUM(octetDeltaCount) > 0\nORDER BY bytes DESC",
+          "refId": "A"
+        }
+      ],
+      "title": "Cumulative Bytes of Egress Network Policy",
+      "transparent": true,
+      "type": "piechart"
+    },
+    {
+      "datasource": {
+        "type": "grafana-clickhouse-datasource",
+        "uid": "PDEE91DDB90597936"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "always",
+            "spanNulls": 90000,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "bps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 20
+      },
+      "id": 4,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "table",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-clickhouse-datasource",
+            "uid": "PDEE91DDB90597936"
+          },
+          "format": 2,
+          "meta": {
+            "builderOptions": {
+              "fields": [],
+              "limit": 100,
+              "mode": "list"
+            }
+          },
+          "queryType": "sql",
+          "rawSql": "SELECT $__timeInterval(flowEndSeconds) as time,\nCASE WHEN sourceTransportPort != 0 THEN CONCAT(sourcePodNamespace, '/', sourcePodName, ':', CAST(sourceTransportPort as VARCHAR))\nELSE CONCAT(sourcePodNamespace, '/', sourcePodName)\nEND AS src,\nCASE WHEN destinationServicePortName != '' AND destinationServicePort != 0 THEN CONCAT(destinationServicePortName, ':', CAST(destinationServicePort as VARCHAR))\nWHEN destinationServicePortName != '' AND destinationServicePort == 0 THEN destinationServicePortName\nWHEN destinationPodName != '' AND destinationTransportPort != 0 THEN CONCAT(destinationPodNamespace,'/', destinationPodName, ':', CAST(destinationTransportPort as VARCHAR))\nWHEN destinationPodName != '' AND destinationTransportPort == 0 THEN CONCAT(destinationPodNamespace,'/', destinationPodName)\nELSE destinationIP\nEND AS dst,\nCASE WHEN ingressNetworkPolicyNamespace != '' THEN CONCAT(ingressNetworkPolicyNamespace,'/', ingressNetworkPolicyName)\nELSE ingressNetworkPolicyName\nEND AS np,\nCONCAT(src, ' -> ', dst, ' : ', np) as pair,\nAVG(throughput)\nFROM flows_policy_view\nWHERE $__timeFilter(flowEndSeconds)\nAND sourcePodNamespace NOT IN ('kube-system', 'flow-visibility', 'flow-aggregator')\nAND destinationPodNamespace NOT IN ('kube-system', 'flow-visibility', 'flow-aggregator')\nAND ingressNetworkPolicyRuleAction == 1\nAND egressNetworkPolicyRuleAction NOT IN (2, 3)\nGROUP BY time, src, dst, np\nHAVING AVG(throughput) > 0\nORDER BY time\n",
+          "refId": "A"
+        }
+      ],
+      "title": "Throughput of Ingress Allow NetworkPolicy",
+      "transformations": [
+        {
+          "id": "labelsToFields",
+          "options": {
+            "valueLabel": "pair"
+          }
+        }
+      ],
+      "transparent": true,
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "grafana-clickhouse-datasource",
+        "uid": "PDEE91DDB90597936"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "always",
+            "spanNulls": 90000,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "bps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 20
+      },
+      "id": 5,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "table",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-clickhouse-datasource",
+            "uid": "PDEE91DDB90597936"
+          },
+          "format": 2,
+          "meta": {
+            "builderOptions": {
+              "fields": [],
+              "limit": 100,
+              "mode": "list"
+            }
+          },
+          "queryType": "sql",
+          "rawSql": "SELECT $__timeInterval(flowEndSeconds) as time,\nCASE WHEN sourceTransportPort != 0 THEN CONCAT(sourcePodNamespace, '/', sourcePodName, ':', CAST(sourceTransportPort as VARCHAR))\nELSE CONCAT(sourcePodNamespace, '/', sourcePodName)\nEND AS src,\nCASE WHEN destinationServicePortName != '' AND destinationServicePort != 0 THEN CONCAT(destinationServicePortName, ':', CAST(destinationServicePort as VARCHAR))\nWHEN destinationServicePortName != '' AND destinationServicePort == 0 THEN destinationServicePortName\nWHEN destinationPodName != '' AND destinationTransportPort != 0 THEN CONCAT(destinationPodNamespace,'/', destinationPodName, ':', CAST(destinationTransportPort as VARCHAR))\nWHEN destinationPodName != '' AND destinationTransportPort == 0 THEN CONCAT(destinationPodNamespace,'/', destinationPodName)\nELSE destinationIP\nEND\nAS dst,\nCASE WHEN egressNetworkPolicyNamespace != '' THEN CONCAT(egressNetworkPolicyNamespace,'/', egressNetworkPolicyName)\nELSE egressNetworkPolicyName\nEND\nAS np,\nCONCAT(src, ' -> ', dst, ' : ', np) as pair,\nAVG(throughput)\nFROM flows_policy_view\nWHERE $__timeFilter(flowEndSeconds)\nAND sourcePodNamespace NOT IN ('kube-system', 'flow-visibility', 'flow-aggregator')\nAND destinationPodNamespace NOT IN ('kube-system', 'flow-visibility', 'flow-aggregator')\nAND egressNetworkPolicyRuleAction == 1\nAND ingressNetworkPolicyRuleAction not in (2, 3)\nGROUP BY time, src, dst, np\nHAVING AVG(throughput) > 0\nORDER BY time",
+          "refId": "A"
+        }
+      ],
+      "title": "Throughput of Egress Allow NetworkPolicy",
+      "transformations": [
+        {
+          "id": "labelsToFields",
+          "options": {
+            "valueLabel": "pair"
+          }
+        }
+      ],
+      "transparent": true,
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "grafana-clickhouse-datasource",
+        "uid": "PDEE91DDB90597936"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "always",
+            "spanNulls": 90000,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "bps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 28
+      },
+      "id": 6,
+      "interval": "1s",
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "table",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-clickhouse-datasource",
+            "uid": "PDEE91DDB90597936"
+          },
+          "expand": false,
+          "format": 2,
+          "meta": {
+            "builderOptions": {
+              "fields": [],
+              "limit": 100,
+              "mode": "list"
+            }
+          },
+          "queryType": "sql",
+          "rawSql": "SELECT $__timeInterval(flowEndSeconds) as time,\nCASE WHEN sourceTransportPort != 0 THEN CONCAT(sourcePodNamespace, '/', sourcePodName, ':', CAST(sourceTransportPort as VARCHAR))\nELSE CONCAT(sourcePodNamespace, '/', sourcePodName)\nEND AS src,\nCASE WHEN destinationServicePortName != '' AND destinationServicePort != 0 THEN CONCAT(destinationServicePortName, ':', CAST(destinationServicePort as VARCHAR))\nWHEN destinationServicePortName != '' AND destinationServicePort == 0 THEN destinationServicePortName\nWHEN destinationPodName != '' AND destinationTransportPort != 0 THEN CONCAT(destinationPodNamespace,'/', destinationPodName, ':', CAST(destinationTransportPort as VARCHAR))\nWHEN destinationPodName != '' AND destinationTransportPort == 0 THEN CONCAT(destinationPodNamespace,'/', destinationPodName)\nELSE destinationIP\nEND\nAS dst,\nCASE WHEN ingressNetworkPolicyNamespace != '' THEN CONCAT(ingressNetworkPolicyNamespace,'/', ingressNetworkPolicyName)\nELSE ingressNetworkPolicyName\nEND\nAS np,\nCONCAT(src, ' -> ', dst, ' : ', np) as pair,\nAVG(throughput)\nFROM flows_policy_view\nWHERE $__timeFilter(flowEndSeconds)\nAND sourcePodNamespace NOT IN ('kube-system', 'flow-visibility', 'flow-aggregator')\nAND destinationPodNamespace NOT IN ('kube-system', 'flow-visibility', 'flow-aggregator')\nAND ingressNetworkPolicyRuleAction in (2,3)\nGROUP BY time, src, dst, np\nHAVING SUM(octetDeltaCount) > 0\nORDER BY time",
+          "refId": "A"
+        }
+      ],
+      "title": "Throughput of Ingress Deny NetworkPolicy",
+      "transformations": [
+        {
+          "id": "labelsToFields",
+          "options": {
+            "valueLabel": "pair"
+          }
+        }
+      ],
+      "transparent": true,
+      "type": "timeseries"
+    },
+    {
+      "datasource": {
+        "type": "grafana-clickhouse-datasource",
+        "uid": "PDEE91DDB90597936"
+      },
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "palette-classic"
+          },
+          "custom": {
+            "axisLabel": "",
+            "axisPlacement": "auto",
+            "barAlignment": 0,
+            "drawStyle": "line",
+            "fillOpacity": 10,
+            "gradientMode": "none",
+            "hideFrom": {
+              "legend": false,
+              "tooltip": false,
+              "viz": false
+            },
+            "lineInterpolation": "linear",
+            "lineWidth": 1,
+            "pointSize": 5,
+            "scaleDistribution": {
+              "type": "linear"
+            },
+            "showPoints": "always",
+            "spanNulls": 90000,
+            "stacking": {
+              "group": "A",
+              "mode": "none"
+            },
+            "thresholdsStyle": {
+              "mode": "off"
+            }
+          },
+          "mappings": [],
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              }
+            ]
+          },
+          "unit": "bps"
+        },
+        "overrides": []
+      },
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 12,
+        "y": 28
+      },
+      "id": 7,
+      "options": {
+        "legend": {
+          "calcs": [],
+          "displayMode": "table",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single"
+        }
+      },
+      "targets": [
+        {
+          "datasource": {
+            "type": "grafana-clickhouse-datasource",
+            "uid": "PDEE91DDB90597936"
+          },
+          "format": 2,
+          "meta": {
+            "builderOptions": {
+              "fields": [],
+              "limit": 100,
+              "mode": "list"
+            }
+          },
+          "queryType": "sql",
+          "rawSql": "SELECT $__timeInterval(flowEndSeconds) as time,\nCASE WHEN sourceTransportPort != 0 THEN CONCAT(sourcePodNamespace, '/', sourcePodName, ':', CAST(sourceTransportPort as VARCHAR))\nELSE CONCAT(sourcePodNamespace, '/', sourcePodName)\nEND AS src,\nCASE WHEN destinationServicePortName != '' AND destinationServicePort != 0 THEN CONCAT(destinationServicePortName, ':', CAST(destinationServicePort as VARCHAR))\nWHEN destinationServicePortName != '' AND destinationServicePort == 0 THEN destinationServicePortName\nWHEN destinationPodName != '' AND destinationTransportPort != 0 THEN CONCAT(destinationPodNamespace,'/', destinationPodName, ':', CAST(destinationTransportPort as VARCHAR))\nWHEN destinationPodName != '' AND destinationTransportPort == 0 THEN CONCAT(destinationPodNamespace,'/', destinationPodName)\nELSE destinationIP\nEND\nAS dst,\nCASE WHEN egressNetworkPolicyNamespace != '' THEN CONCAT(egressNetworkPolicyNamespace,'/', egressNetworkPolicyName)\nELSE egressNetworkPolicyName\nEND\nAS np,\nCONCAT(src, ' -> ', dst, ' : ', np) as pair,\nAVG(throughput)\nFROM flows_policy_view\nWHERE $__timeFilter(flowEndSeconds)\nAND sourcePodNamespace NOT IN ('kube-system', 'flow-visibility', 'flow-aggregator')\nAND destinationPodNamespace NOT IN ('kube-system', 'flow-visibility', 'flow-aggregator')\nAND egressNetworkPolicyRuleAction in (2,3)\nGROUP BY time, src, dst, np\nHAVING SUM(octetDeltaCount) > 0\nORDER BY time",
+          "refId": "A"
+        }
+      ],
+      "title": "Throughput of Egress Deny NetworkPolicy",
+      "transformations": [
+        {
+          "id": "labelsToFields",
+          "options": {
+            "valueLabel": "pair"
+          }
+        }
+      ],
+      "transparent": true,
+      "type": "timeseries"
+    }
+  ],
+  "refresh": "",
+  "schemaVersion": 34,
+  "style": "dark",
+  "tags": [],
+  "templating": {
+    "list": [
+      {
+        "datasource": {
+          "type": "grafana-clickhouse-datasource",
+          "uid": "PDEE91DDB90597936"
+        },
+        "filters": [],
+        "hide": 0,
+        "name": "Filter",
+        "skipUrlSync": false,
+        "type": "adhoc"
+      },
+      {
+        "hide": 2,
+        "name": "clickhouse_adhoc_query",
+        "query": "default.flows_policy_view",
+        "skipUrlSync": false,
+        "type": "constant"
+      }
+    ]
+  },
+  "time": {
+    "from": "now-30m",
+    "to": "now"
+  },
+  "timepicker": {},
+  "timezone": "",
+  "title": "networkpolicy_dashboard",
+  "uid": "KJNMOwQnk",
+  "version": 2,
+  "weekStart": ""
+}

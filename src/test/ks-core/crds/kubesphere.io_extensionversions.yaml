@@ -1,10 +1,9 @@
-
 ---
 apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: ""
+    controller-gen.kubebuilder.io/version: (unknown)
   creationTimestamp: null
   name: extensionversions.kubesphere.io
 spec:
@@ -59,6 +58,7 @@ spec:
                 - key
                 - namespace
                 type: object
+                x-kubernetes-map-type: atomic
               chartURL:
                 type: string
               description:
@@ -69,11 +69,34 @@ spec:
                 additionalProperties:
                   type: string
                 type: object
+              externalDependencies:
+                description: ExternalDependencies
+                items:
+                  properties:
+                    name:
+                      description: Name of the external dependency
+                      type: string
+                    required:
+                      description: Indicates if the dependency is required
+                      type: boolean
+                    type:
+                      description: Type of dependency, default to extension
+                      type: string
+                    version:
+                      description: SemVer
+                      type: string
+                  required:
+                  - name
+                  - required
+                  - version
+                  type: object
+                type: array
               home:
                 type: string
               icon:
                 type: string
               installationMode:
+                default: HostOnly
                 type: string
               keywords:
                 items:
@@ -116,9 +139,3 @@ spec:
         type: object
     served: true
     storage: true
-status:
-  acceptedNames:
-    kind: ""
-    plural: ""
-  conditions: []
-  storedVersions: []

@@ -1,4 +1,6 @@
 {{- $fullName := include "databend-meta.fullname" . }}
+{{- $replicaCount := int .Values.replicaCount }}
+{{- $bootstrap := or .Values.bootstrap (eq $replicaCount 1) }}
 apiVersion: apps/v1
 kind: StatefulSet
 metadata:
@@ -8,6 +10,11 @@ metadata:
 spec:
   serviceName: {{ $fullName }}
   replicas: {{ .Values.replicaCount }}
+  {{- if $bootstrap }}
+  podManagementPolicy: OrderedReady
+  {{- else }}
+  podManagementPolicy: Parallel
+  {{- end }}
   selector:
     matchLabels:
       {{- include "databend-meta.selectorLabels" . | nindent 6 }}
@@ -43,16 +50,17 @@ spec:
               echo "check if my service is running and run commands ";
               if [[ $POD_NAME =~ (.*)-([0-9]+)$ ]]
               then
-                ID=$((BASH_REMATCH[2] + 1))
                 NAME=${BASH_REMATCH[1]}
-                echo "ID: $ID"  "NAME : $NAME"
+                ID=${BASH_REMATCH[2]}
+                echo "ID: $ID" "NAME : $NAME"
+            {{- if $bootstrap }}
                 case ${BASH_REMATCH[2]} in
                   0)
                     echo "initialize leader node";
-                    /databend-meta --id ${ID} \
+                    exec /databend-meta --id ${ID} \
                       --log-stderr-on \
-                      --log-stderr-level ERROR \
-                      --log-file-level INFO \
+                      --log-stderr-level "{{ .Values.config.stdLogLevel }}" \
+                      --log-file-level "{{ .Values.config.logLevel }}" \
                       --log-file-dir "{{ .Values.config.logDir }}" \
                       --max-applied-log-to-keep 102400 \
                       --raft-dir "{{ .Values.config.raft.dir }}" \
@@ -61,15 +69,16 @@ spec:
                       --raft-api-port 28004 \
                       --raft-listen-host ${POD_IP} \
                       --raft-advertise-host ${POD_NAME}.{{ $fullName }}.${POD_NAMESPACE}.svc.cluster.local \
+                      --grpc-api-advertise-host ${POD_IP} \
                       --config-id ${ID} \
                       --single
                   ;;
                   *)
                     echo "initialize follower node";
-                    /databend-meta --id ${ID} \
+                    exec /databend-meta --id ${ID} \
                       --log-stderr-on \
-                      --log-stderr-level ERROR \
-                      --log-file-level INFO \
+                      --log-stderr-level "{{ .Values.config.stdLogLevel }}" \
+                      --log-file-level "{{ .Values.config.logLevel }}" \
                       --log-file-dir "{{ .Values.config.logDir }}" \
                       --max-applied-log-to-keep 102400 \
                       --raft-dir "{{ .Values.config.raft.dir }}" \
@@ -78,10 +87,30 @@ spec:
                       --raft-api-port 28004 \
                       --raft-listen-host ${POD_IP} \
                       --raft-advertise-host ${POD_NAME}.{{ $fullName }}.${POD_NAMESPACE}.svc.cluster.local \
+                      --grpc-api-advertise-host ${POD_IP} \
                       --config-id ${ID} \
-                      --join ${NAME}-0.{{ $fullName }}:28004
+                      --join ${NAME}-0.{{ $fullName }}.${POD_NAMESPACE}.svc.cluster.local:28004
                   ;;
                 esac
+            {{- else }}
+                exec /databend-meta --id ${ID} \
+                  --log-stderr-on \
+                  --log-stderr-level "{{ .Values.config.stdLogLevel }}" \
+                  --log-file-level "{{ .Values.config.logLevel }}" \
+                  --log-file-dir "{{ .Values.config.logDir }}" \
+                  --max-applied-log-to-keep 102400 \
+                  --raft-dir "{{ .Values.config.raft.dir }}" \
+                  --admin-api-address ${POD_IP}:28002 \
+                  --grpc-api-address ${POD_IP}:9191 \
+                  --raft-api-port 28004 \
+                  --raft-listen-host ${POD_IP} \
+                  --raft-advertise-host ${POD_NAME}.{{ $fullName }}.${POD_NAMESPACE}.svc.cluster.local \
+                  --grpc-api-advertise-host ${POD_IP} \
+            {{- range $i := until $replicaCount }}
+                  --join ${NAME}-{{ $i }}.{{ $fullName }}.${POD_NAMESPACE}.svc.cluster.local:28004 \
+            {{- end }}
+                  --config-id ${ID}
+            {{- end }}
               else
                 echo pod name $POD_NAME is not valid && exit 1
               fi

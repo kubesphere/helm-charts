@@ -1,3 +1,4 @@
+{{ if eq .Values.role "host" }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -54,7 +55,7 @@ spec:
           livenessProbe:
             failureThreshold: 8
             httpGet:
-              path: /kapis/version
+              path: /version
               port: 9090
               scheme: HTTP
             initialDelaySeconds: 15
@@ -80,32 +81,4 @@ spec:
         {{- if .Values.apiserver.extraVolumes }}
         {{- include "common.tplvalues.render" (dict "value" .Values.apiserver.extraVolumes "context" $) | nindent 8 }}
         {{- end }}
----
-
-apiVersion: v1
-kind: Service
-metadata:
-  annotations:
-    kubernetes.io/created-by: kubesphere.io/ks-apiserver
-  labels:
-    app: ks-apiserver
-    tier: backend
-    version: {{ .Chart.AppVersion }}
-  name: ks-apiserver
-spec:
-  ports:
-  - port: 80
-    protocol: TCP
-    targetPort: 9090
-    {{- with .Values.apiserver.nodePort }}
-    nodePort:
-      {{- toYaml . | nindent 6 }}
-    {{- end }}
-  selector:
-    app: ks-apiserver
-    tier: backend
-{{- if .Values.apiserver.nodePort }}
-  type: NodePort
-{{- else}}
-  type: ClusterIP
-{{- end}}
+{{ end }}

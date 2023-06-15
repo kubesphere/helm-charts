@@ -1,0 +1,19 @@
+{{- if (eq (len .Values.clickhouse.cluster.zookeeperHosts) 0) }}
+# Setup Service to provide access to Zookeeper for clients
+apiVersion: v1
+kind: Service
+metadata:
+  name: zookeeper
+  labels:
+    app: zookeeper
+  namespace: {{ .Release.Namespace }}
+spec:
+  ports:
+    - port: 2181
+      name: client
+    - port: 7000
+      name: prometheus
+  selector:
+    app: zookeeper
+    what: node
+{{- end }}
