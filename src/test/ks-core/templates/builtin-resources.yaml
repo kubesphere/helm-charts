@@ -579,6 +579,8 @@ items:
     kind: RoleBase
     metadata:
       name: workspace-admin
+      labels:
+        scope.iam.kubesphere.io/workspace: ""
     role:
       aggregationRoleTemplates:
         roleSelectors:
@@ -621,6 +623,8 @@ items:
     kind: RoleBase
     metadata:
       name: workspace-regular
+      labels:
+        scope.iam.kubesphere.io/workspace: ""
     role:
       aggregationRoleTemplates:
         templateNames:
@@ -653,6 +657,8 @@ items:
     kind: RoleBase
     metadata:
       name: workspace-self-provisioner
+      labels:
+        scope.iam.kubesphere.io/workspace: ""
     role:
       aggregationRoleTemplates:
         templateNames:
@@ -711,6 +717,8 @@ items:
     kind: RoleBase
     metadata:
       name: workspace-viewer
+      labels:
+        scope.iam.kubesphere.io/workspace: ""
     role:
       aggregationRoleTemplates:
         roleSelector:
