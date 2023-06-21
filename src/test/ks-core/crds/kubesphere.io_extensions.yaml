@@ -53,20 +53,22 @@ spec:
                 type: object
               icon:
                 type: string
-              vendor:
-                description: Vendor describes an extension vendor.
-                properties:
-                  email:
-                    description: Email is an optional email address to contact the
-                      named vendor
-                    type: string
-                  name:
-                    description: Name is a username or organization name
-                    type: string
-                  url:
-                    description: URL is an optional URL to an address for the named
-                      vendor
-                    type: string
+              provider:
+                additionalProperties:
+                  description: Provider describes an extension provider.
+                  properties:
+                    email:
+                      description: Email is an optional email address to contact the
+                        named provider
+                      type: string
+                    name:
+                      description: Name is a username or organization name
+                      type: string
+                    url:
+                      description: URL is an optional URL to an address for the named
+                        provider
+                      type: string
+                  type: object
                 type: object
             type: object
           status:
