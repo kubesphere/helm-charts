@@ -9,7 +9,7 @@
 
 image:
   repository: juicedata/juicefs-csi-driver
-  tag: "v0.18.0"
+  tag: "v0.20.0"
   pullPolicy: ""
 
 sidecars:
@@ -22,6 +22,8 @@ sidecars:
   csiProvisionerImage:
     repository: quay.io/k8scsi/csi-provisioner
     tag: "v1.6.0"
+
+imagePullSecrets: []
 
 # The way JuiceFS client runs. including:
 #  - mountpod: default, run JuiceFS client in an independent pod.
@@ -74,10 +76,19 @@ serviceAccount:
 controller:
   # -- Default is `true`
   enabled: true
+  leaderElection:
+    # Enable leader election for controller.
+    enabled: true
+    # The namespace where the leader election resource lives. Defaults to the pod namespace if not set.
+    leaderElectionNamespace: ""
+    # The duration that non-leader candidates will wait to force acquire leadership. This is measured against time of last observed ack.
+    # -- Default is `15s` if not set
+    leaseDuration: ""
+    # The duration that the acting control-plane will retry refreshing leadership before giving up.
   # -- Default is `false`. Enable provisioner of controller service.
   provisioner: false
   # Pod Numbers
-  replicas: 1
+  replicas: 2
   resources:
     limits:
       cpu: 1000m
@@ -125,7 +136,18 @@ node:
     - key: CriticalAddonsOnly
       operator: Exists
 
+defaultMountImage:
+  # -- Default Mount image for community edition, usually set in juicefs-csi-driver image.
+  # If set, it will overwrite the value in juicefs-csi-driver image. Refer to [this document](https://juicefs.com/docs/csi/examples/mount-image) for more details.
+  ce: ""
+  # -- Default Mount image for enterprise edition. usually set in juicefs-csi-driver image.
+  # If set, it will overwrite the value in juicefs-csi-driver image. Refer to [this document](https://juicefs.com/docs/csi/examples/mount-image) for more details.
+  ee: ""
+
 webhook:
+  # Setup the webhook using cert-manager
+  certManager:
+    enabled: true
   # Helm will auto-generate these fields
   caBundlePEM: |
 
@@ -192,7 +214,7 @@ storageClasses:
   cachePVC: ""
 
   mountPod:
-    # mount pod resource requests & limits
+    # Mount pod resource requests & limits
     resources:
       limits:
         cpu: 5000m
@@ -201,4 +223,4 @@ storageClasses:
         cpu: 1000m
         memory: 1Gi
     # -- Image of mount pod. Refer to [this document](https://juicefs.com/docs/csi/examples/mount-image) for more details.
-    image: "juicedata/mount:v1.0.3-4.8.3"
+    image: ""
