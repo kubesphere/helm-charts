@@ -1,3 +1,4 @@
+{{- $certEnabled := .Values.webhook.certManager.enabled }}
 {{- $webhookApiVersion := include "webhook.apiVersion" . -}}
 {{- $caCert := include "webhook.caBundleCertPEM" . -}}
 {{- $crtPEM := include "webhook.certPEM" . -}}
@@ -9,6 +10,10 @@ apiVersion: admissionregistration.k8s.io/v1
 kind: MutatingWebhookConfiguration
 metadata:
   name: juicefs-admission-webhook
+  {{- if $certEnabled }}
+  annotations:
+    cert-manager.io/inject-ca-from: {{ printf "%s/%s" .Release.Namespace "juicefs-cert" | quote }}
+  {{- end }}
 webhooks:
   - name: sidecar.inject.juicefs.com
     rules:
@@ -21,7 +26,11 @@ webhooks:
         namespace: {{ .Release.Namespace | quote }}
         name: juicefs-admission-webhook
         path: "/juicefs/inject-v1-pod"
+      {{- if $certEnabled }}
+      caBundle: Cg==
+      {{- else }}
       caBundle: {{ ternary (b64enc $caCert) (b64enc (trim $crtPEM)) (empty $crtPEM) }}
+      {{- end }}
     timeoutSeconds: {{ $timeoutSeconds }}
     failurePolicy: {{ $.Values.webhook.FailurePolicy }}
     sideEffects: None
@@ -29,4 +38,27 @@ webhooks:
     namespaceSelector:
       matchLabels:
         juicefs.com/enable-injection: "true"
+{{- if $certEnabled }}
+---
+apiVersion: cert-manager.io/v1
+kind: Issuer
+metadata:
+  name: juicefs-selfsigned
+  namespace: {{ .Release.Namespace }}
+spec:
+  selfSigned: {}
+---
+apiVersion: cert-manager.io/v1
+kind: Certificate
+metadata:
+  name: juicefs-cert
+  namespace: {{ .Release.Namespace }}
+spec:
+  duration: 43800h #5year
+  dnsNames:
+    - juicefs-admission-webhook
+    - juicefs-admission-webhook.kube-system
+    - juicefs-admission-webhook.kube-system.svc
+  secretName: juicefs-webhook-certs
+{{- end }}
 {{- end }}

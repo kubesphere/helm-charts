@@ -20,6 +20,10 @@ spec:
         app: juicefs-csi-controller
         {{- include "juicefs-csi.selectorLabels" . | nindent 8 }}
     spec:
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
     {{- if .Values.hostAliases }}
       hostAliases:
       {{- toYaml .Values.hostAliases | nindent 6 }}
@@ -35,6 +39,15 @@ spec:
         - --logtostderr
         - --nodeid=$(NODE_NAME)
         - --v=5
+        {{- if .Values.controller.leaderElection.enabled }}
+        - --leader-election
+        {{- if .Values.controller.leaderElection.leaderElectionNamespace }}
+        - --leader-election-namespace={{ .Values.controller.leaderElection.leaderElectionNamespace }}
+        {{- end }}
+        {{- if .Values.controller.leaderElection.leaseDuration }}
+        - --leader-election-lease-duration={{ .Values.controller.leaderElection.leaseDuration }}
+        {{- end }}
+        {{- end }}
         {{- if .Values.controller.provisioner }}
         - --provisioner=true
         {{- end }}
@@ -47,6 +60,10 @@ spec:
         env:
         - name: CSI_ENDPOINT
           value: unix:///var/lib/csi/sockets/pluginproxy/csi.sock
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
         {{- if ne .Values.mountMode "process" }}
         - name: NODE_NAME
           valueFrom:
@@ -56,14 +73,18 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
-        - name: POD_NAME
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.name
         - name: JUICEFS_MOUNT_PATH
           value: {{ .Values.jfsMountDir }}
         - name: JUICEFS_CONFIG_PATH
           value: {{ .Values.jfsConfigDir }}
+        {{- if .Values.defaultMountImage.ce }}
+        - name: JUICEFS_CE_MOUNT_IMAGE
+          value: {{ .Values.defaultMountImage.ce }}
+        {{- end }}
+        {{- if .Values.defaultMountImage.ee }}
+        - name: JUICEFS_EE_MOUNT_IMAGE
+          value: {{ .Values.defaultMountImage.ee }}
+        {{- end }}
         {{- end }}
         livenessProbe:
           failureThreshold: 5
@@ -107,6 +128,19 @@ spec:
         - --csi-address=$(ADDRESS)
         - --timeout=60s
         - --v=5
+        {{- if .Values.controller.leaderElection.enabled }}
+        {{- if gt .Values.sidecars.csiProvisionerImage.tag "v2.0.0" }}
+        - --leader-election
+        {{- else }}
+        - --enable-leader-election
+        {{- end }}
+        {{- if .Values.controller.leaderElection.leaderElectionNamespace }}
+        - --leader-election-namespace={{ .Values.controller.leaderElection.leaderElectionNamespace }}
+        {{- end }}
+        {{- if .Values.controller.leaderElection.leaseDuration }}
+        - --leader-election-lease-duration={{ .Values.controller.leaderElection.leaseDuration }}
+        {{- end }}
+        {{- end }}
         env:
         - name: ADDRESS
           value: /var/lib/csi/sockets/pluginproxy/csi.sock
