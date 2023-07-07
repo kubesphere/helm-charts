@@ -18,6 +18,10 @@ spec:
         app: juicefs-csi-node
         {{- include "juicefs-csi.selectorLabels" . | nindent 8 }}
     spec:
+    {{- with .Values.imagePullSecrets }}
+      imagePullSecrets:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
     {{- if .Values.hostAliases }}
       hostAliases:
       {{- toYaml .Values.hostAliases | nindent 6 }}
@@ -46,15 +50,15 @@ spec:
           valueFrom:
             fieldRef:
               fieldPath: spec.nodeName
+        - name: POD_NAME
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.name
         {{- if ne .Values.mountMode "process" }}
         - name: JUICEFS_MOUNT_NAMESPACE
           valueFrom:
             fieldRef:
               fieldPath: metadata.namespace
-        - name: POD_NAME
-          valueFrom:
-            fieldRef:
-              fieldPath: metadata.name
         - name: HOST_IP
           valueFrom:
             fieldRef:
@@ -65,10 +69,18 @@ spec:
           value: {{ .Values.jfsMountDir }}
         - name: JUICEFS_CONFIG_PATH
           value: {{ .Values.jfsConfigDir }}
-        {{- end }}
         {{- if .Values.node.storageClassShareMount }}
         - name: STORAGE_CLASS_SHARE_MOUNT
           value: "true"
+        {{- end }}
+        {{- if .Values.defaultMountImage.ce }}
+        - name: JUICEFS_CE_MOUNT_IMAGE
+          value: {{ .Values.defaultMountImage.ce }}
+        {{- end }}
+        {{- if .Values.defaultMountImage.ee }}
+        - name: JUICEFS_EE_MOUNT_IMAGE
+          value: {{ .Values.defaultMountImage.ee }}
+        {{- end }}
         {{- end }}
         livenessProbe:
           failureThreshold: 5
