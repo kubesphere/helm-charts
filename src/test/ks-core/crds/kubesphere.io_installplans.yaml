@@ -5,16 +5,16 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: (unknown)
   creationTimestamp: null
-  name: subscriptions.kubesphere.io
+  name: installplans.kubesphere.io
 spec:
   group: kubesphere.io
   names:
     categories:
     - extensions
-    kind: Subscription
-    listKind: SubscriptionList
-    plural: subscriptions
-    singular: subscription
+    kind: InstallPlan
+    listKind: InstallPlanList
+    plural: installplans
+    singular: installplan
   scope: Cluster
   versions:
   - additionalPrinterColumns:
@@ -24,8 +24,7 @@ spec:
     name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: Subscription describes the configuration and the extension version
-          to be subscribed.
+        description: InstallPlan defines how to install an extension in the cluster.
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation

@@ -5,24 +5,21 @@ metadata:
   annotations:
     controller-gen.kubebuilder.io/version: (unknown)
   creationTimestamp: null
-  name: repositories.kubesphere.io
+  name: subscriptions.marketplace.kubesphere.io
 spec:
-  group: kubesphere.io
+  group: marketplace.kubesphere.io
   names:
     categories:
-    - extensions
-    kind: Repository
-    listKind: RepositoryList
-    plural: repositories
-    singular: repository
+    - marketplace
+    kind: Subscription
+    listKind: SubscriptionList
+    plural: subscriptions
+    singular: subscription
   scope: Cluster
   versions:
   - name: v1alpha1
     schema:
       openAPIV3Schema:
-        description: Repository declared a docker image containing the extension helm
-          chart. The extension manager controller will deploy and synchronizes the
-          extensions from the image repository.
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -38,36 +35,55 @@ spec:
             type: object
           spec:
             properties:
-              basicAuth:
-                properties:
-                  password:
-                    type: string
-                  username:
-                    type: string
-                type: object
-              description:
+              extensionName:
                 type: string
-              image:
-                type: string
-              updateStrategy:
-                properties:
-                  registryPoll:
-                    properties:
-                      interval:
-                        type: string
-                    required:
-                    - interval
-                    type: object
-                type: object
-              url:
-                type: string
+            required:
+            - extensionName
             type: object
           status:
             properties:
-              lastSyncTime:
+              createdAt:
                 format: date-time
                 type: string
+              deletedAt:
+                format: date-time
+                type: string
+              expiredAt:
+                format: date-time
+                type: string
+              extensionID:
+                type: string
+              extraInfo:
+                type: string
+              orderID:
+                type: string
+              startedAt:
+                format: date-time
+                type: string
+              subscriptionID:
+                type: string
+              updatedAt:
+                format: date-time
+                type: string
+              userID:
+                type: string
+              userSubscriptionID:
+                type: string
+            required:
+            - createdAt
+            - deletedAt
+            - expiredAt
+            - extensionID
+            - extraInfo
+            - orderID
+            - startedAt
+            - subscriptionID
+            - updatedAt
+            - userID
+            - userSubscriptionID
             type: object
+        required:
+        - spec
         type: object
     served: true
     storage: true
