@@ -97,6 +97,9 @@ spec:
                 type: string
               installationMode:
                 default: HostOnly
+                enum:
+                - HostOnly
+                - Multicluster
                 type: string
               keywords:
                 items:

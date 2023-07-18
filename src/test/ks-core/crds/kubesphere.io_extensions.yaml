@@ -141,11 +141,11 @@ spec:
                   - type
                   type: object
                 type: array
+              plannedInstallVersion:
+                type: string
               recommendedVersion:
                 type: string
               state:
-                type: string
-              subscribedVersion:
                 type: string
               versions:
                 items:

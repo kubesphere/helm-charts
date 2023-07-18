@@ -1,0 +1,20 @@
+apiVersion: v1
+stringData:
+  configuration.yaml: |
+    url: https://clouddev.kubesphere.io
+    oauth:
+      clientID: "client-a5cdf64c-7f84-415e-a6b1-8dfbfad493c3"
+      clientSecret: "66ce75fc-4a87-4f97-9963-92d1a19b137e"
+    subscription:
+      syncPeriod: 10m
+    repository:
+      url: https://app.clouddev.kubesphere.io
+      repoName: marketplace
+      syncPeriod: 10m
+      basicAuth:
+        username: curator
+        password: mypassword
+kind: Secret
+metadata:
+  name: marketplace
+type: config.kubesphere.io/marketplace
