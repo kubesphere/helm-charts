@@ -45,9 +45,6 @@ spec:
               createdAt:
                 format: date-time
                 type: string
-              deletedAt:
-                format: date-time
-                type: string
               expiredAt:
                 format: date-time
                 type: string
@@ -71,7 +68,6 @@ spec:
                 type: string
             required:
             - createdAt
-            - deletedAt
             - expiredAt
             - extensionID
             - extraInfo

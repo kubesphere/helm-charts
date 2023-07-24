@@ -9,7 +9,6 @@ items:
         iam.kubesphere.io/role-template-rules: '{"alert-rules": "view"}'
       labels:
         iam.kubesphere.io/category: monitoring-and-alerting
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/cluster: ""
       name: cluster-manage-alerting-policies
     spec:
@@ -23,7 +22,6 @@ items:
         iam.kubesphere.io/role-template-rules: '{"monitoring": "manage"}'
       labels:
         iam.kubesphere.io/category: monitoring-and-alerting
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/cluster: ""
       name: cluster-manage-cluster-monitoring
     spec:
@@ -37,7 +35,6 @@ items:
         iam.kubesphere.io/role-template-rules: '{"cluster-settings": "manage"}'
       labels:
         iam.kubesphere.io/category: cluster-settings
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/cluster: ""
       name: cluster-manage-cluster-settings
     spec:
@@ -51,7 +48,6 @@ items:
         iam.kubesphere.io/role-template-rules: '{"customresources": "manage"}'
       labels:
         iam.kubesphere.io/category: cluster-resources-management
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/cluster: ""
       name: cluster-manage-crds
     spec:
@@ -66,7 +62,6 @@ items:
         iam.kubesphere.io/role-template-rules: '{"members": "manage"}'
       labels:
         iam.kubesphere.io/category: access-control
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/cluster: ""
       name: cluster-manage-members
     spec:
@@ -81,7 +76,6 @@ items:
         iam.kubesphere.io/role-template-rules: '{"networkpolicies": "manage"}'
       labels:
         iam.kubesphere.io/category: network-management
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/cluster: ""
       name: cluster-manage-network-resources
     spec:
@@ -96,7 +90,6 @@ items:
         iam.kubesphere.io/role-template-rules: '{"nodes": "manage"}'
       labels:
         iam.kubesphere.io/category: cluster-resources-management
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/cluster: ""
       name: cluster-manage-nodes
     spec:
@@ -111,7 +104,6 @@ items:
         iam.kubesphere.io/role-template-rules: '{"project-resources": "manage"}'
       labels:
         iam.kubesphere.io/category: project-resources-management
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/cluster: ""
       name: cluster-manage-project-resources
     spec:
@@ -126,7 +118,6 @@ items:
         iam.kubesphere.io/role-template-rules: '{"projects": "manage"}'
       labels:
         iam.kubesphere.io/category: project-resources-management
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/cluster: ""
       name: cluster-manage-projects
     spec:
@@ -141,7 +132,6 @@ items:
         iam.kubesphere.io/role-template-rules: '{"roles": "manage"}'
       labels:
         iam.kubesphere.io/category: access-control
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/cluster: ""
       name: cluster-manage-roles
     spec:
@@ -156,7 +146,6 @@ items:
         iam.kubesphere.io/role-template-rules: '{"storageclasses": "manage"}'
       labels:
         iam.kubesphere.io/category: storage-management
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/cluster: ""
       name: cluster-manage-storageclasses
     spec:
@@ -171,7 +160,6 @@ items:
         iam.kubesphere.io/role-template-rules: '{"volume-snapshots-classes": "manage"}'
       labels:
         iam.kubesphere.io/category: storage-management
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/cluster: ""
       name: cluster-manage-volume-snapshot-classes
     spec:
@@ -186,7 +174,6 @@ items:
         iam.kubesphere.io/role-template-rules: '{"volume-snapshots": "manage"}'
       labels:
         iam.kubesphere.io/category: storage-management
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/cluster: ""
       name: cluster-manage-volume-snapshots
     spec:
@@ -201,7 +188,6 @@ items:
         iam.kubesphere.io/role-template-rules: '{"volumes": "manage"}'
       labels:
         iam.kubesphere.io/category: storage-management
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/cluster: ""
       name: cluster-manage-volumes
     spec:
@@ -215,7 +201,6 @@ items:
         iam.kubesphere.io/role-template-rules: '{"alerts": "view"}'
       labels:
         iam.kubesphere.io/category: monitoring-and-alerting
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/cluster: ""
       name: cluster-view-alerting-messages
     spec:
@@ -230,7 +215,6 @@ items:
         iam.kubesphere.io/role-template-rules: '{"alert-rules": "view"}'
       labels:
         iam.kubesphere.io/category: monitoring-and-alerting
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/cluster: ""
       name: cluster-view-alerting-policies
     spec:
@@ -244,7 +228,6 @@ items:
         iam.kubesphere.io/role-template-rules: '{"monitoring": "view"}'
       labels:
         iam.kubesphere.io/category: monitoring-and-alerting
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/cluster: ""
       name: cluster-view-cluster-monitoring
     spec:
@@ -258,7 +241,6 @@ items:
         iam.kubesphere.io/role-template-rules: '{"cluster-settings": "view"}'
       labels:
         iam.kubesphere.io/category: cluster-settings
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/cluster: ""
       name: cluster-view-cluster-settings
       resourceVersion: "4866229"
@@ -278,7 +260,6 @@ items:
         iam.kubesphere.io/category: cluster-resources-management
         iam.kubesphere.io/operation: view
         iam.kubesphere.io/resource: components
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/cluster: ""
       name: cluster-view-components
     spec:
@@ -292,7 +273,6 @@ items:
         iam.kubesphere.io/role-template-rules: '{"customresources": "view"}'
       labels:
         iam.kubesphere.io/category: cluster-resources-management
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/cluster: ""
       name: cluster-view-crds
     spec:
@@ -306,7 +286,6 @@ items:
         iam.kubesphere.io/role-template-rules: '{"members": "view"}'
       labels:
         iam.kubesphere.io/category: access-control
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/cluster: ""
       name: cluster-view-members
     spec:
@@ -320,7 +299,6 @@ items:
         iam.kubesphere.io/role-template-rules: '{"networkpolicies": "view"}'
       labels:
         iam.kubesphere.io/category: network-management
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/cluster: ""
       name: cluster-view-network-resources
     spec:
@@ -334,7 +312,6 @@ items:
         iam.kubesphere.io/role-template-rules: '{"nodes": "view"}'
       labels:
         iam.kubesphere.io/category: cluster-resources-management
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/cluster: ""
       name: cluster-view-nodes
     spec:
@@ -349,7 +326,6 @@ items:
         iam.kubesphere.io/role-template-rules: '{"project-resources": "view"}'
       labels:
         iam.kubesphere.io/category: project-resources-management
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/cluster: ""
       name: cluster-view-project-resources
     spec:
@@ -363,7 +339,6 @@ items:
         iam.kubesphere.io/role-template-rules: '{"projects": "view"}'
       labels:
         iam.kubesphere.io/category: project-resources-management
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/cluster: ""
       name: cluster-view-projects
     spec:
@@ -378,7 +353,6 @@ items:
         iam.kubesphere.io/role-template-rules: '{"roles": "view"}'
       labels:
         iam.kubesphere.io/category: access-control
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/cluster: ""
       name: cluster-view-roles
     spec:
@@ -393,7 +367,6 @@ items:
         iam.kubesphere.io/role-template-rules: '{"storageclasses": "view"}'
       labels:
         iam.kubesphere.io/category: storage-management
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/cluster: ""
       name: cluster-view-storageclasses
     spec:
@@ -411,7 +384,6 @@ items:
         iam.kubesphere.io/category: storage-management
         iam.kubesphere.io/operation: view
         iam.kubesphere.io/resource: volume-snapshots-classes
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/cluster: ""
       name: cluster-view-volume-snapshot-classes
     spec:
@@ -426,7 +398,6 @@ items:
         iam.kubesphere.io/role-template-rules: '{"volume-snapshots": "view"}'
       labels:
         iam.kubesphere.io/category: storage-management
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/cluster: ""
       name: cluster-view-volume-snapshots
     spec:
@@ -444,7 +415,6 @@ items:
         iam.kubesphere.io/category: storage-management
         iam.kubesphere.io/operation: view
         iam.kubesphere.io/resource: volumes
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/cluster: ""
       name: cluster-view-volumes
     spec:
@@ -458,7 +428,7 @@ items:
         iam.kubesphere.io/role-template-rules: '{"workspaces": "create"}'
       labels:
         iam.kubesphere.io/category: access-control
-        iam.kubesphere.io/role-template: "false"
+        iam.kubesphere.io/hidden-role-template: "true"
         scope.iam.kubesphere.io/global: ""
       name: global-create-workspaces
     spec:
@@ -481,7 +451,6 @@ items:
         iam.kubesphere.io/role-template-rules: '{"app-templates": "manage"}'
       labels:
         iam.kubesphere.io/category: apps-management
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/global: ""
       name: global-manage-app-templates
     spec:
@@ -506,7 +475,6 @@ items:
         iam.kubesphere.io/category: cluster-management
         iam.kubesphere.io/operation: manage
         iam.kubesphere.io/resource: clusters
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/global: ""
       name: global-manage-clusters
     spec:
@@ -582,13 +550,19 @@ items:
         iam.kubesphere.io/role-template-rules: '{"platform-settings": "manage"}'
       labels:
         iam.kubesphere.io/category: platform-settings
-        iam.kubesphere.io/role-template: "true"
+        iam.kubesphere.io/hidden-role-template: "true"
         scope.iam.kubesphere.io/global: ""
       name: global-manage-platform-settings
     spec:
       displayName:
         en: Platform Settings Management
       rules:
+        - apiGroups:
+            - extensions.kubesphere.io
+          resources:
+            - '*'
+          verbs:
+            - '*'
         - apiGroups:
             - logging.kubesphere.io
           resources:
@@ -601,6 +575,12 @@ items:
             - '*'
           verbs:
             - '*'
+        - apiGroups:
+            - kubesphere.io
+          resources:
+            - '*'
+          verbs:
+            - '*'
   - apiVersion: iam.kubesphere.io/v1beta1
     kind: RoleTemplate
     metadata:
@@ -608,7 +588,7 @@ items:
         iam.kubesphere.io/role-template-rules: '{"roles": "manage"}'
       labels:
         iam.kubesphere.io/category: access-control
-        iam.kubesphere.io/role-template: "false"
+        iam.kubesphere.io/hidden-role-template: "true"
         scope.iam.kubesphere.io/global: ""
       name: global-manage-roles
     spec:
@@ -628,7 +608,7 @@ items:
         iam.kubesphere.io/role-template-rules: '{"users": "manage"}'
       labels:
         iam.kubesphere.io/category: access-control
-        iam.kubesphere.io/role-template: "false"
+        iam.kubesphere.io/hidden-role-template: "true"
         scope.iam.kubesphere.io/global: ""
       name: global-manage-users
     spec:
@@ -650,7 +630,7 @@ items:
         iam.kubesphere.io/role-template-rules: '{"workspaces": "manage"}'
       labels:
         iam.kubesphere.io/category: access-control
-        iam.kubesphere.io/role-template: "false"
+        iam.kubesphere.io/hidden-role-template: "true"
         scope.iam.kubesphere.io/global: ""
       name: global-manage-workspaces
     spec:
@@ -780,7 +760,6 @@ items:
         iam.kubesphere.io/role-template-rules: '{"app-templates": "view"}'
       labels:
         iam.kubesphere.io/category: apps-management
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/global: ""
       name: global-view-app-templates
     spec:
@@ -800,7 +779,6 @@ items:
     kind: RoleTemplate
     metadata:
       labels:
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/global: ""
       name: global-view-basic
     spec:
@@ -812,7 +790,6 @@ items:
         iam.kubesphere.io/role-template-rules: '{"clusters": "view"}'
       labels:
         iam.kubesphere.io/category: cluster-management
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/global: ""
       name: global-view-clusters
     spec:
@@ -893,7 +870,6 @@ items:
         iam.kubesphere.io/role-template-rules: '{"roles": "view"}'
       labels:
         iam.kubesphere.io/category: access-control
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/global: ""
       name: global-view-roles
     spec:
@@ -919,7 +895,6 @@ items:
         iam.kubesphere.io/category: access-control
         iam.kubesphere.io/operation: view
         iam.kubesphere.io/resource: users
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/global: ""
       name: global-view-users
     spec:
@@ -942,7 +917,6 @@ items:
         iam.kubesphere.io/role-template-rules: '{"workspaces": "view"}'
       labels:
         iam.kubesphere.io/category: access-control
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/global: ""
       name: global-view-workspaces
     spec:
@@ -1073,29 +1047,7 @@ items:
             - cluster
           verbs:
             - list
-  - apiVersion: iam.kubesphere.io/v1beta1
-    kind: RoleTemplate
-    metadata:
-      annotations:
-        iam.kubesphere.io/role-template-rules: '{"basic": "view"}'
-      labels:
-        iam.kubesphere.io/category: ""
-        iam.kubesphere.io/role-template: "true"
-        scope.iam.kubesphere.io/namespace: ""
-      name: namespace-devops-basic
-    spec:
-      displayName:
-        en: ""
-      rules:
-        - apiGroups:
-            - '*'
-          resources:
-            - devops
-            - devopsprojects
-          verbs:
-            - get
-            - list
-            - watch
+
   - apiVersion: iam.kubesphere.io/v1beta1
     kind: RoleTemplate
     metadata:
@@ -1105,7 +1057,6 @@ items:
       labels:
         iam.kubesphere.io/aggregate-to-operator: ""
         iam.kubesphere.io/category: monitoring-and-alerting
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/namespace: ""
       name: namespace-manage-alerting-policies
     spec:
@@ -1129,7 +1080,6 @@ items:
       labels:
         iam.kubesphere.io/aggregate-to-operator: ""
         iam.kubesphere.io/category: application-workloads
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/namespace: ""
       name: namespace-manage-app-workloads
     spec:
@@ -1185,7 +1135,6 @@ items:
       labels:
         iam.kubesphere.io/aggregate-to-operator: ""
         iam.kubesphere.io/category: configuration-center
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/namespace: ""
       name: namespace-manage-configmaps
     spec:
@@ -1202,35 +1151,11 @@ items:
     kind: RoleTemplate
     metadata:
       annotations:
-        iam.kubesphere.io/dependencies: '["namespace-view-credentials"]'
-        iam.kubesphere.io/role-template-rules: '{"credentials": "manage"}'
-      labels:
-        iam.kubesphere.io/aggregate-to-operator: ""
-        iam.kubesphere.io/category: credentials-management
-        iam.kubesphere.io/role-template: "true"
-        scope.iam.kubesphere.io/namespace: ""
-      name: namespace-manage-credentials
-    spec:
-      displayName:
-        en: Credentials Management
-      rules:
-        - apiGroups:
-            - '*'
-          resources:
-            - credentials
-            - credentials/usage
-          verbs:
-            - '*'
-  - apiVersion: iam.kubesphere.io/v1beta1
-    kind: RoleTemplate
-    metadata:
-      annotations:
         iam.kubesphere.io/dependencies: '["namespace-view-custom-monitoring"]'
         iam.kubesphere.io/role-template-rules: '{"custom-monitoring": "manage"}'
       labels:
         iam.kubesphere.io/aggregate-to-operator: ""
         iam.kubesphere.io/category: monitoring-and-alerting
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/namespace: ""
       name: namespace-manage-custom-monitoring
     spec:
@@ -1249,33 +1174,11 @@ items:
     kind: RoleTemplate
     metadata:
       annotations:
-        iam.kubesphere.io/role-template-rules: '{"devops-settings": "manage"}'
-      labels:
-        iam.kubesphere.io/category: devops-settings
-        iam.kubesphere.io/role-template: "true"
-        scope.iam.kubesphere.io/namespace: ""
-      name: namespace-manage-devops-settings
-    spec:
-      displayName:
-        en: DevOps Settings
-      rules:
-        - apiGroups:
-            - '*'
-          resources:
-            - devops
-            - devopsprojects
-          verbs:
-            - '*'
-  - apiVersion: iam.kubesphere.io/v1beta1
-    kind: RoleTemplate
-    metadata:
-      annotations:
         iam.kubesphere.io/dependencies: '["namespace-view-gitops-applications"]'
         iam.kubesphere.io/role-template-rules: '{"applications": "manage"}'
       labels:
         iam.kubesphere.io/aggregate-to-operator: ""
         iam.kubesphere.io/category: continuous-deployments-management
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/namespace: ""
       name: namespace-manage-gitops-applications
     spec:
@@ -1298,32 +1201,10 @@ items:
     kind: RoleTemplate
     metadata:
       annotations:
-        iam.kubesphere.io/dependencies: '["namespace-view-gitrepositories"]'
-        iam.kubesphere.io/role-template-rules: '{"gitrepositories": "manage"}'
-      labels:
-        iam.kubesphere.io/aggregate-to-operator: ""
-        iam.kubesphere.io/category: code-repositories-management
-        iam.kubesphere.io/role-template: "true"
-        scope.iam.kubesphere.io/namespace: ""
-      name: namespace-manage-gitrepositories
-    spec:
-      displayName:
-        en: Code Repositories Management
-      rules:
-        - apiGroups:
-            - devops.kubesphere.io
-          resources:
-            - gitrepositories
-          verbs:
-            - '*'
-  - apiVersion: iam.kubesphere.io/v1beta1
-    kind: RoleTemplate
-    metadata:
-      annotations:
         iam.kubesphere.io/role-template-rules: '{"members": "manage"}'
       labels:
         iam.kubesphere.io/category: access-control
-        iam.kubesphere.io/role-template: "false"
+        iam.kubesphere.io/hidden-role-template: "true"
         scope.iam.kubesphere.io/namespace: ""
       name: namespace-manage-members
     spec:
@@ -1341,68 +1222,9 @@ items:
     kind: RoleTemplate
     metadata:
       annotations:
-        iam.kubesphere.io/dependencies: '["namespace-view-pipelines", "namespace-view-pipelineruns"]'
-        iam.kubesphere.io/role-template-rules: '{"pipelineruns": "manage"}'
-      labels:
-        iam.kubesphere.io/aggregate-to-operator: ""
-        iam.kubesphere.io/category: pipelines-management
-        iam.kubesphere.io/role-template: "true"
-        scope.iam.kubesphere.io/namespace: ""
-      name: namespace-manage-pipelineruns
-    spec:
-      displayName:
-        en: PipelineRuns Management
-      rules:
-        - apiGroups:
-            - '*'
-          resources:
-            - pipelineruns
-            - pipelines/runs
-            - pipelines/pipelineruns
-            - pipelineruns/nodedetails
-            - pipelineruns/status
-          verbs:
-            - '*'
-  - apiVersion: iam.kubesphere.io/v1beta1
-    kind: RoleTemplate
-    metadata:
-      annotations:
-        iam.kubesphere.io/dependencies: '["namespace-view-pipelines", "namespace-manage-pipelineruns",
-        "namespace-view-credentials"]'
-        iam.kubesphere.io/role-template-rules: '{"pipelines": "manage", "pipelineruns":
-        "manage"}'
-      labels:
-        iam.kubesphere.io/aggregate-to-operator: ""
-        iam.kubesphere.io/category: pipelines-management
-        iam.kubesphere.io/role-template: "true"
-        scope.iam.kubesphere.io/namespace: ""
-      name: namespace-manage-pipelines
-    spec:
-      displayName:
-        en: Pipelines Management
-      rules:
-        - apiGroups:
-            - '*'
-          resources:
-            - pipelines
-            - pipelines/runs
-            - pipelines/branches
-            - pipelines/checkScriptCompile
-            - pipelines/consolelog
-            - pipelines/scan
-            - pipelines/sonarstatus
-            - clustertemplates
-            - clustertemplates/render
-          verbs:
-            - '*'
-  - apiVersion: iam.kubesphere.io/v1beta1
-    kind: RoleTemplate
-    metadata:
-      annotations:
         iam.kubesphere.io/role-template-rules: '{"project-settings": "manage"}'
       labels:
         iam.kubesphere.io/category: project-settings
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/namespace: ""
       name: namespace-manage-project-settings
     spec:
@@ -1422,7 +1244,7 @@ items:
         iam.kubesphere.io/role-template-rules: '{"roles": "manage"}'
       labels:
         iam.kubesphere.io/category: access-control
-        iam.kubesphere.io/role-template: "false"
+        iam.kubesphere.io/hidden-role-template: "true"
         scope.iam.kubesphere.io/namespace: ""
       name: namespace-manage-roles
     spec:
@@ -1444,7 +1266,6 @@ items:
       labels:
         iam.kubesphere.io/aggregate-to-operator: ""
         iam.kubesphere.io/category: configuration-center
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/namespace: ""
       name: namespace-manage-secrets
     spec:
@@ -1466,7 +1287,6 @@ items:
       labels:
         iam.kubesphere.io/aggregate-to-operator: ""
         iam.kubesphere.io/category: configuration-center
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/namespace: ""
       name: namespace-manage-serviceaccount
     spec:
@@ -1488,7 +1308,6 @@ items:
       labels:
         iam.kubesphere.io/aggregate-to-operator: ""
         iam.kubesphere.io/category: storage-management
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/namespace: ""
       name: namespace-manage-snapshots
     spec:
@@ -1510,7 +1329,6 @@ items:
       labels:
         iam.kubesphere.io/aggregate-to-operator: ""
         iam.kubesphere.io/category: storage-management
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/namespace: ""
       name: namespace-manage-volumes
     spec:
@@ -1536,7 +1354,6 @@ items:
         iam.kubesphere.io/role-template-rules: '{"basic": "view"}'
       labels:
         iam.kubesphere.io/category: ""
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/namespace: ""
       name: namespace-namespace-basic
     spec:
@@ -1565,7 +1382,6 @@ items:
         iam.kubesphere.io/aggregate-to-operator: ""
         iam.kubesphere.io/aggregate-to-viewer: ""
         iam.kubesphere.io/category: monitoring-and-alerting
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/namespace: ""
       name: namespace-view-alerting-messages
     spec:
@@ -1589,7 +1405,6 @@ items:
         iam.kubesphere.io/aggregate-to-operator: ""
         iam.kubesphere.io/aggregate-to-viewer: ""
         iam.kubesphere.io/category: monitoring-and-alerting
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/namespace: ""
       name: namespace-view-alerting-policies
     spec:
@@ -1621,7 +1436,6 @@ items:
         iam.kubesphere.io/aggregate-to-operator: ""
         iam.kubesphere.io/aggregate-to-viewer: ""
         iam.kubesphere.io/category: application-workloads
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/namespace: ""
       name: namespace-view-app-workloads
     spec:
@@ -1676,7 +1490,6 @@ items:
         iam.kubesphere.io/aggregate-to-operator: ""
         iam.kubesphere.io/aggregate-to-viewer: ""
         iam.kubesphere.io/category: configuration-center
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/namespace: ""
       name: namespace-view-configmaps
     spec:
@@ -1695,37 +1508,11 @@ items:
     kind: RoleTemplate
     metadata:
       annotations:
-        iam.kubesphere.io/role-template-rules: '{"credentials": "view"}'
-      labels:
-        iam.kubesphere.io/aggregate-to-operator: ""
-        iam.kubesphere.io/aggregate-to-viewer: ""
-        iam.kubesphere.io/category: credentials-management
-        iam.kubesphere.io/role-template: "true"
-        scope.iam.kubesphere.io/namespace: ""
-      name: namespace-view-credentials
-    spec:
-      displayName:
-        en: Credentials View
-      rules:
-        - apiGroups:
-            - '*'
-          resources:
-            - credentials
-            - credentials/usage
-          verbs:
-            - get
-            - list
-            - watch
-  - apiVersion: iam.kubesphere.io/v1beta1
-    kind: RoleTemplate
-    metadata:
-      annotations:
         iam.kubesphere.io/role-template-rules: '{"custom-monitoring": "view"}'
       labels:
         iam.kubesphere.io/aggregate-to-operator: ""
         iam.kubesphere.io/aggregate-to-viewer: ""
         iam.kubesphere.io/category: monitoring-and-alerting
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/namespace: ""
       name: namespace-view-custom-monitoring
     spec:
@@ -1752,7 +1539,6 @@ items:
         iam.kubesphere.io/aggregate-to-operator: ""
         iam.kubesphere.io/aggregate-to-viewer: ""
         iam.kubesphere.io/category: continuous-deployments-management
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/namespace: ""
       name: namespace-view-gitops-applications
     spec:
@@ -1772,37 +1558,11 @@ items:
     kind: RoleTemplate
     metadata:
       annotations:
-        iam.kubesphere.io/dependencies: '["namespace-view-credentials"]'
-        iam.kubesphere.io/role-template-rules: '{"gitrepositories": "view"}'
-      labels:
-        iam.kubesphere.io/aggregate-to-operator: ""
-        iam.kubesphere.io/aggregate-to-viewer: ""
-        iam.kubesphere.io/category: code-repositories-management
-        iam.kubesphere.io/role-template: "true"
-        scope.iam.kubesphere.io/namespace: ""
-      name: namespace-view-gitrepositories
-    spec:
-      displayName:
-        en: Code Repositories View
-      rules:
-        - apiGroups:
-            - devops.kubesphere.io
-          resources:
-            - gitrepositories
-          verbs:
-            - get
-            - list
-            - watch
-  - apiVersion: iam.kubesphere.io/v1beta1
-    kind: RoleTemplate
-    metadata:
-      annotations:
         iam.kubesphere.io/role-template-rules: '{"members": "view"}'
       labels:
         iam.kubesphere.io/aggregate-to-operator: ""
         iam.kubesphere.io/aggregate-to-viewer: ""
         iam.kubesphere.io/category: access-control
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/namespace: ""
       name: namespace-view-members
     spec:
@@ -1822,81 +1582,12 @@ items:
     kind: RoleTemplate
     metadata:
       annotations:
-        iam.kubesphere.io/role-template-rules: '{"pipelineruns": "view"}'
-      labels:
-        iam.kubesphere.io/aggregate-to-operator: ""
-        iam.kubesphere.io/aggregate-to-viewer: ""
-        iam.kubesphere.io/category: pipelines-management
-        iam.kubesphere.io/role-template: "true"
-        scope.iam.kubesphere.io/namespace: ""
-      name: namespace-view-pipelineruns
-    spec:
-      displayName:
-        en: PipelineRuns View
-      rules:
-        - apiGroups:
-            - '*'
-          resources:
-            - pipelineruns
-            - pipelines/runs
-            - pipelines/pipelineruns
-            - pipelineruns/artifacts
-            - pipelineruns/nodedetails
-            - pipelineruns/status
-          verbs:
-            - get
-            - list
-            - watch
-  - apiVersion: iam.kubesphere.io/v1beta1
-    kind: RoleTemplate
-    metadata:
-      annotations:
-        iam.kubesphere.io/dependencies: '["namespace-view-pipelineruns", "namespace-view-gitrepositories"]'
-        iam.kubesphere.io/role-template-rules: '{"pipelines": "view", "pipelineruns":
-        "view"}'
-      labels:
-        iam.kubesphere.io/aggregate-to-operator: ""
-        iam.kubesphere.io/aggregate-to-viewer: ""
-        iam.kubesphere.io/category: pipelines-management
-        iam.kubesphere.io/role-template: "true"
-        scope.iam.kubesphere.io/namespace: ""
-      name: namespace-view-pipelines
-    spec:
-      displayName:
-        en: Pipelines View
-      rules:
-        - apiGroups:
-            - '*'
-          resources:
-            - pipelines
-            - pipelines/runs
-            - pipelines/branches
-            - pipelines/checkScriptCompile
-            - pipelines/consolelog
-            - pipelines/scan
-            - pipelines/sonarstatus
-            - jenkins/labelsData
-          verbs:
-            - get
-            - list
-            - watch
-        - apiGroups:
-            - ""
-          resources:
-            - events
-          verbs:
-            - list
-  - apiVersion: iam.kubesphere.io/v1beta1
-    kind: RoleTemplate
-    metadata:
-      annotations:
         iam.kubesphere.io/dependencies: '["namespace-view-members"]'
         iam.kubesphere.io/role-template-rules: '{"roles": "view"}'
       labels:
         iam.kubesphere.io/aggregate-to-operator: ""
         iam.kubesphere.io/aggregate-to-viewer: ""
         iam.kubesphere.io/category: access-control
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/namespace: ""
       name: namespace-view-roles
     spec:
@@ -1920,7 +1611,6 @@ items:
         iam.kubesphere.io/aggregate-to-operator: ""
         iam.kubesphere.io/aggregate-to-viewer: ""
         iam.kubesphere.io/category: configuration-center
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/namespace: ""
       name: namespace-view-secrets
     spec:
@@ -1945,7 +1635,6 @@ items:
         iam.kubesphere.io/aggregate-to-operator: ""
         iam.kubesphere.io/aggregate-to-viewer: ""
         iam.kubesphere.io/category: configuration-center
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/namespace: ""
       name: namespace-view-serviceaccount
     spec:
@@ -1969,7 +1658,6 @@ items:
         iam.kubesphere.io/aggregate-to-operator: ""
         iam.kubesphere.io/aggregate-to-viewer: ""
         iam.kubesphere.io/category: storage-management
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/namespace: ""
       name: namespace-view-snapshots
     spec:
@@ -1994,7 +1682,6 @@ items:
         iam.kubesphere.io/aggregate-to-operator: ""
         iam.kubesphere.io/aggregate-to-viewer: ""
         iam.kubesphere.io/category: storage-management
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/namespace: ""
       name: namespace-view-volumes
     spec:
@@ -2024,7 +1711,6 @@ items:
         iam.kubesphere.io/category: access-control
         iam.kubesphere.io/operation: view
         iam.kubesphere.io/resource: roles
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/cluster: ""
       name: role-template-view-roles
     spec:
@@ -2035,32 +1721,9 @@ items:
     kind: RoleTemplate
     metadata:
       annotations:
-        iam.kubesphere.io/role-template-rules: '{"devops": "create"}'
-      labels:
-        iam.kubesphere.io/category: devops-management
-        iam.kubesphere.io/role-template: "true"
-        scope.iam.kubesphere.io/workspace: ""
-      name: workspace-create-devops
-    spec:
-      displayName:
-        en: DevOps Create
-      rules:
-        - apiGroups:
-            - '*'
-          resources:
-            - devops
-            - devopsprojects
-          verbs:
-            - create
-            - watch
-  - apiVersion: iam.kubesphere.io/v1beta1
-    kind: RoleTemplate
-    metadata:
-      annotations:
         iam.kubesphere.io/role-template-rules: '{"projects": "create"}'
       labels:
         iam.kubesphere.io/category: projects-management
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/workspace: ""
       name: workspace-create-projects
     spec:
@@ -2095,7 +1758,6 @@ items:
         iam.kubesphere.io/role-template-rules: '{"app-repos": "manage"}'
       labels:
         iam.kubesphere.io/category: apps-management
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/workspace: ""
       name: workspace-manage-app-repos
     spec:
@@ -2118,7 +1780,6 @@ items:
         iam.kubesphere.io/role-template-rules: '{"app-templates": "manage"}'
       labels:
         iam.kubesphere.io/category: apps-management
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/workspace: ""
       name: workspace-manage-app-templates
     spec:
@@ -2135,47 +1796,10 @@ items:
     kind: RoleTemplate
     metadata:
       annotations:
-        iam.kubesphere.io/dependencies: '["workspace-view-devops","workspace-view-members","workspace-create-devops"]'
-        iam.kubesphere.io/role-template-rules: '{"devops": "manage"}'
-      labels:
-        iam.kubesphere.io/category: devops-management
-        iam.kubesphere.io/role-template: "true"
-        scope.iam.kubesphere.io/workspace: ""
-      name: workspace-manage-devops
-    spec:
-      displayName:
-        en: DevOps Management
-      rules:
-        - apiGroups:
-            - '*'
-          resources:
-            - pipelines
-            - pipelines/runs
-            - pipelines/pipelineruns
-            - pipelines/branches
-            - pipelines/checkScriptCompile
-            - pipelines/consolelog
-            - pipelines/scan
-            - pipelines/sonarstatus
-            - pipelineruns
-            - pipelineruns/nodedetails
-            - checkCron
-            - credentials
-            - credentials/usage
-            - roles
-            - members
-            - devops
-            - devopsprojects
-          verbs:
-            - '*'
-  - apiVersion: iam.kubesphere.io/v1beta1
-    kind: RoleTemplate
-    metadata:
-      annotations:
         iam.kubesphere.io/role-template-rules: '{"groups": "manage"}'
       labels:
         iam.kubesphere.io/category: access-control
-        iam.kubesphere.io/role-template: "false"
+        iam.kubesphere.io/hidden-role-template: "true"
         scope.iam.kubesphere.io/workspace: ""
       name: workspace-manage-groups
     spec:
@@ -2198,7 +1822,7 @@ items:
         iam.kubesphere.io/role-template-rules: '{"members": "manage"}'
       labels:
         iam.kubesphere.io/category: access-control
-        iam.kubesphere.io/role-template: "false"
+        iam.kubesphere.io/hidden-role-template: "true"
         scope.iam.kubesphere.io/workspace: ""
       name: workspace-manage-members
     spec:
@@ -2227,7 +1851,6 @@ items:
         iam.kubesphere.io/role-template-rules: '{"projects": "manage"}'
       labels:
         iam.kubesphere.io/category: projects-management
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/workspace: ""
       name: workspace-manage-projects
     spec:
@@ -2325,7 +1948,7 @@ items:
         iam.kubesphere.io/role-template-rules: '{"roles": "manage"}'
       labels:
         iam.kubesphere.io/category: access-control
-        iam.kubesphere.io/role-template: "false"
+        iam.kubesphere.io/hidden-role-template: "true"
         scope.iam.kubesphere.io/workspace: ""
       name: workspace-manage-roles
     spec:
@@ -2345,7 +1968,6 @@ items:
         iam.kubesphere.io/role-template-rules: '{"workspace-settings": "manage"}'
       labels:
         iam.kubesphere.io/category: workspace-settings
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/workspace: ""
       name: workspace-manage-workspace-settings
     spec:
@@ -2365,7 +1987,6 @@ items:
         iam.kubesphere.io/role-template-rules: '{"app-repos": "view"}'
       labels:
         iam.kubesphere.io/category: apps-management
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/workspace: ""
       name: workspace-view-app-repos
     spec:
@@ -2388,7 +2009,6 @@ items:
         iam.kubesphere.io/role-template-rules: '{"app-templates": "view"}'
       labels:
         iam.kubesphere.io/category: apps-management
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/workspace: ""
       name: workspace-view-app-templates
     spec:
@@ -2410,7 +2030,6 @@ items:
         iam.kubesphere.io/role-template-rules: '{"basic": "view"}'
       labels:
         iam.kubesphere.io/category: workspaces-settings
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/workspace: ""
       name: workspace-view-basic
     spec:
@@ -2451,49 +2070,10 @@ items:
     kind: RoleTemplate
     metadata:
       annotations:
-        iam.kubesphere.io/role-template-rules: '{"devops": "view"}'
-      labels:
-        iam.kubesphere.io/category: devops-management
-        iam.kubesphere.io/role-template: "true"
-        scope.iam.kubesphere.io/workspace: ""
-      name: workspace-view-devops
-    spec:
-      displayName:
-        en: DevOps View
-      rules:
-        - apiGroups:
-            - '*'
-          resources:
-            - pipelines
-            - pipelines/runs
-            - pipelines/pipelineruns
-            - pipelines/branches
-            - pipelines/checkScriptCompile
-            - pipelines/consolelog
-            - pipelines/scan
-            - pipelines/sonarstatus
-            - pipelineruns
-            - pipelineruns/nodedetails
-            - checkCron
-            - credentials
-            - credentials/usage
-            - roles
-            - members
-            - devops
-            - devopsprojects
-          verbs:
-            - get
-            - list
-            - watch
-  - apiVersion: iam.kubesphere.io/v1beta1
-    kind: RoleTemplate
-    metadata:
-      annotations:
         iam.kubesphere.io/dependencies: '["workspace-view-roles"]'
         iam.kubesphere.io/role-template-rules: '{"groups": "view"}'
       labels:
         iam.kubesphere.io/category: access-control
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/workspace: ""
       name: workspace-view-groups
     spec:
@@ -2520,7 +2100,7 @@ items:
         iam.kubesphere.io/role-template-rules: '{"members": "view"}'
       labels:
         iam.kubesphere.io/category: access-control
-        iam.kubesphere.io/role-template: "false"
+        iam.kubesphere.io/hidden-role-template: "true"
         scope.iam.kubesphere.io/workspace: ""
       name: workspace-view-members
     spec:
@@ -2542,7 +2122,6 @@ items:
         iam.kubesphere.io/role-template-rules: '{"projects": "view"}'
       labels:
         iam.kubesphere.io/category: projects-management
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/workspace: ""
       name: workspace-view-projects
     spec:
@@ -2644,7 +2223,6 @@ items:
         iam.kubesphere.io/role-template-rules: '{"roles": "view"}'
       labels:
         iam.kubesphere.io/category: access-control
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/workspace: ""
       name: workspace-view-roles
     spec:
@@ -2666,7 +2244,6 @@ items:
         iam.kubesphere.io/role-template-rules: '{"workspace-settings": "view"}'
       labels:
         iam.kubesphere.io/category: workspace-settings
-        iam.kubesphere.io/role-template: "true"
         scope.iam.kubesphere.io/workspace: ""
       name: workspace-view-workspace-settings
     spec:

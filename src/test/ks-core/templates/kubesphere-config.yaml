@@ -12,11 +12,15 @@ data:
       maximumClockSkew: {{ .Values.config.authentication.maximumClockSkew | default "10s" }}
       multipleLogin: {{ .Values.config.authentication.enableMultiLogin | default true }}
       kubectlImage: {{ template "kubectl.image" . }}
+{{- if eq .Values.role "host" }}
       {{- with lookup "v1" "ConfigMap" (printf "%s" .Release.Namespace) "kubesphere-config" }}
       jwtSecret: "{{ (fromYaml (index .data "kubesphere.yaml")).authentication.jwtSecret }}"
       {{- else }}
       jwtSecret: "{{ .Values.config.jwtSecret | default (randAlphaNum 32 ) }}"
       {{- end }}
+{{- else }}
+      jwtSecret: "{{ .Values.config.jwtSecret }}"
+{{- end }}
 {{- if .Values.config.authentication.oauthOptions }}
       {{- with .Values.config.authentication.oauthOptions }}
       oauthOptions:
