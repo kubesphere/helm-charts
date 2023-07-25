@@ -344,6 +344,43 @@ entries:
   deepflow:
   - apiVersion: v2
     appVersion: 6.3.3
+    created: "2023-07-25T07:51:57.049247414Z"
+    dependencies:
+    - condition: clickhouse.enabled
+      name: clickhouse
+      repository: ""
+      version: '*.*.*'
+    - condition: mysql.enabled
+      name: mysql
+      repository: ""
+      version: '*.*.*'
+    - condition: deepflow-agent.enabled
+      name: deepflow-agent
+      repository: ""
+      version: '*.*.*'
+    - condition: grafana.enabled
+      name: grafana
+      repository: https://grafana.github.io/helm-charts
+      version: 6.*.*
+    description: An automated observability platform for cloud-native developers.
+    digest: a1588a5e9d79921c5eae7de6f73dbbee2e2a3110f4e16f043ff4f60b45940118
+    home: https://github.com/deepflowys/deepflow
+    icon: https://raw.githubusercontent.com/deepflowys/deepflow-charts/main/deepflow.svg
+    keywords:
+    - deepflow
+    kubeVersion: '>=1.16.0-0'
+    maintainers:
+    - name: deepflow
+      url: https://github.com/deepflowys/deepflow
+    name: deepflow
+    sources:
+    - https://github.com/deepflowys/deepflow
+    type: application
+    urls:
+    - https://charts.kubesphere.io/stable/deepflow-6.3.004.tgz
+    version: 6.3.004
+  - apiVersion: v2
+    appVersion: 6.3.3
     created: "2023-07-18T06:30:57.113054418Z"
     dependencies:
     - condition: clickhouse.enabled
@@ -1897,6 +1934,29 @@ entries:
     urls:
     - https://charts.kubesphere.io/stable/qiming-operator-2.2.2.tgz
     version: 2.2.2
+  stonedb-helm:
+  - apiVersion: v2
+    appVersion: 5.7_1.0.1
+    created: "2023-07-25T07:51:57.049774424Z"
+    description: A Helm chart for Kubernetes to run StoneDB standone
+    digest: ee5cb98275bb226a8d689bab6f34f8f27bc61c8fded1f81bc9ed8068cf084322
+    home: https://www.stoneatom.com/StoneDB
+    keywords:
+    - stonedb
+    - stoneatom
+    - database
+    - mysql
+    maintainers:
+    - email: ops@stoneatom.com
+      name: stoneatom
+    name: stonedb-helm
+    sources:
+    - https://github.com/stoneatom/stonedb
+    - https://github.com/stoneatom/stonedb-helm.git
+    type: application
+    urls:
+    - https://charts.kubesphere.io/stable/stonedb-helm-0.1.0.tgz
+    version: 0.1.0
   theia:
   - annotations:
       artifacthub.io/license: Apache-2.0
@@ -2004,4 +2064,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/stable/vsphere-csi-driver-1.3.0.tgz
     version: 1.3.0
-generated: "2023-07-18T06:30:57.098996978Z"
+generated: "2023-07-25T07:51:57.03518106Z"
