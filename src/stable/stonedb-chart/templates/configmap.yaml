@@ -1,0 +1,99 @@
+{{- if .Values.configmap.enabled -}}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: {{ include "stonedb-helm.fullname" . }}-cm
+data:
+  my.cnf: |
+    [mysqld]
+    port                            = 3306
+    basedir                         = /opt/stonedb57/install/
+    character-sets-dir              = /opt/stonedb57/install/share/charsets/
+    lc-messages-dir                 = /opt/stonedb57/install/share/
+    plugin_dir                      = /opt/stonedb57/install/lib/plugin/
+    tmpdir                          = /opt/stonedb57/install/tmp/
+    socket                          = /tmp/mysql.sock
+    datadir                         = /opt/stonedb57/install/data/
+    pid-file                        = /opt/stonedb57/install/data/mysqld.pid
+    log-error                       = /opt/stonedb57/install/log/mysqld.log
+    lc-messages-dir                 = /opt/stonedb57/install/share/english/
+
+
+    server-id = {{.Values.configmap.serverId}}
+    secure-file-priv=""
+    default_storage_engine=innodb
+    character-set-server = utf8mb4
+    collation-server = utf8mb4_general_ci
+    init_connect='SET NAMES utf8mb4'
+    max_connections=1000
+    tmp_table_size = 1024M
+
+    slow-query-log = 1
+    slow_query_log_file=/opt/stonedb57/install/log/slow.log
+
+    #binlog config
+    long_query_time=5
+    max_binlog_size=1024M
+    sync_binlog=1
+    log-bin=/opt/stonedb57/install/binlog/binlog
+    expire_logs_days=1
+    binlog_format=row
+    binlog_cache_size = 524288
+
+    wait_timeout=3600
+    interactive_timeout=3600
+    connect_timeout=360
+    net_read_timeout=360
+    net_write_timeout=360
+    lock_wait_timeout=120
+    slave-net-timeout=120
+
+
+    loose-key_buffer_size = 512M
+    max_allowed_packet = 512M
+    loose-sort_buffer_size = 4M
+    loose-read_buffer_size = 4M
+    loose-read_rnd_buffer_size = 16M
+    loose-thread_cache_size = 8
+    loose-query_cache_size = 0
+
+    thread_stack = 512K
+    lower_case_table_names=2
+
+    group_concat_max_len=512
+
+    open_files_limit = 65535
+
+    # Uncomment the following if you are using innodb tables
+    loose-innodb_data_home_dir = /opt/stonedb57/install/data/
+    loose-innodb_data_file_path = ibdata1:2000M;ibdata2:10M:autoextend
+    loose-innodb_buffer_pool_size=    1024M
+    loose-innodb_lru_scan_depth=      100
+    loose-innodb_write_io_threads=    2
+    loose-innodb_read_io_threads=     2
+    loose-innodb_log_buffer_size=     1M
+    loose-innodb_log_file_size=       1024M
+    loose-innodb_log_files_in_group=  2
+    loose-innodb_log_group_home_dir = /opt/stonedb57/install/redolog/
+    loose-innodb-stats-persistent=    OFF
+    loose-innodb_lock_wait_timeout = 50
+    loose-innodb_flush_method = O_DIRECT
+    loose-innodb_io_capacity = 500
+    loose-innodb_buffer_pool_dump_pct = 40
+    loose-innodb_print_all_deadlocks = 1
+    loose-innodb_undo_directory = /opt/stonedb57/install/undolog/
+    loose-innodb_undo_log_truncate = 1
+    loose-innodb_undo_tablespaces = 3
+    loose-innodb_undo_logs = 128
+
+    # here, at the end of [mysqld] group mtr will automatically disable
+    # all optional plugins.
+
+    plugin-load=AUDIT=libaudit_plugin.so
+    audit_json_file=ON #Audit ON/OFF
+    audit_record_cmds= "insert,update,delete,truncate,create_table,drop_table,alter_table,create_index,drop_index,create_db,drop_db,create_user,drop_user,alter_user,grant,revoke,shutdown,connect,create_view,drop_view,alter_view,create_procedure,create_function,drop_function,drop_procedure,call_procedure,call_function"
+    audit_json_log_output="table"
+
+    [connection]
+    default-character-set=utf8mb4
+{{- end }}
