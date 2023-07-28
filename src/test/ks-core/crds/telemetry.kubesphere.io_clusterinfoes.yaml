@@ -137,6 +137,10 @@ spec:
                     description: workspace number of cluster
                     type: integer
                 type: object
+              syncTime:
+                description: when to sync data to ksCloud
+                format: date-time
+                type: string
               ts:
                 description: collection time
                 format: date-time

@@ -3,6 +3,7 @@ apiVersion: v1
 kind: ConfigMap
 metadata:
   name: kubesphere-config
+  namespace: kubesphere-system
 data:
   kubesphere.yaml: |
     authentication:
