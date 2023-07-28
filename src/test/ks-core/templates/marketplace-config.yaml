@@ -17,4 +17,5 @@ stringData:
 kind: Secret
 metadata:
   name: marketplace
+  namespace: kubesphere-system
 type: config.kubesphere.io/marketplace

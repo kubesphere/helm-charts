@@ -8,6 +8,7 @@ metadata:
     tier: backend
     version: {{ .Chart.AppVersion }}
   name: ks-apiserver
+  namespace: kubesphere-system
 spec:
   ports:
     - port: 80
@@ -40,6 +41,7 @@ metadata:
     tier: backend
     version: {{ .Chart.AppVersion }}
   name: ks-controller-manager
+  namespace: kubesphere-system
 spec:
   ports:
     - port: 443

@@ -26,7 +26,7 @@ webhooks:
       caBundle: {{ b64enc $ca.Cert | quote }}
       service:
         name: ks-controller-manager
-        namespace: {{ .Release.Namespace }}
+        namespace: kubesphere-system
         path: /validate-email-iam-kubesphere-io-v1beta1
         port: 443
     failurePolicy: Fail
@@ -65,7 +65,7 @@ webhooks:
       caBundle: {{ b64enc $ca.Cert | quote }}
       service:
         name: ks-controller-manager
-        namespace: {{ .Release.Namespace }}
+        namespace: kubesphere-system
         path: /validate-quota-kubesphere-io-v1alpha2
         port: 443
     failurePolicy: Ignore
@@ -97,7 +97,7 @@ webhooks:
       caBundle: {{ b64enc $ca.Cert | quote }}
       service:
         name: ks-controller-manager
-        namespace: {{ .Release.Namespace }}
+        namespace: kubesphere-system
         path: /validate-extensions-kubesphere-io-v1alpha1-jsbundle
         port: 443
     failurePolicy: Fail
@@ -124,7 +124,7 @@ webhooks:
       caBundle: {{ b64enc $ca.Cert | quote }}
       service:
         name: ks-controller-manager
-        namespace: {{ .Release.Namespace }}
+        namespace: kubesphere-system
         path: /validate-extensions-kubesphere-io-v1alpha1-apiservice
         port: 443
     failurePolicy: Fail
@@ -151,7 +151,7 @@ webhooks:
       caBundle: {{ b64enc $ca.Cert | quote }}
       service:
         name: ks-controller-manager
-        namespace: {{ .Release.Namespace }}
+        namespace: kubesphere-system
         path: /validate-extensions-kubesphere-io-v1alpha1-reverseproxy
         port: 443
     failurePolicy: Fail
@@ -185,7 +185,7 @@ webhooks:
       caBundle: {{ b64enc $ca.Cert | quote }}
       service:
         name: ks-controller-manager
-        namespace: {{ .Release.Namespace }}
+        namespace: kubesphere-system
         path: /mutate-extensions-kubesphere-io-v1alpha1-jsbundle
         port: 443
     failurePolicy: Fail
