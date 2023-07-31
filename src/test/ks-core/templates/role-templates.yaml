@@ -5,33 +5,6 @@ items:
     kind: RoleTemplate
     metadata:
       annotations:
-        iam.kubesphere.io/dependencies: '["cluster-view-alerting-policies", "cluster-view-alerting-messages"]'
-        iam.kubesphere.io/role-template-rules: '{"alert-rules": "view"}'
-      labels:
-        iam.kubesphere.io/category: monitoring-and-alerting
-        scope.iam.kubesphere.io/cluster: ""
-      name: cluster-manage-alerting-policies
-    spec:
-      displayName:
-        en: Alerting Policies Management
-      rules: []
-  - apiVersion: iam.kubesphere.io/v1beta1
-    kind: RoleTemplate
-    metadata:
-      annotations:
-        iam.kubesphere.io/role-template-rules: '{"monitoring": "manage"}'
-      labels:
-        iam.kubesphere.io/category: monitoring-and-alerting
-        scope.iam.kubesphere.io/cluster: ""
-      name: cluster-manage-cluster-monitoring
-    spec:
-      displayName:
-        en: Cluster Monitoring Management
-      rules: []
-  - apiVersion: iam.kubesphere.io/v1beta1
-    kind: RoleTemplate
-    metadata:
-      annotations:
         iam.kubesphere.io/role-template-rules: '{"cluster-settings": "manage"}'
       labels:
         iam.kubesphere.io/category: cluster-settings
@@ -194,46 +167,7 @@ items:
       displayName:
         en: Volumes Management
       rules: []
-  - apiVersion: iam.kubesphere.io/v1beta1
-    kind: RoleTemplate
-    metadata:
-      annotations:
-        iam.kubesphere.io/role-template-rules: '{"alerts": "view"}'
-      labels:
-        iam.kubesphere.io/category: monitoring-and-alerting
-        scope.iam.kubesphere.io/cluster: ""
-      name: cluster-view-alerting-messages
-    spec:
-      displayName:
-        en: Alerting Messages View
-      rules: []
-  - apiVersion: iam.kubesphere.io/v1beta1
-    kind: RoleTemplate
-    metadata:
-      annotations:
-        iam.kubesphere.io/dependencies: '["cluster-view-alerting-messages"]'
-        iam.kubesphere.io/role-template-rules: '{"alert-rules": "view"}'
-      labels:
-        iam.kubesphere.io/category: monitoring-and-alerting
-        scope.iam.kubesphere.io/cluster: ""
-      name: cluster-view-alerting-policies
-    spec:
-      displayName:
-        en: Alerting Policies View
-      rules: []
-  - apiVersion: iam.kubesphere.io/v1beta1
-    kind: RoleTemplate
-    metadata:
-      annotations:
-        iam.kubesphere.io/role-template-rules: '{"monitoring": "view"}'
-      labels:
-        iam.kubesphere.io/category: monitoring-and-alerting
-        scope.iam.kubesphere.io/cluster: ""
-      name: cluster-view-cluster-monitoring
-    spec:
-      displayName:
-        en: Cluster Monitoring View
-      rules: []
+
   - apiVersion: iam.kubesphere.io/v1beta1
     kind: RoleTemplate
     metadata:
@@ -253,13 +187,10 @@ items:
     kind: RoleTemplate
     metadata:
       annotations:
-        iam.kubesphere.io/module: Cluster Resources Management
         iam.kubesphere.io/role-template-rules: '{"components": "view"}'
         kubesphere.io/alias-name: Components View
       labels:
         iam.kubesphere.io/category: cluster-resources-management
-        iam.kubesphere.io/operation: view
-        iam.kubesphere.io/resource: components
         scope.iam.kubesphere.io/cluster: ""
       name: cluster-view-components
     spec:
@@ -382,8 +313,6 @@ items:
         kubesphere.io/alias-name: Volume Snapshot Classes View
       labels:
         iam.kubesphere.io/category: storage-management
-        iam.kubesphere.io/operation: view
-        iam.kubesphere.io/resource: volume-snapshots-classes
         scope.iam.kubesphere.io/cluster: ""
       name: cluster-view-volume-snapshot-classes
     spec:
@@ -413,8 +342,6 @@ items:
         kubesphere.io/alias-name: Volumes View
       labels:
         iam.kubesphere.io/category: storage-management
-        iam.kubesphere.io/operation: view
-        iam.kubesphere.io/resource: volumes
         scope.iam.kubesphere.io/cluster: ""
       name: cluster-view-volumes
     spec:
@@ -443,26 +370,7 @@ items:
           verbs:
             - create
             - watch
-  - apiVersion: iam.kubesphere.io/v1beta1
-    kind: RoleTemplate
-    metadata:
-      annotations:
-        iam.kubesphere.io/dependencies: '["role-template-view-app-templates"]'
-        iam.kubesphere.io/role-template-rules: '{"app-templates": "manage"}'
-      labels:
-        iam.kubesphere.io/category: apps-management
-        scope.iam.kubesphere.io/global: ""
-      name: global-manage-app-templates
-    spec:
-      displayName:
-        en: App Templates Management
-      rules:
-        - apiGroups:
-            - openpitrix.io
-          resources:
-            - '*'
-          verbs:
-            - '*'
+
   - apiVersion: iam.kubesphere.io/v1beta1
     kind: RoleTemplate
     metadata:
@@ -473,8 +381,6 @@ items:
         kubesphere.io/alias-name: Clusters Management
       labels:
         iam.kubesphere.io/category: cluster-management
-        iam.kubesphere.io/operation: manage
-        iam.kubesphere.io/resource: clusters
         scope.iam.kubesphere.io/global: ""
       name: global-manage-clusters
     spec:
@@ -753,28 +659,7 @@ items:
             - '*'
           verbs:
             - '*'
-  - apiVersion: iam.kubesphere.io/v1beta1
-    kind: RoleTemplate
-    metadata:
-      annotations:
-        iam.kubesphere.io/role-template-rules: '{"app-templates": "view"}'
-      labels:
-        iam.kubesphere.io/category: apps-management
-        scope.iam.kubesphere.io/global: ""
-      name: global-view-app-templates
-    spec:
-      displayName:
-        en: Roles Management
-      rules:
-        - apiGroups:
-            - openpitrix.io
-          resources:
-            - apps
-            - apps/versions
-            - categories
-          verbs:
-            - get
-            - list
+
   - apiVersion: iam.kubesphere.io/v1beta1
     kind: RoleTemplate
     metadata:
@@ -1048,27 +933,7 @@ items:
           verbs:
             - list
 
-  - apiVersion: iam.kubesphere.io/v1beta1
-    kind: RoleTemplate
-    metadata:
-      annotations:
-        iam.kubesphere.io/dependencies: '["namespace-view-alerting-policies"]'
-        iam.kubesphere.io/role-template-rules: '{"alert-rules": "manage"}'
-      labels:
-        iam.kubesphere.io/aggregate-to-operator: ""
-        iam.kubesphere.io/category: monitoring-and-alerting
-        scope.iam.kubesphere.io/namespace: ""
-      name: namespace-manage-alerting-policies
-    spec:
-      displayName:
-        en: Alerting Policies Management
-      rules:
-        - apiGroups:
-            - alerting.kubesphere.io
-          resources:
-            - '*'
-          verbs:
-            - '*'
+
   - apiVersion: iam.kubesphere.io/v1beta1
     kind: RoleTemplate
     metadata:
@@ -1147,56 +1012,7 @@ items:
             - configmaps
           verbs:
             - '*'
-  - apiVersion: iam.kubesphere.io/v1beta1
-    kind: RoleTemplate
-    metadata:
-      annotations:
-        iam.kubesphere.io/dependencies: '["namespace-view-custom-monitoring"]'
-        iam.kubesphere.io/role-template-rules: '{"custom-monitoring": "manage"}'
-      labels:
-        iam.kubesphere.io/aggregate-to-operator: ""
-        iam.kubesphere.io/category: monitoring-and-alerting
-        scope.iam.kubesphere.io/namespace: ""
-      name: namespace-manage-custom-monitoring
-    spec:
-      displayName:
-        en: Custom Monitoring Management
-      rules:
-        - apiGroups:
-            - monitoring.kubesphere.io
-            - metering.kubesphere.io
-            - monitoring.coreos.com
-          resources:
-            - '*'
-          verbs:
-            - '*'
-  - apiVersion: iam.kubesphere.io/v1beta1
-    kind: RoleTemplate
-    metadata:
-      annotations:
-        iam.kubesphere.io/dependencies: '["namespace-view-gitops-applications"]'
-        iam.kubesphere.io/role-template-rules: '{"applications": "manage"}'
-      labels:
-        iam.kubesphere.io/aggregate-to-operator: ""
-        iam.kubesphere.io/category: continuous-deployments-management
-        scope.iam.kubesphere.io/namespace: ""
-      name: namespace-manage-gitops-applications
-    spec:
-      displayName:
-        en: Continuous Deployments Management
-      rules:
-        - apiGroups:
-            - gitops.kubesphere.io
-          resources:
-            - applications
-          verbs:
-            - '*'
-        - apiGroups:
-            - gitops.kubesphere.io
-          resources:
-            - clusters
-          verbs:
-            - list
+
   - apiVersion: iam.kubesphere.io/v1beta1
     kind: RoleTemplate
     metadata:
@@ -1373,58 +1189,8 @@ items:
             - get
             - list
             - watch
-  - apiVersion: iam.kubesphere.io/v1beta1
-    kind: RoleTemplate
-    metadata:
-      annotations:
-        iam.kubesphere.io/role-template-rules: '{"alerts": "view"}'
-      labels:
-        iam.kubesphere.io/aggregate-to-operator: ""
-        iam.kubesphere.io/aggregate-to-viewer: ""
-        iam.kubesphere.io/category: monitoring-and-alerting
-        scope.iam.kubesphere.io/namespace: ""
-      name: namespace-view-alerting-messages
-    spec:
-      displayName:
-        en: Alerting Messages View
-      rules:
-        - apiGroups:
-            - alerting.kubesphere.io
-          resources:
-            - '*'
-          verbs:
-            - get
-            - list
-            - watch
-  - apiVersion: iam.kubesphere.io/v1beta1
-    kind: RoleTemplate
-    metadata:
-      annotations:
-        iam.kubesphere.io/role-template-rules: '{"alert-rules": "view"}'
-      labels:
-        iam.kubesphere.io/aggregate-to-operator: ""
-        iam.kubesphere.io/aggregate-to-viewer: ""
-        iam.kubesphere.io/category: monitoring-and-alerting
-        scope.iam.kubesphere.io/namespace: ""
-      name: namespace-view-alerting-policies
-    spec:
-      displayName:
-        en: Alerting Policies View
-      rules:
-        - apiGroups:
-            - alerting.kubesphere.io
-          resources:
-            - '*'
-          verbs:
-            - get
-            - list
-            - watch
-        - apiGroups:
-            - resources.kubesphere.io
-          resources:
-            - '*'
-          verbs:
-            - list
+
+
   - apiVersion: iam.kubesphere.io/v1beta1
     kind: RoleTemplate
     metadata:
@@ -1504,56 +1270,7 @@ items:
             - get
             - list
             - watch
-  - apiVersion: iam.kubesphere.io/v1beta1
-    kind: RoleTemplate
-    metadata:
-      annotations:
-        iam.kubesphere.io/role-template-rules: '{"custom-monitoring": "view"}'
-      labels:
-        iam.kubesphere.io/aggregate-to-operator: ""
-        iam.kubesphere.io/aggregate-to-viewer: ""
-        iam.kubesphere.io/category: monitoring-and-alerting
-        scope.iam.kubesphere.io/namespace: ""
-      name: namespace-view-custom-monitoring
-    spec:
-      displayName:
-        en: Custom Monitoring View
-      rules:
-        - apiGroups:
-            - monitoring.kubesphere.io
-            - metering.kubesphere.io
-            - monitoring.coreos.com
-          resources:
-            - '*'
-          verbs:
-            - get
-            - list
-            - watch
-  - apiVersion: iam.kubesphere.io/v1beta1
-    kind: RoleTemplate
-    metadata:
-      annotations:
-        iam.kubesphere.io/dependencies: '["namespace-view-gitrepositories"]'
-        iam.kubesphere.io/role-template-rules: '{"applications": "view"}'
-      labels:
-        iam.kubesphere.io/aggregate-to-operator: ""
-        iam.kubesphere.io/aggregate-to-viewer: ""
-        iam.kubesphere.io/category: continuous-deployments-management
-        scope.iam.kubesphere.io/namespace: ""
-      name: namespace-view-gitops-applications
-    spec:
-      displayName:
-        en: Continuous Deployments View
-      rules:
-        - apiGroups:
-            - gitops.kubesphere.io
-          resources:
-            - applications
-            - application-summary
-          verbs:
-            - get
-            - list
-            - watch
+
   - apiVersion: iam.kubesphere.io/v1beta1
     kind: RoleTemplate
     metadata:
@@ -1706,13 +1423,11 @@ items:
     kind: RoleTemplate
     metadata:
       annotations:
-        iam.kubesphere.io/dependencies: '["role-template-view-members"]'
+        iam.kubesphere.io/dependencies: '["cluster-view-members"]'
       labels:
         iam.kubesphere.io/category: access-control
-        iam.kubesphere.io/operation: view
-        iam.kubesphere.io/resource: roles
         scope.iam.kubesphere.io/cluster: ""
-      name: role-template-view-roles
+      name: cluster-view-roles
     spec:
       displayName:
         en: Cluster Roles View
@@ -1750,48 +1465,8 @@ items:
           verbs:
             - create
             - watch
-  - apiVersion: iam.kubesphere.io/v1beta1
-    kind: RoleTemplate
-    metadata:
-      annotations:
-        iam.kubesphere.io/dependencies: '["workspace-view-app-repos"]'
-        iam.kubesphere.io/role-template-rules: '{"app-repos": "manage"}'
-      labels:
-        iam.kubesphere.io/category: apps-management
-        scope.iam.kubesphere.io/workspace: ""
-      name: workspace-manage-app-repos
-    spec:
-      displayName:
-        en: Workspace App Repos Management
-      rules:
-        - apiGroups:
-            - openpitrix.io
-          resources:
-            - repos
-            - repos/events
-            - repos/action
-          verbs:
-            - '*'
-  - apiVersion: iam.kubesphere.io/v1beta1
-    kind: RoleTemplate
-    metadata:
-      annotations:
-        iam.kubesphere.io/dependencies: '["workspace-view-app-templates"]'
-        iam.kubesphere.io/role-template-rules: '{"app-templates": "manage"}'
-      labels:
-        iam.kubesphere.io/category: apps-management
-        scope.iam.kubesphere.io/workspace: ""
-      name: workspace-manage-app-templates
-    spec:
-      displayName:
-        en: Workspace App Templates Management
-      rules:
-        - apiGroups:
-            - openpitrix.io
-          resources:
-            - '*'
-          verbs:
-            - '*'
+
+
   - apiVersion: iam.kubesphere.io/v1beta1
     kind: RoleTemplate
     metadata:
@@ -1980,49 +1655,7 @@ items:
             - workspaces
           verbs:
             - '*'
-  - apiVersion: iam.kubesphere.io/v1beta1
-    kind: RoleTemplate
-    metadata:
-      annotations:
-        iam.kubesphere.io/role-template-rules: '{"app-repos": "view"}'
-      labels:
-        iam.kubesphere.io/category: apps-management
-        scope.iam.kubesphere.io/workspace: ""
-      name: workspace-view-app-repos
-    spec:
-      displayName:
-        en: Workspace App Repos View
-      rules:
-        - apiGroups:
-            - openpitrix.io
-          resources:
-            - repos
-            - repos/events
-          verbs:
-            - get
-            - list
-            - watch
-  - apiVersion: iam.kubesphere.io/v1beta1
-    kind: RoleTemplate
-    metadata:
-      annotations:
-        iam.kubesphere.io/role-template-rules: '{"app-templates": "view"}'
-      labels:
-        iam.kubesphere.io/category: apps-management
-        scope.iam.kubesphere.io/workspace: ""
-      name: workspace-view-app-templates
-    spec:
-      displayName:
-        en: Workspace App Templates View
-      rules:
-        - apiGroups:
-            - openpitrix.io
-          resources:
-            - '*'
-          verbs:
-            - get
-            - list
-            - watch
+
   - apiVersion: iam.kubesphere.io/v1beta1
     kind: RoleTemplate
     metadata:

@@ -230,6 +230,9 @@ items:
     metadata:
       annotations:
         kubesphere.io/creator: admin
+        kubesphere.io/description: '{"zh": "管理 KubeSphere 平台上的所有资源。", "en": "Manage all resources on the KubeSphere platform."}'
+      labels:
+        iam.kubesphere.io/auto-aggregate: "true"
       name: platform-admin
     rules:
       - apiGroups:
@@ -246,8 +249,10 @@ items:
     kind: GlobalRole
     metadata:
       annotations:
-        iam.kubesphere.io/aggregation-roles: '["role-template-view-app-templates"]'
+        kubesphere.io/description: '{"zh": "被邀请加入企业空间之前无法访问任何资源。", "en": "Cannot access any resources before joining a workspace."}'
         kubesphere.io/creator: admin
+      labels:
+        iam.kubesphere.io/auto-aggregate: "true"
       name: platform-regular
     rules: []
   - apiVersion: iam.kubesphere.io/v1beta1
@@ -255,6 +260,9 @@ items:
     metadata:
       annotations:
         kubesphere.io/creator: admin
+        kubesphere.io/description: '{"zh": "创建企业空间并成为所创建的企业空间的管理员。", "en": "Create workspaces and become an administrator of the created workspaces."}'
+      labels:
+        iam.kubesphere.io/auto-aggregate: "true"
       name: platform-self-provisioner
     aggregationRoleTemplates:
       templateNames:
@@ -289,33 +297,7 @@ items:
       roleSelector:
         matchLabels:
           scope.iam.kubesphere.io/cluster: ""
-      templateNames:
-        - cluster-manage-project-resources
-        - cluster-view-volumes
-        - cluster-manage-volume-snapshots
-        - cluster-view-storageclasses
-        - cluster-manage-volume-snapshot-classes
-        - cluster-manage-roles
-        - cluster-view-project-resources
-        - cluster-manage-members
-        - cluster-manage-nodes
-        - cluster-view-nodes
-        - cluster-manage-network-resources
-        - role-template-view-roles
-        - cluster-view-cluster-settings
-        - cluster-view-projects
-        - cluster-view-volume-snapshots
-        - cluster-view-volume-snapshot-classes
-        - cluster-view-crds
-        - cluster-view-members
-        - cluster-manage-volumes
-        - cluster-manage-storageclasses
-        - cluster-view-network-resources
-        - cluster-view-components
-        - cluster-manage-cluster-settings
-        - cluster-view-roles
-        - cluster-manage-crds
-        - cluster-manage-projects
+      templateNames: []
     apiVersion: iam.kubesphere.io/v1beta1
     kind: ClusterRole
     metadata:
@@ -341,7 +323,7 @@ items:
         - cluster-view-components
         - cluster-view-volume-snapshot-classes
         - cluster-view-volumes
-        - role-template-view-roles
+        - cluster-view-roles
     apiVersion: iam.kubesphere.io/v1beta1
     kind: ClusterRole
     metadata:
@@ -383,6 +365,9 @@ items:
       metadata:
         annotations:
           kubesphere.io/creator: system
+          kubesphere.io/description: '{"zh": "管理项目中的所有资源。", "en": "Manage all resources in the project."}'
+        labels:
+          iam.kubesphere.io/auto-aggregate: "true"
         name: admin
       rules:
         - apiGroups:
@@ -407,12 +392,10 @@ items:
       kind: Role
       metadata:
         annotations:
-          iam.kubesphere.io/aggregation-roles: '["role-template-view-members","role-template-view-roles",
-          "role-template-view-app-workloads","role-template-manage-app-workloads",
-          "role-template-view-volumes","role-template-manage-volumes", "role-template-view-snapshots","role-template-manage-snapshots",
-          "role-template-view-secrets","role-template-manage-secrets", "role-template-view-serviceaccount","role-template-manage-serviceaccount",
-          "role-template-view-configmaps","role-template-manage-configmaps"]'
           kubesphere.io/creator: system
+          kubesphere.io/description: '{"zh": "管理项目中除用户和角色之外的资源。", "en": "Manage resources other than users and roles in the project."}'
+        labels:
+          iam.kubesphere.io/auto-aggregate: "true"
         name: operator
       rules:
         - apiGroups:
@@ -453,14 +436,14 @@ items:
           matchLabels:
             iam.kubesphere.io/aggregate-to-viewer: ""
             scope.iam.kubesphere.io/namespace: ""
-      apiVersion: rbac.authorization.k8s.io/v1
+      apiVersion: iam.kubesphere.io/v1beta1
       kind: Role
       metadata:
         annotations:
-          iam.kubesphere.io/aggregation-roles: '["role-template-view-members","role-template-view-roles",
-          "role-template-view-app-workloads","role-template-view-volumes","role-template-view-snapshots",
-          "role-template-view-secrets","role-template-view-configmaps","role-template-view-serviceaccount"]'
           kubesphere.io/creator: system
+          kubesphere.io/description: '{"zh": "查看项目中的所有资源。", "en": "View all resources in the project."}'
+        labels:
+          iam.kubesphere.io/auto-aggregate: "true"
         name: viewer
       rules:
         - apiGroups:
@@ -488,10 +471,6 @@ items:
           - workspace-manage-projects
           - workspace-view-projects
           - workspace-create-projects
-          - workspace-manage-app-templates
-          - workspace-view-app-templates
-          - workspace-manage-app-repos
-          - workspace-view-app-repos
           - workspace-view-members
           - workspace-manage-members
           - workspace-manage-roles
@@ -502,8 +481,8 @@ items:
       kind: WorkspaceRole
       metadata:
         annotations:
-          iam.kubesphere.io/aggregation-roles: '["workspace-manage-workspace-settings","workspace-view-workspace-settings","workspace-manage-projects","workspace-view-projects","workspace-create-projects","workspace-manage-app-templates","workspace-view-app-templates","workspace-manage-app-repos","workspace-view-app-repos","workspace-view-members","workspace-manage-members","workspace-manage-roles","workspace-view-roles","workspace-manage-groups","workspace-view-groups"]'
           kubesphere.io/creator: system
+          kubesphere.io/description: '{"zh": "管理企业空间中的所有资源。", "en": "Manage all resources in the workspace."}'
         labels:
           iam.kubesphere.io/auto-aggregate: "true"
         name: admin
@@ -532,6 +511,7 @@ items:
       metadata:
         annotations:
           kubesphere.io/creator: system
+          kubesphere.io/description: '{"zh": "查看企业空间设置。", "en": "View workspace settings."}'
         labels:
           iam.kubesphere.io/auto-aggregate: "true"
         name: regular
@@ -558,38 +538,17 @@ items:
             iam.kubesphere.io/aggregate-to-self-provisioner: ""
         templateNames:
           - workspace-create-projects
-          - workspace-view-app-templates
-          - workspace-manage-app-templates
           - workspace-view-workspace-settings
       apiVersion: iam.kubesphere.io/v1beta1
       kind: WorkspaceRole
       metadata:
         annotations:
-          iam.kubesphere.io/aggregation-roles: '["workspace-create-projects","workspace-view-app-templates","workspace-manage-app-templates","workspace-view-workspace-settings"]'
           kubesphere.io/creator: system
+          kubesphere.io/description: '{"zh": "查看企业设置、创建项目。", "en": "View workspace settings, create projects."}'
         labels:
           iam.kubesphere.io/auto-aggregate: "true"
         name: self-provisioner
-      rules:
-        - apiGroups:
-            - '*'
-          resources:
-            - workspaces
-            - workspacemembers
-            - quotas
-            - abnormalworkloads
-            - pods
-          verbs:
-            - get
-            - list
-            - watch
-        - apiGroups:
-            - '*'
-          resources:
-            - namespaces
-          verbs:
-            - create
-            - watch
+      rules: []
 
   - apiVersion: iam.kubesphere.io/v1beta1
     kind: RoleBase
@@ -604,8 +563,6 @@ items:
             iam.kubesphere.io/aggregate-to-viewer: ""
         templateNames:
           - workspace-view-projects
-          - workspace-view-app-templates
-          - workspace-view-app-repos
           - workspace-view-members
           - workspace-view-roles
           - workspace-view-groups
@@ -614,8 +571,8 @@ items:
       kind: WorkspaceRole
       metadata:
         annotations:
-          iam.kubesphere.io/aggregation-roles: '["workspace-view-projects","workspace-view-app-templates","workspace-view-app-repos","workspace-view-members","workspace-view-roles","workspace-view-groups","workspace-view-workspace-settings"]'
           kubesphere.io/creator: system
+          kubesphere.io/description: '{"zh": "查看企业空间中的所有资源。", "en": "View all resources in the workspace."}'
         labels:
           iam.kubesphere.io/auto-aggregate: "true"
         name: viewer
@@ -645,16 +602,6 @@ items:
     spec:
       displayName:
         en: Access Control
-  - apiVersion: iam.kubesphere.io/v1beta1
-    kind: Category
-    metadata:
-      labels:
-        scope.iam.kubesphere.io/global: ""
-        scope.iam.kubesphere.io/workspace: ""
-      name: apps-management
-    spec:
-      displayName:
-        en: Apps Management
   - apiVersion: iam.kubesphere.io/v1beta1
     kind: Category
     metadata:
