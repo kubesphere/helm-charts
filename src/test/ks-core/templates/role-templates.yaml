@@ -176,9 +176,8 @@ items:
       labels:
         iam.kubesphere.io/category: cluster-settings
         scope.iam.kubesphere.io/cluster: ""
+        iam.kubesphere.io/aggregate-to-cluster-viewer: ""
       name: cluster-view-cluster-settings
-      resourceVersion: "4866229"
-      uid: 6acaedfd-1b51-4924-9841-4938d4e54edd
     spec:
       displayName:
         en: Cluster Settings View
@@ -192,6 +191,7 @@ items:
       labels:
         iam.kubesphere.io/category: cluster-resources-management
         scope.iam.kubesphere.io/cluster: ""
+        iam.kubesphere.io/aggregate-to-cluster-viewer: ""
       name: cluster-view-components
     spec:
       displayName:
@@ -205,6 +205,7 @@ items:
       labels:
         iam.kubesphere.io/category: cluster-resources-management
         scope.iam.kubesphere.io/cluster: ""
+        iam.kubesphere.io/aggregate-to-cluster-viewer: ""
       name: cluster-view-crds
     spec:
       displayName:
@@ -218,6 +219,7 @@ items:
       labels:
         iam.kubesphere.io/category: access-control
         scope.iam.kubesphere.io/cluster: ""
+        iam.kubesphere.io/aggregate-to-cluster-viewer: ""
       name: cluster-view-members
     spec:
       displayName:
@@ -271,6 +273,7 @@ items:
       labels:
         iam.kubesphere.io/category: project-resources-management
         scope.iam.kubesphere.io/cluster: ""
+        iam.kubesphere.io/aggregate-to-cluster-viewer: ""
       name: cluster-view-projects
     spec:
       displayName:
@@ -285,6 +288,7 @@ items:
       labels:
         iam.kubesphere.io/category: access-control
         scope.iam.kubesphere.io/cluster: ""
+        iam.kubesphere.io/aggregate-to-cluster-viewer: ""
       name: cluster-view-roles
     spec:
       displayName:
@@ -299,6 +303,7 @@ items:
       labels:
         iam.kubesphere.io/category: storage-management
         scope.iam.kubesphere.io/cluster: ""
+        iam.kubesphere.io/aggregate-to-cluster-viewer: ""
       name: cluster-view-storageclasses
     spec:
       displayName:
@@ -314,6 +319,7 @@ items:
       labels:
         iam.kubesphere.io/category: storage-management
         scope.iam.kubesphere.io/cluster: ""
+        iam.kubesphere.io/aggregate-to-cluster-viewer: ""
       name: cluster-view-volume-snapshot-classes
     spec:
       displayName:
@@ -328,6 +334,7 @@ items:
       labels:
         iam.kubesphere.io/category: storage-management
         scope.iam.kubesphere.io/cluster: ""
+        iam.kubesphere.io/aggregate-to-cluster-viewer: ""
       name: cluster-view-volume-snapshots
     spec:
       displayName:
@@ -342,6 +349,7 @@ items:
         kubesphere.io/alias-name: Volumes View
       labels:
         iam.kubesphere.io/category: storage-management
+        iam.kubesphere.io/aggregate-to-cluster-viewer: ""
         scope.iam.kubesphere.io/cluster: ""
       name: cluster-view-volumes
     spec:
@@ -1423,22 +1431,10 @@ items:
     kind: RoleTemplate
     metadata:
       annotations:
-        iam.kubesphere.io/dependencies: '["cluster-view-members"]'
-      labels:
-        iam.kubesphere.io/category: access-control
-        scope.iam.kubesphere.io/cluster: ""
-      name: cluster-view-roles
-    spec:
-      displayName:
-        en: Cluster Roles View
-      rules: []
-  - apiVersion: iam.kubesphere.io/v1beta1
-    kind: RoleTemplate
-    metadata:
-      annotations:
         iam.kubesphere.io/role-template-rules: '{"projects": "create"}'
       labels:
         iam.kubesphere.io/category: projects-management
+        iam.kubesphere.io/aggregate-to-self-provisioner: ""
         scope.iam.kubesphere.io/workspace: ""
       name: workspace-create-projects
     spec:
@@ -1708,6 +1704,7 @@ items:
       labels:
         iam.kubesphere.io/category: access-control
         scope.iam.kubesphere.io/workspace: ""
+        iam.kubesphere.io/aggregate-to-viewer: ""
       name: workspace-view-groups
     spec:
       displayName:
@@ -1735,6 +1732,7 @@ items:
         iam.kubesphere.io/category: access-control
         iam.kubesphere.io/hidden-role-template: "true"
         scope.iam.kubesphere.io/workspace: ""
+        iam.kubesphere.io/aggregate-to-viewer: ""
       name: workspace-view-members
     spec:
       displayName:
@@ -1756,6 +1754,7 @@ items:
       labels:
         iam.kubesphere.io/category: projects-management
         scope.iam.kubesphere.io/workspace: ""
+        iam.kubesphere.io/aggregate-to-viewer: ""
       name: workspace-view-projects
     spec:
       displayName:
@@ -1857,6 +1856,7 @@ items:
       labels:
         iam.kubesphere.io/category: access-control
         scope.iam.kubesphere.io/workspace: ""
+        iam.kubesphere.io/aggregate-to-viewer: ""
       name: workspace-view-roles
     spec:
       displayName:
@@ -1878,6 +1878,9 @@ items:
       labels:
         iam.kubesphere.io/category: workspace-settings
         scope.iam.kubesphere.io/workspace: ""
+        iam.kubesphere.io/aggregate-to-regular: ""
+        iam.kubesphere.io/aggregate-to-viewer: ""
+        iam.kubesphere.io/aggregate-to-self-provisioner: ""
       name: workspace-view-workspace-settings
     spec:
       displayName:
