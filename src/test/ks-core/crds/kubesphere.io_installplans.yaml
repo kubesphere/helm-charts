@@ -224,6 +224,8 @@ spec:
                       type: array
                     targetNamespace:
                       type: string
+                    version:
+                      type: string
                   type: object
                 description: ClusterSchedulingStatuses describes the subchart installation
                   status of the extension
@@ -316,6 +318,8 @@ spec:
                   type: object
                 type: array
               targetNamespace:
+                type: string
+              version:
                 type: string
             type: object
         type: object

@@ -43,6 +43,9 @@ spec:
             description: ExtensionSpec only contains basic extension information copied
               from the latest ExtensionVersion.
             properties:
+              created:
+                format: date-time
+                type: string
               description:
                 additionalProperties:
                   type: string
@@ -169,6 +172,8 @@ spec:
                         type: object
                       type: array
                     targetNamespace:
+                      type: string
+                    version:
                       type: string
                   type: object
                 description: ClusterSchedulingStatuses describes the subchart installation
