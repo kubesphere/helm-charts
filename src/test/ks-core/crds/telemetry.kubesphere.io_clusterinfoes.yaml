@@ -42,7 +42,7 @@ spec:
               telemetry data
             type: object
           status:
-            description: ClusterInfoStatus. store cluster telemetry data
+            description: ClusterInfoStatus store cluster telemetry data
             properties:
               cloudId:
                 description: kubesphere cloud id
