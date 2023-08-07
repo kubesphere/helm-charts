@@ -14,4 +14,12 @@ spec:
       containers:
         - name: post-install-job
           image: "kubesphere/kubectl:v1.27.4"
-          command: ["/bin/bash","-c","for ns in kubesphere-system default kube-system; do kubectl label ns $ns kubesphere.io/workspace=system-workspace; done;"]
+          command:
+            - /bin/bash
+            - -c
+            - |
+              for ns in kubesphere-system default kube-system;
+              do
+                kubectl label ns $ns kubesphere.io/workspace=system-workspace
+                kubectl label ns $ns kubesphere.io/managed=true
+              done

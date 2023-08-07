@@ -2,7 +2,7 @@
 ## @param global.tag Global Docker image tag
 global:
   imageRegistry: registry.cn-beijing.aliyuncs.com
-  tag: v4.0.0-rc.0
+  tag: v4.0.0-rc.1
   imagePullSecrets: []
 
 ## @section Common parameters
