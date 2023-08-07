@@ -20,8 +20,8 @@ spec:
   - name: v1alpha2
     schema:
       openAPIV3Schema:
-        description: WorkspaceResourceQuota sets aggregate quota restrictions enforced
-          per workspace
+        description: ResourceQuota sets aggregate quota restrictions enforced per
+          workspace
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
