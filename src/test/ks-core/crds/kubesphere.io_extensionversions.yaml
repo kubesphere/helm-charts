@@ -37,6 +37,8 @@ spec:
             description: ExtensionVersionSpec contains the details of a specific version
               extension.
             properties:
+              category:
+                type: string
               chartDataRef:
                 description: ChartDataRef refers to a configMap which contains raw
                   chart data.
