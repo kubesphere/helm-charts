@@ -1053,6 +1053,16 @@ entries:
     version: 1.9.0
   ks-core:
   - apiVersion: v2
+    appVersion: v4.0.0-rc.1
+    created: "2023-08-07T08:29:18.818114073Z"
+    description: A Helm chart for KubeSphere Core components
+    digest: d8aec1b7ee0326b54a1a28e7e1711e2a905b9b39e6331afd0cca038811374928
+    name: ks-core
+    type: application
+    urls:
+    - https://charts.kubesphere.io/test/ks-core-0.3.7.tgz
+    version: 0.3.7
+  - apiVersion: v2
     appVersion: v4.0.0-rc.0
     created: "2023-08-03T11:11:08.880517776Z"
     description: A Helm chart for KubeSphere Core components
@@ -2448,4 +2458,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/test/xenondb-1.0.0.tgz
     version: 1.0.0
-generated: "2023-08-03T11:11:08.875014551Z"
+generated: "2023-08-07T08:29:18.81268905Z"
