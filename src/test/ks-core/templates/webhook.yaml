@@ -82,6 +82,8 @@ webhooks:
           - CREATE
         resources:
           - pods
+          - persistentvolumeclaims
+          - services
         scope: '*'
     sideEffects: None
 

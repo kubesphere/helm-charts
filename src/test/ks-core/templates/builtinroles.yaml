@@ -127,7 +127,7 @@ metadata:
 role:
   aggregationRoleTemplates:
     roleSelectors:
-      - matchLabels: { }
+      - matchLabels: {}
     templateNames:
       - workspace-manage-workspace-settings
       - workspace-view-workspace-settings
@@ -216,7 +216,7 @@ role:
     labels:
       iam.kubesphere.io/auto-aggregate: "true"
     name: self-provisioner
-  rules: [ ]
+  rules: []
 
 ---
 apiVersion: iam.kubesphere.io/v1beta1
