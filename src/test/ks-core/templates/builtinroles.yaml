@@ -11,6 +11,7 @@ role:
   aggregationRoleTemplates:
     roleSelector:
       matchLabels:
+        iam.kubesphere.io/scope: "namespace"
         kubesphere.io/managed: "true"
   apiVersion: iam.kubesphere.io/v1beta1
   kind: Role
@@ -45,6 +46,7 @@ role:
       matchLabels:
         iam.kubesphere.io/aggregate-to-operator: ""
         kubesphere.io/managed: "true"
+        iam.kubesphere.io/scope: "namespace"
   apiVersion: iam.kubesphere.io/v1beta1
   kind: Role
   metadata:
@@ -98,6 +100,7 @@ role:
       matchLabels:
         iam.kubesphere.io/aggregate-to-viewer: ""
         kubesphere.io/managed: "true"
+        iam.kubesphere.io/scope: "namespace"
   apiVersion: iam.kubesphere.io/v1beta1
   kind: Role
   metadata:
@@ -126,8 +129,9 @@ metadata:
     iam.kubesphere.io/scope: "workspace"
 role:
   aggregationRoleTemplates:
-    roleSelectors:
-      - matchLabels: {}
+    roleSelector:
+      matchLabels:
+        iam.kubesphere.io/scope: 'workspace'
     templateNames:
       - workspace-manage-workspace-settings
       - workspace-view-workspace-settings
@@ -170,6 +174,7 @@ role:
     roleSelector:
       matchLabels:
         iam.kubesphere.io/aggregate-to-regular: ""
+        iam.kubesphere.io/scope: "workspace"
     templateNames:
       - workspace-view-workspace-settings
   apiVersion: iam.kubesphere.io/v1beta1
@@ -204,6 +209,7 @@ role:
     roleSelector:
       matchLabels:
         iam.kubesphere.io/aggregate-to-self-provisioner: ""
+        iam.kubesphere.io/scope: "workspace"
     templateNames:
       - workspace-create-projects
       - workspace-view-workspace-settings
@@ -229,6 +235,7 @@ role:
   aggregationRoleTemplates:
     roleSelector:
       matchLabels:
+        iam.kubesphere.io/scope: "workspace"
         iam.kubesphere.io/aggregate-to-viewer: ""
     templateNames:
       - workspace-view-projects
