@@ -1218,8 +1218,8 @@ metadata:
   name: namespace-view-project-settings
 spec:
   description:
-    en: 'View project settings including project basic information, external access settings, network policies and resource quotas settings.'
-    zh: '查看项目设置，包括项目基本信息、外部访问设置、网络策略、资源配额等。'
+    en: 'View project settings including project basic information, external access settings and resource quotas settings.'
+    zh: '查看项目设置，包括项目基本信息、外部访问设置、资源配额等。'
   displayName:
     en: Project Settings Viewing
     zh: '项目设置查看'
@@ -1230,6 +1230,20 @@ spec:
         - 'namespaces'
       verbs:
         - 'get'
+    - apiGroups:
+        - 'resources.kubesphere.io'
+      resources:
+        - 'quotas'
+        - 'metrics'
+      verbs:
+        - 'list'
+    - apiGroups:
+        - ''
+      resources:
+        - 'limitranges'
+      verbs:
+        - 'list'
+
 
 ---
 apiVersion: iam.kubesphere.io/v1beta1
@@ -1244,8 +1258,8 @@ metadata:
   name: namespace-manage-project-settings
 spec:
   description:
-    en: 'Manage project settings including project basic information, external access settings, network policies and resource quotas settings.'
-    zh: '管理项目设置，包括项目基本信息、外部访问设置、网络策略、资源配额等。'
+    en: 'Manage project settings including project basic information, external access settings and resource quotas settings.'
+    zh: '管理项目设置，包括项目基本信息、外部访问设置、资源配额等。'
   displayName:
     en: Project Settings Management
     zh: '项目设置管理'
@@ -1281,7 +1295,7 @@ spec:
     - apiGroups:
         - '*'
       resources:
-        - members
+        - namespacemembers
         - rolebindings
       verbs:
         - get
@@ -1311,7 +1325,7 @@ spec:
     - apiGroups:
         - '*'
       resources:
-        - members
+        - namespacemembers
         - rolebindings
       verbs:
         - '*'
