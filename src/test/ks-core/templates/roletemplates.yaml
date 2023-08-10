@@ -109,13 +109,6 @@ spec:
         - list
         - get
         - watch
-    - apiGroups:
-        - '*'
-      resources:
-        - clusters
-        - cluster
-      verbs:
-        - list
 
 ---
 apiVersion: iam.kubesphere.io/v1beta1
@@ -189,12 +182,6 @@ spec:
         - workloads
       verbs:
         - '*'
-    - apiGroups:
-        - '*'
-      resources:
-        - clusters
-      verbs:
-        - list
     - apiGroups:
         - resources.kubesphere.io
       resources:
@@ -666,16 +653,17 @@ kind: RoleTemplate
 metadata:
   annotations:
     iam.kubesphere.io/dependencies: '["cluster-view-projects"]'
-    iam.kubesphere.io/role-template-rules: '{"project-resources": "view"}'
+    iam.kubesphere.io/role-template-rules: '{"deployments":"view","statefulsets":"view",
+        "daemonsets":"view","jobs":"view","cronjobs":"view","pods":"view","services":"view","ingresses":"view"}'
   labels:
-    iam.kubesphere.io/category: cluster-project-resource-management
+    iam.kubesphere.io/category: cluster-app-workloads-management
     iam.kubesphere.io/scope: "cluster"
     kubesphere.io/managed: 'true'
-  name: cluster-view-project-resources
+  name: cluster-view-app-workloads
 spec:
   displayName:
-    en: Project Resource Viewing
-    zh: '项目资源查看'
+    en: Application Workload Viewing
+    zh: '应用负载查看'
   rules: []
 
 ---
@@ -683,17 +671,18 @@ apiVersion: iam.kubesphere.io/v1beta1
 kind: RoleTemplate
 metadata:
   annotations:
-    iam.kubesphere.io/dependencies: '["cluster-view-project-resources", "cluster-view-projects"]'
-    iam.kubesphere.io/role-template-rules: '{"project-resources": "manage"}'
+    iam.kubesphere.io/dependencies: '["cluster-view-app-workloads", "cluster-view-projects"]'
+    iam.kubesphere.io/role-template-rules: '{"deployments":"manage","statefulsets":"manage",
+            "daemonsets":"manage","jobs":"manage","cronjobs":"manage","pods":"manage","services":"manage","ingresses":"manage"}'
   labels:
-    iam.kubesphere.io/category: cluster-project-resource-management
+    iam.kubesphere.io/category: cluster-app-workloads-management
     iam.kubesphere.io/scope: "cluster"
     kubesphere.io/managed: 'true'
   name: cluster-manage-project-resources
 spec:
   displayName:
-    en: Project Resource Management
-    zh: '项目资源管理'
+    en: Application Workload Management
+    zh: '应用负载管理'
   rules: []
 
 ---
@@ -703,7 +692,7 @@ metadata:
   annotations:
     iam.kubesphere.io/role-template-rules: '{"projects": "view"}'
   labels:
-    iam.kubesphere.io/category: cluster-project-resource-management
+    iam.kubesphere.io/category: cluster-project-management
     iam.kubesphere.io/scope: "cluster"
     iam.kubesphere.io/aggregate-to-cluster-viewer: ""
     kubesphere.io/managed: 'true'
@@ -722,7 +711,7 @@ metadata:
     iam.kubesphere.io/dependencies: '["cluster-view-projects"]'
     iam.kubesphere.io/role-template-rules: '{"projects": "manage"}'
   labels:
-    iam.kubesphere.io/category: cluster-project-resource-management
+    iam.kubesphere.io/category: cluster-project-management
     iam.kubesphere.io/scope: "cluster"
     kubesphere.io/managed: 'true'
   name: cluster-manage-projects
@@ -836,6 +825,8 @@ metadata:
     iam.kubesphere.io/aggregate-to-regular: ""
     iam.kubesphere.io/aggregate-to-viewer: ""
     iam.kubesphere.io/aggregate-to-self-provisioner: ""
+    iam.kubesphere.io/hidden-role-template: 'true'
+    iam.kubesphere.io/basic-role-template: 'true'
     kubesphere.io/managed: 'true'
   name: workspace-view-workspace-settings
 spec:
@@ -1212,9 +1203,13 @@ metadata:
   annotations:
     iam.kubesphere.io/role-template-rules: '{"project-settings": "view"}'
   labels:
-    iam.kubesphere.io/category: project-settings
+    iam.kubesphere.io/category: namespace-settings
     iam.kubesphere.io/scope: "namespace"
     kubesphere.io/managed: "true"
+    iam.kubesphere.io/basic-role-template: 'true'
+    iam.kubesphere.io/hidden-role-template: 'true'
+    iam.kubesphere.io/aggregate-to-operator: ""
+    iam.kubesphere.io/aggregate-to-viewer: ""
   name: namespace-view-project-settings
 spec:
   description:
@@ -1252,7 +1247,8 @@ metadata:
   annotations:
     iam.kubesphere.io/role-template-rules: '{"project-settings": "manage"}'
   labels:
-    iam.kubesphere.io/category: project-settings
+    iam.kubesphere.io/category: namespace-settings
+    iam.kubesphere.io/hidden-role-template: 'true'
     iam.kubesphere.io/scope: "namespace"
     kubesphere.io/managed: "true"
   name: namespace-manage-project-settings
