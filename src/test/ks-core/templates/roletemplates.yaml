@@ -654,7 +654,8 @@ metadata:
   annotations:
     iam.kubesphere.io/dependencies: '["cluster-view-projects"]'
     iam.kubesphere.io/role-template-rules: '{"deployments":"view","statefulsets":"view",
-        "daemonsets":"view","jobs":"view","cronjobs":"view","pods":"view","services":"view","ingresses":"view"}'
+        "daemonsets":"view","jobs":"view","cronjobs":"view","pods":"view","services":"view","ingresses":"view",
+        "configmaps":"view","secrets":"view","serviceaccounts":"view"}'
   labels:
     iam.kubesphere.io/category: cluster-app-workloads-management
     iam.kubesphere.io/scope: "cluster"
@@ -673,12 +674,13 @@ metadata:
   annotations:
     iam.kubesphere.io/dependencies: '["cluster-view-app-workloads", "cluster-view-projects"]'
     iam.kubesphere.io/role-template-rules: '{"deployments":"manage","statefulsets":"manage",
-            "daemonsets":"manage","jobs":"manage","cronjobs":"manage","pods":"manage","services":"manage","ingresses":"manage"}'
+            "daemonsets":"manage","jobs":"manage","cronjobs":"manage","pods":"manage","services":"manage",
+            "ingresses":"manage","configmaps":"manage","secrets":"manage","serviceaccounts":"manage"}'
   labels:
     iam.kubesphere.io/category: cluster-app-workloads-management
     iam.kubesphere.io/scope: "cluster"
     kubesphere.io/managed: 'true'
-  name: cluster-manage-project-resources
+  name: cluster-manage-app-workloads
 spec:
   displayName:
     en: Application Workload Management
