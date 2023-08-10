@@ -96,11 +96,26 @@ metadata:
   labels:
     iam.kubesphere.io/scope: "cluster"
     kubesphere.io/managed: 'true'
-  name: cluster-project-resource-management
+  name: cluster-app-workloads-management
 spec:
   displayName:
-    en: Project Resources
-    zh: '项目资源'
+    en: Application Workloads
+    zh: '应用负载'
+
+
+---
+apiVersion: iam.kubesphere.io/v1beta1
+kind: Category
+metadata:
+  labels:
+    iam.kubesphere.io/scope: "cluster"
+    kubesphere.io/managed: 'true'
+  name: cluster-project-management
+spec:
+  displayName:
+    en: Project
+    zh: '项目'
+
 
 ---
 apiVersion: iam.kubesphere.io/v1beta1
