@@ -1,3 +1,4 @@
+{{ if eq .Values.role "host" }}
 ---
 apiVersion: kubesphere.io/v1alpha1
 kind: Category
@@ -77,3 +78,4 @@ spec:
   displayName:
     en: Streaming and messaging
     zh: 流平台和消息中间件
+{{ end }}
