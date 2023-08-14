@@ -1,0 +1,89 @@
+{{ if eq .Values.role "host" }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: ks-controller-manager
+    tier: backend
+    version: {{ .Chart.AppVersion }}
+  name: ks-controller-manager
+  namespace: kubesphere-system
+spec:
+  strategy:
+    rollingUpdate:
+      maxSurge: 0
+    type: RollingUpdate
+  progressDeadlineSeconds: 600
+  replicas: {{ .Values.controller.replicaCount }}
+  revisionHistoryLimit: 10
+  selector:
+    matchLabels:
+      app: ks-controller-manager
+      tier: backend
+  template:
+    metadata:
+      labels:
+        app: ks-controller-manager
+        tier: backend
+    spec:
+      serviceAccountName: {{ template "ks-core.serviceAccountName" . }}
+      {{- include "controller.imagePullSecrets" . | nindent 6 }}
+      {{- if .Values.nodeSelector }}
+      nodeSelector: {{- include "common.tplvalues.render" ( dict "value" .Values.nodeSelector "context" $) | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.tolerations }}
+      tolerations: {{- include "common.tplvalues.render" (dict "value" .Values.tolerations "context" .) | nindent 8 }}
+      {{- end }}
+      dnsPolicy: ClusterFirst
+      restartPolicy: Always
+      schedulerName: default-scheduler
+      terminationGracePeriodSeconds: 30
+      containers:
+        - name: ks-controller-manager
+          image: {{ template "ks-controller-manager.image" . }}
+          imagePullPolicy: {{ .Values.controller.image.pullPolicy }}
+          {{- if .Values.controller.containerPorts }}
+          ports: {{- include "common.tplvalues.render" (dict "value" .Values.controller.containerPorts "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.controller.command }}
+          command: {{- include "common.tplvalues.render" (dict "value" .Values.controller.command "context" $) | nindent 12 }}
+          {{- end }}
+          env:
+            {{- if .Values.controller.extraEnvVars }}
+            {{- include "common.tplvalues.render" (dict "value" .Values.controller.extraEnvVars "context" $) | nindent 12 }}
+            {{- end }}
+          {{- if .Values.controller.resources }}
+          resources: {{- toYaml .Values.controller.resources | nindent 12 }}
+          {{- end }}
+          volumeMounts:
+            - mountPath: /etc/kubesphere/
+              name: kubesphere-config
+            - mountPath: /tmp/k8s-webhook-server/serving-certs
+              name: webhook-secret
+            - mountPath: /etc/localtime
+              name: host-time
+              readOnly: true
+          {{- if .Values.controller.extraVolumeMounts }}
+          {{- include "common.tplvalues.render" (dict "value" .Values.controller.extraVolumeMounts "context" $) | nindent 12 }}
+          {{- end }}
+      volumes:
+        - name: kubesphere-config
+          configMap:
+            name: kubesphere-config
+            defaultMode: 420
+        - name: webhook-secret
+          secret:
+            defaultMode: 420
+            secretName: ks-controller-manager-webhook-cert
+        - hostPath:
+            path: /etc/localtime
+            type: ""
+          name: host-time
+        {{- if .Values.controller.extraVolumes }}
+        {{- include "common.tplvalues.render" (dict "value" .Values.controller.extraVolumes "context" $) | nindent 8 }}
+        {{- end }}
+{{ end }}

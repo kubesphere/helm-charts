@@ -1,0 +1,20 @@
+{{ if eq .Values.role "host" }}
+apiVersion: v1
+stringData:
+  configuration.yaml: |
+    url: https://kubesphere.cloud
+    oauth:
+      clientID: "client-a5cdf64c-7f84-415e-a6b1-8dfbfad493c3"
+      clientSecret: "66ce75fc-4a87-4f97-9963-92d1a19b137e"
+    subscription:
+      syncPeriod: 60m
+    repository:
+      url: https://app.kubesphere.cloud
+      repoName: marketplace
+      syncPeriod: 60m
+kind: Secret
+metadata:
+  name: marketplace
+  namespace: kubesphere-system
+type: config.kubesphere.io/marketplace
+{{ end }}

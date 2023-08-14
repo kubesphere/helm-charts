@@ -1,0 +1,246 @@
+## @param global.imageRegistry Global Docker image registry
+## @param global.tag Global Docker image tag
+global:
+  imageRegistry: registry.cn-beijing.aliyuncs.com
+  tag: v4.0.0
+  imagePullSecrets: []
+
+## @section Common parameters
+##
+
+## @param kubeVersion Override Kubernetes version
+##
+kubeVersion: ""
+## @param nameOverride String to partially override common.names.fullname
+##
+nameOverride: ""
+## @param fullnameOverride String to fully override common.names.fullname
+##
+fullnameOverride: ""
+## @param commonLabels Labels to add to all deployed objects
+##
+commonLabels: {}
+## @param commonAnnotations Annotations to add to all deployed objects
+##
+commonAnnotations: {}
+
+role: host
+
+adminPassword: ""
+
+config:
+  # Specifies whether the kubesphere-config configmap should be created
+  create: true
+  authentication:
+    authenticateRateLimiterMaxTries: 10
+    authenticationRateLimiterDuration: 10m0s
+    loginHistoryRetentionPeriod: 168h
+    maximumClockSkew: 10s
+    enableMultiLogin: true
+    oauthOptions:
+      clients:
+        - name: kubesphere
+          secret: kubesphere
+          redirectURIs:
+            - '*'
+  # Jwt Secret is required by ks-apiserver, a random string would be generated if it's empty
+  jwtSecret: ""
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  # Annotations to add to the service account
+  annotations: {}
+  # The name of the service account to use.
+  # If not set and create is true, a name is generated using the fullname template
+  name: "kubesphere"
+
+podAnnotations: {}
+
+podSecurityContext: {}
+# fsGroup: 2000
+
+securityContext: {}
+# capabilities:
+#   drop:
+#   - ALL
+# readOnlyRootFilesystem: true
+# runAsNonRoot: true
+# runAsUser: 1000
+
+tolerations:
+  - key: node-role.kubernetes.io/master
+    effect: NoSchedule
+  - key: CriticalAddonsOnly
+    operator: Exists
+  - effect: NoExecute
+    key: node.kubernetes.io/not-ready
+    operator: Exists
+    tolerationSeconds: 60
+  - effect: NoExecute
+    key: node.kubernetes.io/unreachable
+    operator: Exists
+    tolerationSeconds: 60
+
+affinity: {}
+
+nodeSelector: {}
+
+## deployment specific configuration
+
+apiserver:
+  replicaCount: 1
+  image:
+    registry: ""
+    repository: kse/ks-apiserver
+    tag: ""
+    digest: ""
+    pullPolicy: IfNotPresent
+    ## Optionally specify an array of imagePullSecrets.
+    ## Secrets must be manually created in the namespace.
+    ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+    ## e.g:
+    ## pullSecrets:
+    ##   - myRegistryKeySecretName
+    ##
+    pullSecrets: []
+  ## @param containerPorts [array] List of container ports to enable in the ks-apiserver container
+  ##
+  containerPorts:
+    - protocol: TCP
+      containerPort: 9090
+  nodePort:
+  ## ks-apiserver resource requests and limits
+  ## ref: https://kubernetes.io/docs/user-guide/compute-resources/
+  ## @param resources.limits The resources limits for the haproxy containers
+  ## @param resources.requests The requested resources for the haproxy containers
+  ##
+  resources:
+    limits:
+      cpu: 1
+      memory: 1024Mi
+    requests:
+      cpu: 20m
+      memory: 100Mi
+  ## @param command Override default container command (useful when using custom images)
+  ##
+  command:
+    - ks-apiserver
+    - --logtostderr=true
+  ## @param extraEnvVars Array with extra environment variables to add to haproxy nodes
+  ## e.g:
+  ## extraEnvVars:
+  ##   - name: FOO
+  ##     value: "bar"
+  ##
+  extraEnvVars: []
+  ## @param extraVolumeMounts Optionally specify extra list of additional volumeMounts for the haproxy container(s)
+  ##
+  extraVolumeMounts: []
+  ## @param extraVolumes Optionally specify extra list of additional volumes for the haproxy pod(s)
+  ##
+  extraVolumes: []
+
+console:
+  replicaCount: 1
+  image:
+    registry: ""
+    repository: kse/ks-console
+    tag: ""
+    digest: ""
+    pullPolicy: IfNotPresent
+    ## Optionally specify an array of imagePullSecrets.
+    ## Secrets must be manually created in the namespace.
+    ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+    ## e.g:
+    ## pullSecrets:
+    ##   - myRegistryKeySecretName
+    ##
+    pullSecrets: []
+  ## @param containerPorts [array] List of container ports to enable in the ks-apiserver container
+  ##
+  containerPorts: []
+  nodePort: 30880
+  defaultClusterName: "default"
+  ## @param resources.limits The resources limits for the haproxy containers
+  ## @param resources.requests The requested resources for the haproxy containers
+  ##
+  resources:
+    limits:
+      cpu: 1
+      memory: 1024Mi
+    requests:
+      cpu: 20m
+      memory: 100Mi
+  ## @param command Override default container command (useful when using custom images)
+  ##
+  command: []
+  ## @param extraEnvVars Array with extra environment variables to add to haproxy nodes
+  ##
+  extraEnvVars: []
+  ## @param extraVolumeMounts Optionally specify extra list of additional volumeMounts for the haproxy container(s)
+  ##
+  extraVolumeMounts: []
+  ## @param extraVolumes Optionally specify extra list of additional volumes for the haproxy pod(s)
+  ##
+  extraVolumes: []
+
+controller:
+  replicaCount: 1
+  image:
+    registry: ""
+    repository: kse/ks-controller-manager
+    tag: ""
+    digest: ""
+    pullPolicy: IfNotPresent
+    ## Optionally specify an array of imagePullSecrets.
+    ## Secrets must be manually created in the namespace.
+    ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
+    ## e.g:
+    ## pullSecrets:
+    ##   - myRegistryKeySecretName
+    ##
+    pullSecrets: []
+  ## @param containerPorts [array] List of container ports to enable in the ks-apiserver container
+  ##
+  containerPorts:
+    - containerPort: 8080
+      protocol: TCP
+    - containerPort: 8443
+      protocol: TCP
+  ## @param resources.limits The resources limits for the haproxy containers
+  ## @param resources.requests The requested resources for the haproxy containers
+  ##
+  resources:
+    limits:
+      cpu: 1
+      memory: 1000Mi
+    requests:
+      cpu: 30m
+      memory: 50Mi
+  ## @param command Override default container command (useful when using custom images)
+  ##
+  command:
+    - controller-manager
+    - --logtostderr=true
+    - --leader-elect=true
+    - --controllers=*
+  ## @param extraEnvVars Array with extra environment variables to add to haproxy nodes
+  ##
+  extraEnvVars: []
+  ## @param extraVolumeMounts Optionally specify extra list of additional volumeMounts for the haproxy container(s)
+  ##
+  extraVolumeMounts: []
+  ## @param extraVolumes Optionally specify extra list of additional volumes for the haproxy pod(s)
+  ##
+  extraVolumes: []
+
+agent:
+  replicaCount: 1
+
+kubectl:
+  image:
+    registry: ""
+    repository: kubesphereio/kubectl
+    tag: "latest"
+    pullPolicy: IfNotPresent
