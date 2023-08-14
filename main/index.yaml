@@ -410,6 +410,17 @@ entries:
     urls:
     - https://charts.kubesphere.io/main/harbor-1.2.1.tgz
     version: 1.2.1
+  ks-core:
+  - apiVersion: v2
+    appVersion: v4.0.0
+    created: "2023-08-14T03:30:09.338768601Z"
+    description: A Helm chart for KubeSphere Core components
+    digest: a59a6def4b3600b25c36126f452ae6898a635708a47879bd40f891c1a63a3b0b
+    name: ks-core
+    type: application
+    urls:
+    - https://charts.kubesphere.io/main/ks-core-0.4.0.tgz
+    version: 0.4.0
   ks-installer:
   - apiVersion: v2
     appVersion: 3.2.1
@@ -1193,4 +1204,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/main/tomcat-0.4.0-r1.tgz
     version: 0.4.0-r1
-generated: "2022-08-23T07:00:57.942733724Z"
+generated: "2023-08-14T03:30:09.334549301Z"
