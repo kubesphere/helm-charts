@@ -1,0 +1,81 @@
+{{ if eq .Values.role "host" }}
+---
+apiVersion: kubesphere.io/v1alpha1
+kind: Category
+metadata:
+  name: ai-machine-learning
+spec:
+  displayName:
+    en: AI / Machine learning
+    zh: AI / 机器学习
+
+---
+apiVersion: kubesphere.io/v1alpha1
+kind: Category
+metadata:
+  name: database
+spec:
+  displayName:
+    en: Database
+    zh: 数据库
+
+---
+apiVersion: kubesphere.io/v1alpha1
+kind: Category
+metadata:
+  name: integration-delivery
+spec:
+  displayName:
+    en: Integration and delivery
+    zh: 集成和交付
+
+---
+apiVersion: kubesphere.io/v1alpha1
+kind: Category
+metadata:
+  name: monitoring-logging
+spec:
+  displayName:
+    en: Monitoring and logging
+    zh: 监控和日志
+
+---
+apiVersion: kubesphere.io/v1alpha1
+kind: Category
+metadata:
+  name: networking
+spec:
+  displayName:
+    en: Networking
+    zh: 网络
+
+---
+apiVersion: kubesphere.io/v1alpha1
+kind: Category
+metadata:
+  name: security
+spec:
+  displayName:
+    en: Security
+    zh: 安全
+
+---
+apiVersion: kubesphere.io/v1alpha1
+kind: Category
+metadata:
+  name: storage
+spec:
+  displayName:
+    en: Storage
+    zh: 存储
+
+---
+apiVersion: kubesphere.io/v1alpha1
+kind: Category
+metadata:
+  name: streaming-messaging
+spec:
+  displayName:
+    en: Streaming and messaging
+    zh: 流平台和消息中间件
+{{ end }}

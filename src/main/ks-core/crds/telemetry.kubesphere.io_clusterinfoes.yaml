@@ -1,0 +1,153 @@
+---
+apiVersion: apiextensions.k8s.io/v1
+kind: CustomResourceDefinition
+metadata:
+  annotations:
+    controller-gen.kubebuilder.io/version: (unknown)
+  creationTimestamp: null
+  name: clusterinfoes.telemetry.kubesphere.io
+spec:
+  group: telemetry.kubesphere.io
+  names:
+    kind: ClusterInfo
+    listKind: ClusterInfoList
+    plural: clusterinfoes
+    singular: clusterinfo
+  scope: Cluster
+  versions:
+  - additionalPrinterColumns:
+    - jsonPath: .spec.pluginInfo.name
+      name: Provisioner
+      type: string
+    name: v1alpha1
+    schema:
+      openAPIV3Schema:
+        description: ClusterInfo is the Schema for the clusterinfos API. the API is
+          use to store telemetry data.
+        properties:
+          apiVersion:
+            description: 'APIVersion defines the versioned schema of this representation
+              of an object. Servers should convert recognized schemas to the latest
+              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            type: string
+          kind:
+            description: 'Kind is a string value representing the REST resource this
+              object represents. Servers may infer this from the endpoint the client
+              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            type: string
+          metadata:
+            type: object
+          spec:
+            description: ClusterInfoSpec nothing in Spec. only use collect cluster
+              telemetry data
+            type: object
+          status:
+            description: ClusterInfoStatus store cluster telemetry data
+            properties:
+              cloudId:
+                description: kubesphere cloud id
+                type: string
+              clusters:
+                description: cluster info which kubesphere use. refer to clusters.cluster.kubesphere.io
+                items:
+                  properties:
+                    clusterVersion:
+                      description: kubernetes cluster version
+                      type: string
+                    ksVersion:
+                      description: kubesphere version
+                      type: string
+                    name:
+                      description: cluster name
+                      type: string
+                    namespace:
+                      description: Namepace number of cluster
+                      type: integer
+                    nid:
+                      description: cluster namespace id
+                      type: string
+                    nodes:
+                      description: nodes of cluster
+                      items:
+                        properties:
+                          arch:
+                            description: node arch
+                            type: string
+                          containerRuntime:
+                            description: node containerRuntime
+                            type: string
+                          kernel:
+                            description: node kernel
+                            type: string
+                          kubeProxy:
+                            description: node kubeProxy
+                            type: string
+                          kubelet:
+                            description: node kubelet
+                            type: string
+                          name:
+                            description: node name
+                            type: string
+                          os:
+                            description: node operator system
+                            type: string
+                          osImage:
+                            description: os operator system image
+                            type: string
+                          role:
+                            description: node roles
+                            items:
+                              type: string
+                            type: array
+                          uid:
+                            description: node uid
+                            type: string
+                        type: object
+                      type: array
+                    role:
+                      description: cluster role
+                      type: string
+                    uid:
+                      description: cluster uid
+                      type: string
+                  type: object
+                type: array
+              extension:
+                description: extension which cluster has installed. refer to subscriptions.kubesphere.io
+                items:
+                  properties:
+                    cTime:
+                      description: extension create time
+                      type: string
+                    name:
+                      description: extension name
+                      type: string
+                    version:
+                      description: extension version
+                      type: string
+                  type: object
+                type: array
+              platform:
+                description: the platform resources total.
+                properties:
+                  user:
+                    description: user number of cluster
+                    type: integer
+                  workspace:
+                    description: workspace number of cluster
+                    type: integer
+                type: object
+              syncTime:
+                description: when to sync data to ksCloud
+                format: date-time
+                type: string
+              ts:
+                description: collection time
+                format: date-time
+                type: string
+            type: object
+        type: object
+    served: true
+    storage: true
+    subresources:
+      status: {}

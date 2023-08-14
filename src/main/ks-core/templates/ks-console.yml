@@ -1,0 +1,119 @@
+{{ if eq .Values.role "host" }}
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: ks-console
+    tier: frontend
+    version: {{ .Chart.AppVersion }}
+  name: ks-console
+  namespace: kubesphere-system
+spec:
+  strategy:
+    rollingUpdate:
+      maxSurge: 0
+    type: RollingUpdate
+  replicas: {{ .Values.console.replicaCount }}
+  selector:
+    matchLabels:
+      app: ks-console
+      tier: frontend
+  template:
+    metadata:
+      labels:
+        app: ks-console
+        tier: frontend
+    spec:
+      serviceAccount: {{ template "ks-core.serviceAccountName" . }}
+      serviceAccountName: {{ template "ks-core.serviceAccountName" . }}
+      {{- include "console.imagePullSecrets" . | nindent 6 }}
+      {{- if .Values.nodeSelector }}
+      nodeSelector: {{- include "common.tplvalues.render" ( dict "value" .Values.nodeSelector "context" $) | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- if .Values.tolerations }}
+      tolerations: {{- include "common.tplvalues.render" (dict "value" .Values.tolerations "context" .) | nindent 8 }}
+      {{- end }}
+      containers:
+        - name: ks-console
+          image: {{ template "ks-console.image" . }}
+          imagePullPolicy: {{ .Values.console.image.pullPolicy }}
+          {{- if .Values.console.containerPorts }}
+          ports: {{- include "common.tplvalues.render" (dict "value" .Values.console.containerPorts "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.console.command }}
+          command: {{- include "common.tplvalues.render" (dict "value" .Values.console.command "context" $) | nindent 12 }}
+          {{- end }}
+          env:
+            {{- if .Values.console.extraEnvVars }}
+            {{- include "common.tplvalues.render" (dict "value" .Values.console.extraEnvVars "context" $) | nindent 12 }}
+            {{- end }}
+          {{- if .Values.console.resources }}
+          resources: {{- toYaml .Values.console.resources | nindent 12 }}
+          {{- end }}
+          livenessProbe:
+            tcpSocket:
+              port: 8000
+            initialDelaySeconds: 15
+            timeoutSeconds: 15
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 8
+          volumeMounts:
+            - name: ks-console-config
+              mountPath: /opt/kubesphere/console/configs/local_config.yaml
+              subPath: local_config.yaml
+            - name: host-time
+              mountPath: /etc/localtime
+              readOnly: true
+          {{- if .Values.console.extraVolumeMounts }}
+          {{- include "common.tplvalues.render" (dict "value" .Values.console.extraVolumeMounts "context" $) | nindent 12 }}
+          {{- end }}
+      volumes:
+        - configMap:
+            defaultMode: 420
+            name: ks-console-config
+            items:
+              - key: local_config.yaml
+                path: local_config.yaml
+          name: ks-console-config
+        - hostPath:
+            path: /etc/localtime
+            type: ""
+          name: host-time
+        {{- if .Values.console.extraVolumes }}
+        {{- include "common.tplvalues.render" (dict "value" .Values.console.extraVolumes "context" $) | nindent 8 }}
+        {{- end }}
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: ks-console
+    tier: frontend
+    version: {{ .Chart.AppVersion }}
+  name: ks-console
+spec:
+  ports:
+  - name: nginx
+    port: 80
+    protocol: TCP
+    targetPort: 8000
+    {{- with .Values.console.nodePort }}
+    nodePort:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+  selector:
+    app: ks-console
+    tier: frontend
+{{- if .Values.console.nodePort }}
+  type: NodePort
+{{- else}}
+  type: ClusterIP
+{{- end}}
+{{ end }}
