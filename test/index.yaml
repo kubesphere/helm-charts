@@ -1051,6 +1051,26 @@ entries:
     urls:
     - https://charts.kubesphere.io/test/flow-aggregator-1.9.0.tgz
     version: 1.9.0
+  hertzbeat:
+  - apiVersion: v2
+    appVersion: v1.4.0
+    created: "2023-09-05T10:03:35.957556755Z"
+    description: An open-source, real-time monitoring system with custom monitoring,
+      high performance cluster and agentless capabilities.
+    digest: 83d590ce26d147fcb2b9e3eb155e3730bb091ba99de4620896f47a91e666f05b
+    home: https://hertzbeat.com/
+    icon: https://raw.githubusercontent.com/dromara/hertzbeat/master/home/static/img/hertzbeat-logo.png
+    maintainers:
+    - email: tomsun28@outlook.com
+      name: tom
+    name: hertzbeat
+    sources:
+    - https://github.com/dromara/hertzbeat
+    - https://charts.hertzbeat.com
+    type: application
+    urls:
+    - https://charts.kubesphere.io/test/hertzbeat-1.4.0.tgz
+    version: 1.4.0
   ks-core:
   - apiVersion: v2
     appVersion: v4.0.0
@@ -2498,4 +2518,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/test/xenondb-1.0.0.tgz
     version: 1.0.0
-generated: "2023-08-12T14:18:55.682635378Z"
+generated: "2023-09-05T10:03:35.956142657Z"
