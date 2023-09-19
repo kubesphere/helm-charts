@@ -14,15 +14,15 @@ metadata:
 rules:
   - apiGroups: [ "" ]
     resources: [ "namespaces" ]
-    verbs: [ "get", "list", "watch", "create", "delete", "update" ]
+    verbs: [ "get", "list", "watch"]
 
   - apiGroups: [""]
     resources: ["persistentvolumeclaims"]
-    verbs: ["get", "list", "watch", "create", "delete", "update"]
+    verbs: ["get", "list", "watch"]
 
   - apiGroups: ["storage.kubesphere.io"]
     resources: ["accessors"]
-    verbs: [ "get", "list", "watch", "create", "delete", "update"]
+    verbs: [ "get", "list", "watch"]
 
 ---
 kind: ClusterRoleBinding
