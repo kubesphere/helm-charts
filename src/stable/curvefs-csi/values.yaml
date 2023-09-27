@@ -6,7 +6,7 @@ kubeletDir: /var/lib/kubelet
 
 driver:
   name: csi.curvefs.com
-  repository: harbor.cloud.netease.com/curve/curvefs
+  repository: quay.io/opencurve/curve/curvefs
   tag: "csi-v1.0.0"
 
 sidecars:
