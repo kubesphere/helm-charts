@@ -1053,6 +1053,25 @@ entries:
     version: 1.9.0
   hertzbeat:
   - apiVersion: v2
+    appVersion: v1.4.1
+    created: "2023-10-11T06:27:36.014573748Z"
+    description: An open-source, real-time monitoring system with custom monitoring,
+      high performance cluster and agentless capabilities.
+    digest: 0d18ee49e964c40bbbfe257563db3c1d3cbc85fed6b00cff89a3d3bb6f4cabe4
+    home: https://hertzbeat.com/
+    icon: https://raw.githubusercontent.com/dromara/hertzbeat/master/home/static/img/hertzbeat-logo.png
+    maintainers:
+    - email: tomsun28@outlook.com
+      name: tom
+    name: hertzbeat
+    sources:
+    - https://github.com/dromara/hertzbeat
+    - https://charts.hertzbeat.com
+    type: application
+    urls:
+    - https://charts.kubesphere.io/test/hertzbeat-1.4.1.tgz
+    version: 1.4.1
+  - apiVersion: v2
     appVersion: v1.4.0
     created: "2023-09-05T10:03:35.957556755Z"
     description: An open-source, real-time monitoring system with custom monitoring,
@@ -2518,4 +2537,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/test/xenondb-1.0.0.tgz
     version: 1.0.0
-generated: "2023-09-05T10:03:35.956142657Z"
+generated: "2023-10-11T06:27:36.012116436Z"
