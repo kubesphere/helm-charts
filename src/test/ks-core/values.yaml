@@ -2,7 +2,7 @@
 ## @param global.tag Global Docker image tag
 global:
   imageRegistry: registry.cn-beijing.aliyuncs.com
-  tag: v4.0.0
+  tag: ksc
   imagePullSecrets: []
 
 ## @section Common parameters
@@ -37,12 +37,6 @@ config:
     loginHistoryRetentionPeriod: 168h
     maximumClockSkew: 10s
     enableMultiLogin: true
-    oauthOptions:
-      clients:
-        - name: kubesphere
-          secret: kubesphere
-          redirectURIs:
-            - '*'
   # Jwt Secret is required by ks-apiserver, a random string would be generated if it's empty
   jwtSecret: ""
 
@@ -95,7 +89,7 @@ apiserver:
     repository: kse/ks-apiserver
     tag: ""
     digest: ""
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
     ## Optionally specify an array of imagePullSecrets.
     ## Secrets must be manually created in the namespace.
     ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
@@ -109,7 +103,7 @@ apiserver:
   containerPorts:
     - protocol: TCP
       containerPort: 9090
-  nodePort:
+  nodePort: 30881
   ## ks-apiserver resource requests and limits
   ## ref: https://kubernetes.io/docs/user-guide/compute-resources/
   ## @param resources.limits The resources limits for the haproxy containers
@@ -148,7 +142,7 @@ console:
     repository: kse/ks-console
     tag: ""
     digest: ""
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
     ## Optionally specify an array of imagePullSecrets.
     ## Secrets must be manually created in the namespace.
     ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
@@ -192,7 +186,7 @@ controller:
     repository: kse/ks-controller-manager
     tag: ""
     digest: ""
-    pullPolicy: IfNotPresent
+    pullPolicy: Always
     ## Optionally specify an array of imagePullSecrets.
     ## Secrets must be manually created in the namespace.
     ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
@@ -238,9 +232,85 @@ controller:
 agent:
   replicaCount: 1
 
+helm:
+  image:
+    registry: ""
+    repository: kubesphereio/helm
+    tag: "v3.12.1"
+    pullPolicy: IfNotPresent
+
 kubectl:
   image:
     registry: ""
     repository: kubesphereio/kubectl
-    tag: "latest"
+    tag: "v1.27.4"
     pullPolicy: IfNotPresent
+
+# Set to enable/disable internal tls
+# - false (default)
+# - true
+internalTLS: false
+
+hostname: example.com
+
+ingress:
+  # If set to false, ingress will not be created
+  # Defaults to true
+  # options: true, false
+  enabled: false
+
+  # options: traefik, nginx
+  ingressClassName: ""
+  # backend port number
+  tls:
+    enabled: true
+    # options: generation, importation, letsEncrypt
+    source: generation
+    secretName: kubesphere-tls-certs
+
+letsEncrypt:
+  # email: none@example.com
+  environment: production
+
+certmanager:
+  duration: 2160h
+  renewBefore: 360h
+
+nodeShell:
+  image:
+    registry: "docker.io"
+    repository: alpine
+    tag: "3.18.4"
+    pullPolicy: IfNotPresent
+
+upgrade:
+  disabled: false
+  image:
+    registry: ""
+    repository: kse/ks-upgrade
+    tag: ""
+    pullPolicy: IfNotPresent
+  storage:
+    s3:
+      endpoint: ""
+      bucket: ""
+      region: ""
+      disableSSL: true
+      access_key_id: ""
+      secret_access_key: ""
+    local:
+      path: /tmp/ks-upgrade
+  persistenceVolume:
+    name: ks-upgrade
+    storageClassName: ""
+    accessMode: ReadWriteOnce
+    size: 5Gi
+  jobs:
+    iam:
+      disabled: false
+      priority: 10
+      dynamicOptions: {}
+    devops:
+      disabled: false
+      priority: 11
+      dynamicOptions: {}

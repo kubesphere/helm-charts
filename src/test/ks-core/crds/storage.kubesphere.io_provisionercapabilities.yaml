@@ -4,7 +4,6 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: (unknown)
-  creationTimestamp: null
   name: provisionercapabilities.storage.kubesphere.io
 spec:
   group: storage.kubesphere.io

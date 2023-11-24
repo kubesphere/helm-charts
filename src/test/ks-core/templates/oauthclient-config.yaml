@@ -1,0 +1,24 @@
+{{ if eq .Values.role "host" }}
+apiVersion: v1
+stringData:
+  configuration.yaml: |
+    name: kubesphere
+    secret: kubesphere
+    grantMethod: auto
+    redirectURIs:
+      - '*'
+    scopeRestrictions:
+      - 'openid'
+      - 'email'
+      - 'profile'
+    accessTokenMaxAge: 7200
+    accessTokenInactivityTimeout: 7200
+kind: Secret
+metadata:
+  name: kubesphere
+  namespace: kubesphere-system
+  labels:
+    config.kubesphere.io/type: oauthclient
+    config.kubesphere.io/oauthclient-name: kubesphere
+type: config.kubesphere.io/oauthclient
+{{ end }}

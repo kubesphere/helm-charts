@@ -5,7 +5,7 @@ metadata:
   annotations:
     "helm.sh/hook": post-install
     "helm.sh/hook-weight": "-5"
-    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded,hook-failed
 spec:
   template:
     spec:
@@ -13,7 +13,7 @@ spec:
       serviceAccountName: {{ include "ks-core.serviceAccountName" . }}
       containers:
         - name: post-install-job
-          image: "kubesphere/kubectl:v1.27.4"
+          image:  {{ template "kubectl.image" . }}
           command:
             - /bin/bash
             - -c

@@ -4,22 +4,35 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: (unknown)
-  name: categories.iam.kubesphere.io
+  name: applications.application.kubesphere.io
 spec:
-  group: iam.kubesphere.io
+  group: application.kubesphere.io
   names:
-    categories:
-    - iam
-    kind: Category
-    listKind: CategoryList
-    plural: categories
-    singular: category
+    kind: Application
+    listKind: ApplicationList
+    plural: applications
+    shortNames:
+    - app
+    singular: application
   scope: Cluster
   versions:
-  - name: v1beta1
+  - additionalPrinterColumns:
+    - jsonPath: .spec.displayName.en
+      name: application name
+      type: string
+    - jsonPath: .metadata.labels.kubesphere\.io/workspace
+      name: workspace
+      type: string
+    - jsonPath: .status.state
+      name: State
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v2
     schema:
       openAPIV3Schema:
-        description: Category is the Schema for the categories API
+        description: Application is the Schema for the applications API
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -34,8 +47,12 @@ spec:
           metadata:
             type: object
           spec:
-            description: CategorySpec defines the desired state of Category
+            description: ApplicationSpec defines the desired state of Application
             properties:
+              appHome:
+                type: string
+              appType:
+                type: string
               description:
                 additionalProperties:
                   type: string
@@ -46,7 +63,24 @@ spec:
                 type: object
               icon:
                 type: string
+            required:
+            - displayName
+            type: object
+          status:
+            description: ApplicationStatus defines the observed state of Application
+            properties:
+              state:
+                description: 'the state of the helm application: draft, submitted,
+                  passed, rejected, suspended, active'
+                type: string
+              updateTime:
+                format: date-time
+                type: string
+            required:
+            - updateTime
             type: object
         type: object
     served: true
     storage: true
+    subresources:
+      status: {}

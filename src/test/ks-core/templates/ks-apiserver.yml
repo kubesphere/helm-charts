@@ -45,6 +45,11 @@ spec:
           {{- end }}
           {{- if .Values.apiserver.command }}
           command: {{- include "common.tplvalues.render" (dict "value" .Values.apiserver.command "context" $) | nindent 12 }}
+            {{- if .Values.internalTLS }}
+            - --secure-port=9090
+            - --tls-private-key=/etc/kubesphere/pki/tls.key
+            - --tls-cert-file=/etc/kubesphere/pki/tls.crt
+            {{- end }}
           {{- end }}
           env:
             {{- if .Values.apiserver.extraEnvVars }}
@@ -58,7 +63,11 @@ spec:
             httpGet:
               path: /version
               port: 9090
+            {{- if .Values.internalTLS }}
+              scheme: HTTPS
+            {{- else }}
               scheme: HTTP
+            {{- end }}
             initialDelaySeconds: 15
             timeoutSeconds: 15
           volumeMounts:
@@ -69,6 +78,10 @@ spec:
               readOnly: true
           {{- if .Values.apiserver.extraVolumeMounts }}
           {{- include "common.tplvalues.render" (dict "value" .Values.apiserver.extraVolumeMounts "context" $) | nindent 12 }}
+          {{- end }}
+          {{- if .Values.internalTLS }}
+            - name: tls-cert
+              mountPath: /etc/kubesphere/pki/
           {{- end }}
       volumes:
         - configMap:
@@ -81,5 +94,11 @@ spec:
           name: host-time
         {{- if .Values.apiserver.extraVolumes }}
         {{- include "common.tplvalues.render" (dict "value" .Values.apiserver.extraVolumes "context" $) | nindent 8 }}
+        {{- end }}
+        {{- if .Values.internalTLS }}
+        - name: tls-cert
+          secret:
+            secretName: ks-apiserver-tls-certs
+            defaultMode: 420
         {{- end }}
 {{ end }}
