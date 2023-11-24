@@ -1,0 +1,41 @@
+{{- if not .Values.upgrade.disabled }}
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-post-upgrade
+  annotations:
+    "helm.sh/hook": post-upgrade
+    "helm.sh/hook-weight": "0"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded,hook-failed
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      serviceAccountName: {{ include "ks-core.serviceAccountName" . }}
+      containers:
+        - name: post-upgrade-job
+          image: {{ template "upgrade.image" . }}
+          imagePullPolicy: {{ .Values.upgrade.image.pullPolicy }}
+          command:
+            - ks-upgrade
+            - post-upgrade
+            - --logtostderr=true
+            - --config=/etc/kubesphere/ks-upgrade.yaml
+          volumeMounts:
+            - mountPath: /etc/kubesphere/
+              name: config
+            {{- if not .Values.upgrade.storage.s3.endpoint  }}
+            - mountPath: /tmp/ks-upgrade
+              name: data
+            {{- end }}
+      volumes:
+        - name: config
+          configMap:
+            name: ks-upgrade-config
+            defaultMode: 420
+        {{- if not .Values.upgrade.storage.s3.endpoint  }}
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ .Values.upgrade.persistenceVolume.name }}
+        {{- end }}
+{{- end }}

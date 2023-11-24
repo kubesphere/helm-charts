@@ -4,20 +4,32 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: (unknown)
-  creationTimestamp: null
-  name: applicationclasses.appstore.kubesphere.io
+  name: categories.application.kubesphere.io
 spec:
-  group: appstore.kubesphere.io
+  group: application.kubesphere.io
   names:
-    kind: ApplicationClass
-    listKind: ApplicationClassList
-    plural: applicationclasses
-    singular: applicationclass
+    kind: Category
+    listKind: CategoryList
+    plural: categories
+    shortNames:
+    - appctg
+    singular: category
   scope: Cluster
   versions:
-  - name: v1alpha1
+  - additionalPrinterColumns:
+    - jsonPath: .spec.DisplayName.en
+      name: name
+      type: string
+    - jsonPath: .status.total
+      name: total
+      type: string
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v2
     schema:
       openAPIV3Schema:
+        description: Category is the Schema for the categories API
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -31,41 +43,34 @@ spec:
             type: string
           metadata:
             type: object
-          parameters:
-            additionalProperties:
-              type: string
-            type: object
-          provisioner:
-            type: string
           spec:
+            description: CategorySpec defines the desired state of HelmRepo
             properties:
-              appVersion:
-                type: string
               description:
-                type: string
+                additionalProperties:
+                  type: string
+                type: object
+              displayName:
+                additionalProperties:
+                  type: string
+                type: object
               icon:
                 type: string
-              maintainers:
-                items:
-                  properties:
-                    email:
-                      description: Email is an optional email address to contact the
-                        named maintainer
-                      type: string
-                    name:
-                      description: Name is a username or organization name
-                      type: string
-                    url:
-                      description: URL is an optional URL to an address for the named
-                        maintainer
-                      type: string
-                  type: object
-                type: array
-              packageVersion:
+              locale:
                 type: string
+            required:
+            - displayName
             type: object
-        required:
-        - provisioner
+          status:
+            properties:
+              total:
+                description: total helmapplications belong to this category
+                type: integer
+            required:
+            - total
+            type: object
         type: object
     served: true
     storage: true
+    subresources:
+      status: {}

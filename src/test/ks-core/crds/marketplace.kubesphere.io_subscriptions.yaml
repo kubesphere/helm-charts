@@ -4,7 +4,6 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: (unknown)
-  creationTimestamp: null
   name: subscriptions.marketplace.kubesphere.io
 spec:
   group: marketplace.kubesphere.io

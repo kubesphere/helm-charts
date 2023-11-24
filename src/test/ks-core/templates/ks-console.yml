@@ -37,6 +37,22 @@ spec:
       {{- if .Values.tolerations }}
       tolerations: {{- include "common.tplvalues.render" (dict "value" .Values.tolerations "context" .) | nindent 8 }}
       {{- end }}
+      {{- if .Values.internalTLS }}
+      initContainers:
+        - name: init-ca
+          image: {{ template "kubectl.image" . }}
+          command: [ "/bin/sh", "-c" ]
+          args: [ "cp /tmp/ca.crt /usr/local/share/ca-certificates/ \
+                  && update-ca-certificates && cp /etc/ssl/certs/ca-certificates.crt /certs/"]
+          volumeMounts:
+          - name: tls-cert
+            mountPath: /tmp/ca.crt
+            subPath: ca.crt
+            readOnly: false
+          - name: sys-cert
+            mountPath: /certs
+            readOnly: false
+      {{- end }}
       containers:
         - name: ks-console
           image: {{ template "ks-console.image" . }}
@@ -50,6 +66,10 @@ spec:
           env:
             {{- if .Values.console.extraEnvVars }}
             {{- include "common.tplvalues.render" (dict "value" .Values.console.extraEnvVars "context" $) | nindent 12 }}
+            {{- end }}
+            {{- if .Values.internalTLS }}
+            - name: NODE_EXTRA_CA_CERTS
+              value: "/etc/ssl/certs/ca-certificates.crt"
             {{- end }}
           {{- if .Values.console.resources }}
           resources: {{- toYaml .Values.console.resources | nindent 12 }}
@@ -72,6 +92,14 @@ spec:
           {{- if .Values.console.extraVolumeMounts }}
           {{- include "common.tplvalues.render" (dict "value" .Values.console.extraVolumeMounts "context" $) | nindent 12 }}
           {{- end }}
+          {{- if .Values.internalTLS }}
+            - name: tls-cert
+              mountPath: /etc/kubesphere/pki/
+            - name: sys-cert
+              mountPath: /etc/ssl/certs/ca-certificates.crt
+              subPath: ca-certificates.crt
+              readOnly: false
+          {{- end }}
       volumes:
         - configMap:
             defaultMode: 420
@@ -87,7 +115,14 @@ spec:
         {{- if .Values.console.extraVolumes }}
         {{- include "common.tplvalues.render" (dict "value" .Values.console.extraVolumes "context" $) | nindent 8 }}
         {{- end }}
-
+        {{- if .Values.internalTLS }}
+        - name: tls-cert
+          secret:
+            secretName: ks-console-tls-certs
+            defaultMode: 420
+        - name: sys-cert
+          emptyDir: {}
+        {{- end }}
 ---
 
 apiVersion: v1
@@ -97,11 +132,21 @@ metadata:
     app: ks-console
     tier: frontend
     version: {{ .Chart.AppVersion }}
+  annotations:
+    {{- if .Values.internalTLS }}
+    {{- if eq .Values.ingress.ingressClassName "traefik" }}
+    traefik.ingress.kubernetes.io/service.serverstransport: {{ printf "%s-%s@kubernetescrd" .Release.Namespace "ks-console-transport" }}
+    {{- end }}
+    {{- end }}
   name: ks-console
 spec:
   ports:
   - name: nginx
+  {{- if .Values.internalTLS }}
+    port: 443
+  {{- else }}
     port: 80
+  {{- end }}
     protocol: TCP
     targetPort: 8000
     {{- with .Values.console.nodePort }}

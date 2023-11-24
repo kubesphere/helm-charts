@@ -1,0 +1,85 @@
+{{- if not .Values.upgrade.disabled }}
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: ks-upgrade-config
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    "helm.sh/hook": pre-upgrade
+    "helm.sh/hook-weight": "-1"
+data:
+  ks-upgrade.yaml: |
+    storage:
+      {{- if .Values.upgrade.storage.s3.endpoint  }}
+      s3: {{- toYaml .Values.upgrade.storage.s3 | nindent 8 }}
+      {{- else }}
+      local:
+        path: {{ .Values.upgrade.storage.local.path }}
+      {{- end }}
+    jobs: {{- toYaml .Values.upgrade.jobs | nindent 6 }}
+
+---
+{{- if not .Values.upgrade.storage.s3.endpoint }}
+{{- if not (lookup "v1" "PersistentVolumeClaim" .Release.Namespace .Values.upgrade.persistenceVolume.name) }}
+kind: PersistentVolumeClaim
+apiVersion: v1
+metadata:
+  name: {{ .Values.upgrade.persistenceVolume.name }}
+  namespace: {{ .Release.Namespace }}
+  annotations:
+    "helm.sh/hook": pre-upgrade
+    "helm.sh/hook-weight": "-1"
+  labels:
+    app: ks-upgrade
+    version: {{ .Chart.AppVersion }}
+spec:
+  accessModes:
+    - {{ .Values.upgrade.persistenceVolume.accessMode | quote }}
+  resources:
+    requests:
+      storage: {{ .Values.upgrade.persistenceVolume.size | quote }}
+  storageClassName: {{ .Values.upgrade.persistenceVolume.storageClassName }}
+{{-  end }}
+{{- end }}
+
+---
+apiVersion: batch/v1
+kind: Job
+metadata:
+  name: {{ .Release.Name }}-pre-upgrade
+  annotations:
+    "helm.sh/hook": pre-upgrade
+    "helm.sh/hook-weight": "0"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded,hook-failed
+spec:
+  template:
+    spec:
+      restartPolicy: Never
+      serviceAccountName: {{ include "ks-core.serviceAccountName" . }}
+      containers:
+        - name: pre-upgrade-job
+          image: {{ template "upgrade.image" . }}
+          imagePullPolicy: {{ .Values.upgrade.image.pullPolicy }}
+          command:
+            - ks-upgrade
+            - pre-upgrade
+            - --logtostderr=true
+            - --config=/etc/kubesphere/ks-upgrade.yaml
+          volumeMounts:
+            - mountPath: /etc/kubesphere/
+              name: config
+            {{- if not .Values.upgrade.storage.s3.endpoint  }}
+            - mountPath: /tmp/ks-upgrade
+              name: data
+            {{- end }}
+      volumes:
+        - name: config
+          configMap:
+            name: ks-upgrade-config
+            defaultMode: 420
+        {{- if not .Values.upgrade.storage.s3.endpoint  }}
+        - name: data
+          persistentVolumeClaim:
+            claimName: {{ .Values.upgrade.persistenceVolume.name }}
+        {{- end }}
+{{- end }}

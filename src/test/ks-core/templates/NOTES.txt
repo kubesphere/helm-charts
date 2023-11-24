@@ -5,8 +5,11 @@ Please wait for several seconds for KubeSphere deployment to complete.
      kubectl get pods -n {{ .Release.Namespace }}
 
 2. Then you should be able to visit the console NodePort:
-
+    {{- if not .Values.internalTLS }}
      Console: http://{{ include "getNodeAddress" . }}:{{ .Values.console.nodePort }}
+    {{- else }}
+     Console: https://{{ include "getNodeAddress" . }}:{{ .Values.console.nodePort }}
+    {{- end }}
 
 3. To login to your KubeSphere console:
 

@@ -11,8 +11,12 @@ metadata:
   namespace: kubesphere-system
 spec:
   ports:
-    - port: 80
-      protocol: TCP
+    - protocol: TCP
+    {{- if .Values.internalTLS }}
+      port: 443
+    {{- else }}
+      port: 80
+    {{- end }}
       targetPort: 9090
     {{- with .Values.apiserver.nodePort }}
       nodePort:

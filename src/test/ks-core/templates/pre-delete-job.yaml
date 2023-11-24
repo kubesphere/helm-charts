@@ -1,11 +1,24 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: "{{ .Release.Name }}-pre-delete-scripts"
+  annotations:
+    "helm.sh/hook": pre-delete
+    "helm.sh/hook-weight": "-1"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+data:
+{{ (.Files.Glob "scripts/pre-delete.sh").AsConfig | indent 2 }}
+
+---
+
 apiVersion: batch/v1
 kind: Job
 metadata:
   name: "{{ .Release.Name }}-pre-delete"
   annotations:
     "helm.sh/hook": pre-delete
-    "helm.sh/hook-weight": "-5"
-    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded
+    "helm.sh/hook-weight": "0"
+    "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded,hook-failed
 spec:
   template:
     spec:
@@ -13,24 +26,15 @@ spec:
       serviceAccountName: {{ include "ks-core.serviceAccountName" . }}
       containers:
         - name: pre-delete-job
-          image: "kubesphere/kubectl:v1.27.4"
+          image: {{ template "kubectl.image" . }}
           command:
             - /bin/bash
-            - -c
-            - |
-              kubectl -n kubesphere-system scale deploy ks-controller-manager --replicas=0
-              until [ "$(kubectl -n kube-system get deploy ks-controller-manager -o jsonpath='{.status.readyReplicas}')" = "" ];
-              do
-                echo "ks-controller-manager is running......"
-                sleep 1s
-              done
-              kubectl patch workspaces.tenant.kubesphere.io system-workspace -p '{"metadata":{"finalizers":[]}}' --type=merge
-              kubectl patch workspacetemplates.tenant.kubesphere.io system-workspace -p '{"metadata":{"finalizers":[]}}' --type=merge
-              for ns in $(kubectl get ns -o jsonpath='{.items[*].metadata.name}')
-              do 
-                  kubectl label ns $ns kubesphere.io/workspace- && \
-                  kubectl patch ns $ns -p '{"metadata":{"ownerReferences":[]}}' --type=merge && \
-                  echo "{\"kind\":\"Namespace\",\"apiVersion\":\"v1\",\"metadata\":{\"name\":\"$ns\",\"finalizers\":null}}" | kubectl replace --raw "/api/v1/namespaces/$ns/finalize" -f - 
-              done
-  
-  
+            - /scripts/pre-delete.sh
+          volumeMounts:
+            - mountPath: /scripts
+              name: scripts
+      volumes:
+        - name: scripts
+          configMap:
+            name: "{{ .Release.Name }}-pre-delete-scripts"
+            defaultMode: 420

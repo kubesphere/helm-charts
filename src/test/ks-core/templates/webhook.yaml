@@ -14,7 +14,6 @@ metadata:
   name: ks-controller-manager-webhook-cert
 type: Opaque
 
-
 {{ if eq .Values.role "host" }}
 ---
 apiVersion: admissionregistration.k8s.io/v1
@@ -29,7 +28,7 @@ webhooks:
       service:
         name: ks-controller-manager
         namespace: kubesphere-system
-        path: /validate-email-iam-kubesphere-io-v1beta1
+        path: /validate-iam-kubesphere-io-v1beta1-user
         port: 443
     failurePolicy: Fail
     matchPolicy: Exact
@@ -180,6 +179,43 @@ webhooks:
 
 ---
 apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: validator.config.kubesphere.io
+webhooks:
+  - admissionReviewVersions:
+      - v1
+    clientConfig:
+      caBundle: {{ b64enc $ca.Cert | quote }}
+      service:
+        name: ks-controller-manager
+        namespace: kubesphere-system
+        path: /validate--v1-secret
+        port: 443
+    failurePolicy: Fail
+    matchPolicy: Exact
+    name: validator.config.kubesphere.io
+    namespaceSelector: {}
+    objectSelector:
+      matchExpressions:
+        - key: config.kubesphere.io/type
+          operator: Exists
+    rules:
+      - apiGroups:
+          - ""
+        apiVersions:
+          - v1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - secrets
+        scope: '*'
+    sideEffects: None
+    timeoutSeconds: 30
+
+---
+apiVersion: admissionregistration.k8s.io/v1
 kind: MutatingWebhookConfiguration
 metadata:
   name: extensions.kubesphere.io
@@ -208,6 +244,110 @@ webhooks:
           - UPDATE
         resources:
           - jsbundles
+        scope: '*'
+    sideEffects: None
+    timeoutSeconds: 30
+
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: applicationreleases.application.kubesphere.io
+webhooks:
+  - admissionReviewVersions:
+      - v1
+    clientConfig:
+      caBundle: {{ b64enc $ca.Cert | quote }}
+      service:
+        name: ks-controller-manager
+        namespace: kubesphere-system
+        path: /mutate-application-kubesphere-io-v2-applicationrelease
+        port: 443
+    failurePolicy: Fail
+    matchPolicy: Exact
+    name: applicationreleases.application.kubesphere.io
+    namespaceSelector: {}
+    objectSelector: {}
+    rules:
+      - apiGroups:
+          - application.kubesphere.io
+        apiVersions:
+          - v2
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - applicationreleases
+        scope: '*'
+    sideEffects: None
+    timeoutSeconds: 30
+
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: serviceaccount.kubesphere.io
+webhooks:
+  - admissionReviewVersions:
+      - v1
+    clientConfig:
+      caBundle: {{ b64enc $ca.Cert | quote }}
+      service:
+        name: ks-controller-manager
+        namespace: kubesphere-system
+        path: /serviceaccount-pod-injector
+        port: 443
+    failurePolicy: Ignore
+    matchPolicy: Exact
+    name: serviceaccount-pod-injector.kubesphere.io
+    namespaceSelector: {}
+    objectSelector: {}
+    rules:
+      - apiGroups:
+          - ""
+        apiVersions:
+          - v1
+        operations:
+          - CREATE
+        resources:
+          - pods
+        scope: '*'
+    sideEffects: None
+    timeoutSeconds: 30
+
+---
+apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: defaulter.config.kubesphere.io
+webhooks:
+  - admissionReviewVersions:
+      - v1
+    clientConfig:
+      caBundle: {{ b64enc $ca.Cert | quote }}
+      service:
+        name: ks-controller-manager
+        namespace: kubesphere-system
+        path: /mutate--v1-secret
+        port: 443
+    failurePolicy: Fail
+    matchPolicy: Exact
+    name: defaulter.config.kubesphere.io
+    namespaceSelector: {}
+    objectSelector:
+      matchExpressions:
+        - key: config.kubesphere.io/type
+          operator: Exists
+    rules:
+      - apiGroups:
+          - ""
+        apiVersions:
+          - v1
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - secrets
         scope: '*'
     sideEffects: None
     timeoutSeconds: 30

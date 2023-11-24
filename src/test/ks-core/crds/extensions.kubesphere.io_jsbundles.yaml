@@ -4,7 +4,6 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: (unknown)
-  creationTimestamp: null
   name: jsbundles.extensions.kubesphere.io
 spec:
   group: extensions.kubesphere.io

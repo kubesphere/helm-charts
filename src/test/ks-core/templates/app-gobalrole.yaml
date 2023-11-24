@@ -1,0 +1,27 @@
+apiVersion: iam.kubesphere.io/v1beta1
+kind: GlobalRole
+metadata:
+  name: app-authenticated
+rules:
+  - apiGroups:
+      - application.kubesphere.io
+    resources:
+      - 'apps'
+      - 'apps/versions'
+    verbs:
+      - get
+      - list
+ 
+---
+apiVersion: iam.kubesphere.io/v1beta1
+kind: GlobalRoleBinding
+metadata:
+  name: app-authenticated
+roleRef:
+  apiGroup: iam.kubesphere.io
+  kind: GlobalRole
+  name: app-authenticated
+subjects:
+  - apiGroup: iam.kubesphere.io
+    kind: Group
+    name: system:authenticated

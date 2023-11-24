@@ -16,5 +16,7 @@ kind: Secret
 metadata:
   name: marketplace
   namespace: kubesphere-system
+  labels:
+    config.kubesphere.io/type: marketplace
 type: config.kubesphere.io/marketplace
 {{ end }}
