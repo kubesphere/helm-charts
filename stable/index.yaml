@@ -344,6 +344,43 @@ entries:
   deepflow:
   - apiVersion: v2
     appVersion: 6.4.3
+    created: "2023-12-05T03:11:35.492976367Z"
+    dependencies:
+    - condition: clickhouse.enabled
+      name: clickhouse
+      repository: ""
+      version: '*.*.*'
+    - condition: mysql.enabled
+      name: mysql
+      repository: ""
+      version: '*.*.*'
+    - condition: deepflow-agent.enabled
+      name: deepflow-agent
+      repository: ""
+      version: '*.*.*'
+    - condition: grafana.enabled
+      name: grafana
+      repository: https://grafana.github.io/helm-charts
+      version: 7.*.*
+    description: An automated observability platform for cloud-native developers.
+    digest: 680917447c48b32041bb61af02b3035909f4d3b72dc962153c15c00cab09c477
+    home: https://github.com/deepflowio/deepflow
+    icon: https://raw.githubusercontent.com/deepflowio/deepflow-charts/main/deepflow.svg
+    keywords:
+    - deepflow
+    kubeVersion: '>=1.16.0-0'
+    maintainers:
+    - name: deepflow
+      url: https://github.com/deepflowio/deepflow
+    name: deepflow
+    sources:
+    - https://github.com/deepflowio/deepflow
+    type: application
+    urls:
+    - https://charts.kubesphere.io/stable/deepflow-6.4.004.tgz
+    version: 6.4.004
+  - apiVersion: v2
+    appVersion: 6.4.3
     created: "2023-11-29T02:31:24.821853362Z"
     dependencies:
     - condition: clickhouse.enabled
@@ -1730,6 +1767,33 @@ entries:
     - https://charts.kubesphere.io/stable/jh-gitlab-5.9.2.tgz
     version: 5.9.2
   juicefs:
+  - annotations:
+      artifacthub.io/images: |
+        - name: livenessprobe
+          image: quay.io/k8scsi/livenessprobe:v1.1.0
+          whitelisted: true
+    apiVersion: v2
+    appVersion: 0.20.0
+    created: "2023-12-05T03:11:35.493849268Z"
+    description: A Helm chart for JuiceFS CSI Driver
+    digest: 3dc02f09cf2eeb0eb3af34f4d7d73a864aa7873a62c4f12078cb42b51b5c5bbe
+    home: https://github.com/juicedata/juicefs
+    icon: https://s.juicefs.com/static/jfs/logo.svg
+    keywords:
+    - juicefs
+    - csi
+    kubeVersion: '>=1.14.0-0'
+    maintainers:
+    - email: team@juicedata.io
+      name: Juicedata Inc.
+      url: https://juicefs.com
+    name: juicefs
+    sources:
+    - https://github.com/juicedata/juicefs
+    type: application
+    urls:
+    - https://charts.kubesphere.io/stable/juicefs-0.16.2.tgz
+    version: 0.16.2
   - apiVersion: v2
     appVersion: 0.20.0
     created: "2023-07-07T09:09:15.73892934Z"
@@ -2323,4 +2387,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/stable/vsphere-csi-driver-1.3.0.tgz
     version: 1.3.0
-generated: "2023-11-29T02:31:24.810199527Z"
+generated: "2023-12-05T03:11:35.482359936Z"
