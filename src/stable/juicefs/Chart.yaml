@@ -2,7 +2,7 @@ apiVersion: v2
 name: juicefs
 description: A Helm chart for JuiceFS CSI Driver
 type: application
-version: 0.16.1
+version: 0.16.2
 appVersion: 0.20.0
 kubeVersion: ">=1.14.0-0"
 home: https://github.com/juicedata/juicefs
@@ -16,3 +16,8 @@ maintainers:
 keywords:
   - juicefs
   - csi
+annotations:
+  artifacthub.io/images: |
+    - name: livenessprobe
+      image: quay.io/k8scsi/livenessprobe:v1.1.0
+      whitelisted: true
