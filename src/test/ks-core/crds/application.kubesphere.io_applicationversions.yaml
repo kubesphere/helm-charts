@@ -17,9 +17,6 @@ spec:
   scope: Cluster
   versions:
   - additionalPrinterColumns:
-    - jsonPath: .spec.displayName.en
-      name: application name
-      type: string
     - jsonPath: .status.state
       name: State
       type: string
@@ -47,22 +44,14 @@ spec:
           spec:
             description: ApplicationVersionSpec defines the desired state of ApplicationVersion
             properties:
+              appHome:
+                type: string
               appType:
                 type: string
               created:
                 format: date-time
                 type: string
-              description:
-                additionalProperties:
-                  type: string
-                type: object
               digest:
-                type: string
-              displayName:
-                additionalProperties:
-                  type: string
-                type: object
-              home:
                 type: string
               icon:
                 type: string
@@ -71,27 +60,17 @@ spec:
                   description: Maintainer describes a Chart maintainer.
                   properties:
                     email:
-                      description: Email is an optional email address to contact the
-                        named maintainer
                       type: string
                     name:
-                      description: Name is a user name or organization name
                       type: string
                     url:
-                      description: URL is an optional URL to an address for the named
-                        maintainer
                       type: string
                   type: object
                 type: array
-              sources:
-                items:
-                  type: string
-                type: array
-              version:
+              versionName:
                 type: string
             required:
-            - displayName
-            - version
+            - versionName
             type: object
           status:
             description: ApplicationVersionStatus defines the observed state of ApplicationVersion
@@ -103,7 +82,7 @@ spec:
               updated:
                 format: date-time
                 type: string
-              user_name:
+              userName:
                 type: string
             type: object
         type: object

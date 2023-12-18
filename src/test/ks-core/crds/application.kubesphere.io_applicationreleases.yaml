@@ -56,47 +56,46 @@ spec:
           spec:
             description: ApplicationReleaseSpec defines the desired state of ApplicationRelease
             properties:
-              app_id:
+              appID:
                 type: string
-              app_type:
+              appType:
                 type: string
-              appVersion_id:
+              appVersionID:
                 type: string
               values:
                 format: byte
                 type: string
             required:
-            - appVersion_id
-            - app_id
+            - appID
+            - appVersionID
             type: object
           status:
             description: ApplicationReleaseStatus defines the observed state of ApplicationRelease
             properties:
               jobName:
-                description: JobName for installation and upgrade
                 type: string
               lastDeployed:
-                description: last deploy time or upgrade time
                 format: date-time
                 type: string
               lastUpdate:
-                description: last update time
                 format: date-time
                 type: string
               message:
-                description: A human readable message indicating details about why
-                  the release is in this state.
                 type: string
+              realTimeResources:
+                items:
+                  description: RawMessage is a raw encoded JSON value. It implements
+                    Marshaler and Unmarshaler and can be used to delay JSON decoding
+                    or precompute a JSON encoding.
+                  format: byte
+                  type: string
+                type: array
               specHash:
-                description: current release spec hash This is used to compare whether
-                  the spec has been modified to determine if an upgrade is needed.
+                description: This is used to compare whether the spec has been modified
+                  to determine if an upgrade is needed.
                 type: string
               state:
-                description: current state
                 type: string
-              version:
-                description: current release version
-                type: integer
             required:
             - state
             type: object

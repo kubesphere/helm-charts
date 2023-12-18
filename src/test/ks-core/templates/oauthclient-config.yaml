@@ -5,8 +5,7 @@ stringData:
     name: kubesphere
     secret: kubesphere
     grantMethod: auto
-    redirectURIs:
-      - '*'
+    trusted: true
     scopeRestrictions:
       - 'openid'
       - 'email'

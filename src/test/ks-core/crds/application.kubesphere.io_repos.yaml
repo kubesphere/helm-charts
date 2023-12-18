@@ -4,16 +4,16 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     controller-gen.kubebuilder.io/version: (unknown)
-  name: helmrepos.application.kubesphere.io
+  name: repos.application.kubesphere.io
 spec:
   group: application.kubesphere.io
   names:
-    kind: HelmRepo
-    listKind: HelmRepoList
-    plural: helmrepos
+    kind: Repo
+    listKind: RepoList
+    plural: repos
     shortNames:
-    - hrepo
-    singular: helmrepo
+    - repo
+    singular: repo
   scope: Cluster
   versions:
   - additionalPrinterColumns:
@@ -32,7 +32,7 @@ spec:
     name: v2
     schema:
       openAPIV3Schema:
-        description: HelmRepo is the Schema for the helmrepoes API
+        description: Repo is the Schema for the repoes API
         properties:
           apiVersion:
             description: 'APIVersion defines the versioned schema of this representation
@@ -47,10 +47,10 @@ spec:
           metadata:
             type: object
           spec:
-            description: HelmRepoSpec defines the desired state of HelmRepo
+            description: RepoSpec defines the desired state of Repo
             properties:
               credential:
-                description: helm repo credential
+                description: repo credential
                 properties:
                   caFile:
                     description: verify certificates of HTTPS-enabled servers using
@@ -77,33 +77,23 @@ spec:
               description:
                 description: chart repo description from frontend
                 type: string
-              name:
-                description: name of the repo
-                type: string
               syncPeriod:
                 description: sync period in seconds, no sync when SyncPeriod=0, the
                   minimum SyncPeriod is 180s
                 type: integer
               url:
-                description: helm repo url
+                description: repo url
                 type: string
             required:
-            - name
             - url
             type: object
           status:
-            description: HelmRepoStatus defines the observed state of HelmRepo
+            description: RepoStatus defines the observed state of Repo
             properties:
               lastUpdateTime:
-                description: status last update time
                 format: date-time
                 type: string
-              specHash:
-                description: current release spec hash This is used to compare whether
-                  the spec has been modified to determine sync is needed.
-                type: string
               state:
-                description: current state of the repo, successful, failed or syncing
                 type: string
             type: object
         type: object

@@ -1733,3 +1733,211 @@ spec:
         - pods
       verbs:
         - list
+
+---
+# global scope role templates
+apiVersion: iam.kubesphere.io/v1beta1
+kind: RoleTemplate
+metadata:
+  annotations:
+    iam.kubesphere.io/role-template-rules: '{"manage-app": "manage"}'
+  labels:
+    iam.kubesphere.io/category: manage-app
+    iam.kubesphere.io/scope: global
+    kubesphere.io/managed: "true"
+    iam.kubesphere.io/aggregate-to-admin: ""
+  name: global-role-template-manage-app
+spec:
+  description:
+    en: 'AppStore Management'
+    zh: '应用商店管理'
+  displayName:
+    en: 'AppStore Management'
+    zh: '应用商店管理'
+  rules:
+    - apiGroups:
+        - application.kubesphere.io
+      resources:
+        - '*'
+      verbs:
+        - '*'
+
+# workspace scope role templates
+---
+apiVersion: iam.kubesphere.io/v1beta1
+kind: RoleTemplate
+metadata:
+  annotations:
+    iam.kubesphere.io/role-template-rules: '{"app-repos": "view"}'
+  labels:
+    iam.kubesphere.io/category: workspace-app
+    iam.kubesphere.io/scope: workspace
+    kubesphere.io/managed: "true"
+    iam.kubesphere.io/aggregate-to-viewer: ""
+  name: workspace-view-app-repos
+spec:
+  description:
+    en: 'Workspace App Repos View'
+    zh: '企业空间应用仓库查看。'
+  displayName:
+    en: 'Workspace App Repos View'
+    zh: '应用仓库查看'
+  rules:
+    - apiGroups:
+        - application.kubesphere.io
+      resources:
+        - repos
+        - repos/events
+      verbs:
+        - get
+        - list
+
+---
+apiVersion: iam.kubesphere.io/v1beta1
+kind: RoleTemplate
+metadata:
+  annotations:
+    iam.kubesphere.io/role-template-rules: '{"app-repos": "manage"}'
+    iam.kubesphere.io/dependencies: '["workspace-view-app-repos"]'
+  labels:
+    iam.kubesphere.io/category: workspace-app
+    iam.kubesphere.io/scope: workspace
+    kubesphere.io/managed: "true"
+    iam.kubesphere.io/aggregate-to-self-provisioner: ""
+    iam.kubesphere.io/aggregate-to-admin: ""
+  name: workspace-manage-app-repos
+spec:
+  description:
+    en: 'Workspace App Repos Management'
+    zh: '企业空间应用仓库管理。'
+  displayName:
+    en: 'Workspace App Repos Management'
+    zh: '应用仓库管理'
+  rules:
+    - apiGroups:
+        - 'application.kubesphere.io'
+      resources:
+        - 'repos'
+        - 'repos/events'
+      verbs:
+        - '*'
+
+
+---
+apiVersion: iam.kubesphere.io/v1beta1
+kind: RoleTemplate
+metadata:
+  annotations:
+    iam.kubesphere.io/role-template-rules: '{"app-templates": "view"}'
+  labels:
+    iam.kubesphere.io/category: workspace-app
+    iam.kubesphere.io/scope: workspace
+    kubesphere.io/managed: "true"
+    iam.kubesphere.io/aggregate-to-viewer: ""
+  name: workspace-view-app-templates
+spec:
+  description:
+    en: 'Workspace App Templates View'
+    zh: '企业空间查看应用模板，应用版本模板等。'
+  displayName:
+    en: 'Workspace App Templates View'
+    zh: '应用模板查看'
+  rules:
+    - apiGroups:
+        - application.kubesphere.io
+      resources:
+        - 'apps'
+        - 'apps/versions'
+        - 'applications'
+      verbs:
+        - get
+        - list
+
+---
+apiVersion: iam.kubesphere.io/v1beta1
+kind: RoleTemplate
+metadata:
+  annotations:
+    iam.kubesphere.io/role-template-rules: '{"app-templates": "manage"}'
+    iam.kubesphere.io/dependencies: '["workspace-view-app-templates"]'
+  labels:
+    iam.kubesphere.io/category: workspace-app
+    iam.kubesphere.io/scope: workspace
+    kubesphere.io/managed: "true"
+    iam.kubesphere.io/aggregate-to-self-provisioner: ""
+    iam.kubesphere.io/aggregate-to-admin: ""
+  name: workspace-manage-app-templates
+spec:
+  description:
+    en: 'Workspace App Templates Management'
+    zh: '企业空间上传应用模板，应用版本模板等。'
+  displayName:
+    en: 'Workspace App Templates Management'
+    zh: '应用模板管理'
+  rules:
+    - apiGroups:
+        - application.kubesphere.io
+      resources:
+        - 'apps'
+        - 'apps/versions'
+        - 'applications'
+      verbs:
+        - '*'
+
+# namespace scope role templates
+---
+apiVersion: iam.kubesphere.io/v1beta1
+kind: RoleTemplate
+metadata:
+  annotations:
+    iam.kubesphere.io/role-template-rules: '{"app-releases": "view"}'
+  labels:
+    iam.kubesphere.io/category: namespace-app
+    iam.kubesphere.io/scope: namespace
+    kubesphere.io/managed: "true"
+    iam.kubesphere.io/aggregate-to-viewer: ""
+  name: namespace-view-app-releases
+spec:
+  description:
+    en: 'Namespace App Releases View'
+    zh: '项目下查看应用实例等。'
+  displayName:
+    en: 'Namespace App Releases View'
+    zh: '应用实例查看'
+  rules:
+    - apiGroups:
+        - application.kubesphere.io
+      resources:
+        - applications
+      verbs:
+        - get
+        - list
+
+---
+apiVersion: iam.kubesphere.io/v1beta1
+kind: RoleTemplate
+metadata:
+  annotations:
+    iam.kubesphere.io/role-template-rules: '{"app-releases": "manage"}'
+    iam.kubesphere.io/dependencies: '["namespace-view-app-releases"]'
+  labels:
+    iam.kubesphere.io/category: namespace-app
+    iam.kubesphere.io/scope: namespace
+    kubesphere.io/managed: "true"
+    iam.kubesphere.io/aggregate-to-operator: ""
+    iam.kubesphere.io/aggregate-to-admin: ""
+  name: namespace-manage-app-releases
+spec:
+  description:
+    en: 'Namespace App Releases Management'
+    zh: '项目下部署升级应用实例。'
+  displayName:
+    en: 'Namespace App Releases Management'
+    zh: '应用实例部署升级'
+  rules:
+    - apiGroups:
+        - application.kubesphere.io
+      resources:
+        - applications
+      verbs:
+        - '*'

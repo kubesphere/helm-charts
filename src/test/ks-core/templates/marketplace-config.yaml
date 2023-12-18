@@ -2,6 +2,18 @@
 apiVersion: v1
 stringData:
   configuration.yaml: |
+{{- if .Values.devMode }}
+    url: https://clouddev.kubesphere.io
+    oauth:
+      clientID: "client-a5cdf64c-7f84-415e-a6b1-8dfbfad493c3"
+      clientSecret: "66ce75fc-4a87-4f97-9963-92d1a19b137e"
+    subscription:
+      syncPeriod: 60m
+    repository:
+      url: https://clouddev.kubesphere.io
+      repoName: marketplace
+      syncPeriod: 60m
+{{- else }}
     url: https://kubesphere.cloud
     oauth:
       clientID: "client-a5cdf64c-7f84-415e-a6b1-8dfbfad493c3"
@@ -12,6 +24,7 @@ stringData:
       url: https://app.kubesphere.cloud
       repoName: marketplace
       syncPeriod: 60m
+{{- end }}
 kind: Secret
 metadata:
   name: marketplace
