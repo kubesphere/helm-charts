@@ -106,6 +106,15 @@ rules:
     verbs:
       - get
       - list
+  - apiGroups:
+      - application.kubesphere.io
+    resources:
+      - 'apps'
+      - 'categories'
+      - 'apps/versions'
+    verbs:
+      - get
+      - list
 
 ---
 apiVersion: iam.kubesphere.io/v1beta1

@@ -17,9 +17,6 @@ spec:
   scope: Cluster
   versions:
   - additionalPrinterColumns:
-    - jsonPath: .spec.displayName.en
-      name: application name
-      type: string
     - jsonPath: .metadata.labels.kubesphere\.io/workspace
       name: workspace
       type: string
@@ -53,18 +50,8 @@ spec:
                 type: string
               appType:
                 type: string
-              description:
-                additionalProperties:
-                  type: string
-                type: object
-              displayName:
-                additionalProperties:
-                  type: string
-                type: object
               icon:
                 type: string
-            required:
-            - displayName
             type: object
           status:
             description: ApplicationStatus defines the observed state of Application
