@@ -121,6 +121,11 @@ spec:
                   of Kubernetes required. eg: >= 1.2.0, see https://github.com/Masterminds/semver
                   for more info.'
                 type: string
+              namespace:
+                description: Namespace represents the namespace in which the extension
+                  is installed. If empty, it will be installed in the namespace named
+                  extension-{name}.
+                type: string
               provider:
                 additionalProperties:
                   description: Provider describes an extension provider.
