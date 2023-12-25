@@ -24,6 +24,7 @@ metadata:
     {{- end}}
 provisioner: {{ .Values.driver.name }}
 parameters:
+  containerConfID: {{ .Values.sc.containerConfID }}
   {{- if ne (.Values.sc.type | toString) "auto" }}
   type: "{{ .Values.sc.type }}"
   {{- end}}
