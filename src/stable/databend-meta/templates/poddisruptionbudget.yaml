@@ -1,0 +1,11 @@
+{{- if gt (int .Values.replicaCount) 1 }}
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: {{ include "databend-meta.fullname" . }}
+spec:
+  maxUnavailable: 1
+  selector:
+    matchLabels:
+      {{- include "databend-meta.selectorLabels" . | nindent 6 }}
+{{- end }}

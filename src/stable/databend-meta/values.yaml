@@ -44,6 +44,8 @@ config:
   raft:
     dir: /data/databend-meta/raft
 
+envs: []
+
 persistence:
   enabled: true
   storageClass: ""
