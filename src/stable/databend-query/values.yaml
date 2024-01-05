@@ -26,14 +26,21 @@ serviceAccount:
 service:
   type: ClusterIP
   ports:
-    mysql: 3307
-    http: 8000
-    clickhouse: 9000
     metric: 7070
     admin: 8080
     flight: 9090
+
+    http: 8000
+    flightsql: 8900
+    mysql: 3307
+    ckhttp: 8124
+
   # Annotations to add to the service
   annotations: {}
+
+envs: []
+  # - name: SENTRY_TRACES_SAMPLE_RATE
+  #   value: "0.5"
 
 serviceMonitor:
   enabled: false
@@ -52,6 +59,7 @@ config:
     managementMode: false
     jwtKeyFile: ""
 
+    # NOTE: user `root` is already built-in, will be ignored if defined here
     users: []
       # - name: databend
       #   # available type: sha256_password, double_sha1_password, no_password, jwt
@@ -66,7 +74,7 @@ config:
     file:
       enabled: false
       level: "INFO"
-      dir: "/data/databend-query/_log"
+      dir: "/var/log/databend"
     stderr:
       enabled: true
       level: "WARN"
@@ -84,10 +92,7 @@ config:
 
   # [storage]
   storage:
-    type: "fs"
-    # [storage.fs]
-    fs:
-      data_path: "/data/databend-query/_data"
+    type: "s3"
 
     # [storage.s3]
     s3:
@@ -110,28 +115,11 @@ config:
       access_key_id: ""
       access_key_secret: ""
 
-persistence:
+cache:
   enabled: false
-  existingClaim: ""
+  path: "/var/lib/databend/cache"
+  maxBytes: 21474836480
   storageClass: ""
-  size: 10Gi
-  mountPath: /data/databend-query
-
-# Configuration for minio subchart
-# Not recommended for production
-minio:
-  enabled: false
-  replicas: 5
-  rootUser: rootuser
-  rootPassword: rootpassword
-  persistence:
-    enabled: true
-    storageClass: ""
-    size: 10Gi
-  minioAPIPort: 9000
-  resources:
-    requests:
-      memory: 500Mi
 
 ingress:
   enabled: false

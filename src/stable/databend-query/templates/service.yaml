@@ -19,3 +19,4 @@ spec:
     {{- end }}
   selector:
     {{- include "databend-query.selectorLabels" . | nindent 4 }}
+    statefulset.kubernetes.io/pod-name: {{ include "databend-query.fullname" . }}-0
