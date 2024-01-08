@@ -283,12 +283,17 @@ nodeShell:
     tag: "3.18.4"
     pullPolicy: IfNotPresent
 
+
+extension:
+  imageRegistry: ""
+  nodeSelector: {}
+
 upgrade:
   disabled: false
   image:
     registry: ""
     repository: kse/ks-upgrade
-    tag: ""
+    tag: "latest"
     pullPolicy: IfNotPresent
   storage:
     s3:
@@ -314,3 +319,5 @@ upgrade:
       disabled: false
       priority: 11
       dynamicOptions: {}
+
+

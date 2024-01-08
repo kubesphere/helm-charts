@@ -4,7 +4,7 @@ metadata:
   labels:
     iam.kubesphere.io/role-ref: platform-admin
     iam.kubesphere.io/user-ref: admin
-  name: admin-platform-admin
+  name: admin
 roleRef:
   apiGroup: iam.kubesphere.io
   kind: GlobalRole
