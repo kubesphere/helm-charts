@@ -1,3 +1,4 @@
+{{- $storageType := .Values.config.storage.type }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -17,6 +18,17 @@ data:
       management_mode = {{ .Values.config.query.managementMode }}
       jwt_key_file = {{ .Values.config.query.jwtKeyFile | quote }}
 
+      max_server_memory_usage = {{ .Values.config.query.maxServerMemoryUsage | default 0 }}
+      max_memory_limit_enabled = {{ .Values.config.query.maxMemoryLimitEnabled | default false }}
+
+      {{- range $field, $value := .Values.config.query.extra }}
+      {{- if (kindIs "string" $value) }}
+      {{ $field }} = {{ $value | quote }}
+      {{- else }}
+      {{ $field }} = {{ $value }}
+      {{- end }}
+      {{- end }}
+
       {{- range .Values.config.query.users }}
       [[query.users]]
         name = {{ .name | quote }}
@@ -28,19 +40,11 @@ data:
         {{- end }}
       {{- end }}
 
-      {{- range $field, $value := .Values.config.query.extra }}
-      {{- if (kindIs "string" $value) }}
-      {{ $field }} = {{ $value | quote }}
-      {{- else }}
-      {{ $field }} = {{ $value }}
-      {{- end }}
-      {{- end }}
-
     [log]
       [log.file]
         on = {{ .Values.config.log.file.enabled }}
         level = {{ .Values.config.log.file.level | default "INFO" | quote }}
-        dir = "/var/log/databend"
+        dir = {{ .Values.config.log.file.dir | default "/var/log/databend" | quote }}
       [log.stderr]
         on = {{ .Values.config.log.stderr.enabled }}
         level = {{ .Values.config.log.stderr.level | default "WARN" | quote }}
@@ -52,25 +56,11 @@ data:
       client_timeout_in_second = {{ .Values.config.meta.clientTimeoutInSecond | default 60 }}
 
     [storage]
-      storage_type = {{ .Values.config.storage.type | quote }}
+      type = {{ $storageType | quote }}
+      allow_insecure = {{ .Values.config.storage.allow_insecure | default false }}
 
-      {{- if eq .Values.config.storage.type "fs" }}
-      [storage.fs]
-        {{- range $field, $value := .Values.config.storage.fs }}
-        {{- if (kindIs "string" $value) }}
-        {{ $field }} = {{ $value | quote }}
-        {{- else }}
-        {{ $field }} = {{ $value }}
-        {{- end }}
-        {{- end }}
-      {{- else if eq .Values.config.storage.type "s3"}}
+      {{- if eq $storageType "s3"}}
       [storage.s3]
-        {{- if .Values.minio.enabled }}
-        bucket = {{ .Values.config.storage.s3.bucket | quote }}
-        endpoint_url = "http://{{ printf "%s-%s.%s" .Release.Name "minio" .Release.Namespace }}:{{ .Values.minio.minioAPIPort }}"
-        access_key_id = {{ .Values.minio.rootUser | quote }}
-        secret_access_key = {{ .Values.minio.rootPassword | quote }}
-        {{- else }}
         {{- range $field, $value := .Values.config.storage.s3 }}
         {{- if (kindIs "string" $value) }}
         {{ $field }} = {{ $value | quote }}
@@ -78,22 +68,25 @@ data:
         {{ $field }} = {{ $value }}
         {{- end }}
         {{- end }}
-        {{- end }}
-      {{- else if eq .Values.config.storage.type "gcs"}}
-        {{- range $field, $value := .Values.config.storage.gcs }}
+      {{- else }}
+      [storage.{{ $storageType }}]
+        {{- range $name, $configs := .Values.config.storage }}
+        {{- if eq $name $storageType }}
+        {{- range $field, $value := $configs }}
         {{- if (kindIs "string" $value) }}
         {{ $field }} = {{ $value | quote }}
         {{- else }}
         {{ $field }} = {{ $value }}
         {{- end }}
         {{- end }}
-      {{- else if eq .Values.config.storage.type "oss"}}
-      [storage.oss]
-        {{- range $field, $value := .Values.config.storage.oss }}
-        {{- if (kindIs "string" $value) }}
-        {{ $field }} = {{ $value | quote }}
-        {{- else }}
-        {{ $field }} = {{ $value }}
         {{- end }}
         {{- end }}
       {{- end }}
+
+    {{- if .Values.cache.enabled }}
+    [cache]
+      data_cache_storage = "disk"
+      [cache.disk]
+        path = {{ .Values.cache.path | default "/var/lib/databend/cache" | quote }}
+        max_bytes = {{ .Values.cache.maxBytes | default 21474836480 | int64 }}
+    {{- end }}
