@@ -245,6 +245,31 @@ entries:
     version: 0.1.0
   databend-meta:
   - apiVersion: v2
+    appVersion: v1.2.279
+    created: "2024-01-11T05:54:25.481722881Z"
+    dependencies:
+    - name: common
+      repository: https://charts.bitnami.com/bitnami
+      version: 1.x.x
+    description: A Helm chart for databend meta
+    digest: 2ccb93844a863ce8dbdf6e174cd767c9ff9b9b4e7bf4d6b2fa9ad68f812e2ddb
+    home: https://databend.rs
+    icon: https://databend.rs/img/favicon.svg
+    keywords:
+    - olap
+    - cloud data warehouse
+    - meta
+    - kv
+    maintainers:
+    - email: cloud.dev@datafuselabs.com
+      name: cloud.dev
+      url: https://databend.com
+    name: databend-meta
+    type: application
+    urls:
+    - https://charts.kubesphere.io/stable/databend-meta-0.7.3.tgz
+    version: 0.7.3
+  - apiVersion: v2
     appVersion: v1.0.3-nightly
     created: "2023-03-09T08:40:26.816114045Z"
     dependencies:
@@ -290,6 +315,30 @@ entries:
     - https://charts.kubesphere.io/stable/databend-meta-0.3.0.tgz
     version: 0.3.0
   databend-query:
+  - apiVersion: v2
+    appVersion: v1.2.279
+    created: "2024-01-11T05:54:25.483073491Z"
+    dependencies:
+    - name: common
+      repository: https://charts.bitnami.com/bitnami
+      version: 1.x.x
+    description: A Helm chart for databend query
+    digest: 959cfb877629dce3c95efcf4309567f8db1c16dd368f71472c5c3e9f786554c1
+    home: https://databend.rs
+    icon: https://databend.rs/img/favicon.svg
+    keywords:
+    - olap
+    - cloud data warehouse
+    - query
+    maintainers:
+    - email: cloud.dev@datafuselabs.com
+      name: cloud.dev
+      url: https://databend.com
+    name: databend-query
+    type: application
+    urls:
+    - https://charts.kubesphere.io/stable/databend-query-0.8.3.tgz
+    version: 0.8.3
   - apiVersion: v2
     appVersion: v1.0.3-nightly
     created: "2023-03-09T08:40:26.821599378Z"
@@ -2387,4 +2436,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/stable/vsphere-csi-driver-1.3.0.tgz
     version: 1.3.0
-generated: "2023-12-05T03:11:35.482359936Z"
+generated: "2024-01-11T05:54:25.479640785Z"
