@@ -15,7 +15,7 @@ helm install my-release databend/databend-meta --namespace databend --create-nam
 
 Note that for a production cluster, you will likely want to override the following parameters in [values.yaml](values.yaml) with your own values.
 
-- `resources.requests.memory` and `resources.limit.memory` allocate memory resource to query pods in your cluser.
+- `resources.requests.memory` and `resources.limit.memory` allocate memory resource to query pods in your cluster.
 - `replicaCount` defaults to `1`, We strongly recommend that you set to `3` for HA.
 - `persistence.size` defaults to `10Gi` of disk space per pod, which you may increase or decrease for your use case.
 - `persistence.storageClass` uses the default storage class for your environment.

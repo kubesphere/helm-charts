@@ -1,11 +1,13 @@
 apiVersion: apps/v1
-kind: Deployment
+kind: StatefulSet
 metadata:
   name: {{ include "databend-query.fullname" . }}
   labels:
     {{- include "databend-query.labels" . | nindent 4 }}
 spec:
+  serviceName: {{ include "databend-query.fullname" . }}
   replicas: {{ .Values.replicaCount }}
+  podManagementPolicy: Parallel
   selector:
     matchLabels:
       {{- include "databend-query.selectorLabels" . | nindent 6 }}
@@ -41,18 +43,10 @@ spec:
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
           ports:
-            - name: metric
-              containerPort: 7070
-            - name: admin
-              containerPort: 8080
-            - name: flight
-              containerPort: 9090
-            - name: mysql
-              containerPort: 3307
-            - name: clickhouse
-              containerPort: 9000
-            - name: http
-              containerPort: 8000
+            {{- range $key, $val := .Values.service.ports }}
+            - name: {{ $key }}
+              containerPort: {{ $val}}
+            {{- end }}
           livenessProbe:
             httpGet:
               path: /v1/health
@@ -80,30 +74,37 @@ spec:
                 fieldRef:
                   fieldPath: status.podIP
             - name: QUERY_METRIC_API_ADDRESS
-              value: "$(POD_IP):7070"
+              value: "$(POD_IP):{{ .Values.service.ports.metric | default 7070 }}"
             - name: QUERY_ADMIN_API_ADDRESS
-              value: "$(POD_IP):8080"
+              value: "$(POD_IP):{{ .Values.service.ports.admin | default 8080 }}"
             - name: QUERY_FLIGHT_API_ADDRESS
-              value: "$(POD_IP):9090"
-            - name: QUERY_MYSQL_HANDLER_HOST
-              value: 0.0.0.0
-            - name: QUERY_MYSQL_HANDLER_PORT
-              value: "3307"
-            - name: QUERY_CLICKHOUSE_HANDLER_HOST
-              value: 0.0.0.0
-            - name: QUERY_CLICKHOUSE_HANDLER_PORT
-              value: "9000"
+              value: "$(POD_IP):{{ .Values.service.ports.flight | default 9090 }}"
             - name: QUERY_HTTP_HANDLER_HOST
               value: 0.0.0.0
             - name: QUERY_HTTP_HANDLER_PORT
-              value: "8000"
+              value: {{ .Values.service.ports.http | default 8000 | quote }}
+            - name: QUERY_FLIGHT_SQL_HANDLER_HOST
+              value: 0.0.0.0
+            - name: QUERY_FLIGHT_SQL_HANDLER_PORT
+              value: {{ .Values.service.ports.flightsql | default 8900 | quote }}
+            - name: QUERY_MYSQL_HANDLER_HOST
+              value: 0.0.0.0
+            - name: QUERY_MYSQL_HANDLER_PORT
+              value: {{ .Values.service.ports.mysql | default 3307 | quote }}
+            - name: QUERY_CLICKHOUSE_HTTP_HANDLER_HOST
+              value: 0.0.0.0
+            - name: QUERY_CLICKHOUSE_HTTP_HANDLER_PORT
+              value: {{ .Values.service.ports.ckhttp |default 8124 | quote }}
+            {{- with .Values.envs }}
+              {{- toYaml . | nindent 12 }}
+            {{- end }}
           volumeMounts:
             - name: config
               # Note: subPath volume mount will not receive ConfigMap update.
               mountPath: /etc/databend-query
-            {{- if .Values.persistence.enabled }}
-            - name: data
-              mountPath: {{ .Values.persistence.mountPath }}
+            {{- if .Values.cache.enabled }}
+            - name: cache
+              mountPath: {{ .Values.cache.path | default "/var/lib/databend/cache" | quote }}
             {{- end }}
         {{- if .Values.sidecars }}
         {{- include "common.tplvalues.render" (dict "value" .Values.sidecars "context" $) | nindent 8 }}
@@ -112,15 +113,6 @@ spec:
         - name: config
           configMap:
             name: {{ include "databend-query.fullname" .}}
-        {{- if .Values.persistence.enabled }}
-        - name: data
-          persistentVolumeClaim:
-          {{- if .Values.persistence.existingClaim }}
-            claimName: {{ .Values.persistence.existingClaim }}
-          {{- else }}
-            claimName: {{ include "databend-query.fullname" . }}
-          {{- end }}
-        {{- end }}
       {{- with .Values.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
@@ -133,3 +125,14 @@ spec:
       tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+  {{- if .Values.cache.enabled }}
+  volumeClaimTemplates:
+  - metadata:
+      name: cache
+    spec:
+      accessModes: [ "ReadWriteOnce" ]
+      storageClassName: {{ .Values.cache.storageClass | quote }}
+      resources:
+        requests:
+          storage: {{ .Values.cache.maxBytes | quote }}
+  {{- end }}
