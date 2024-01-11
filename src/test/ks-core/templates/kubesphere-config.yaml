@@ -32,9 +32,14 @@ data:
         image: {{ template "kubectl.image" . }}
       node:
         image:  {{ template "nodeShell.image" . }}
-    helmImage: {{ template "helm.image" . }}
+    helmExecutor:
+      image: {{ template "helm.image" . }}
+    extension:
+      imageRegistry: {{- .Values.extension.imageRegistry  }}
+      nodeSelector: {{- toYaml .Values.extension.nodeSelector | nindent 8 }}
+
 {{- if .Values.devMode }}
     telemetry:
-      ksCloudUrl: "https://clouddev.kubesphere.io"
+      ksCloudURL: "https://clouddev.kubesphere.io"
 {{- end }}
 {{- end }}

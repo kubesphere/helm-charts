@@ -41,6 +41,12 @@ subjects:
 
 ---
 
+{{- $crdNameList := list }}
+{{- range $path, $_ := .Files.Glob "crds/**" }}
+{{- $crd := $.Files.Get $path | fromYaml }}
+{{- $crdNameList = append $crdNameList $crd.metadata.name }}
+{{- end }}
+
 apiVersion: batch/v1
 kind: Job
 metadata:
@@ -60,6 +66,7 @@ spec:
           command:
             - /bin/bash
             - /scripts/post-delete.sh
+            - '{{ join " " $crdNameList }}'
           volumeMounts:
             - mountPath: /scripts
               name: scripts

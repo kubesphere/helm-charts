@@ -14,7 +14,7 @@ stringData:
     accessTokenInactivityTimeout: 7200
 kind: Secret
 metadata:
-  name: kubesphere
+  name: oauthclient-kubesphere
   namespace: kubesphere-system
   labels:
     config.kubesphere.io/type: oauthclient

@@ -7,11 +7,17 @@ rules:
       - /dist/*
     verbs:
       - GET
+  - nonResourceURLs:
+      - /static/images/*
+    verbs:
+      - GET
 
 ---
 apiVersion: iam.kubesphere.io/v1beta1
 kind: GlobalRole
 metadata:
+  labels:
+    iam.kubesphere.io/auto-aggregate: "true"
   annotations:
     iam.kubesphere.io/rego-override: |-
       package authz
@@ -39,6 +45,11 @@ metadata:
         allowedVerbs[_] == input.Verb
       }
   name: authenticated
+aggregationRoleTemplates:
+  roleSelector:
+    matchLabels:
+      iam.kubesphere.io/aggregate-to-authenticated: ""
+      iam.kubesphere.io/scope: "global"
 rules:
   - apiGroups:
       - config.kubesphere.io
@@ -115,6 +126,10 @@ rules:
     verbs:
       - get
       - list
+  - nonResourceURLs:
+      - /static/images/*
+    verbs:
+      - GET
 
 ---
 apiVersion: iam.kubesphere.io/v1beta1
@@ -164,7 +179,7 @@ metadata:
     kubesphere.io/description: '{"zh": "被邀请加入企业空间之前无法访问任何资源。", "en": "Cannot access any resources before joining a workspace."}'
     kubesphere.io/creator: admin
   name: platform-regular
-rules: []
+rules: [ ]
 
 ---
 apiVersion: iam.kubesphere.io/v1beta1
@@ -173,8 +188,6 @@ metadata:
   annotations:
     kubesphere.io/creator: admin
     kubesphere.io/description: '{"zh": "创建企业空间并成为所创建的企业空间的管理员。", "en": "Create workspaces and become an administrator of the created workspaces."}'
-  labels:
-    iam.kubesphere.io/auto-aggregate: "true"
   name: platform-self-provisioner
 aggregationRoleTemplates:
   templateNames:

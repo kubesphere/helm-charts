@@ -33,11 +33,11 @@ spec:
 apiVersion: kubesphere.io/v1alpha1
 kind: Category
 metadata:
-  name: monitoring-logging
+  name: observability
 spec:
   displayName:
-    en: Monitoring and logging
-    zh: 监控和日志
+    en: Observability
+    zh: 可观测性
 
 ---
 apiVersion: kubesphere.io/v1alpha1

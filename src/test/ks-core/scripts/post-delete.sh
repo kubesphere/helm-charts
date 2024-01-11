@@ -1,11 +1,13 @@
 #!/usr/bin/env bash
 
-set -x
+# set -x
+
+CRD_NAMES=$1
 
 # delete crds
 for crd in `kubectl get crds -o jsonpath="{.items[*].metadata.name}"`
 do
-  if [[ $crd == *kubesphere.io ]]; then
+  if [[ ${CRD_NAMES[@]/${crd}/} != ${CRD_NAMES[@]} ]]; then
      scop=$(eval echo $(kubectl get crd ${crd} -o jsonpath="{.spec.scope}"))
      if [[ $scop =~ "Namespaced" ]] ; then
         kubectl get $crd -A --no-headers | awk '{print $1" "$2" ""'$crd'"}' | xargs -n 3 sh -c 'kubectl patch $2 -n $0 $1 -p "{\"metadata\":{\"finalizers\":null}}" --type=merge 2>/dev/null && kubectl delete $2 -n $0 $1 2>/dev/null'

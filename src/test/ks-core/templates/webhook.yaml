@@ -77,9 +77,9 @@ webhooks:
     objectSelector: {}
     rules:
       - apiGroups:
-          - '*'
+          - ''
         apiVersions:
-          - '*'
+          - v1
         operations:
           - CREATE
         resources:
