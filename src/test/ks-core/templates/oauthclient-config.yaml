@@ -10,8 +10,6 @@ stringData:
       - 'openid'
       - 'email'
       - 'profile'
-    accessTokenMaxAge: 7200
-    accessTokenInactivityTimeout: 7200
 kind: Secret
 metadata:
   name: oauthclient-kubesphere

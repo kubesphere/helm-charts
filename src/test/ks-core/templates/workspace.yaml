@@ -1,5 +1,5 @@
 {{ if eq .Values.role "host" }}
-apiVersion: tenant.kubesphere.io/v1alpha2
+apiVersion: tenant.kubesphere.io/v1beta1
 kind: WorkspaceTemplate
 metadata:
   annotations:
