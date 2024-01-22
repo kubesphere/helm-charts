@@ -46,10 +46,16 @@ spec:
           spec:
             description: ApplicationSpec defines the desired state of Application
             properties:
+              abstraction:
+                type: string
               appHome:
                 type: string
               appType:
                 type: string
+              attachments:
+                items:
+                  type: string
+                type: array
               icon:
                 type: string
             type: object

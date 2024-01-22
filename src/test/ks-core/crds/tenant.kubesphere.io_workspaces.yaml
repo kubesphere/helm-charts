@@ -16,7 +16,7 @@ spec:
     singular: workspace
   scope: Cluster
   versions:
-  - name: v1alpha1
+  - name: v1beta1
     schema:
       openAPIV3Schema:
         description: Workspace is the Schema for the workspaces API

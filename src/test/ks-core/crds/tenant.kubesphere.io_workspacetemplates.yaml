@@ -16,7 +16,7 @@ spec:
     singular: workspacetemplate
   scope: Cluster
   versions:
-  - name: v1alpha2
+  - name: v1beta1
     schema:
       openAPIV3Schema:
         description: WorkspaceTemplate is the Schema for the workspacetemplates API
@@ -35,29 +35,6 @@ spec:
             type: object
           spec:
             properties:
-              overrides:
-                items:
-                  properties:
-                    clusterName:
-                      type: string
-                    clusterOverrides:
-                      items:
-                        properties:
-                          op:
-                            type: string
-                          path:
-                            type: string
-                          value:
-                            type: object
-                            x-kubernetes-preserve-unknown-fields: true
-                        required:
-                        - path
-                        type: object
-                      type: array
-                  required:
-                  - clusterName
-                  type: object
-                type: array
               placement:
                 properties:
                   clusterSelector:
