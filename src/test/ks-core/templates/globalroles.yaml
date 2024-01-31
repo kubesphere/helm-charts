@@ -4,11 +4,7 @@ metadata:
   name: anonymous
 rules:
   - nonResourceURLs:
-      - /dist/*
-    verbs:
-      - GET
-  - nonResourceURLs:
-      - /static/images/*
+      - '/static/images/*'
     verbs:
       - GET
 
@@ -127,7 +123,7 @@ rules:
       - get
       - list
   - nonResourceURLs:
-      - /static/images/*
+      - '/static/images/*'
     verbs:
       - GET
 

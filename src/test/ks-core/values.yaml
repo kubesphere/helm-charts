@@ -5,12 +5,6 @@ global:
   tag: ksc
   imagePullSecrets: []
 
-## @section Common parameters
-##
-
-## @param kubeVersion Override Kubernetes version
-##
-kubeVersion: ""
 ## @param nameOverride String to partially override common.names.fullname
 ##
 nameOverride: ""
@@ -24,21 +18,32 @@ commonLabels: {}
 ##
 commonAnnotations: {}
 
+## Role represents the role of the current cluster,
+## and it can have one of two values: "host" or "member".
 role: host
+
+portal:
+  ## The IP address or hostname to access ks-console service.
+  ## DO NOT use IP address if ingress is enabled.
+  hostname: "ks-console.kubesphere-system.svc"
+  http:
+    port: 30880
+#  https:
+#    port: 30443
 
 adminPassword: ""
 
-config:
-  # Specifies whether the kubesphere-config configmap should be created
-  create: true
-  authentication:
-    authenticateRateLimiterMaxTries: 10
-    authenticationRateLimiterDuration: 10m0s
-    loginHistoryRetentionPeriod: 168h
+authentication:
+  authenticateRateLimiterMaxTries: 10
+  authenticationRateLimiterDuration: 10m0s
+  loginHistoryRetentionPeriod: 168h
+  enableMultiLogin: true
+  issuer:
     maximumClockSkew: 10s
-    enableMultiLogin: true
-  # Jwt Secret is required by ks-apiserver, a random string would be generated if it's empty
-  jwtSecret: ""
+    # Jwt Secret is required by ks-apiserver, a random string would be generated if it's empty
+    jwtSecret: ""
+    accessTokenMaxAge: 2h
+    accessTokenInactivityTimeout: 30m
 
 serviceAccount:
   # Specifies whether a service account should be created
@@ -46,21 +51,7 @@ serviceAccount:
   # Annotations to add to the service account
   annotations: {}
   # The name of the service account to use.
-  # If not set and create is true, a name is generated using the fullname template
   name: "kubesphere"
-
-podAnnotations: {}
-
-podSecurityContext: {}
-# fsGroup: 2000
-
-securityContext: {}
-# capabilities:
-#   drop:
-#   - ALL
-# readOnlyRootFilesystem: true
-# runAsNonRoot: true
-# runAsUser: 1000
 
 tolerations:
   - key: node-role.kubernetes.io/master
@@ -80,7 +71,8 @@ affinity: {}
 
 nodeSelector: {}
 
-## deployment specific configuration
+## enable tls communication between all components
+internalTLS: false
 
 apiserver:
   replicaCount: 1
@@ -90,10 +82,10 @@ apiserver:
     tag: ""
     digest: ""
     pullPolicy: Always
-    ## Optionally specify an array of imagePullSecrets.
+    ## Optionally, specify an array of imagePullSecrets.
     ## Secrets must be manually created in the namespace.
     ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
-    ## e.g:
+    ## e.g.:
     ## pullSecrets:
     ##   - myRegistryKeySecretName
     ##
@@ -104,10 +96,8 @@ apiserver:
     - protocol: TCP
       containerPort: 9090
   nodePort: 30881
-  ## ks-apiserver resource requests and limits
-  ## ref: https://kubernetes.io/docs/user-guide/compute-resources/
-  ## @param resources.limits The resources limits for the haproxy containers
-  ## @param resources.requests The requested resources for the haproxy containers
+  ## @param resources.limits The resource limits for the ks-apiserver containers
+  ## @param resources.requests The requested resources for the ks-apiserver containers
   ##
   resources:
     limits:
@@ -121,17 +111,17 @@ apiserver:
   command:
     - ks-apiserver
     - --logtostderr=true
-  ## @param extraEnvVars Array with extra environment variables to add to haproxy nodes
-  ## e.g:
+  ## @param extraEnvVars Array with extra environment variables to add to ks-apiserver
+  ## e.g.:
   ## extraEnvVars:
   ##   - name: FOO
   ##     value: "bar"
   ##
   extraEnvVars: []
-  ## @param extraVolumeMounts Optionally specify extra list of additional volumeMounts for the haproxy container(s)
+  ## @param extraVolumeMounts Optionally specify an extra list of additional volumeMounts for the ks-apiserver container(s)
   ##
   extraVolumeMounts: []
-  ## @param extraVolumes Optionally specify extra list of additional volumes for the haproxy pod(s)
+  ## @param extraVolumes Optionally specify an extra list of additional volumes for the ks-apiserver pod(s)
   ##
   extraVolumes: []
 
@@ -143,21 +133,20 @@ console:
     tag: ""
     digest: ""
     pullPolicy: Always
-    ## Optionally specify an array of imagePullSecrets.
+    ## Optionally, specify an array of imagePullSecrets.
     ## Secrets must be manually created in the namespace.
     ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
-    ## e.g:
+    ## e.g.:
     ## pullSecrets:
     ##   - myRegistryKeySecretName
     ##
     pullSecrets: []
-  ## @param containerPorts [array] List of container ports to enable in the ks-apiserver container
+  ## @param containerPorts [array] List of container ports to enable in the ks-console container
   ##
   containerPorts: []
   nodePort: 30880
-  defaultClusterName: "default"
-  ## @param resources.limits The resources limits for the haproxy containers
-  ## @param resources.requests The requested resources for the haproxy containers
+  ## @param resources.limits The resource limits for the ks-console containers
+  ## @param resources.requests The requested resources for the ks-console containers
   ##
   resources:
     limits:
@@ -169,13 +158,13 @@ console:
   ## @param command Override default container command (useful when using custom images)
   ##
   command: []
-  ## @param extraEnvVars Array with extra environment variables to add to haproxy nodes
+  ## @param extraEnvVars Array with extra environment variables to add to ks-console
   ##
   extraEnvVars: []
-  ## @param extraVolumeMounts Optionally specify extra list of additional volumeMounts for the haproxy container(s)
+  ## @param extraVolumeMounts Optionally specify an extra list of additional volumeMounts for the ks-console container(s)
   ##
   extraVolumeMounts: []
-  ## @param extraVolumes Optionally specify extra list of additional volumes for the haproxy pod(s)
+  ## @param extraVolumes Optionally specify an extra list of additional volumes for the ks-console pod(s)
   ##
   extraVolumes: []
 
@@ -187,23 +176,23 @@ controller:
     tag: ""
     digest: ""
     pullPolicy: Always
-    ## Optionally specify an array of imagePullSecrets.
+    ## Optionally, specify an array of imagePullSecrets.
     ## Secrets must be manually created in the namespace.
     ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
-    ## e.g:
+    ## e.g.:
     ## pullSecrets:
     ##   - myRegistryKeySecretName
     ##
     pullSecrets: []
-  ## @param containerPorts [array] List of container ports to enable in the ks-apiserver container
+  ## @param containerPorts [array] List of container ports to enable in the ks-controller-manager container
   ##
   containerPorts:
     - containerPort: 8080
       protocol: TCP
     - containerPort: 8443
       protocol: TCP
-  ## @param resources.limits The resources limits for the haproxy containers
-  ## @param resources.requests The requested resources for the haproxy containers
+  ## @param resources.limits The resource limits for the ks-controller-manager containers
+  ## @param resources.requests The requested resources for the ks-controller-manager containers
   ##
   resources:
     limits:
@@ -219,13 +208,13 @@ controller:
     - --logtostderr=true
     - --leader-elect=true
     - --controllers=*
-  ## @param extraEnvVars Array with extra environment variables to add to haproxy nodes
+  ## @param extraEnvVars Array with extra environment variables to add to ks-controller-manager
   ##
   extraEnvVars: []
-  ## @param extraVolumeMounts Optionally specify extra list of additional volumeMounts for the haproxy container(s)
+  ## @param extraVolumeMounts Optionally specify an extra list of additional volumeMounts for the ks-controller-manager container(s)
   ##
   extraVolumeMounts: []
-  ## @param extraVolumes Optionally specify extra list of additional volumes for the haproxy pod(s)
+  ## @param extraVolumes Optionally specify an extra list of additional volumes for the ks-controller-manager pod(s)
   ##
   extraVolumes: []
 
@@ -245,13 +234,6 @@ kubectl:
     repository: kubesphereio/kubectl
     tag: "v1.27.4"
     pullPolicy: IfNotPresent
-
-# Set to enable/disable internal tls
-# - false (default)
-# - true
-internalTLS: false
-
-hostname: example.com
 
 ingress:
   # If set to false, ingress will not be created
@@ -286,7 +268,8 @@ nodeShell:
 
 extension:
   imageRegistry: ""
-  nodeSelector: {}
+  nodeSelector:
+    key: value
 
 upgrade:
   disabled: false

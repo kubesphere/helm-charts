@@ -1,4 +1,4 @@
-{{- $ca := genCA "ks-controller-manager-ca" 3650 }}
+{{- $ca := genCA "self-signed-ca" 3650 }}
 {{- $cn := printf "%s-admission-webhook" .Release.Name }}
 {{- $altName1 := printf "ks-controller-manager.%s" .Release.Namespace }}
 {{- $altName2 := printf "ks-controller-manager.%s.svc" .Release.Namespace }}
@@ -30,7 +30,7 @@ webhooks:
         namespace: kubesphere-system
         path: /validate-iam-kubesphere-io-v1beta1-user
         port: 443
-    failurePolicy: Fail
+    failurePolicy: Ignore
     matchPolicy: Exact
     name: users.iam.kubesphere.io
     namespaceSelector: {}
@@ -192,7 +192,7 @@ webhooks:
         namespace: kubesphere-system
         path: /validate--v1-secret
         port: 443
-    failurePolicy: Fail
+    failurePolicy: Ignore
     matchPolicy: Exact
     name: validator.config.kubesphere.io
     namespaceSelector: {}
@@ -330,7 +330,7 @@ webhooks:
         namespace: kubesphere-system
         path: /mutate--v1-secret
         port: 443
-    failurePolicy: Fail
+    failurePolicy: Ignore
     matchPolicy: Exact
     name: defaulter.config.kubesphere.io
     namespaceSelector: {}

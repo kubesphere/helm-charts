@@ -26,9 +26,8 @@ data:
     client:
       version:
         kubesphere: {{ .Chart.AppVersion }}
-        kubernetes: {{ .Values.kubeVersion }}
+        kubernetes: {{ .Capabilities.KubeVersion.Version }}
       enableKubeConfig: true
-    defaultClusterName: {{ .Values.console.defaultClusterName }}
 kind: ConfigMap
 metadata:
   name: ks-console-config
