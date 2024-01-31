@@ -2,7 +2,7 @@
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
-  name: {{ template "ks-core.fullname" . }}
+  name: ks-console
   namespace: {{ .Release.Namespace }}
   annotations:
     {{- if .Values.internalTLS }}
@@ -34,7 +34,7 @@ spec:
   ingressClassName: {{ .Values.ingress.ingressClassName }}
   {{- end }}
   rules:
-    - host: {{ .Values.hostname }}
+    - host: {{ .Values.portal.hostname }}
       http:
         paths:
           - backend:
@@ -61,7 +61,7 @@ spec:
 {{- if .Values.ingress.tls.enabled }}
   tls:
     - hosts:
-        - {{ .Values.hostname }}
+        - {{ .Values.portal.hostname }}
       secretName: {{ .Values.ingress.tls.secretName }}
 {{- end }}
 {{- end }}

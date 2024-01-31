@@ -1,30 +1,24 @@
-{{- if .Values.config.create -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: kubesphere-config
-  namespace: kubesphere-system
 data:
   kubesphere.yaml: |
     authentication:
-      authenticateRateLimiterMaxTries: {{ .Values.config.authentication.authenticateRateLimiterMaxTries | default 10 }}
-      authenticateRateLimiterDuration: {{ .Values.config.authentication.authenticationRateLimiterDuration | default "10m0s" }}
-      loginHistoryRetentionPeriod: {{ .Values.config.authentication.loginHistoryRetentionPeriod | default "168h"  }}
-      maximumClockSkew: {{ .Values.config.authentication.maximumClockSkew | default "10s" }}
-      multipleLogin: {{ .Values.config.authentication.enableMultiLogin | default true }}
-{{- if eq .Values.role "host" }}
-      {{- with lookup "v1" "ConfigMap" (printf "%s" .Release.Namespace) "kubesphere-config" }}
-      jwtSecret: "{{ (fromYaml (index .data "kubesphere.yaml")).authentication.jwtSecret }}"
-      {{- else }}
-      jwtSecret: "{{ .Values.config.jwtSecret | default (randAlphaNum 32 ) }}"
-      {{- end }}
-{{- else }}
-      jwtSecret: "{{ .Values.config.jwtSecret }}"
-{{- end }}
-{{- if eq .Values.role "member" }}
-      oauthOptions:
+      authenticateRateLimiterMaxTries: {{ .Values.authentication.authenticateRateLimiterMaxTries | default 10 }}
+      authenticateRateLimiterDuration: {{ .Values.authentication.authenticationRateLimiterDuration | default "10m0s" }}
+      loginHistoryRetentionPeriod: {{ .Values.authentication.loginHistoryRetentionPeriod | default "168h"  }}
+      multipleLogin: {{ .Values.authentication.enableMultiLogin | default true }}
+      issuer:
+        host: {{ include "portal.host" . | quote }}
+        jwtSecret: {{ include "jwtSecret" . | quote }}
+        maximumClockSkew: {{ .Values.authentication.issuer.maximumClockSkew | default "10s" }}
+        {{- if eq .Values.role "member" }}
         accessTokenMaxAge: 0
-{{- end }}
+        {{- else }}
+        accessTokenMaxAge:  {{ .Values.authentication.issuer.accessTokenMaxAge }}
+        {{- end }}
+        accessTokenInactivityTimeout:  {{ .Values.authentication.issuer.accessTokenInactivityTimeout }}
     multicluster:
       clusterRole: {{ .Values.role }}
     terminal:
@@ -35,11 +29,11 @@ data:
     helmExecutor:
       image: {{ template "helm.image" . }}
     extension:
-      imageRegistry: {{- .Values.extension.imageRegistry  }}
+      imageRegistry: {{ default .Values.extension.imageRegistry "" | quote }}
+      {{- if .Values.extension.nodeSelector }}
       nodeSelector: {{- toYaml .Values.extension.nodeSelector | nindent 8 }}
-
-{{- if .Values.devMode }}
+      {{- end }}
+    {{- if .Values.devMode }}
     telemetry:
       ksCloudURL: "https://clouddev.kubesphere.io"
-{{- end }}
-{{- end }}
+    {{- end }}

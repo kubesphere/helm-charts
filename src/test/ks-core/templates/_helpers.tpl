@@ -55,10 +55,42 @@ app.kubernetes.io/instance: {{ .Release.Name }}
 Create the name of the service account to use
 */}}
 {{- define "ks-core.serviceAccountName" -}}
-{{- if .Values.serviceAccount.create }}
-    {{- default (include "ks-core.fullname" .) .Values.serviceAccount.name }}
+{{- default "kubesphere" .Values.serviceAccount.name }}
+{{- end }}
+
+{{- define "portal.host" -}}
+{{- if and .Values.portal.https .Values.portal.https.port }}
+{{- if eq (int .Values.portal.https.port) 443 }}
+{{- printf "https://%s" .Values.portal.hostname }}
 {{- else }}
-    {{- default "default" .Values.serviceAccount.name }}
+{{- printf "https://%s:%d" .Values.portal.hostname (int .Values.portal.https.port) }}
+{{- end }}
+{{- else }}
+{{- if eq (int .Values.portal.http.port) 80 }}
+{{- printf "http://%s" .Values.portal.hostname }}
+{{- else }}
+{{- printf "http://%s:%d" .Values.portal.hostname (int .Values.portal.http.port) }}
+{{- end }}
+{{- end }}
+{{- end }}
+
+{{- define "jwtSecret" -}}
+{{- if eq .Values.role "host" }}
+{{- with lookup "v1" "ConfigMap" (printf "%s" .Release.Namespace) "kubesphere-config" }}
+{{- with (fromYaml (index .data "kubesphere.yaml")) }}
+{{- if and .authentication .authentication.issuer .authentication.issuer.jwtSecret }}
+{{- .authentication.issuer.jwtSecret }}
+{{- else }}
+{{- $.Values.authentication.issuer.jwtSecret | default (randAlphaNum 32 ) }}
+{{- end }}
+{{- else }}
+{{- $.Values.authentication.issuer.jwtSecret | default (randAlphaNum 32 ) }}
+{{- end }}
+{{- else }}
+{{- $.Values.authentication.issuer.jwtSecret | default (randAlphaNum 32 ) }}
+{{- end }}
+{{- else }}
+{{- .Values.authentication.issuer.jwtSecret }}
 {{- end }}
 {{- end }}
 
