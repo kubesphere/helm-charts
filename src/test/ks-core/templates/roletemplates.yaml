@@ -728,7 +728,7 @@ apiVersion: iam.kubesphere.io/v1beta1
 kind: RoleTemplate
 metadata:
   annotations:
-    iam.kubesphere.io/dependencies: '["cluster-view-volumes"]'
+    iam.kubesphere.io/dependencies: '["cluster-view-persistentvolumeclaim"]'
     iam.kubesphere.io/role-template-rules: '{"storageclasses": "view"}'
   labels:
     iam.kubesphere.io/category: cluster-storage-management
@@ -747,7 +747,7 @@ apiVersion: iam.kubesphere.io/v1beta1
 kind: RoleTemplate
 metadata:
   annotations:
-    iam.kubesphere.io/dependencies: '["cluster-view-volumes", "cluster-view-storageclasses"]'
+    iam.kubesphere.io/dependencies: '["cluster-view-persistentvolumeclaim", "cluster-view-storageclasses"]'
     iam.kubesphere.io/role-template-rules: '{"storageclasses": "manage"}'
   labels:
     iam.kubesphere.io/category: cluster-storage-management
@@ -765,13 +765,13 @@ apiVersion: iam.kubesphere.io/v1beta1
 kind: RoleTemplate
 metadata:
   annotations:
-    iam.kubesphere.io/role-template-rules: '{"volumes": "view"}'
+    iam.kubesphere.io/role-template-rules: '{"persistentvolumeclaim": "view"}'
   labels:
     iam.kubesphere.io/category: cluster-storage-management
     iam.kubesphere.io/aggregate-to-cluster-viewer: ""
     iam.kubesphere.io/scope: "cluster"
     kubesphere.io/managed: 'true'
-  name: cluster-view-volumes
+  name: cluster-view-persistentvolumeclaim
 spec:
   displayName:
     en: Persistent Volume Claim Viewing
@@ -783,13 +783,13 @@ apiVersion: iam.kubesphere.io/v1beta1
 kind: RoleTemplate
 metadata:
   annotations:
-    iam.kubesphere.io/dependencies: '["cluster-view-volumes", "cluster-view-storageclasses"]'
-    iam.kubesphere.io/role-template-rules: '{"volumes": "manage"}'
+    iam.kubesphere.io/dependencies: '["cluster-view-persistentvolumeclaim", "cluster-view-storageclasses"]'
+    iam.kubesphere.io/role-template-rules: '{"persistentvolumeclaim": "manage"}'
   labels:
     iam.kubesphere.io/category: cluster-storage-management
     iam.kubesphere.io/scope: "cluster"
     kubesphere.io/managed: 'true'
-  name: cluster-manage-volumes
+  name: cluster-manage-persistentvolumeclaim
 spec:
   displayName:
     en: Persistent Volume Claim Management
@@ -1484,7 +1484,6 @@ spec:
         - '*'
       resources:
         - secrets
-        - secrets
       verbs:
         - list
 
@@ -1668,21 +1667,20 @@ apiVersion: iam.kubesphere.io/v1beta1
 kind: RoleTemplate
 metadata:
   annotations:
-    iam.kubesphere.io/dependencies: '["namespace-view-snapshots"]'
-    iam.kubesphere.io/role-template-rules: '{"volumes": "view"}'
+    iam.kubesphere.io/role-template-rules: '{"persistentvolumeclaims": "view"}'
   labels:
     iam.kubesphere.io/aggregate-to-operator: ""
     iam.kubesphere.io/aggregate-to-viewer: ""
     iam.kubesphere.io/category: namespace-storage-management
     iam.kubesphere.io/scope: "namespace"
     kubesphere.io/managed: "true"
-  name: namespace-view-volumes
+  name: namespace-view-persistentvolumeclaims
 spec:
   description:
     en: 'View persistent volume claims in the project.'
     zh: '查看项目中的持久卷声明。'
   displayName:
-    en: Volume Viewing
+    en: PersistentVolumeClaims Viewing
     zh: '持久卷声明查看'
   rules:
     - apiGroups:
@@ -1705,20 +1703,20 @@ apiVersion: iam.kubesphere.io/v1beta1
 kind: RoleTemplate
 metadata:
   annotations:
-    iam.kubesphere.io/dependencies: '["namespace-view-volumes","namespace-manage-snapshots"]'
-    iam.kubesphere.io/role-template-rules: '{"volumes": "manage"}'
+    iam.kubesphere.io/dependencies: '["namespace-view-persistentvolumeclaims"]'
+    iam.kubesphere.io/role-template-rules: '{"persistentvolumeclaims": "manage"}'
   labels:
     iam.kubesphere.io/aggregate-to-operator: ""
     iam.kubesphere.io/category: namespace-storage-management
     iam.kubesphere.io/scope: "namespace"
     kubesphere.io/managed: "true"
-  name: namespace-manage-volumes
+  name: namespace-manage-persistentvolumeclaims
 spec:
   description:
     en: 'Create, edit, and delete persistent volume claims in the project.'
     zh: '创建、编辑和删除项目中的持久卷声明。'
   displayName:
-    en: Volume Management
+    en: PersistentVolumeClaims Management
     zh: 持久卷声明管理
   rules:
     - apiGroups:
