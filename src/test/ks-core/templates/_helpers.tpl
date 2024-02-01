@@ -59,7 +59,7 @@ Create the name of the service account to use
 {{- end }}
 
 {{- define "portal.host" -}}
-{{- if and .Values.portal.https .Values.portal.https.port }}
+{{- if and .Values.portal.https (.Values.portal.https).port }}
 {{- if eq (int .Values.portal.https.port) 443 }}
 {{- printf "https://%s" .Values.portal.hostname }}
 {{- else }}
