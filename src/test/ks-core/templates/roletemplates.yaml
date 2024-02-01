@@ -1835,11 +1835,11 @@ metadata:
   name: workspace-view-app-templates
 spec:
   description:
-    en: 'Workspace App Templates View'
-    zh: '企业空间查看应用模板，应用版本模板等。'
+    en: 'Application/application version/application instance view'
+    zh: '应用/应用版本/应用实例查看'
   displayName:
-    en: 'Workspace App Templates View'
-    zh: '应用模板查看'
+    en: 'Application/application version/application instance view'
+    zh: '应用/应用版本/应用实例查看'
   rules:
     - apiGroups:
         - application.kubesphere.io
@@ -1847,9 +1847,73 @@ spec:
         - 'apps'
         - 'apps/versions'
         - 'applications'
+        - 'attachments'
       verbs:
         - get
         - list
+---
+apiVersion: iam.kubesphere.io/v1beta1
+kind: RoleTemplate
+metadata:
+  annotations:
+    iam.kubesphere.io/role-template-rules: '{"app-templates": "view"}'
+  labels:
+    iam.kubesphere.io/category: workspace-app
+    iam.kubesphere.io/scope: workspace
+    kubesphere.io/managed: "true"
+    iam.kubesphere.io/aggregate-to-viewer: ""
+  name: workspace-view-create-app-templates
+spec:
+  description:
+    en: 'Workspace Application/application version/application instance view and create'
+    zh: '应用/应用版本/应用实例查看和创建'
+  displayName:
+    en: 'Workspace Application/application version/application instance view and create'
+    zh: '应用/应用版本/应用实例查看和创建'
+  rules:
+    - apiGroups:
+        - application.kubesphere.io
+      resources:
+        - 'apps'
+        - 'apps/versions'
+        - 'applications'
+        - 'attachments'
+      verbs:
+        - get
+        - list
+        - create
+        - update
+        - patch
+
+---
+apiVersion: iam.kubesphere.io/v1beta1
+kind: RoleTemplate
+metadata:
+  annotations:
+    iam.kubesphere.io/role-template-rules: '{"app-templates": "view"}'
+  labels:
+    iam.kubesphere.io/category: workspace-app
+    iam.kubesphere.io/scope: workspace
+    kubesphere.io/managed: "true"
+    iam.kubesphere.io/aggregate-to-viewer: ""
+  name: workspace-delete-app-templates
+spec:
+  description:
+    en: 'Workspace Application/application version/application instance deletion'
+    zh: '应用/应用版本/应用实例删除'
+  displayName:
+    en: 'Application/application version/application instance deletion'
+    zh: '应用/应用版本/应用实例删除'
+  rules:
+    - apiGroups:
+        - application.kubesphere.io
+      resources:
+        - 'apps'
+        - 'apps/versions'
+        - 'applications'
+        - 'attachments'
+      verbs:
+        - delete
 
 ---
 apiVersion: iam.kubesphere.io/v1beta1
@@ -1857,7 +1921,7 @@ kind: RoleTemplate
 metadata:
   annotations:
     iam.kubesphere.io/role-template-rules: '{"app-templates": "manage"}'
-    iam.kubesphere.io/dependencies: '["workspace-view-app-templates"]'
+    iam.kubesphere.io/dependencies: '["workspace-view-app-templates","workspace-view-create-app-templates","workspace-delete-app-templates"]'
   labels:
     iam.kubesphere.io/category: workspace-app
     iam.kubesphere.io/scope: workspace
@@ -1867,11 +1931,11 @@ metadata:
   name: workspace-manage-app-templates
 spec:
   description:
-    en: 'Workspace App Templates Management'
-    zh: '企业空间上传应用模板，应用版本模板等。'
+    en: 'Workspace applications/application versions/application instance management'
+    zh: '应用/应用版本/应用实例管理'
   displayName:
-    en: 'Workspace App Templates Management'
-    zh: '应用模板管理'
+    en: 'Workspace applications/application versions/application instance management'
+    zh: '应用/应用版本/应用实例管理'
   rules:
     - apiGroups:
         - application.kubesphere.io
@@ -1879,6 +1943,7 @@ spec:
         - 'apps'
         - 'apps/versions'
         - 'applications'
+        - 'attachments'
       verbs:
         - '*'
 
@@ -1907,6 +1972,7 @@ spec:
         - application.kubesphere.io
       resources:
         - applications
+        - attachments
       verbs:
         - get
         - list
@@ -1917,7 +1983,7 @@ kind: RoleTemplate
 metadata:
   annotations:
     iam.kubesphere.io/role-template-rules: '{"app-releases": "manage"}'
-    iam.kubesphere.io/dependencies: '["namespace-view-app-releases"]'
+    iam.kubesphere.io/dependencies: '["namespace-view-app-releases","namespace-delete-app-releases","namespace-create-app-releases"]'
   labels:
     iam.kubesphere.io/category: namespace-app
     iam.kubesphere.io/scope: namespace
@@ -1928,14 +1994,72 @@ metadata:
 spec:
   description:
     en: 'Namespace App Releases Management'
-    zh: '项目下部署升级应用实例。'
+    zh: '项目下应用实例管理'
   displayName:
     en: 'Namespace App Releases Management'
-    zh: '应用实例部署升级'
+    zh: '应用实例管理'
   rules:
     - apiGroups:
         - application.kubesphere.io
       resources:
         - applications
+        - attachments
       verbs:
         - '*'
+---
+apiVersion: iam.kubesphere.io/v1beta1
+kind: RoleTemplate
+metadata:
+  annotations:
+    iam.kubesphere.io/role-template-rules: '{"app-releases": "manage"}'
+  labels:
+    iam.kubesphere.io/category: namespace-app
+    iam.kubesphere.io/scope: namespace
+    kubesphere.io/managed: "true"
+    iam.kubesphere.io/aggregate-to-operator: ""
+    iam.kubesphere.io/aggregate-to-admin: ""
+  name: namespace-delete-app-releases
+spec:
+  description:
+    en: 'Namespace Application instance deletion'
+    zh: '项目下应用实例删除'
+  displayName:
+    en: 'Namespace Application instance deletion'
+    zh: '应用实例删除'
+  rules:
+    - apiGroups:
+        - application.kubesphere.io
+      resources:
+        - applications
+        - attachments
+      verbs:
+        - delete
+
+---
+apiVersion: iam.kubesphere.io/v1beta1
+kind: RoleTemplate
+metadata:
+  annotations:
+    iam.kubesphere.io/role-template-rules: '{"app-releases": "manage"}'
+  labels:
+    iam.kubesphere.io/category: namespace-app
+    iam.kubesphere.io/scope: namespace
+    kubesphere.io/managed: "true"
+    iam.kubesphere.io/aggregate-to-operator: ""
+    iam.kubesphere.io/aggregate-to-admin: ""
+  name: namespace-create-app-releases
+spec:
+  description:
+    en: 'Namespace Application instance create'
+    zh: '项目下应用实例创建'
+  displayName:
+    en: 'Namespace Application instance create'
+    zh: '应用实例创建'
+  rules:
+    - apiGroups:
+        - application.kubesphere.io
+      resources:
+        - applications
+        - attachments
+      verbs:
+        - post
