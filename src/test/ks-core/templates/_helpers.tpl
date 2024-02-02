@@ -98,10 +98,10 @@ Create the name of the service account to use
 Returns user's password or use default
 */}}
 {{- define "getOrDefaultPass" }}
-{{- if not .Values.adminPassword -}}
+{{- if not .Values.authentication.adminPassword -}}
 {{- printf "$2a$10$zcHepmzfKPoxCVCYZr5K7ORPZZ/ySe9p/7IUb/8u./xHrnSX2LOCO" -}}
 {{- else -}}
-{{- printf "%s" .Values.adminPassword -}}
+{{- printf "%s" .Values.authentication.adminPassword -}}
 {{- end -}}
 {{- end }}
 
@@ -109,10 +109,10 @@ Returns user's password or use default
 Returns user's password or use default. Used by NOTES.txt
 */}}
 {{- define "printOrDefaultPass" }}
-{{- if not .Values.adminPassword -}}
+{{- if not .Values.authentication.adminPassword -}}
 {{- printf "P@88w0rd" -}}
 {{- else -}}
-{{- printf "%s" .Values.adminPassword -}}
+{{- printf "%s" .Values.authentication.adminPassword -}}
 {{- end -}}
 {{- end }}
 
