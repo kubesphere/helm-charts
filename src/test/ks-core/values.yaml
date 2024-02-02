@@ -2,7 +2,7 @@
 ## @param global.tag Global Docker image tag
 global:
   imageRegistry: registry.cn-beijing.aliyuncs.com
-  tag: ksc
+  tag: v4.1.0-alpha.0
   imagePullSecrets: []
 
 ## @param nameOverride String to partially override common.names.fullname
@@ -31,13 +31,12 @@ portal:
 #  https:
 #    port: 30443
 
-adminPassword: ""
-
 authentication:
   authenticateRateLimiterMaxTries: 10
   authenticationRateLimiterDuration: 10m0s
   loginHistoryRetentionPeriod: 168h
   enableMultiLogin: true
+  adminPassword: ""
   issuer:
     maximumClockSkew: 10s
     # Jwt Secret is required by ks-apiserver, a random string would be generated if it's empty
