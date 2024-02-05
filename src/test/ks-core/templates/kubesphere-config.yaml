@@ -33,6 +33,8 @@ data:
       {{- if .Values.extension.nodeSelector }}
       nodeSelector: {{- toYaml .Values.extension.nodeSelector | nindent 8 }}
       {{- end }}
+    kubesphere:
+      tls: {{ .Values.internalTLS }}
     {{- if .Values.devMode }}
     telemetry:
       ksCloudURL: "https://clouddev.kubesphere.io"
