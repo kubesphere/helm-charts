@@ -78,7 +78,9 @@ Create the name of the service account to use
 {{- if eq .Values.role "host" }}
 {{- with lookup "v1" "ConfigMap" (printf "%s" .Release.Namespace) "kubesphere-config" }}
 {{- with (fromYaml (index .data "kubesphere.yaml")) }}
-{{- if and .authentication (.authentication).issuer ((.authentication).issuer).jwtSecret }}
+{{- if and .authentication (.authentication).jwtSecret }}
+{{- .authentication.jwtSecret }}
+{{- else if and .authentication (.authentication).issuer ((.authentication).issuer).jwtSecret }}
 {{- .authentication.issuer.jwtSecret }}
 {{- else }}
 {{- $.Values.authentication.issuer.jwtSecret | default (randAlphaNum 32 ) }}

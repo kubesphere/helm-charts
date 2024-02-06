@@ -267,8 +267,7 @@ nodeShell:
 
 extension:
   imageRegistry: ""
-  nodeSelector:
-    key: value
+  nodeSelector: {}
 
 upgrade:
   disabled: true
@@ -445,7 +444,7 @@ upgrade:
       configMapKey: "chart.tgz"
       configMapNamespace: "kubesphere-system"
       chartsPath: ""
-      installationMode: HostOnly
+      installationMode: Multicluster
   servicemesh:
     disabled: false
     priority: 100
@@ -457,10 +456,10 @@ upgrade:
       configMapKey: "chart.tgz"
       configMapNamespace: "kubesphere-system"
       chartsPath: ""
-      installationMode: HostOnly
+      installationMode: Multicluster
       config: |
         kiali:
-          prometheus_url: http://prometheus-operated.kubesphere-monitoring-system.svc:9090
+          prometheus_url: http://prometheus-k8s.kubesphere-monitoring-system.svc:9090
         jaeger:
           storage:
             options:
@@ -619,7 +618,7 @@ upgrade:
       configMapKey: "chart.tgz"
       configMapNamespace: "kubesphere-system"
       chartsPath: ""
-      installationMode: HostOnly
+      installationMode: Multicluster
 
   whizard-auditing:
     disabled: false
