@@ -13,7 +13,7 @@ spec:
     rollingUpdate:
       maxSurge: 0
     type: RollingUpdate
-  replicas: {{ .Values.console.replicaCount }}
+  replicas: {{ if .Values.ha.enabled }} 3 {{ else }} 1 {{ end }}
   selector:
     matchLabels:
       app: ks-console

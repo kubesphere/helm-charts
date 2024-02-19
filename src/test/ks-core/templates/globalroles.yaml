@@ -3,6 +3,13 @@ kind: GlobalRole
 metadata:
   name: anonymous
 rules:
+  - apiGroups:
+      - config.kubesphere.io
+    resources:
+      - configs
+    verbs:
+      - get
+      - list
   - nonResourceURLs:
       - '/static/images/*'
     verbs:

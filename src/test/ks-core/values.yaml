@@ -2,7 +2,7 @@
 ## @param global.tag Global Docker image tag
 global:
   imageRegistry: registry.cn-beijing.aliyuncs.com
-  tag: v4.1.0-alpha.0
+  tag: v4.1.0-alpha.1
   imagePullSecrets: []
 
 ## @param nameOverride String to partially override common.names.fullname
@@ -74,7 +74,6 @@ nodeSelector: {}
 internalTLS: false
 
 apiserver:
-  replicaCount: 1
   image:
     registry: ""
     repository: kse/ks-apiserver
@@ -125,7 +124,6 @@ apiserver:
   extraVolumes: []
 
 console:
-  replicaCount: 1
   image:
     registry: ""
     repository: kse/ks-console
@@ -168,7 +166,6 @@ console:
   extraVolumes: []
 
 controller:
-  replicaCount: 1
   image:
     registry: ""
     repository: kse/ks-controller-manager
@@ -226,6 +223,28 @@ helm:
     repository: kubesphereio/helm
     tag: "v3.12.1"
     pullPolicy: IfNotPresent
+
+ha:
+  enabled: false
+#  cache:
+#    type: redis
+#    options:
+#      host: ""
+#      port: 6379
+#      password: ""
+#      db: 0
+
+redis:
+  replicaCount: 1
+  image:
+    registry: ""
+    repository: redis
+    digest: ""
+    tag: "5.0.14-alpine"
+    pullPolicy: IfNotPresent
+  pvc:
+    enabled: true
+    size: 10Gi
 
 kubectl:
   image:

@@ -14,7 +14,7 @@ spec:
       maxSurge: 0
     type: RollingUpdate
   progressDeadlineSeconds: 600
-  replicas: {{ .Values.controller.replicaCount }}
+  replicas: {{ if .Values.ha.enabled }}3{{ else }}1{{ end }}
   revisionHistoryLimit: 10
   selector:
     matchLabels:
