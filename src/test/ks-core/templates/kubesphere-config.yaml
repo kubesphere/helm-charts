@@ -39,3 +39,16 @@ data:
     telemetry:
       ksCloudURL: "https://clouddev.kubesphere.io"
     {{- end }}
+    {{- if .Values.ha.enabled -}}
+    {{- if .Values.ha.cache }}
+    cache: {{- toYaml .Values.ha.cache | nindent 6}}
+    {{- else }}
+    cache:
+      type: redis
+      options:
+          host: redis.kubesphere-system.svc
+          port: 6379
+          password: KUBESPHERE_CACHE_OPTIONS_PASSWORD
+          db: 0
+    {{- end }}
+    {{- end }}

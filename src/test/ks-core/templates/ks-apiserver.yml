@@ -13,7 +13,7 @@ spec:
     rollingUpdate:
       maxSurge: 0
     type: RollingUpdate
-  replicas: {{ .Values.apiserver.replicaCount }}
+  replicas: {{ if .Values.ha.enabled }} 3 {{ else }} 1 {{ end }}
   selector:
     matchLabels:
       app: ks-apiserver
@@ -83,6 +83,14 @@ spec:
             - name: tls-cert
               mountPath: /etc/kubesphere/pki/
           {{- end }}
+          {{ if .Values.ha.enabled }}
+          env:
+            - name: KUBESPHERE_CACHE_OPTIONS_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: redis-secret
+                  key: auth
+          {{ end }}
       volumes:
         - configMap:
             defaultMode: 420

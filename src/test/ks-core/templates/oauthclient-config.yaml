@@ -16,6 +16,5 @@ metadata:
   namespace: kubesphere-system
   labels:
     config.kubesphere.io/type: oauthclient
-    config.kubesphere.io/oauthclient-name: kubesphere
 type: config.kubesphere.io/oauthclient
 {{ end }}
