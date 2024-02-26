@@ -7,7 +7,7 @@ icon: https://upload.wikimedia.org/wikipedia/commons/thumb/7/71/RabbitMQ_logo.sv
 sources:
 - https://github.com/kubesphere/helm-charts/tree/master/src/test/rabbitmq
 maintainers:
-- name: KubeSphere
+- name: KubeSphere Community
   email: kubesphere@yunify.com
 annotations:
   "app.kubesphere.io/category": "Message Queueing"

@@ -7,7 +7,7 @@ icon: https://upload.wikimedia.org/wikipedia/en/6/6b/Redis_Logo.svg
 sources:
 - https://github.com/kubesphere/helm-charts/tree/master/src/test/redis
 maintainers:
-- name: KubeSphere
+- name: RadonDB Community
   email: kubesphere@yunify.com
 annotations:
   "app.kubesphere.io/category": "Database & Cache"
