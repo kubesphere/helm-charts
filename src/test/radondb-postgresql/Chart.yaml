@@ -17,7 +17,7 @@ keywords:
 - high availability
 maintainers:
 - email: radondb@yunify.com
-  name: RadonDB
+  name: KubeSphere Community
 
 name: postgresql
 sources:

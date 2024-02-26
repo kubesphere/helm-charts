@@ -35,7 +35,7 @@ keywords:
 
 maintainers:
 - email: radondb@yunify.com
-  name: RadonDB
+  name: KubeSphere Community
 
 annotations:
   "app.kubesphere.io/category": "Database & Cache"
