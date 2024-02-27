@@ -26,6 +26,7 @@ data:
         image: {{ template "kubectl.image" . }}
       node:
         image:  {{ template "nodeShell.image" . }}
+      uploadFileLimit: 100Mi
     helmExecutor:
       image: {{ template "helm.image" . }}
     extension:
@@ -52,3 +53,5 @@ data:
           db: 0
     {{- end }}
     {{- end }}
+    composedApp:
+      appSelector: {{ .Values.composedApp.appSelector | quote }}

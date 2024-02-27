@@ -10,7 +10,7 @@ stringData:
     subscription:
       syncPeriod: 60m
     repository:
-      url: https://clouddev.kubesphere.io
+      url: https://app.clouddev.kubesphere.io
       repoName: marketplace
       syncPeriod: 60m
 {{- else }}

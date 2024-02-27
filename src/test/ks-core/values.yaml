@@ -224,6 +224,10 @@ helm:
     tag: "v3.12.1"
     pullPolicy: IfNotPresent
 
+composedApp:
+  # Selector to filter k8s applications to reconcile
+  appSelector: ""
+
 ha:
   enabled: false
 #  cache:

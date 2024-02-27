@@ -21,14 +21,19 @@ spec:
       openAPIV3Schema:
         properties:
           apiVersion:
-            description: 'APIVersion defines the versioned schema of this representation
-              of an object. Servers should convert recognized schemas to the latest
-              internal value, and may reject unrecognized values. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources'
+            description: |-
+              APIVersion defines the versioned schema of this representation of an object.
+              Servers should convert recognized schemas to the latest internal value, and
+              may reject unrecognized values.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#resources
             type: string
           kind:
-            description: 'Kind is a string value representing the REST resource this
-              object represents. Servers may infer this from the endpoint the client
-              submits requests to. Cannot be updated. In CamelCase. More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds'
+            description: |-
+              Kind is a string value representing the REST resource this object represents.
+              Servers may infer this from the endpoint the client submits requests to.
+              Cannot be updated.
+              In CamelCase.
+              More info: https://git.k8s.io/community/contributors/devel/sig-architecture/api-conventions.md#types-kinds
             type: string
           metadata:
             type: object
@@ -46,8 +51,10 @@ spec:
                     description: The key to select.
                     type: string
                   name:
-                    description: 'Name of the referent. More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
-                      TODO: Add other useful fields. apiVersion, kind, uid?'
+                    description: |-
+                      Name of the referent.
+                      More info: https://kubernetes.io/docs/concepts/overview/working-with-objects/names/#names
+                      TODO: Add other useful fields. apiVersion, kind, uid?
                     type: string
                   namespace:
                     type: string
@@ -112,19 +119,19 @@ spec:
                   type: string
                 type: array
               ksVersion:
-                description: 'KSVersion is a SemVer constraint specifying the version
-                  of KubeSphere required. eg: >= 1.2.0, see https://github.com/Masterminds/semver
-                  for more info.'
+                description: |-
+                  KSVersion is a SemVer constraint specifying the version of KubeSphere required.
+                  eg: >= 1.2.0, see https://github.com/Masterminds/semver for more info.
                 type: string
               kubeVersion:
-                description: 'KubeVersion is a SemVer constraint specifying the version
-                  of Kubernetes required. eg: >= 1.2.0, see https://github.com/Masterminds/semver
-                  for more info.'
+                description: |-
+                  KubeVersion is a SemVer constraint specifying the version of Kubernetes required.
+                  eg: >= 1.2.0, see https://github.com/Masterminds/semver for more info.
                 type: string
               namespace:
-                description: Namespace represents the namespace in which the extension
-                  is installed. If empty, it will be installed in the namespace named
-                  extension-{name}.
+                description: |-
+                  Namespace represents the namespace in which the extension is installed.
+                  If empty, it will be installed in the namespace named extension-{name}.
                 type: string
               provider:
                 additionalProperties:
