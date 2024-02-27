@@ -7,7 +7,7 @@ icon: https://github.com/etcd-io/etcd/raw/master/logos/etcd-glyph-color.svg
 sources:
 - https://github.com/kubesphere/helm-charts/tree/master/src/test/etcd
 maintainers:
-- name: KubeSphere
+- name: KubeSphere Community
   email: kubesphere@yunify.com
 annotations:
   "app.kubesphere.io/category": "Database & Cache"
