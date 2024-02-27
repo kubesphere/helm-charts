@@ -4,7 +4,7 @@ description: nginx is an HTTP and reverse proxy server, a mail proxy server, and
 icon: https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Nginx_logo.svg/500px-Nginx_logo.svg.png
 maintainers:
 - email: kubesphere@yunify.com
-  name: KubeSphere
+  name: KubeSphere Community
 name: nginx
 sources:
 - https://github.com/kubesphere/helm-charts/tree/master/src/main/nginx

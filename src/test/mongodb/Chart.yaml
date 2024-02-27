@@ -7,7 +7,7 @@ icon: https://upload.wikimedia.org/wikipedia/en/thumb/4/45/MongoDB-Logo.svg/250p
 sources:
 - https://github.com/kubesphere/helm-charts/tree/master/src/test/mongodb
 maintainers:
-- name: KubeSphere
+- name: RadonDB Community
   email: kubesphere@yunify.com
 annotations:
   "app.kubesphere.io/category": "Database & Cache"
