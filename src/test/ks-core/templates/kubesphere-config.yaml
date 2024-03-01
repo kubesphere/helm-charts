@@ -14,11 +14,11 @@ data:
         jwtSecret: {{ include "jwtSecret" . | quote }}
         maximumClockSkew: {{ .Values.authentication.issuer.maximumClockSkew | default "10s" }}
         {{- if eq .Values.role "member" }}
-        accessTokenMaxAge: 0
+        accessTokenMaxAge: 0s
         {{- else }}
-        accessTokenMaxAge:  {{ .Values.authentication.issuer.accessTokenMaxAge }}
+        accessTokenMaxAge: {{ .Values.authentication.issuer.accessTokenMaxAge }}
         {{- end }}
-        accessTokenInactivityTimeout:  {{ .Values.authentication.issuer.accessTokenInactivityTimeout }}
+        accessTokenInactivityTimeout: {{ .Values.authentication.issuer.accessTokenInactivityTimeout }}
     multicluster:
       clusterRole: {{ .Values.role }}
     terminal:

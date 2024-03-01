@@ -129,6 +129,13 @@ rules:
     verbs:
       - get
       - list
+  - apiGroups:
+      - cluster.kubesphere.io
+    resources:
+      - 'labels'
+    verbs:
+      - get
+      - list
   - nonResourceURLs:
       - '/static/images/*'
     verbs:
