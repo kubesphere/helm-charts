@@ -317,6 +317,38 @@ webhooks:
 
 ---
 apiVersion: admissionregistration.k8s.io/v1
+kind: ValidatingWebhookConfiguration
+metadata:
+  name: license.kubesphere.io
+webhooks:
+  - admissionReviewVersions:
+      - v1
+    clientConfig:
+      caBundle: {{ b64enc $ca.Cert | quote }}
+      service:
+        name: ks-controller-manager
+        namespace: kubesphere-system
+        path: /license-cluster-checker
+        port: 443
+    name: license-cluster-checker.kubesphere.io
+    failurePolicy: Ignore
+    matchPolicy: Exact
+    namespaceSelector: {}
+    objectSelector: {}
+    rules:
+      - apiGroups:
+          - cluster.kubesphere.io
+        apiVersions:
+          - v1alpha1
+        operations:
+          - CREATE
+        resources:
+          - clusters
+        scope: '*'
+    sideEffects: None
+    timeoutSeconds: 30
+---
+apiVersion: admissionregistration.k8s.io/v1
 kind: MutatingWebhookConfiguration
 metadata:
   name: defaulter.config.kubesphere.io

@@ -130,6 +130,13 @@ rules:
       - get
       - list
   - apiGroups:
+      - license.kubesphere.io
+    resources:
+      - licenses
+    verbs:
+      - get
+      - list
+  - apiGroups:
       - cluster.kubesphere.io
     resources:
       - 'labels'
