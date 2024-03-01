@@ -75,7 +75,7 @@ Create the name of the service account to use
 {{- end }}
 
 {{- define "jwtSecret" -}}
-{{- if eq .Values.role "host" }}
+{{- if eq .Values.authentication.issuer.jwtSecret "" }}
 {{- with lookup "v1" "ConfigMap" (printf "%s" .Release.Namespace) "kubesphere-config" }}
 {{- with (fromYaml (index .data "kubesphere.yaml")) }}
 {{- if and .authentication (.authentication).jwtSecret }}
