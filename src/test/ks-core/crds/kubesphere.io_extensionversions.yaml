@@ -82,6 +82,8 @@ spec:
                 additionalProperties:
                   type: string
                 type: object
+              docs:
+                type: string
               externalDependencies:
                 description: ExternalDependencies
                 items:
