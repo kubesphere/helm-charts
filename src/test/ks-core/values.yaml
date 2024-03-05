@@ -287,6 +287,18 @@ nodeShell:
     tag: "3.18.4"
     pullPolicy: IfNotPresent
 
+cloud:
+  enabled: true
+  ## kubesphere.cloud or clouddev.kubesphere.io
+  env: "kubesphere.cloud"
+  customEnv:
+#    url: https://kubesphere.cloud
+#    subscription:
+#      syncPeriod: 60m
+#    repository:
+#      url: https://app.kubesphere.cloud
+#      repoName: marketplace
+#      syncPeriod: 60m
 
 extension:
   imageRegistry: ""
@@ -363,7 +375,7 @@ upgrade:
                   - amd64
         overrides:
           k: v
-    dynamicOptions: { }
+    dynamicOptions: {}
   devops:
     disabled: false
     priority: 100

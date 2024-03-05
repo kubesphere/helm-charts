@@ -55,7 +55,6 @@ spec:
             description: RepoSpec defines the desired state of Repo
             properties:
               credential:
-                description: ' repo credential'
                 properties:
                   caFile:
                     description: verify certificates of HTTPS-enabled servers using
@@ -80,14 +79,12 @@ spec:
                     type: string
                 type: object
               description:
-                description: chart repo description from frontend
                 type: string
+              global:
+                type: boolean
               syncPeriod:
-                description: sync period in seconds, no sync when SyncPeriod=0, the
-                  minimum SyncPeriod is 180s
                 type: integer
               url:
-                description: ' repo url'
                 type: string
             required:
             - url
