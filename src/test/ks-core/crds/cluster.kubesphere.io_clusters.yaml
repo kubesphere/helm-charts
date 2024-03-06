@@ -45,6 +45,11 @@ spec:
             type: object
           spec:
             properties:
+              config:
+                description: Config represents the custom helm chart values used when
+                  installing the cluster
+                format: byte
+                type: string
               connection:
                 description: Connection holds info to connect to the member cluster
                 properties:
