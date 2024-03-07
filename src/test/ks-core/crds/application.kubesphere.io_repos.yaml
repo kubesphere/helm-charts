@@ -80,8 +80,6 @@ spec:
                 type: object
               description:
                 type: string
-              global:
-                type: boolean
               syncPeriod:
                 type: integer
               url:

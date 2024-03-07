@@ -17,11 +17,17 @@ spec:
   scope: Cluster
   versions:
   - additionalPrinterColumns:
-    - jsonPath: .spec.AppID
-      name: App Name
-      type: string
     - jsonPath: .metadata.labels.kubesphere\.io/workspace
-      name: Workspace
+      name: workspace
+      type: string
+    - jsonPath: .metadata.labels.application\.kubesphere\.io/app-id
+      name: app
+      type: string
+    - jsonPath: .metadata.labels.application\.kubesphere\.io/appversion-id
+      name: appversion
+      type: string
+    - jsonPath: .spec.appType
+      name: appType
       type: string
     - jsonPath: .metadata.labels.kubesphere\.io/cluster
       name: Cluster

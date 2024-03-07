@@ -17,8 +17,14 @@ spec:
   scope: Cluster
   versions:
   - additionalPrinterColumns:
+    - jsonPath: .metadata.labels.application\.kubesphere\.io/repo-name
+      name: repo
+      type: string
     - jsonPath: .metadata.labels.kubesphere\.io/workspace
       name: workspace
+      type: string
+    - jsonPath: .spec.appType
+      name: appType
       type: string
     - jsonPath: .status.state
       name: State
