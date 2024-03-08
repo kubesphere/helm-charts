@@ -6,38 +6,7 @@ stringData:
       version: "v1alpha1"
       kind: "Extension"
     regoPolicy: |
-      package filter
-
-      import rego.v1
-
-      default match := false
-
-      match if {
-        not listAvailableExtension
-      }
-
-      match if {
-        listAvailableExtension
-        isSubscribed
-      }
-
-      match if {
-        listAvailableExtension
-        isInstalled
-      }
-
-      match if {
-        listAvailableExtension
-        not hasExtensionID
-      }
-
-      listAvailableExtension if ["available"][_] == input.filter.field
-
-      isSubscribed if input.object.metadata.labels["marketplace.kubesphere.io/subscribed"] == "true"
-
-      isInstalled if input.object.status.state != ""
-
-      hasExtensionID if input.object.metadata.labels["marketplace.kubesphere.io/extension-id"] != ""
+{{ .Files.Get "files/extensions.customresourcefilters.rego" | indent 6 }}
 kind: Secret
 metadata:
   name: extensions.customresourcefilters.kubesphere
