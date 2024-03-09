@@ -289,9 +289,9 @@ nodeShell:
 
 cloud:
   enabled: true
-  ## kubesphere.cloud or clouddev.kubesphere.io
+  ## kubesphere.cloud clouddev.kubesphere.io or custom
   env: "kubesphere.cloud"
-  customEnv:
+  customEnv: {}
 #    url: https://kubesphere.cloud
 #    subscription:
 #      syncPeriod: 60m

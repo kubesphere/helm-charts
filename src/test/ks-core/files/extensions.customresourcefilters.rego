@@ -78,5 +78,11 @@ installedStatusMatch if {
 }
 
 enabledStatusMatch if {
-	input.filter.value == "true" == input.object.status.enabled
+	input.filter.value == "true"
+	input.object.status.state == "Enabled"
+}
+
+enabledStatusMatch if {
+	input.filter.value == "false"
+	input.object.status.state == "Disabled"
 }
