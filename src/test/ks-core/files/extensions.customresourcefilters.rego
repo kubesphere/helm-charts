@@ -37,6 +37,11 @@ match if {
 }
 
 match if {
+	installStatusSearch
+	installedStatusMatch
+}
+
+match if {
 	enabledStatusSearch
 	enabledStatusMatch
 }
@@ -65,6 +70,11 @@ nameMatch if {
 
 installStatusMatch if {
 	lower(input.object.status.state) == lower(input.filter.value)
+}
+
+installedStatusMatch if {
+    input.filter.value == "installed"
+    ["Installed","Enabled","Disabled"][_] == input.object.status.state
 }
 
 enabledStatusMatch if {

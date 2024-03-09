@@ -334,7 +334,10 @@ webhooks:
     failurePolicy: Ignore
     matchPolicy: Exact
     namespaceSelector: {}
-    objectSelector: {}
+    objectSelector:
+      matchExpressions:
+        - key: cluster-role.kubesphere.io/host
+          operator: DoesNotExist
     rules:
       - apiGroups:
           - cluster.kubesphere.io
