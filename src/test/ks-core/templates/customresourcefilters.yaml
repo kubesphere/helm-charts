@@ -9,6 +9,6 @@ stringData:
 {{ .Files.Get "files/extensions.customresourcefilters.rego" | indent 6 }}
 kind: Secret
 metadata:
-  name: extensions.customresourcefilters.kubesphere
+  name: extensions.customresourcefilters
   namespace: kubesphere-system
 type: config.kubesphere.io/custom-resource-filter

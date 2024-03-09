@@ -36,9 +36,15 @@ data:
       {{- end }}
     kubesphere:
       tls: {{ .Values.internalTLS }}
-    {{- if .Values.devMode }}
+    {{- if .Values.cloud.enabled }}
     telemetry:
+      {{- if eq .Values.cloud.env "clouddev.kubesphere.io" }}
       ksCloudURL: "https://clouddev.kubesphere.io"
+      {{- else if eq .Values.cloud.env "kubesphere.cloud" }}
+      ksCloudURL: "https://kubesphere.cloud"
+      {{- else if and .Values.cloud.customEnv .Values.cloud.customEnv.url }}
+      ksCloudURL: {{ $.Values.cloud.customEnv.url | quote }}
+      {{- end }}
     {{- end }}
     {{- if .Values.ha.enabled -}}
     {{- if .Values.ha.cache }}
@@ -47,10 +53,10 @@ data:
     cache:
       type: redis
       options:
-          host: redis.kubesphere-system.svc
-          port: 6379
-          password: KUBESPHERE_CACHE_OPTIONS_PASSWORD
-          db: 0
+        host: redis.kubesphere-system.svc
+        port: 6379
+        password: KUBESPHERE_CACHE_OPTIONS_PASSWORD
+        db: 0
     {{- end }}
     {{- end }}
     composedApp:
