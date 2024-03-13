@@ -3,6 +3,22 @@
 # set -x
 
 CRD_NAMES=$1
+MAPPING_CONFIG=$2
+
+for extension in `kubectl get extension | grep 'Installed' | awk '{print $1}'`
+do
+  version=$(kubectl get extension $extension -o=jsonpath='{.status.installedVersion}')
+  extensionversion=$extension-$version
+  echo "Found extension $extensionversion installed"
+  helm status $extension --namespace extension-$extension
+  if [ $? -eq 0 ]; then
+    helm mapkubeapis $extension --namespace extension-$extension --mapfile $MAPPING_CONFIG
+  fi
+  helm status $extension-agent --namespace extension-$extension
+  if [ $? -eq 0 ]; then
+    helm mapkubeapis $extension-agent --namespace extension-$extension --mapfile $MAPPING_CONFIG
+  fi
+done
 
 # delete crds
 for crd in `kubectl get crds -o jsonpath="{.items[*].metadata.name}"`

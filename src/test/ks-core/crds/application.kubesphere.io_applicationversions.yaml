@@ -84,6 +84,8 @@ spec:
                       type: string
                   type: object
                 type: array
+              pullUrl:
+                type: string
               versionName:
                 type: string
             required:
