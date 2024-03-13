@@ -1,3 +1,4 @@
+{{- $kubeVersion := .Capabilities.KubeVersion }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -7,6 +8,15 @@ metadata:
     "helm.sh/hook-weight": "-1"
     "helm.sh/hook-delete-policy": before-hook-creation,hook-succeeded,hook-failed
 data:
+  map.yaml: |
+    mappings:
+    {{- range $path, $_ := .Files.Glob "crds/**" }}
+    {{- $crd := $.Files.Get $path | fromYaml }}
+    {{- range $_, $version := $crd.spec.versions }}
+      - deprecatedAPI: "apiVersion: {{ $crd.spec.group }}/{{ $version.name }}\nkind: {{ $crd.spec.names.kind }}\n"
+        removedInVersion: "{{ $kubeVersion }}"
+    {{- end }}
+    {{- end }}
 {{ (.Files.Glob "scripts/post-delete.sh").AsConfig | indent 2 }}
 
 ---
@@ -67,6 +77,7 @@ spec:
             - /bin/bash
             - /scripts/post-delete.sh
             - '{{ join " " $crdNameList }}'
+            - /scripts/map.yaml
           volumeMounts:
             - mountPath: /scripts
               name: scripts

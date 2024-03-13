@@ -95,7 +95,7 @@ spec:
                       description: Indicates if the dependency is required
                       type: boolean
                     type:
-                      description: Type of dependency, default to extension
+                      description: Type of dependency, defaults to extension
                       type: string
                     version:
                       description: SemVer

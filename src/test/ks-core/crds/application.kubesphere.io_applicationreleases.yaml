@@ -83,10 +83,7 @@ spec:
           status:
             description: ApplicationReleaseStatus defines the observed state of ApplicationRelease
             properties:
-              jobName:
-                type: string
-              lastDeployed:
-                format: date-time
+              installJobName:
                 type: string
               lastUpdate:
                 format: date-time
@@ -103,10 +100,10 @@ spec:
                   type: string
                 type: array
               specHash:
-                description: This is used to compare whether the spec has been modified
-                  to determine if an upgrade is needed.
                 type: string
               state:
+                type: string
+              uninstallJobName:
                 type: string
             required:
             - state
