@@ -73,16 +73,18 @@ installStatusMatch if {
 }
 
 installedStatusMatch if {
-    input.filter.value == "installed"
-    ["Installed","Enabled","Disabled"][_] == input.object.status.state
+	input.filter.value == "installed"
+	"Installed" == input.object.status.state
 }
 
 enabledStatusMatch if {
+	alreadyInstalled
 	input.filter.value == "true"
-	input.object.status.state == "Enabled"
+	input.object.status.enabled
 }
 
 enabledStatusMatch if {
+	alreadyInstalled
 	input.filter.value == "false"
-	input.object.status.state == "Disabled"
+	not input.object.status.enabled
 }

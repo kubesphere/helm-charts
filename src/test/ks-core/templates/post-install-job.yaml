@@ -19,7 +19,7 @@ spec:
             - -c
             - |
               kubectl create namespace kubesphere-controls-system --dry-run=client -o yaml | kubectl apply -f -
-              for ns in kubesphere-system kubesphere-controls-system default kube-system;
+              for ns in kubesphere-system kubesphere-controls-system default kube-node-lease kube-public kube-system;
               do
                 kubectl label ns $ns kubesphere.io/workspace=system-workspace
                 kubectl label ns $ns kubesphere.io/managed=true
