@@ -327,389 +327,387 @@ upgrade:
     accessMode: ReadWriteOnce
     size: 5Gi
   jobs:
-  network:
-    disabled: false
-    priority: 100
-    extensionRef:
-      name: "network"
-      version: "1.0.0"
-      namespace: "extension-network"
-      configMap: "network-extension-1.0.0-chart"
-      configMapKey: "charts.tgz"
-      configMapNamespace: "kubesphere-system"
-      chartsPath: ""
-      installationMode: Multicluster
-      clusterScheduling:
-        placement:
-          clusterSelector:
-            matchLabels:
-              kubesphere.io/managed: "true"
-    dynamicOptions: {
-      "rerun": "false"
-    }
-  iam:
-    disabled: false
-    priority: 100
-    extensionRef:
-      name: ""
-      version: ""
-      namespace: ""
-      configMap: ""
-      configMapKey: ""
-      configMapNamespace: ""
-      chartsPath: ""
-      config: ""
-      installationMode: HostOnly
-      # installationMode: Multicluster
-      clusterScheduling:
-        placement:
-          clusters:
-            - host
-          clusterSelector:
-            matchLabels:
-              node-role.kubernetes.io/master: ""
-            matchExpressions:
-              - key: kubernetes.io/arch
-                operator: In
-                values:
-                  - amd64
-        overrides:
-          k: v
-    dynamicOptions: {}
-  devops:
-    disabled: false
-    priority: 100
-    extensionRef:
-      version: "1.1.0"
-      installationMode: Multicluster
-      clusterScheduling:
-        placement:
-          clusters:
-            - host
-      config: |
-        global:
-          image:
-            registry:
-            pullSecrets: []
-        agent:
-          jenkins:
-            securityRealm:
-              openIdConnect:
-                # The kubesphere-core api used for jenkins OIDC
-                # If want to access to jenkinsUI, the kubesphereCoreApi must be specified and browser-accessible
-                # Modifying this configuration will take effect during installation
-                # If you wish for changes to take effect after installation, you need to update the jenkins-casc-config ConfigMap，copy the securityRealm configuration from jenkins.yaml to jenkins_user.yaml, save, and wait for approximately 70 seconds for the changes to take effect.
-                kubesphereCoreApi: "http://ks-apiserver.kubesphere-system.svc:30881"
-    dynamicOptions: {}
-
-  storage-utils:
-    disabled: false
-    priority: 100
-    extensionRef:
-      name: "storage-utils"
-      version: "1.0.0"
-      namespace: "extension-storage-utils"
-      configMap: "extension-storage-utils-1.0.0-chart"
-      configMapKey: "chart.tgz"
-      configMapNamespace: "kubesphere-system"
-      chartsPath: ""
-      config: |
-        backend:
-          pvcAutoResizer:
-            commandArgs:
-              prometheusUrl: "http://prometheus-k8s.kubesphere-monitoring-system:9090"
-      installationMode: Multicluster
-      clusterScheduling:
-        placement:
-          clusterSelector:
-            matchLabels:
-              kubesphere.io/managed: "true"
-    dynamicOptions: {
-      "rerun": "false"
-    }
-  tower:
-    disabled: false
-    priority: 100
-    extensionRef:
-      name: "tower"
-      version: "1.0.0"
-      namespace: "extension-tower"
-      configMap: "extension-tower-1.0.0-chart"
-      configMapKey: "chart.tgz"
-      configMapNamespace: "kubesphere-system"
-      chartsPath: ""
-      installationMode: HostOnly
-  kubefed:
-    disabled: false
-    priority: 100
-    extensionRef:
-      name: "kubefed"
-      version: "1.0.0"
-      namespace: "extension-kubefed"
-      configMap: "extension-kubefed-1.0.0-chart"
-      configMapKey: "chart.tgz"
-      configMapNamespace: "kubesphere-system"
-      chartsPath: ""
-      installationMode: HostOnly
-  whizard-monitoring:
-    disabled: false
-    priority: 100
-    extensionRef:
-      name: "whizard-monitoring"
-      version: "1.0.0"
-      namespace: "extension-whizard-monitoring"
-      configMap: "extension-whizard-monitoring-1.0.0-chart"
-      configMapKey: "chart.tgz"
-      configMapNamespace: "kubesphere-system"
-      chartsPath: ""
-      installationMode: Multicluster
-      clusterScheduling:
-        placement:
-          clusterSelector:
-            matchLabels:
-              kubesphere.io/managed: "true"
-  springcloud:
-    disabled: false
-    priority: 100
-    extensionRef:
-      name: "springcloud"
-      version: "0.1.0"
-      namespace: "extension-springcloud"
-      configMap: "extension-springcloud-0.1.0-chart"
-      configMapKey: "chart.tgz"
-      configMapNamespace: "kubesphere-system"
-      chartsPath: ""
-      installationMode: Multicluster
-  servicemesh:
-    disabled: false
-    priority: 100
-    extensionRef:
-      name: "servicemesh"
-      version: "0.1.0"
-      namespace: "extension-servicemesh"
-      configMap: "extension-servicemesh-0.1.0-chart"
-      configMapKey: "chart.tgz"
-      configMapNamespace: "kubesphere-system"
-      chartsPath: ""
-      installationMode: Multicluster
-      config: |
-        kiali:
-          prometheus_url: http://prometheus-k8s.kubesphere-monitoring-system.svc:9090
-        jaeger:
-          storage:
-            options:
-              es:
-                server-urls: https://opensearch-cluster-master.kubesphere-logging-system.svc:9200
-                username: admin
-                password: admin
-            #  secretName: jaeger-secret-opensearch
-    dynamicOptions: {
-      "rerun": "false"
-    }
-  application:
-    disabled: false
-    priority: 100
-    extensionRef:
-      name: "openpitrix"
-      version: "0.0.1"
-      namespace: "extension-openpitrix"
-      configMap: "extension-openpitrix-0.0.1-chart"
-      configMapKey: "chart.tgz"
-      configMapNamespace: "kubesphere-system"
-      chartsPath: ""
-      installationMode: HostOnly
-      clusterScheduling:
-        placement:
-          clusters:
-            - host
-          clusterSelector:
-            matchLabels:
-              node-role.kubernetes.io/master: ""
-
-  dmp:
-    disabled: false
-    priority: 100
-    extensionRef:
-      name: "dmp"
-      version: "2.0.0"
-      namespace: "extension-dmp"
-      configMap: "extension-dmp-2.0.0-chart"
-      configMapKey: "chart.tgz"
-      configMapNamespace: "kubesphere-system"
-      chartsPath: ""
-      installationMode: Multicluster
-      clusterScheduling:
-        placement:
-          clusterSelector:
-            matchLabels:
-              kubesphere.io/managed: "true"
-      config: |
-        extension:
-          frontend:
+    network:
+      disabled: false
+      priority: 100
+      extensionRef:
+        name: "network"
+        version: "1.0.0"
+        namespace: "extension-network"
+        configMap: "network-extension-1.0.0-chart"
+        configMapKey: "charts.tgz"
+        configMapNamespace: "kubesphere-system"
+        chartsPath: ""
+        installationMode: Multicluster
+        clusterScheduling:
+          placement:
+            clusterSelector:
+              matchLabels:
+                kubesphere.io/managed: "true"
+      dynamicOptions: {
+        "rerun": "false"
+      }
+    iam:
+      disabled: false
+      priority: 100
+      extensionRef:
+        name: ""
+        version: ""
+        namespace: ""
+        configMap: ""
+        configMapKey: ""
+        configMapNamespace: ""
+        chartsPath: ""
+        config: ""
+        installationMode: HostOnly
+        # installationMode: Multicluster
+        clusterScheduling:
+          placement:
+            clusters:
+              - host
+            clusterSelector:
+              matchLabels:
+                node-role.kubernetes.io/master: ""
+              matchExpressions:
+                - key: kubernetes.io/arch
+                  operator: In
+                  values:
+                    - amd64
+          overrides:
+            k: v
+      dynamicOptions: {}
+    devops:
+      disabled: false
+      priority: 100
+      extensionRef:
+        version: "1.1.0"
+        installationMode: Multicluster
+        clusterScheduling:
+          placement:
+            clusters:
+              - host
+        config: |
+          global:
             image:
-              repository: registry.cn-beijing.aliyuncs.com/kse/dmp-frontend
-              tag: "2.0.0"
-            resources:
-              limits:
-                cpu: 200m
-                memory: 300Mi
-              requests:
-                cpu: 200m
-                memory: 300Mi
-        agent:
-          dmp:
-            image:
-              repository: registry.cn-beijing.aliyuncs.com/kse/dmp
-              tag: "2.0.0"
-            resources:
-              limits:
-                cpu: 200m
-                memory: 300Mi
-              requests:
-                cpu: 200m
-                memory: 300Mi
-  whizard-notification:
-    disabled: false
-    priority: 100
-    extensionRef:
-      name: "whizard-notification"
-      version: "2.5.0"
-      namespace: "kubesphere-logging-system"
-      configMap: "extension-whizard-notification-2.5.0-chart"
-      configMapKey: "chart.tgz"
-      configMapNamespace: "kubesphere-system"
-      chartsPath: ""
-      installationMode: HostOnly
-      clusterScheduling:
-        placement:
-          clusters:
-            - host
-          clusterSelector:
-            matchLabels:
-              node-role.kubernetes.io/master: ""
+              registry:
+              pullSecrets: []
+          agent:
+            jenkins:
+              securityRealm:
+                openIdConnect:
+                  # The kubesphere-core api used for jenkins OIDC
+                  # If want to access to jenkinsUI, the kubesphereCoreApi must be specified and browser-accessible
+                  # Modifying this configuration will take effect during installation
+                  # If you wish for changes to take effect after installation, you need to update the jenkins-casc-config ConfigMap，copy the securityRealm configuration from jenkins.yaml to jenkins_user.yaml, save, and wait for approximately 70 seconds for the changes to take effect.
+                  kubesphereCoreApi: "http://ks-apiserver.kubesphere-system.svc:30881"
+      dynamicOptions: {}
 
-  alerting:
-    disabled: false
-    priority: 200
-    extensionRef:
-      name: "whizard-alerting"
-      version: "0.1.6"
-      namespace: "extension-whizard-alerting"
-      configMap: "extension-whizard-alerting-0.1.6-chart"
-      configMapKey: "chart.tgz"
-      configMapNamespace: "kubesphere-system"
-      chartsPath: ""
-      installationMode: Multicluster
-      clusterScheduling:
-        placement:
-          clusterSelector:
-            matchLabels:
-              kubesphere.io/managed: "true"
-    dynamicOptions: {
-      "rerun": "false"
-    }
-  kubeedge:
-    disabled: false
-    priority: 100
-    extensionRef:
-      name: "kubeedge"
-      version: "1.13.1"
-      namespace: "extension-kubeedge"
-      configMap: "extension-kubeedge-1.13.1-chart"
-      configMapKey: "chart.tgz"
-      configMapNamespace: "kubesphere-system"
-      chartsPath: ""
-      installationMode: Multicluster
-      clusterScheduling:
-        placement:
-          clusterSelector:
-            matchLabels:
-              kubesphere.io/managed: "true"
-    dynamicOptions: {
-      "rerun": "false"
-    }
+    storage-utils:
+      disabled: false
+      priority: 100
+      extensionRef:
+        name: "storage-utils"
+        version: "1.0.0"
+        namespace: "extension-storage-utils"
+        configMap: "extension-storage-utils-1.0.0-chart"
+        configMapKey: "chart.tgz"
+        configMapNamespace: "kubesphere-system"
+        chartsPath: ""
+        config: |
+          backend:
+            pvcAutoResizer:
+              commandArgs:
+                prometheusUrl: "http://prometheus-k8s.kubesphere-monitoring-system:9090"
+        installationMode: Multicluster
+        clusterScheduling:
+          placement:
+            clusterSelector:
+              matchLabels:
+                kubesphere.io/managed: "true"
+      dynamicOptions: {
+        "rerun": "false"
+      }
+    tower:
+      disabled: false
+      priority: 100
+      extensionRef:
+        name: "tower"
+        version: "1.0.0"
+        namespace: "extension-tower"
+        configMap: "extension-tower-1.0.0-chart"
+        configMapKey: "chart.tgz"
+        configMapNamespace: "kubesphere-system"
+        chartsPath: ""
+        installationMode: HostOnly
+    kubefed:
+      disabled: false
+      priority: 100
+      extensionRef:
+        name: "kubefed"
+        version: "1.0.0"
+        namespace: "extension-kubefed"
+        configMap: "extension-kubefed-1.0.0-chart"
+        configMapKey: "chart.tgz"
+        configMapNamespace: "kubesphere-system"
+        chartsPath: ""
+        installationMode: HostOnly
+    whizard-monitoring:
+      disabled: false
+      priority: 100
+      extensionRef:
+        name: "whizard-monitoring"
+        version: "1.0.0"
+        namespace: "extension-whizard-monitoring"
+        configMap: "extension-whizard-monitoring-1.0.0-chart"
+        configMapKey: "chart.tgz"
+        configMapNamespace: "kubesphere-system"
+        chartsPath: ""
+        installationMode: Multicluster
+        clusterScheduling:
+          placement:
+            clusterSelector:
+              matchLabels:
+                kubesphere.io/managed: "true"
+    springcloud:
+      disabled: false
+      priority: 100
+      extensionRef:
+        name: "springcloud"
+        version: "0.1.0"
+        namespace: "extension-springcloud"
+        configMap: "extension-springcloud-0.1.0-chart"
+        configMapKey: "chart.tgz"
+        configMapNamespace: "kubesphere-system"
+        chartsPath: ""
+        installationMode: Multicluster
+    servicemesh:
+      disabled: false
+      priority: 100
+      extensionRef:
+        name: "servicemesh"
+        version: "0.1.0"
+        namespace: "extension-servicemesh"
+        configMap: "extension-servicemesh-0.1.0-chart"
+        configMapKey: "chart.tgz"
+        configMapNamespace: "kubesphere-system"
+        chartsPath: ""
+        installationMode: Multicluster
+        config: |
+          kiali:
+            prometheus_url: http://prometheus-k8s.kubesphere-monitoring-system.svc:9090
+          jaeger:
+            storage:
+              options:
+                es:
+                  server-urls: https://opensearch-cluster-master.kubesphere-logging-system.svc:9200
+                  username: admin
+                  password: admin
+              #  secretName: jaeger-secret-opensearch
+      dynamicOptions: {
+        "rerun": "false"
+      }
+    application:
+      disabled: false
+      priority: 100
+      extensionRef:
+        name: "openpitrix"
+        version: "0.0.1"
+        namespace: "extension-openpitrix"
+        configMap: "extension-openpitrix-0.0.1-chart"
+        configMapKey: "chart.tgz"
+        configMapNamespace: "kubesphere-system"
+        chartsPath: ""
+        installationMode: HostOnly
+        clusterScheduling:
+          placement:
+            clusters:
+              - host
+            clusterSelector:
+              matchLabels:
+                node-role.kubernetes.io/master: ""
 
-  whizard-events:
-    disabled: false
-    priority: 100
-    extensionRef:
-      name: "whizard-events"
-      version: "0.1.1"
-      namespace: "kubesphere-logging-system"
-      configMap: "extension-whizard-events-0.1.1-chart"
-      configMapKey: "chart.tgz"
-      configMapNamespace: "kubesphere-system"
-      chartsPath: ""
-      installationMode: Multicluster
+    dmp:
+      disabled: false
+      priority: 100
+      extensionRef:
+        name: "dmp"
+        version: "2.0.0"
+        namespace: "extension-dmp"
+        configMap: "extension-dmp-2.0.0-chart"
+        configMapKey: "chart.tgz"
+        configMapNamespace: "kubesphere-system"
+        chartsPath: ""
+        installationMode: Multicluster
+        clusterScheduling:
+          placement:
+            clusterSelector:
+              matchLabels:
+                kubesphere.io/managed: "true"
+        config: |
+          extension:
+            frontend:
+              image:
+                repository: registry.cn-beijing.aliyuncs.com/kse/dmp-frontend
+                tag: "2.0.0"
+              resources:
+                limits:
+                  cpu: 200m
+                  memory: 300Mi
+                requests:
+                  cpu: 200m
+                  memory: 300Mi
+          agent:
+            dmp:
+              image:
+                repository: registry.cn-beijing.aliyuncs.com/kse/dmp
+                tag: "2.0.0"
+              resources:
+                limits:
+                  cpu: 200m
+                  memory: 300Mi
+                requests:
+                  cpu: 200m
+                  memory: 300Mi
+    whizard-notification:
+      disabled: false
+      priority: 100
+      extensionRef:
+        name: "whizard-notification"
+        version: "2.5.0"
+        namespace: "kubesphere-logging-system"
+        configMap: "extension-whizard-notification-2.5.0-chart"
+        configMapKey: "chart.tgz"
+        configMapNamespace: "kubesphere-system"
+        chartsPath: ""
+        installationMode: HostOnly
+        clusterScheduling:
+          placement:
+            clusters:
+              - host
+            clusterSelector:
+              matchLabels:
+                node-role.kubernetes.io/master: ""
 
-  gateway:
-    disabled: false
-    priority: 100
-    extensionRef:
-      name: "gateway"
-      version: "0.1.0"
-      namespace: "extension-gateway"
-      configMap: "extension-gateway-0.1.0-chart"
-      configMapKey: "chart.tgz"
-      configMapNamespace: "kubesphere-system"
-      chartsPath: ""
-      installationMode: Multicluster
+    alerting:
+      disabled: false
+      priority: 200
+      extensionRef:
+        name: "whizard-alerting"
+        version: "0.1.6"
+        namespace: "extension-whizard-alerting"
+        configMap: "extension-whizard-alerting-0.1.6-chart"
+        configMapKey: "chart.tgz"
+        configMapNamespace: "kubesphere-system"
+        chartsPath: ""
+        installationMode: Multicluster
+        clusterScheduling:
+          placement:
+            clusterSelector:
+              matchLabels:
+                kubesphere.io/managed: "true"
+      dynamicOptions: {
+        "rerun": "false"
+      }
+    kubeedge:
+      disabled: false
+      priority: 100
+      extensionRef:
+        name: "kubeedge"
+        version: "1.13.1"
+        namespace: "extension-kubeedge"
+        configMap: "extension-kubeedge-1.13.1-chart"
+        configMapKey: "chart.tgz"
+        configMapNamespace: "kubesphere-system"
+        chartsPath: ""
+        installationMode: Multicluster
+        clusterScheduling:
+          placement:
+            clusterSelector:
+              matchLabels:
+                kubesphere.io/managed: "true"
+      dynamicOptions: {
+        "rerun": "false"
+      }
 
-  whizard-auditing:
-    disabled: false
-    priority: 100
-    extensionRef:
-      name: "whizard-auditing"
-      version: "0.1.0"
-      namespace: "kubesphere-logging-system"
-      configMap: "extension-whizard-auditing-0.1.0-chart"
-      configMapKey: "chart.tgz"
-      configMapNamespace: "kubesphere-system"
-      chartsPath: ""
-      installationMode: Multicluster
+    whizard-events:
+      disabled: false
+      priority: 100
+      extensionRef:
+        name: "whizard-events"
+        version: "0.1.1"
+        namespace: "kubesphere-logging-system"
+        configMap: "extension-whizard-events-0.1.1-chart"
+        configMapKey: "chart.tgz"
+        configMapNamespace: "kubesphere-system"
+        chartsPath: ""
+        installationMode: Multicluster
 
-  whizard-logging:
-    disabled: false
-    priority: 100
-    extensionRef:
-      name: "whizard-logging"
-      version: "0.1.0"
-      namespace: "kubesphere-logging-system"
-      configMap: "extension-whizard-logging-0.1.1-chart"
-      configMapKey: "chart.tgz"
-      configMapNamespace: "kubesphere-system"
-      chartsPath: ""
-      installationMode: Multicluster
+    gateway:
+      disabled: false
+      priority: 100
+      extensionRef:
+        name: "gateway"
+        version: "0.1.0"
+        namespace: "extension-gateway"
+        configMap: "extension-gateway-0.1.0-chart"
+        configMapKey: "chart.tgz"
+        configMapNamespace: "kubesphere-system"
+        chartsPath: ""
+        installationMode: Multicluster
 
-  vector:
-    disabled: false
-    priority: 101
-    extensionRef:
-      name: "vector"
-      version: "0.30.0"
-      namespace: "kubesphere-logging-system"
-      configMap: "extension-vector-0.30.0-chart"
-      configMapKey: "chart.tgz"
-      configMapNamespace: "kubesphere-system"
-      chartsPath: ""
-      installationMode: Multicluster
+    whizard-auditing:
+      disabled: false
+      priority: 100
+      extensionRef:
+        name: "whizard-auditing"
+        version: "0.1.0"
+        namespace: "kubesphere-logging-system"
+        configMap: "extension-whizard-auditing-0.1.0-chart"
+        configMapKey: "chart.tgz"
+        configMapNamespace: "kubesphere-system"
+        chartsPath: ""
+        installationMode: Multicluster
 
-  opensearch:
-    disabled: false
-    priority: 100
-    extensionRef:
-      name: "opensearch"
-      version: "2.11.1"
-      namespace: "kubesphere-logging-system"
-      configMap: "extension-opensearch-2.11.1-chart"
-      configMapKey: "chart.tgz"
-      configMapNamespace: "kubesphere-system"
-      chartsPath: ""
-      installationMode: Multicluster
-      clusterScheduling:
-        placement:
-          clusterSelector:
-            matchLabels:
-              kubesphere.io/managed: "true"
+    whizard-logging:
+      disabled: false
+      priority: 100
+      extensionRef:
+        name: "whizard-logging"
+        version: "0.1.0"
+        namespace: "kubesphere-logging-system"
+        configMap: "extension-whizard-logging-0.1.1-chart"
+        configMapKey: "chart.tgz"
+        configMapNamespace: "kubesphere-system"
+        chartsPath: ""
+        installationMode: Multicluster
 
+    vector:
+      disabled: false
+      priority: 101
+      extensionRef:
+        name: "vector"
+        version: "0.30.0"
+        namespace: "kubesphere-logging-system"
+        configMap: "extension-vector-0.30.0-chart"
+        configMapKey: "chart.tgz"
+        configMapNamespace: "kubesphere-system"
+        chartsPath: ""
+        installationMode: Multicluster
 
+    opensearch:
+      disabled: false
+      priority: 100
+      extensionRef:
+        name: "opensearch"
+        version: "2.11.1"
+        namespace: "kubesphere-logging-system"
+        configMap: "extension-opensearch-2.11.1-chart"
+        configMapKey: "chart.tgz"
+        configMapNamespace: "kubesphere-system"
+        chartsPath: ""
+        installationMode: Multicluster
+        clusterScheduling:
+          placement:
+            clusterSelector:
+              matchLabels:
+                kubesphere.io/managed: "true"
