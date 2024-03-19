@@ -204,6 +204,8 @@ spec:
                         - type
                         type: object
                       type: array
+                    configHash:
+                      type: string
                     jobName:
                       type: string
                     releaseName:
@@ -300,6 +302,8 @@ spec:
                   - type
                   type: object
                 type: array
+              configHash:
+                type: string
               enabled:
                 type: boolean
               jobName:

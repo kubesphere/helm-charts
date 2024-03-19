@@ -13,14 +13,25 @@ data:
         host: {{ include "portal.host" . | quote }}
         jwtSecret: {{ include "jwtSecret" . | quote }}
         maximumClockSkew: {{ .Values.authentication.issuer.maximumClockSkew | default "10s" }}
-        {{- if eq .Values.role "member" }}
+        {{- if eq (include "role" .) "member" }}
         accessTokenMaxAge: 0s
         {{- else }}
         accessTokenMaxAge: {{ .Values.authentication.issuer.accessTokenMaxAge }}
         {{- end }}
         accessTokenInactivityTimeout: {{ .Values.authentication.issuer.accessTokenInactivityTimeout }}
+    {{- if .Values.s3 }}
+    s3:
+      endpoint: {{ .Values.s3.endpoint | default ""  }}
+      region: {{ .Values.s3.region | default "us-east-1"  }}
+      disableSSL: {{ .Values.s3.disableSSL | default true  }}
+      forcePathStyle: {{ .Values.s3.forcePathStyle | default true  }}
+      accessKeyID: {{ .Values.s3.accessKeyID | default "admin"  }}
+      secretAccessKey: {{ .Values.s3.secretAccessKey | default "admin"  }}
+      bucket: {{ .Values.s3.bucket | default "uploads"  }}
+      {{- end }}
+
     multicluster:
-      clusterRole: {{ .Values.role }}
+      clusterRole: {{ include "role" . | quote }}
     terminal:
       kubectl:
         image: {{ template "kubectl.image" . }}

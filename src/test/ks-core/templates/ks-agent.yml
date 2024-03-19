@@ -1,4 +1,4 @@
-{{ if eq .Values.role "member" }}
+{{ if eq (include "role" .) "member" }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:

@@ -19,9 +19,8 @@ rules:
 apiVersion: iam.kubesphere.io/v1beta1
 kind: GlobalRole
 metadata:
-  labels:
-    iam.kubesphere.io/auto-aggregate: "true"
   annotations:
+    iam.kubesphere.io/auto-aggregate: "true"
     iam.kubesphere.io/rego-override: |-
       package authz
       default allow = false
@@ -168,7 +167,6 @@ metadata:
         allowedScopes := ["Workspace","Namespace","Cluster"]
         allowedScopes[_] == input.ResourceScope
       }
-  labels:
     iam.kubesphere.io/auto-aggregate: "true"
   name: platform-admin
 aggregationRoleTemplates:

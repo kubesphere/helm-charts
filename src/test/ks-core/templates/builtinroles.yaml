@@ -19,7 +19,6 @@ role:
     annotations:
       kubesphere.io/creator: system
       kubesphere.io/description: '{"zh": "管理项目中的所有资源。", "en": "Manage all resources in the project."}'
-    labels:
       iam.kubesphere.io/auto-aggregate: "true"
     name: admin
   rules:
@@ -53,7 +52,6 @@ role:
     annotations:
       kubesphere.io/creator: system
       kubesphere.io/description: '{"zh": "管理项目中除用户和角色之外的资源。", "en": "Manage resources other than users and roles in the project."}'
-    labels:
       iam.kubesphere.io/auto-aggregate: "true"
     name: operator
   rules:
@@ -107,7 +105,6 @@ role:
     annotations:
       kubesphere.io/creator: system
       kubesphere.io/description: '{"zh": "查看项目中的所有资源。", "en": "View all resources in the project."}'
-    labels:
       iam.kubesphere.io/auto-aggregate: "true"
     name: viewer
   rules:
@@ -150,7 +147,6 @@ role:
     annotations:
       kubesphere.io/creator: system
       kubesphere.io/description: '{"zh": "管理企业空间中的所有资源。", "en": "Manage all resources in the workspace."}'
-    labels:
       iam.kubesphere.io/auto-aggregate: "true"
     name: admin
   rules:
@@ -183,7 +179,6 @@ role:
     annotations:
       kubesphere.io/creator: system
       kubesphere.io/description: '{"zh": "查看企业空间设置。", "en": "View workspace settings."}'
-    labels:
       iam.kubesphere.io/auto-aggregate: "true"
     name: regular
   rules:
@@ -219,7 +214,6 @@ role:
     annotations:
       kubesphere.io/creator: system
       kubesphere.io/description: '{"zh": "查看企业设置、创建项目。", "en": "View workspace settings, create projects."}'
-    labels:
       iam.kubesphere.io/auto-aggregate: "true"
     name: self-provisioner
   rules: []
@@ -249,7 +243,6 @@ role:
     annotations:
       kubesphere.io/creator: system
       kubesphere.io/description: '{"zh": "查看企业空间中的所有资源。", "en": "View all resources in the workspace."}'
-    labels:
       iam.kubesphere.io/auto-aggregate: "true"
     name: viewer
   rules:

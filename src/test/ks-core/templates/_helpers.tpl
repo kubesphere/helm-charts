@@ -96,6 +96,30 @@ Create the name of the service account to use
 {{- end }}
 {{- end }}
 
+{{- define "role" -}}
+{{- if eq .Values.role "" }}
+{{- with lookup "v1" "ConfigMap" (printf "%s" .Release.Namespace) "kubesphere-config" }}
+{{- with (fromYaml (index .data "kubesphere.yaml")) }}
+{{- if and .multicluster (.multicluster).clusterRole }}
+{{- if eq .multicluster.clusterRole "none" }}
+{{- "host" }}
+{{- else }}
+{{- .multicluster.clusterRole }}
+{{- end }}
+{{- else }}
+{{- $.Values.role | default "host" }}
+{{- end }}
+{{- else }}
+{{- $.Values.role | default "host" }}
+{{- end }}
+{{- else }}
+{{- $.Values.role | default "host" }}
+{{- end }}
+{{- else }}
+{{- .Values.role }}
+{{- end }}
+{{- end }}
+
 {{/*
 Returns user's password or use default
 */}}

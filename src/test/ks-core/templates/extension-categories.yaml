@@ -1,4 +1,4 @@
-{{ if eq .Values.role "host" }}
+{{ if eq (include "role" .) "host" }}
 ---
 apiVersion: kubesphere.io/v1alpha1
 kind: Category
