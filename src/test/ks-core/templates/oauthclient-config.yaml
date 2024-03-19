@@ -1,4 +1,4 @@
-{{ if eq .Values.role "host" }}
+{{ if eq (include "role" .) "host" }}
 apiVersion: v1
 stringData:
   configuration.yaml: |

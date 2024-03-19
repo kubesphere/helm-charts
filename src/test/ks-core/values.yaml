@@ -20,7 +20,8 @@ commonAnnotations: {}
 
 ## Role represents the role of the current cluster,
 ## and it can have one of two values: "host" or "member".
-role: host
+## Priority: specified in values > get from kubesphere-config > default role (host)
+role: ""
 
 portal:
   ## The IP address or hostname to access ks-console service.
@@ -31,6 +32,16 @@ portal:
 #  https:
 #    port: 30443
 
+s3:
+#  If endpoint is empty, disable s3 storage
+  endpoint: ""
+  region: "us-east-1"
+  disableSSL: true
+  forcePathStyle: true
+  accessKeyID: "admin"
+  secretAccessKey: "admin"
+  bucket: "uploads"
+
 authentication:
   authenticateRateLimiterMaxTries: 10
   authenticationRateLimiterDuration: 10m0s
@@ -40,6 +51,7 @@ authentication:
   issuer:
     maximumClockSkew: 10s
     # Jwt Secret is required by ks-apiserver, a random string would be generated if it's empty
+    # Priority: specified in values > get from kubesphere-config > default jwtSecret (a random string)
     jwtSecret: ""
     accessTokenMaxAge: 2h
     accessTokenInactivityTimeout: 30m
@@ -445,7 +457,7 @@ upgrade:
       extensionRef:
         name: "kubefed"
         version: "1.0.0"
-        namespace: "extension-kubefed"
+        namespace: "kube-federation-system"
         configMap: "extension-kubefed-1.0.0-chart"
         configMapKey: "chart.tgz"
         configMapNamespace: "kubesphere-system"
