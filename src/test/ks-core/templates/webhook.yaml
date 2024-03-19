@@ -14,7 +14,7 @@ metadata:
   name: ks-controller-manager-webhook-cert
 type: Opaque
 
-{{ if eq .Values.role "host" }}
+{{ if eq (include "role" .) "host" }}
 ---
 apiVersion: admissionregistration.k8s.io/v1
 kind: ValidatingWebhookConfiguration
