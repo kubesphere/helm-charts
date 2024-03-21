@@ -95,6 +95,7 @@ kind: ValidatingWebhookConfiguration
 metadata:
   name: extensions.kubesphere.io
 webhooks:
+  {{- if eq (include "role" .) "host" }}
   - admissionReviewVersions:
       - v1
     clientConfig:
@@ -122,6 +123,7 @@ webhooks:
         scope: '*'
     sideEffects: None
     timeoutSeconds: 30
+  {{- end }}
   - admissionReviewVersions:
       - v1
     clientConfig:
@@ -214,6 +216,7 @@ webhooks:
     sideEffects: None
     timeoutSeconds: 30
 
+{{- if eq (include "role" .) "host" }}
 ---
 apiVersion: admissionregistration.k8s.io/v1
 kind: MutatingWebhookConfiguration
@@ -247,6 +250,7 @@ webhooks:
         scope: '*'
     sideEffects: None
     timeoutSeconds: 30
+{{- end }}
 
 ---
 

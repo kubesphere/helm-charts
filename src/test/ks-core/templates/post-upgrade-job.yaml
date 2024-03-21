@@ -31,7 +31,7 @@ spec:
       volumes:
         - name: config
           configMap:
-            name: ks-upgrade-config
+            name: {{ .Release.Name }}-upgrade-config
             defaultMode: 420
         {{- if not .Values.upgrade.storage.s3.endpoint  }}
         - name: data

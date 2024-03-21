@@ -46,6 +46,11 @@ match if {
 	enabledStatusMatch
 }
 
+match if {
+	installStatusSearch
+	notInstalledStatusMatch
+}
+
 fuzzySearch if "q" == input.filter.field
 
 installStatusSearch if "status" == input.filter.field
@@ -87,4 +92,9 @@ enabledStatusMatch if {
 	alreadyInstalled
 	input.filter.value == "false"
 	not input.object.status.enabled
+}
+
+notInstalledStatusMatch if {
+    input.filter.value == "notInstalled"
+    not alreadyInstalled
 }

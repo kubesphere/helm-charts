@@ -125,6 +125,7 @@ rules:
       - 'apps'
       - 'categories'
       - 'apps/versions'
+      - 'applications'
     verbs:
       - get
       - list
