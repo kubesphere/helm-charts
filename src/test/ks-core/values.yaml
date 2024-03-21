@@ -339,6 +339,9 @@ upgrade:
     accessMode: ReadWriteOnce
     size: 5Gi
   jobs:
+    core:
+      disabled: false
+      priority: 10000
     network:
       disabled: false
       priority: 100
@@ -530,22 +533,15 @@ upgrade:
         configMapNamespace: "kubesphere-system"
         chartsPath: ""
         installationMode: HostOnly
-        clusterScheduling:
-          placement:
-            clusters:
-              - host
-            clusterSelector:
-              matchLabels:
-                node-role.kubernetes.io/master: ""
 
     dmp:
       disabled: false
       priority: 100
       extensionRef:
         name: "dmp"
-        version: "2.0.0"
+        version: "2.1.0"
         namespace: "extension-dmp"
-        configMap: "extension-dmp-2.0.0-chart"
+        configMap: "extension-dmp-2.1.0-chart"
         configMapKey: "chart.tgz"
         configMapNamespace: "kubesphere-system"
         chartsPath: ""
@@ -556,11 +552,14 @@ upgrade:
               matchLabels:
                 kubesphere.io/managed: "true"
         config: |
+          global:
+            imageRegistry: docker.io
+            imagePullSecrets: [ ]
           extension:
             frontend:
               image:
-                repository: registry.cn-beijing.aliyuncs.com/kse/dmp-frontend
-                tag: "2.0.0"
+                repository: radondb/dmp-frontend
+                tag: "2.1.0"
               resources:
                 limits:
                   cpu: 200m
@@ -571,8 +570,8 @@ upgrade:
           agent:
             dmp:
               image:
-                repository: registry.cn-beijing.aliyuncs.com/kse/dmp
-                tag: "2.0.0"
+                repository: radondb/dmp
+                tag: "2.1.0"
               resources:
                 limits:
                   cpu: 200m
