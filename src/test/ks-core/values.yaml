@@ -229,7 +229,8 @@ controller:
 agent:
   replicaCount: 1
 
-helm:
+helmExecutor:
+  timeout: 5m
   image:
     registry: ""
     repository: kubesphereio/kubectl
@@ -316,6 +317,13 @@ upgrade:
     storageClassName: ""
     accessMode: ReadWriteOnce
     size: 5Gi
+  resources:
+    limits:
+      cpu: 1
+      memory: 1024Mi
+    requests:
+      cpu: 20m
+      memory: 100Mi
   jobs:
     core:
       disabled: false

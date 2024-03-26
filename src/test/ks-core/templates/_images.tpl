@@ -22,7 +22,7 @@ Return the proper image name
 {{- end -}}
 
 {{- define "helm.image" -}}
-{{ include "common.images.image" (dict "imageRoot" .Values.helm.image "global" .Values.global) }}
+{{ include "common.images.image" (dict "imageRoot" .Values.helmExecutor.image "global" .Values.global) }}
 {{- end -}}
 
 {{- define "upgrade.image" -}}

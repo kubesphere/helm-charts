@@ -38,6 +38,7 @@ spec:
           volumeMounts:
             - mountPath: /etc/kubesphere/
               name: config
+          resources: {{- toYaml .Values.upgrade.resources | nindent 12 }}
       volumes:
         - name: config
           configMap:

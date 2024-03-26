@@ -72,6 +72,7 @@ spec:
             - mountPath: /tmp/ks-upgrade
               name: data
             {{- end }}
+          resources: {{- toYaml .Values.upgrade.resources | nindent 12 }}
       volumes:
         - name: config
           configMap:
