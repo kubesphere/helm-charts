@@ -72,9 +72,13 @@ spec:
               resources:
                 items:
                   properties:
+                    Desc:
+                      type: string
                     Group:
                       type: string
-                    Kind:
+                    Name:
+                      type: string
+                    ParentNode:
                       type: string
                     Resource:
                       type: string

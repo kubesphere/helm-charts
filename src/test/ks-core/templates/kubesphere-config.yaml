@@ -29,7 +29,6 @@ data:
       secretAccessKey: {{ .Values.s3.secretAccessKey | default "admin"  }}
       bucket: {{ .Values.s3.bucket | default "uploads"  }}
       {{- end }}
-
     multicluster:
       clusterRole: {{ include "role" . | quote }}
     terminal:
@@ -45,9 +44,11 @@ data:
       {{- if .Values.extension.nodeSelector }}
       nodeSelector: {{- toYaml .Values.extension.nodeSelector | nindent 8 }}
       {{- end }}
+    composedApp:
+      appSelector: {{ .Values.composedApp.appSelector | quote }}
     kubesphere:
       tls: {{ .Values.internalTLS }}
-    {{- if .Values.cloud.enabled }}
+    {{- if and .Values.cloud.enabled (eq (include "role" .) "host") }}
     telemetry:
       {{- if eq .Values.cloud.env "clouddev.kubesphere.io" }}
       ksCloudURL: "https://clouddev.kubesphere.io"
@@ -70,5 +71,3 @@ data:
         db: 0
     {{- end }}
     {{- end }}
-    composedApp:
-      appSelector: {{ .Values.composedApp.appSelector | quote }}

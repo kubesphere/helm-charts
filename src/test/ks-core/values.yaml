@@ -232,35 +232,13 @@ agent:
 helm:
   image:
     registry: ""
-    repository: kubesphereio/helm
-    tag: "v3.12.1"
+    repository: kubesphereio/kubectl
+    tag: "v1.27.12"
     pullPolicy: IfNotPresent
 
 composedApp:
   # Selector to filter k8s applications to reconcile
   appSelector: ""
-
-ha:
-  enabled: false
-#  cache:
-#    type: redis
-#    options:
-#      host: ""
-#      port: 6379
-#      password: ""
-#      db: 0
-
-redis:
-  replicaCount: 1
-  image:
-    registry: ""
-    repository: redis
-    digest: ""
-    tag: "5.0.14-alpine"
-    pullPolicy: IfNotPresent
-  pvc:
-    enabled: true
-    size: 10Gi
 
 kubectl:
   image:
@@ -321,7 +299,7 @@ upgrade:
   image:
     registry: ""
     repository: kse/ks-upgrade
-    tag: "latest"
+    tag: ""
     pullPolicy: Always
   storage:
     s3:
@@ -519,11 +497,6 @@ upgrade:
         configMapNamespace: "kubesphere-system"
         chartsPath: ""
         installationMode: Multicluster
-        clusterScheduling:
-          placement:
-            clusterSelector:
-              matchLabels:
-                kubesphere.io/managed: "true"
         config: |
           global:
             imageRegistry: docker.io
@@ -695,3 +668,43 @@ upgrade:
             clusterSelector:
               matchLabels:
                 kubesphere.io/managed: "true"
+
+ha:
+  enabled: false
+#  cache:
+#    type: redis
+#    options:
+#      host: ""
+#      port: 6379
+#      password: ""
+#      db: 0
+
+redis:
+  image:
+    registry: ""
+    repository: kubesphereio/redis
+    digest: ""
+    tag: "5.0.14-alpine"
+    pullPolicy: IfNotPresent
+  persistence:
+    enabled: true
+    size: 2Gi
+
+redisHA:
+  enabled: false
+  image:
+    registry: ""
+    repository: kubesphereio/redis
+    tag: 5.0.14-alpine
+    digest: ""
+    pullPolicy: IfNotPresent
+  haproxy:
+    image:
+      registry: ""
+      repository: kubesphereio/haproxy
+      tag: 2.0.25-alpine
+      digest: ""
+      pullPolicy: IfNotPresent
+  persistence:
+    enabled: true
+    size: 2Gi
