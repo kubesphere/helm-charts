@@ -1139,6 +1139,22 @@ entries:
   ks-core:
   - apiVersion: v2
     appVersion: v4.1.0-beta.0
+    created: "2024-03-26T04:49:13.414840643Z"
+    dependencies:
+    - alias: redisHA
+      condition: redisHA.enabled
+      name: redis-ha
+      repository: ""
+      version: 3.9.0
+    description: A Helm chart for KubeSphere Core components
+    digest: 2cd4bc1beb47f5a51699325af030ebb1146a46057907e1ae60651393b0399e4f
+    name: ks-core
+    type: application
+    urls:
+    - https://charts.kubesphere.io/test/ks-core-0.6.16.tgz
+    version: 0.6.16
+  - apiVersion: v2
+    appVersion: v4.1.0-beta.0
     created: "2024-03-21T20:37:36.677820479Z"
     description: A Helm chart for KubeSphere Core components
     digest: a0048287338fe234144dfd2c76922ec61908d7f0a9bf07e900138e6627574412
@@ -2813,4 +2829,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/test/xenondb-1.0.0.tgz
     version: 1.0.0
-generated: "2024-03-25T09:42:51.741488189Z"
+generated: "2024-03-26T04:49:13.410170427Z"
