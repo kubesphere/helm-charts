@@ -39,6 +39,7 @@ data:
       uploadFileLimit: 100Mi
     helmExecutor:
       image: {{ template "helm.image" . }}
+      timout: {{ .Values.helmExecutor.timeout }}
     extension:
       imageRegistry: {{ default .Values.extension.imageRegistry "" | quote }}
       {{- if .Values.extension.nodeSelector }}
