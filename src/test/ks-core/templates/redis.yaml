@@ -1,5 +1,7 @@
-{{- if .Values.ha.enabled }}
-{{ if not (lookup "apps/v1" "Deployment" "kubesphere-system" "redis") }}
+{{- if and .Values.ha.enabled (not .Values.ha.cache) }}
+{{- if lookup "v1" "Secret" "kubesphere-system" "redis-secret" }}
+{{- lookup "v1" "Secret" "kubesphere-system" "redis-secret" | toYaml }}
+{{- else }}
 apiVersion: v1
 kind: Secret
 metadata:
@@ -8,22 +10,10 @@ metadata:
 type: Opaque
 data:
   auth: {{  randAlphaNum 15 | b64enc }}
-
-{{- if .Values.redis.pvc.enabled }}
----
-apiVersion: v1
-kind: PersistentVolumeClaim
-metadata:
-  name: redis-pvc
-  namespace: kubesphere-system
-spec:
-  accessModes:
-    - ReadWriteOnce
-  resources:
-    requests:
-      storage: {{ .Values.redis.pvc.size | default "2Gi" }}
+{{- end }}
 {{- end }}
 
+{{- if and (and .Values.ha.enabled (not .Values.redisHA.enabled)) (not .Values.ha.cache) }}
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -63,11 +53,11 @@ spec:
             - name: redis-config
               mountPath: "/tmp/redis"
               readOnly: true
-              {{- if .Values.redis.pvc.enabled }}
+{{- if .Values.redis.persistence.enabled }}
             - mountPath: /data
               name: redis-pvc
               subPath: redis-data
-              {{- end }}
+{{- end }}
           ports:
             - containerPort: 6379
               protocol: TCP
@@ -82,11 +72,11 @@ spec:
         - name: redis-config
           configMap:
             name: redis-configmap
-            {{- if .Values.redis.pvc.enabled }}
+{{- if .Values.redis.persistence.enabled }}
         - name: redis-pvc
           persistentVolumeClaim:
             claimName: redis-pvc
-            {{- end }}
+{{- end }}
       affinity: {{ if .Values.affinity }}{{ .Values.affinity | toYaml | nindent 8 }}
         {{- else }}
         nodeAffinity:
@@ -103,8 +93,8 @@ spec:
       nodeSelector: {{- toYaml .Values.nodeSelector | nindent 8 }}{{- end }}
       {{- if .Values.tolerations }}
       tolerations: {{- toYaml .Values.tolerations | nindent 8 }}{{- end }}
----
 
+---
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -119,7 +109,6 @@ data:
     masterauth REDIS_PASSWORD
 
 ---
-
 apiVersion: v1
 kind: Service
 metadata:
@@ -139,5 +128,20 @@ spec:
     tier: database
   sessionAffinity: None
   type: ClusterIP
-  {{- end }}
+
+{{- if .Values.redis.persistence.enabled }}
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: redis-pvc
+  namespace: kubesphere-system
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: {{ .Values.redis.persistence.size | default "2Gi" }}
+{{- end }}
+
 {{- end }}

@@ -46,6 +46,17 @@ metadata:
         allowedVerbs := ["get","list","watch"]
         allowedVerbs[_] == input.Verb
       }
+      allow = true {
+        input.Resource == "pods"
+        input.Subresource == "exec"
+        allowedVerbs := ["get","create"]
+        allowedVerbs[_] == input.Verb
+        podName := input.Name
+        prefix := "ks-managed-kubectl-"
+        startswith(podName, prefix) == true
+        input.Namespace == "kubesphere-system"
+        input.User.Name == trim_prefix(podName, prefix)
+      }
   name: authenticated
 aggregationRoleTemplates:
   roleSelector:
