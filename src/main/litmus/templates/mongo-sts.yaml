@@ -1,0 +1,100 @@
+apiVersion: apps/v1
+kind: StatefulSet
+metadata:
+  name: {{ include "litmus-portal.fullname" . }}-mongo
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: mongo
+    app.kubernetes.io/component: {{ include "litmus-portal.name" . }}-database
+    {{- include "litmus-portal.labels" . | nindent 4 }}
+    {{- if .Values.mongo.customLabels }}
+      {{ toYaml .Values.mongo.customLabels | nindent 4 }}
+    {{- end }}
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: {{ include "litmus-portal.name" . }}-database
+  serviceName: mongo
+  replicas: {{ .Values.mongo.replicas }}
+  template:
+    metadata:
+      labels:
+        app: mongo
+        app.kubernetes.io/component: {{ include "litmus-portal.name" . }}-database
+        {{- include "litmus-portal.labels" . | nindent 8 }}
+        {{- if .Values.mongo.customLabels }}
+          {{ toYaml .Values.mongo.customLabels | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- if .Values.image.imagePullSecrets }}
+      imagePullSecrets:
+        {{ toYaml .Values.image.imagePullSecrets | indent 8 }}
+      {{- end }}
+      {{- if .Values.mongo.serviceAccountName }}
+      serviceAccountName: {{ .Values.mongo.serviceAccountName }}
+      {{- end }}
+      containers:
+        - name: mongo
+          image: {{ .Values.image.imageRegistryName }}/{{ .Values.mongo.image.repository }}:{{ .Values.mongo.image.tag }}
+          ports:
+            - containerPort: {{ .Values.mongo.containerPort }}
+              name: mongodb
+          imagePullPolicy: {{ .Values.mongo.image.pullPolicy }}
+          {{- if .Values.mongo.resources }}
+          resources:
+            {{- toYaml .Values.mongo.resources | nindent 12 }}
+          {{- end }}
+          livenessProbe:
+            exec:
+              command:
+              - bash
+              - "-c"
+              - |
+                mongo -u $MONGO_INITDB_ROOT_USERNAME -p $MONGO_INITDB_ROOT_PASSWORD --eval db.adminCommand\(\"ping\"\)
+            {{- toYaml .Values.mongo.livenessProbe | nindent 12 }}
+          readinessProbe:
+            exec:
+              command:
+              - bash
+              - "-c"
+              - |
+                mongo -u $MONGO_INITDB_ROOT_USERNAME -p $MONGO_INITDB_ROOT_PASSWORD --eval db.adminCommand\(\"ping\"\)
+            {{- toYaml .Values.mongo.readinessProbe | nindent 12 }}
+          volumeMounts:
+            - name: mongo-persistent-storage
+              mountPath: /data/db
+          env:
+            - name: MONGO_INITDB_ROOT_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "litmus-portal.fullname" . }}-admin-secret
+                  key: DB_USER
+            - name: MONGO_INITDB_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: {{ include "litmus-portal.fullname" . }}-admin-secret
+                  key: DB_PASSWORD
+    {{- with .Values.mongo.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.mongo.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.mongo.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+  volumeClaimTemplates:
+    - metadata:
+        name: mongo-persistent-storage
+      spec:
+        {{- if .Values.mongo.persistence.storageClass }}
+        storageClassName: {{ .Values.mongo.persistence.storageClass }}
+        {{- end }}
+        accessModes:
+          - {{ .Values.mongo.persistence.accessMode }}
+        resources:
+          requests:
+            storage: {{ .Values.mongo.persistence.size }}
