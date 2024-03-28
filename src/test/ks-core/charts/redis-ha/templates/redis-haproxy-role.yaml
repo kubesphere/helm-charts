@@ -1,11 +1,13 @@
-{{- if and .Values.serviceAccount.create .Values.rbac.create }}
+{{- if .Values.haproxy.enabled }}
+{{- if and .Values.haproxy.serviceAccount.create .Values.rbac.create }}
 apiVersion: rbac.authorization.k8s.io/v1
 kind: Role
 metadata:
-  name: {{ template "redis-ha.fullname" . }}
+  name: {{ template "redis-ha.fullname" . }}-haproxy
   namespace: {{ .Release.Namespace | quote }}
   labels:
 {{ include "labels.standard" . | indent 4 }}
+    component: {{ template "redis-ha.fullname" . }}-haproxy
     {{- range $key, $value := .Values.extraLabels }}
     {{ $key }}: {{ $value | quote }}
     {{- end }}
@@ -16,4 +18,5 @@ rules:
     - endpoints
   verbs:
     - get
+{{- end }}
 {{- end }}

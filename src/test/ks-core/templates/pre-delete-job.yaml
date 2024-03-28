@@ -33,6 +33,7 @@ spec:
           volumeMounts:
             - mountPath: /scripts
               name: scripts
+          resources: {{- toYaml .Values.upgrade.resources | nindent 12 }}
       volumes:
         - name: scripts
           configMap:

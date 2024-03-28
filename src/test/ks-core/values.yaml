@@ -295,6 +295,15 @@ extension:
   imageRegistry: ""
   nodeSelector: {}
 
+hook:
+  resources:
+    limits:
+      cpu: 1
+      memory: 1024Mi
+    requests:
+      cpu: 20m
+      memory: 100Mi
+
 upgrade:
   disabled: false
   image:
@@ -487,10 +496,6 @@ upgrade:
         name: "openpitrix"
         version: "0.0.1"
         namespace: "extension-openpitrix"
-        configMap: "extension-openpitrix-0.0.1-chart"
-        configMapKey: "chart.tgz"
-        configMapNamespace: "kubesphere-system"
-        chartsPath: ""
         installationMode: HostOnly
 
     dmp:
@@ -500,39 +505,8 @@ upgrade:
         name: "dmp"
         version: "2.1.0"
         namespace: "extension-dmp"
-        configMap: "extension-dmp-2.1.0-chart"
-        configMapKey: "chart.tgz"
-        configMapNamespace: "kubesphere-system"
-        chartsPath: ""
         installationMode: Multicluster
-        config: |
-          global:
-            imageRegistry: docker.io
-            imagePullSecrets: [ ]
-          extension:
-            frontend:
-              image:
-                repository: radondb/dmp-frontend
-                tag: "2.1.0"
-              resources:
-                limits:
-                  cpu: 200m
-                  memory: 300Mi
-                requests:
-                  cpu: 200m
-                  memory: 300Mi
-          agent:
-            dmp:
-              image:
-                repository: radondb/dmp
-                tag: "2.1.0"
-              resources:
-                limits:
-                  cpu: 200m
-                  memory: 300Mi
-                requests:
-                  cpu: 200m
-                  memory: 300Mi
+
     whizard-notification:
       disabled: true
       priority: 100
@@ -692,9 +666,9 @@ redis:
     registry: ""
     repository: kubesphereio/redis
     digest: ""
-    tag: "5.0.14-alpine"
+    tag: 7.2.4-alpine
     pullPolicy: IfNotPresent
-  persistence:
+  persistentVolume:
     enabled: true
     size: 2Gi
 
@@ -703,16 +677,16 @@ redisHA:
   image:
     registry: ""
     repository: kubesphereio/redis
-    tag: 5.0.14-alpine
+    tag: 7.2.4-alpine
     digest: ""
     pullPolicy: IfNotPresent
   haproxy:
     image:
       registry: ""
       repository: kubesphereio/haproxy
-      tag: 2.0.25-alpine
+      tag: 2.9.6-alpine
       digest: ""
       pullPolicy: IfNotPresent
-  persistence:
+  persistentVolume:
     enabled: true
     size: 2Gi

@@ -1,8 +1,7 @@
-{{- if and .Values.haproxy.serviceAccount.create .Values.haproxy.enabled }}
 apiVersion: v1
-kind: ServiceAccount
+kind: ConfigMap
 metadata:
-  name: {{ template "redis-ha.serviceAccountName" . }}-haproxy
+  name: {{ template "redis-ha.fullname" . }}-health-configmap
   namespace: {{ .Release.Namespace | quote }}
   labels:
     heritage: {{ .Release.Service }}
@@ -12,4 +11,10 @@ metadata:
     {{- range $key, $value := .Values.extraLabels }}
     {{ $key }}: {{ $value | quote }}
     {{- end }}
-{{- end }}
+data:
+  redis_liveness.sh: |
+{{- include "redis_liveness.sh" . }}
+  redis_readiness.sh: |
+{{- include "redis_readiness.sh" . }}
+  sentinel_liveness.sh: |
+{{- include "sentinel_liveness.sh" . }}
