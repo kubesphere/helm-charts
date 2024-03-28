@@ -5,7 +5,7 @@ Create a default fully qualified app name.
 We truncate at 63 chars because some Kubernetes name fields are limited to this (by the DNS naming spec).
 */}}
 {{- define "redis-ha.name" -}}
-{{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" | lower -}}
+{{- default .Chart.Name .Values.nameOverride | trunc 63 | trimSuffix "-" -}}
 {{- end -}}
 
 {{/*
@@ -24,6 +24,7 @@ We truncate at 63 chars because some Kubernetes name fields are limited to this 
 {{- end -}}
 {{- end -}}
 {{- end -}}
+
 
 {{- /*
 Credit: @technosophos
@@ -62,48 +63,23 @@ Create the name of the service account to use
 {{- end -}}
 {{- end -}}
 
-{{- define "common.images.image" -}}
-{{- $registryName := .global.imageRegistry -}}
-{{- $repositoryName := .imageRoot.repository -}}
-{{- $separator := ":" -}}
-{{- $termination := .global.tag | toString -}}
-{{- if .imageRoot.registry }}
-    {{- $registryName = .imageRoot.registry -}}
+{{- define "redis-ha.masterGroupName" -}}
+{{- $masterGroupName := tpl ( .Values.redis.masterGroupName | default "") . -}}
+{{- $validMasterGroupName := regexMatch "^[\\w-\\.]+$" $masterGroupName -}}
+{{- if $validMasterGroupName -}}
+{{ $masterGroupName }}
+{{- else -}}
+{{ required "A valid .Values.redis.masterGroupName entry is required (matching ^[\\w-\\.]+$)" ""}}
 {{- end -}}
-{{- if .imageRoot.tag }}
-    {{- $termination = .imageRoot.tag | toString -}}
-{{- end -}}
-{{- if .imageRoot.digest }}
-    {{- $separator = "@" -}}
-    {{- $termination = .imageRoot.digest | toString -}}
-{{- end -}}
-{{- printf "%s/%s%s%s" $registryName $repositoryName $separator $termination -}}
 {{- end -}}
 
 {{/*
-Return the proper Redis image name
+Return the appropriate apiVersion for poddisruptionbudget.
 */}}
-{{- define "image" -}}
-{{ include "common.images.image" (dict "imageRoot" .Values.image "global" .Values.global) }}
+{{- define "redis-ha.podDisruptionBudget.apiVersion" -}}
+{{- if .Capabilities.APIVersions.Has "policy/v1" }}
+{{- print "policy/v1" -}}
+{{- else -}}
+{{- print "policy/v1beta1" -}}
 {{- end -}}
-
-{{/*
-Return the proper Haproxy image name
-*/}}
-{{- define "haproxy.image" -}}
-{{ include "common.images.image" (dict "imageRoot" .Values.haproxy.image "global" .Values.global) }}
-{{- end -}}
-
-{{/*
-Return the proper Haproxy Exporter image name
-*/}}
-{{- define "haproxy.exporter.image" -}}
-{{ include "common.images.image" (dict "imageRoot" .Values.haproxy.exporter.image "global" .Values.global) }}
-{{- end -}}
-
-{{/*
-Return sysctl image
-*/}}
-{{- define "redis.sysctl.image" -}}
-{{ include "common.images.image" (dict "imageRoot" .Values.sysctlImage "global" .Values.global) }}
 {{- end -}}

@@ -744,7 +744,7 @@ apiVersion: iam.kubesphere.io/v1beta1
 kind: RoleTemplate
 metadata:
   annotations:
-    iam.kubesphere.io/dependencies: '["cluster-view-persistentvolumeclaim"]'
+    iam.kubesphere.io/dependencies: '["cluster-view-persistentvolumeclaims"]'
     iam.kubesphere.io/role-template-rules: '{"storageclasses": "view"}'
   labels:
     iam.kubesphere.io/category: cluster-storage-management
@@ -763,7 +763,7 @@ apiVersion: iam.kubesphere.io/v1beta1
 kind: RoleTemplate
 metadata:
   annotations:
-    iam.kubesphere.io/dependencies: '["cluster-view-persistentvolumeclaim", "cluster-view-storageclasses"]'
+    iam.kubesphere.io/dependencies: '["cluster-view-persistentvolumeclaims", "cluster-view-storageclasses"]'
     iam.kubesphere.io/role-template-rules: '{"storageclasses": "manage"}'
   labels:
     iam.kubesphere.io/category: cluster-storage-management
@@ -781,13 +781,13 @@ apiVersion: iam.kubesphere.io/v1beta1
 kind: RoleTemplate
 metadata:
   annotations:
-    iam.kubesphere.io/role-template-rules: '{"persistentvolumeclaim": "view"}'
+    iam.kubesphere.io/role-template-rules: '{"persistentvolumeclaims": "view"}'
   labels:
     iam.kubesphere.io/category: cluster-storage-management
     iam.kubesphere.io/aggregate-to-cluster-viewer: ""
     iam.kubesphere.io/scope: "cluster"
     kubesphere.io/managed: 'true'
-  name: cluster-view-persistentvolumeclaim
+  name: cluster-view-persistentvolumeclaims
 spec:
   displayName:
     en: Persistent Volume Claim Viewing
@@ -799,13 +799,13 @@ apiVersion: iam.kubesphere.io/v1beta1
 kind: RoleTemplate
 metadata:
   annotations:
-    iam.kubesphere.io/dependencies: '["cluster-view-persistentvolumeclaim", "cluster-view-storageclasses"]'
-    iam.kubesphere.io/role-template-rules: '{"persistentvolumeclaim": "manage"}'
+    iam.kubesphere.io/dependencies: '["cluster-view-persistentvolumeclaims", "cluster-view-storageclasses"]'
+    iam.kubesphere.io/role-template-rules: '{"persistentvolumeclaims": "manage"}'
   labels:
     iam.kubesphere.io/category: cluster-storage-management
     iam.kubesphere.io/scope: "cluster"
     kubesphere.io/managed: 'true'
-  name: cluster-manage-persistentvolumeclaim
+  name: cluster-manage-persistentvolumeclaims
 spec:
   displayName:
     en: Persistent Volume Claim Management

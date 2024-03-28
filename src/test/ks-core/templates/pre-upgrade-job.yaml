@@ -16,6 +16,8 @@ data:
       local:
         path: {{ .Values.upgrade.storage.local.path }}
       {{- end }}
+    download: {{- toYaml .Values.upgrade.download | nindent 6 }}
+    skipValidator: {{ .Values.upgrade.skipValidator }}
     jobs: {{- toYaml .Values.upgrade.jobs | nindent 6 }}
 
 ---

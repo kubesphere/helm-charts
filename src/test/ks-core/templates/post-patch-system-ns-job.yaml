@@ -24,3 +24,4 @@ spec:
                 kubectl label ns $ns kubesphere.io/workspace=system-workspace
                 kubectl label ns $ns kubesphere.io/managed=true
               done
+          resources: {{- toYaml .Values.upgrade.resources | nindent 12 }}

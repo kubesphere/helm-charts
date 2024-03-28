@@ -53,7 +53,7 @@ spec:
             - name: redis-config
               mountPath: "/tmp/redis"
               readOnly: true
-{{- if .Values.redis.persistence.enabled }}
+{{- if .Values.redis.persistentVolume.enabled }}
             - mountPath: /data
               name: redis-pvc
               subPath: redis-data
@@ -72,7 +72,7 @@ spec:
         - name: redis-config
           configMap:
             name: redis-configmap
-{{- if .Values.redis.persistence.enabled }}
+{{- if .Values.redis.persistentVolume.enabled }}
         - name: redis-pvc
           persistentVolumeClaim:
             claimName: redis-pvc
@@ -129,7 +129,7 @@ spec:
   sessionAffinity: None
   type: ClusterIP
 
-{{- if .Values.redis.persistence.enabled }}
+{{- if .Values.redis.persistentVolume.enabled }}
 ---
 apiVersion: v1
 kind: PersistentVolumeClaim
@@ -141,7 +141,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: {{ .Values.redis.persistence.size | default "2Gi" }}
+      storage: {{ .Values.redis.persistentVolume.size | default "2Gi" }}
 {{- end }}
 
 {{- end }}
