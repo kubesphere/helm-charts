@@ -9,7 +9,7 @@ image:
   repository: kubesphere/ks-installer
   pullPolicy: Always
   # Overrides the image tag whose default is the chart appVersion.
-  tag: v3.2.1
+  tag: v3.3.0
 
 serviceAccount:
   # Specifies whether a service account should be created
