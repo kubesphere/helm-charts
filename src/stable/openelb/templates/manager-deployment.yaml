@@ -33,6 +33,10 @@ spec:
         args:
           - --webhook-port={{ .Values.manager.webhookPort }}
           - --api-hosts={{ .Values.manager.apiHosts }}
+          {{ if .Values.manager.monitorEnable }}
+          {{- $metricsAddr := cat ":" .Values.manager.monitorPort |toString -}}
+          - --metrics-addr={{- nospace $metricsAddr -}}
+          {{ end }}
         env:
           - name: NODE_NAME
             valueFrom:
