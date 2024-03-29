@@ -21,7 +21,7 @@ data:
         accessTokenInactivityTimeout: {{ .Values.authentication.issuer.accessTokenInactivityTimeout }}
     {{- if .Values.s3 }}
     s3:
-      endpoint: {{ .Values.s3.endpoint | default ""  }}
+      endpoint: {{ .Values.s3.endpoint | quote  }}
       region: {{ .Values.s3.region | default "us-east-1"  }}
       disableSSL: {{ .Values.s3.disableSSL | default true  }}
       forcePathStyle: {{ .Values.s3.forcePathStyle | default true  }}

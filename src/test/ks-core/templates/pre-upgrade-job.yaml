@@ -1,4 +1,5 @@
 {{- if not .Values.upgrade.disabled }}
+{{- if .Values.upgrade.config }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
@@ -8,20 +9,11 @@ metadata:
     "helm.sh/hook": pre-upgrade
     "helm.sh/hook-weight": "-1"
 data:
-  ks-upgrade.yaml: |
-    storage:
-      {{- if .Values.upgrade.storage.s3.endpoint  }}
-      s3: {{- toYaml .Values.upgrade.storage.s3 | nindent 8 }}
-      {{- else }}
-      local:
-        path: {{ .Values.upgrade.storage.local.path }}
-      {{- end }}
-    download: {{- toYaml .Values.upgrade.download | nindent 6 }}
-    skipValidator: {{ .Values.upgrade.skipValidator }}
-    jobs: {{- toYaml .Values.upgrade.jobs | nindent 6 }}
+  config-patch.yaml: |
+    {{- toYaml .Values.upgrade.config | nindent 4 }}
+{{- end }}
 
 ---
-{{- if not .Values.upgrade.storage.s3.endpoint }}
 {{- if not (lookup "v1" "PersistentVolumeClaim" .Release.Namespace .Values.upgrade.persistenceVolume.name) }}
 kind: PersistentVolumeClaim
 apiVersion: v1
@@ -42,7 +34,6 @@ spec:
       storage: {{ .Values.upgrade.persistenceVolume.size | quote }}
   storageClassName: {{ .Values.upgrade.persistenceVolume.storageClassName }}
 {{-  end }}
-{{- end }}
 
 ---
 apiVersion: batch/v1
@@ -66,23 +57,27 @@ spec:
             - ks-upgrade
             - pre-upgrade
             - --logtostderr=true
-            - --config=/etc/kubesphere/ks-upgrade.yaml
+            - --config=/etc/kubesphere/config.yaml
+            {{- if .Values.upgrade.config }}
+            - --config=/etc/kubesphere/config-patch.yaml
+            {{- end }}
           volumeMounts:
-            - mountPath: /etc/kubesphere/
+            {{- if .Values.upgrade.config }}
+            - mountPath: /etc/kubesphere/config-patch.yaml
               name: config
-            {{- if not .Values.upgrade.storage.s3.endpoint  }}
+              subPath: config-patch.yaml
+            {{- end }}
             - mountPath: /tmp/ks-upgrade
               name: data
-            {{- end }}
           resources: {{- toYaml .Values.upgrade.resources | nindent 12 }}
       volumes:
+        {{- if .Values.upgrade.config }}
         - name: config
           configMap:
             name: {{ .Release.Name }}-upgrade-config
             defaultMode: 420
-        {{- if not .Values.upgrade.storage.s3.endpoint  }}
+        {{- end }}
         - name: data
           persistentVolumeClaim:
             claimName: {{ .Values.upgrade.persistenceVolume.name }}
-        {{- end }}
 {{- end }}

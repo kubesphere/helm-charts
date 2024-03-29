@@ -20,23 +20,27 @@ spec:
             - ks-upgrade
             - post-upgrade
             - --logtostderr=true
-            - --config=/etc/kubesphere/ks-upgrade.yaml
+            - --config=/etc/kubesphere/config.yaml
+            {{- if .Values.upgrade.config }}
+            - --config=/etc/kubesphere/config-patch.yaml
+            {{- end }}
           volumeMounts:
-            - mountPath: /etc/kubesphere/
+            {{- if .Values.upgrade.config }}
+            - mountPath: /etc/kubesphere/config-patch.yaml
               name: config
-            {{- if not .Values.upgrade.storage.s3.endpoint  }}
+              subPath: config-patch.yaml
+            {{- end }}
             - mountPath: /tmp/ks-upgrade
               name: data
-            {{- end }}
           resources: {{- toYaml .Values.upgrade.resources | nindent 12 }}
       volumes:
+        {{- if .Values.upgrade.config }}
         - name: config
           configMap:
             name: {{ .Release.Name }}-upgrade-config
             defaultMode: 420
-        {{- if not .Values.upgrade.storage.s3.endpoint  }}
+        {{- end }}
         - name: data
           persistentVolumeClaim:
             claimName: {{ .Values.upgrade.persistenceVolume.name }}
-        {{- end }}
 {{- end }}
