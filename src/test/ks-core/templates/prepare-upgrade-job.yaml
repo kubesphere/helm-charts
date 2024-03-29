@@ -1,21 +1,14 @@
 {{- if .Values.upgrade.prepare }}
+{{- if .Values.upgrade.config }}
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: ks-upgrade-prepare-config
   namespace: {{ .Release.Namespace }}
 data:
-  ks-upgrade.yaml: |
-    storage:
-      {{- if .Values.upgrade.storage.s3.endpoint  }}
-      s3: {{- toYaml .Values.upgrade.storage.s3 | nindent 8 }}
-      {{- else }}
-      local:
-        path: {{ .Values.upgrade.storage.local.path }}
-      {{- end }}
-    download: {{- toYaml .Values.upgrade.download | nindent 6 }}
-    skipValidator: {{ .Values.upgrade.skipValidator }}
-    jobs: {{- toYaml .Values.upgrade.jobs | nindent 6 }}
+  config-patch.yaml: |
+    {{- toYaml .Values.upgrade.config | nindent 4 }}
+{{- end }}
 
 ---
 apiVersion: batch/v1
@@ -36,14 +29,22 @@ spec:
             - ks-upgrade
             - prepare-upgrade
             - --logtostderr=true
-            - --config=/etc/kubesphere/ks-upgrade.yaml
+            - --config=/etc/kubesphere/config.yaml
+            {{- if .Values.upgrade.config }}
+            - --config=/etc/kubesphere/config-patch.yaml
+            {{- end }}
+          {{- if .Values.upgrade.config }}
           volumeMounts:
-            - mountPath: /etc/kubesphere/
+            - mountPath: /etc/kubesphere/config-patch.yaml
               name: config
+              subPath: config-patch.yaml
+          {{- end }}
           resources: {{- toYaml .Values.upgrade.resources | nindent 12 }}
+      {{- if .Values.upgrade.config }}
       volumes:
         - name: config
           configMap:
             name: ks-upgrade-prepare-config
             defaultMode: 420
+      {{- end }}
 {{- end }}
