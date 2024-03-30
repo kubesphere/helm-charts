@@ -72,3 +72,4 @@ data:
         db: 0
     {{- end }}
     {{- end }}
+    auditing: {{- toYaml .Values.auditing | nindent 6}}
