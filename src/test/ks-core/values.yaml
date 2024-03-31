@@ -56,6 +56,16 @@ authentication:
     accessTokenMaxAge: 2h
     accessTokenInactivityTimeout: 30m
 
+auditing:
+  enable: false
+  auditLevel: Metadata
+  logOptions:
+    path: /etc/audit/audit.log
+    maxAge: 7
+    maxBackups: 10
+    maxSize: 100
+
+
 serviceAccount:
   # Specifies whether a service account should be created
   create: true
