@@ -1,3 +1,4 @@
+{{- if .Values.upgrade.enabled }}
 {{- if .Values.upgrade.prepare }}
 {{- if .Values.upgrade.config }}
 apiVersion: v1
@@ -47,4 +48,5 @@ spec:
             name: ks-upgrade-prepare-config
             defaultMode: 420
       {{- end }}
+{{- end }}
 {{- end }}

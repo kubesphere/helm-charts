@@ -1,4 +1,4 @@
-{{- if not .Values.upgrade.disabled }}
+{{- if .Values.upgrade.enabled }}
 {{- if .Values.upgrade.config }}
 apiVersion: v1
 kind: ConfigMap
