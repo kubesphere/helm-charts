@@ -241,6 +241,7 @@ agent:
 
 helmExecutor:
   timeout: 5m
+  historyMax: 5
   image:
     registry: ""
     repository: kubesphereio/kubectl
@@ -315,7 +316,7 @@ hook:
       memory: 100Mi
 
 upgrade:
-  disabled: false
+  enabled: true
   image:
     registry: ""
     repository: kse/ks-upgrade
