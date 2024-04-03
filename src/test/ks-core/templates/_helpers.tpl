@@ -58,6 +58,13 @@ Create the name of the service account to use
 {{- default "kubesphere" .Values.serviceAccount.name }}
 {{- end }}
 
+{{/*
+Create the name of the secret of sa token.
+*/}}
+{{- define "ks-core.serviceAccountTokenName" -}}
+{{-  printf "%s-%s" ( include "ks-core.serviceAccountName" . )   "sa-token" | trunc 63 | trimSuffix "-" }}
+{{- end }}
+
 {{- define "portal.host" -}}
 {{- if and .Values.portal.https (.Values.portal.https).port }}
 {{- if eq (int .Values.portal.https.port) 443 }}

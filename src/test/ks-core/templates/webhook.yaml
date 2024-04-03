@@ -56,6 +56,45 @@ webhooks:
 
 ---
 apiVersion: admissionregistration.k8s.io/v1
+kind: MutatingWebhookConfiguration
+metadata:
+  name: defaulter.installplan.kubesphere.io
+webhooks:
+  - admissionReviewVersions:
+      - v1
+    clientConfig:
+      caBundle: {{ b64enc $ca.Cert | quote }}
+      service:
+        name: ks-controller-manager
+        namespace: kubesphere-system
+        path: /mutate-kubesphere-io-v1alpha1-installplan
+        port: 443
+    failurePolicy: Fail
+    matchPolicy: Exact
+    name: installplans.kubesphere.io
+    namespaceSelector: {}
+    objectSelector:
+      matchExpressions:
+        - key: app.kubernetes.io/managed-by
+          operator: NotIn
+          values:
+            - Helm
+    rules:
+      - apiGroups:
+          - kubesphere.io
+        apiVersions:
+          - 'v1alpha1'
+        operations:
+          - CREATE
+          - UPDATE
+        resources:
+          - installplans
+        scope: '*'
+    sideEffects: None
+    timeoutSeconds: 30
+
+---
+apiVersion: admissionregistration.k8s.io/v1
 kind: ValidatingWebhookConfiguration
 metadata:
   name: validator.installplan.kubesphere.io
