@@ -241,7 +241,7 @@ agent:
 
 helmExecutor:
   timeout: 5m
-  historyMax: 5
+  historyMax: 2
   image:
     registry: ""
     repository: kubesphereio/kubectl

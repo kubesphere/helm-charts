@@ -49,6 +49,9 @@ spec:
                   username:
                     type: string
                 type: object
+              caBundle:
+                description: if the caBundle is empty, use --insecure-skip-tls-verify.
+                type: string
               description:
                 type: string
               image:

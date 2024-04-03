@@ -40,6 +40,7 @@ data:
     helmExecutor:
       image: {{ template "helm.image" . }}
       timout: {{ .Values.helmExecutor.timeout }}
+      historyMax: {{ .Values.helmExecutor.historyMax }}
     extension:
       imageRegistry: {{ default .Values.extension.imageRegistry "" | quote }}
       {{- if .Values.extension.nodeSelector }}
