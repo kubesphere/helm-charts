@@ -1,0 +1,14 @@
+{{- if .Capabilities.APIVersions.Has "csi.storage.k8s.io/v1alpha1/CSIDriver" }}
+apiVersion: csi.storage.k8s.io/v1alpha1
+{{- else if .Capabilities.APIVersions.Has "storage.k8s.io/v1beta1/CSIDriver" }}
+apiVersion: storage.k8s.io/v1beta1
+{{- else }}
+apiVersion: storage.k8s.io/v1
+{{- end }}
+kind: CSIDriver
+metadata:
+  name: {{ include "csi-driver.driver.name" . }}
+  labels:
+    {{- include "csi-driver.labels" . | nindent 4 }}
+spec:
+  attachRequired: true

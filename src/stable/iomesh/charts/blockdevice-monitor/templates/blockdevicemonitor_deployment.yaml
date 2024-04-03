@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ .Release.Name }}-blockdevice-monitor
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app: blockdevice-monitor
+spec:
+  selector:
+    matchLabels:
+      app: blockdevice-monitor
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: blockdevice-monitor
+    spec:
+      {{- with .Values.blockdevicemonitor.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.blockdevicemonitor.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.blockdevicemonitor.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+      - name: blockdevicemonitor
+        command:
+        - /blockdevicemonitor
+        - --blockdevicemonitor-metrics-port={{ .Values.blockdevicemonitor.metrics.port }}
+        image: {{ .Values.global.registry }}{{ .Values.blockdevicemonitor.image.repository }}:{{ .Values.blockdevicemonitor.image.tag | default .Chart.AppVersion }}
+        imagePullPolicy: {{ .Values.blockdevicemonitor.image.pullPolicy }}
+        resources:
+          limits:
+            memory: {{ .Values.blockdevicemonitor.resources.limits.memory }}
+        env:
+        - name: BLOCK_DEVICE_NAMESPACE
+          value: {{ .Release.Namespace }}
+        ports:
+        - name: {{ .Values.blockdevicemonitor.metrics.portName }}
+          containerPort: {{ .Values.blockdevicemonitor.metrics.port }}
+
