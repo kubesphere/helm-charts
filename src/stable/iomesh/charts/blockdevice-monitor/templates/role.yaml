@@ -1,0 +1,30 @@
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: blockdevice-monitor-all
+rules:
+- apiGroups:
+  - iomesh.com
+  resources:
+  - blockdevicemonitors
+  verbs:
+  - create
+  - delete
+  - get
+  - list
+  - patch
+  - update
+  - watch
+- apiGroups:
+  - iomesh.com
+  resources:
+  - blockdevicemonitors/status
+  verbs:
+  - get
+  - patch
+  - update
+- apiGroups:
+  - openebs.io
+  resources:
+  - blockdevices
+  verbs: [list,watch]

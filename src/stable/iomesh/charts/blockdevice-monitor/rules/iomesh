@@ -1,0 +1,20 @@
+- alert: Insufficient physical disk lifetime
+  expr: ((blockdevicemonitor_smart_lifespan_percentage != -1) and (blockdevicemonitor_smart_lifespan_percentage < 20)) * on (hash) group_left (node, device_name, serial_number) blockdevicemonitor_blockdevice_info
+  for: 1m
+  labels:
+    severity: Notice
+  annotations:
+    summary: "Node {{ $labels.node }}: The remaining lifetime of the physical disk {{ $labels.serial_number }}({{ $labels.device_name }}) is less than 20%."
+    description: It is detected that the physical disk has an insufficient lifetime.
+    impact: The risk of failure and performance degradation increases significantly as the physical disk reaches the end of its life.
+    solution: Please replace the physical disk in time.
+- alert: Physical disk S.M.A.R.T failed
+  expr: (blockdevicemonitor_smart_self_test_status == 2) * on(hash) group_left(node,device_name,serial_number) blockdevicemonitor_blockdevice_info
+  for: 1m
+  labels:
+    severity: Critical
+  annotations:
+    summary: "Node {{ $labels.node }}: Physical disk {{ $labels.serial_number }}({{ $labels.device_name }}) S.M.A.R.T. check failed."
+    description: The S.M.A.R.T. test of the physical disk is abnormal.
+    impact: The risk of failure of the physical disk increases significantly.
+    solution: Please replace the physical disk in time.

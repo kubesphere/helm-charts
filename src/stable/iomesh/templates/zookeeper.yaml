@@ -1,0 +1,47 @@
+{{- if .Values.iomesh.create -}}
+apiVersion: zookeeper.pravega.io/v1beta1
+kind: ZookeeperCluster
+metadata:
+  namespace: {{ .Release.Namespace }}
+  name: {{ .Release.Name }}-zookeeper
+  labels:
+  {{- include "iomesh.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.iomesh.zookeeper.replicas | default 3 }}
+  image:
+    repository: {{ .Values.iomesh.zookeeper.image.repository }}
+    tag: {{ .Values.iomesh.zookeeper.image.tag }}
+    pullPolicy: {{ .Values.iomesh.zookeeper.image.pullPolicy | default "IfNotPresent" }}
+  pod:
+    securityContext:
+      runAsUser: 0
+    resources:
+      limits:
+        cpu: "400m"
+        memory: "2000Mi"
+      requests:
+        cpu: "400m"
+        memory: "2000Mi"
+  {{- with .Values.iomesh.zookeeper.podPolicy }}
+    {{- with .nodeSelector }}
+    nodeSelector: 
+      {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .affinity }}
+    affinity: 
+      {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .tolerations }}
+    tolerations: 
+    {{- toYaml . | nindent 6 }}
+    {{- end }}
+  {{- end }}
+    
+  persistence:
+    reclaimPolicy: {{ .Values.iomesh.zookeeper.reclaimPolicy }}
+    spec:
+      storageClassName: {{ .Values.iomesh.zookeeper.storageClass }}
+      resources:
+        requests:
+          storage: {{ .Values.iomesh.zookeeper.storageSize }}
+{{- end }}

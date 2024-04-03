@@ -1,0 +1,9 @@
+apiVersion: v2
+appVersion: v2.6.0
+description: 'The IOMesh Container Storage Interface CSI Driver provides a CSI interface
+  used by Container Orchestrators to manage the lifecycle of IOMesh volumes. '
+home: http://iomesh.com
+kubeVersion: ^1.13.0-0
+name: csi-driver
+type: application
+version: 2.6.0

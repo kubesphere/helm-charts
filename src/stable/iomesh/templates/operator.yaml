@@ -1,0 +1,99 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: {{ include "operator.name" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    operator.iomesh.com/role: operator
+    {{- include "operator.labels" . | nindent 4 }}
+    prometheus.io/scrape: "true"
+spec:
+  selector:
+    {{- include "operator.selectorLabels" . | nindent 6 }}
+  ports:
+  - name: iomesh-exporter
+    targetPort: {{ .Values.operator.metricsPort }}
+    port: {{ .Values.operator.metricsPort }}
+    protocol: TCP
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "operator.name" . }}
+  namespace: {{ .Release.Namespace }}
+  labels:
+    operator.iomesh.com/role: operator
+    {{- include "operator.labels" . | nindent 4 }}
+  annotations:
+    helm.sh/resource-policy: keep
+spec:
+  selector:
+    matchLabels:
+      {{- include "operator.selectorLabels" . | nindent 6 }}
+  replicas: {{ .Values.operator.replicaCount }}
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        {{- include "operator.labels" . | nindent 8 }}
+    spec:
+      {{- with .Values.operator.image.pullSecrets }}
+      imagePullSecrets:
+      {{- toYaml . | nindent 8 }}
+      {{- end }}
+      serviceAccountName: {{ include "operator.serviceAccountName" . }}
+      terminationGracePeriodSeconds: 10
+      {{- with .Values.operator.nodeSelector }}
+      nodeSelector:
+      {{- toYaml . | nindent 8 }}
+      {{- end }}
+      containers:
+      - name: operator
+        command:
+        - /iomesh-controller
+        args:
+        {{- with .Values.operator.extraArgs }}
+        {{- toYaml . | nindent 8}}
+        {{- end }}
+        - operator
+        - --enable-leader-election=true
+        - --leader-election-namespace=$(NAMESPACE)
+        - --leader-election-id={{- include "operator.name" . -}}-lock
+        - --metrics-addr=:{{ .Values.operator.metricsPort }}
+        image: {{ include "operator.image" . }}
+        imagePullPolicy: {{ .Values.operator.image.pullPolicy }}
+        resources: {{ toYaml .Values.operator.resources | nindent 10 }}
+        env:
+        - name: NAMESPACE
+          valueFrom:
+            fieldRef:
+              fieldPath: metadata.namespace
+        - name: ZBSOP_IMAGE
+          value: {{ include "operator.image" . }}
+        ports:
+        - name: metrics
+          protocol: TCP
+          containerPort: {{ .Values.operator.metricsPort }}
+        volumeMounts:
+          - name: webhook-cert
+            mountPath: /tmp/k8s-webhook-server/serving-certs/
+            readOnly: true
+        {{- with .Values.operator.extraVolumeMounts }}
+          {{- toYaml . | nindent 10 }}
+        {{- end }}
+      volumes:
+        - name: webhook-cert
+          secret:
+            secretName: {{ template "iomesh.webhook.cert" . }}
+      {{- with .Values.operator.extraVolumes }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      tolerations:
+      {{- with .Values.operator.tolerations }}
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+{{ include "operator.extraPersistentVolumeClaim" . }}
