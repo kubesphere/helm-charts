@@ -31,6 +31,7 @@ data:
       {{- end }}
     multicluster:
       clusterRole: {{ include "role" . | quote }}
+      hostClusterName: {{ include "hostClusterName" . | quote }}
     terminal:
       kubectl:
         image: {{ template "kubectl.image" . }}
