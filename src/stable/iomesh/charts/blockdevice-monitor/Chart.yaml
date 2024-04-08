@@ -1,6 +1,0 @@
-apiVersion: v2
-appVersion: v0.1.0
-description: A disk health component
-name: blockdevice-monitor
-type: application
-version: 0.1.0
