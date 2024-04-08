@@ -2,7 +2,7 @@
 ## @param global.tag Global Docker image tag
 global:
   imageRegistry: registry.cn-beijing.aliyuncs.com
-  tag: v4.1.0-beta.0
+  tag: v4.1.0-rc.0
   imagePullSecrets: []
 
 ## @param nameOverride String to partially override common.names.fullname
@@ -23,6 +23,9 @@ commonAnnotations: {}
 ## Priority: specified in values > get from kubesphere-config > default role (host)
 role: ""
 
+## Priority: specified in values > get from kubesphere-config > default name (host)
+hostClusterName: ""
+
 portal:
   ## The IP address or hostname to access ks-console service.
   ## DO NOT use IP address if ingress is enabled.
@@ -33,7 +36,7 @@ portal:
 #    port: 30443
 
 s3:
-#  If endpoint is empty, disable s3 storage
+  #  If endpoint is empty, disable s3 storage
   endpoint: ""
   region: "us-east-1"
   disableSSL: true

@@ -127,6 +127,26 @@ Create the name of the secret of sa token.
 {{- end }}
 {{- end }}
 
+{{- define "hostClusterName" -}}
+{{- if eq .Values.hostClusterName "" }}
+{{- with lookup "v1" "ConfigMap" (printf "%s" .Release.Namespace) "kubesphere-config" }}
+{{- with (fromYaml (index .data "kubesphere.yaml")) }}
+{{- if and .multicluster (.multicluster).hostClusterName }}
+{{- .multicluster.hostClusterName }}
+{{- else }}
+{{- $.Values.hostClusterName | default "host" }}
+{{- end }}
+{{- else }}
+{{- $.Values.hostClusterName | default "host" }}
+{{- end }}
+{{- else }}
+{{- $.Values.hostClusterName | default "host" }}
+{{- end }}
+{{- else }}
+{{- .Values.hostClusterName }}
+{{- end }}
+{{- end }}
+
 {{/*
 Returns user's password or use default
 */}}
