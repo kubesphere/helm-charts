@@ -1,0 +1,18 @@
+{{- if .Values.prometheusRule.create -}}
+apiVersion: monitoring.coreos.com/v1
+kind: PrometheusRule
+metadata:
+  namespace: {{ default .Release.Namespace .Values.prometheusRule.namespace }}
+  name: blockdevicemonitor
+  {{- if .Values.prometheusRule.labels }}
+  labels:
+    {{- toYaml .Values.prometheusRule.labels | nindent 4 }}
+  {{- end }}
+spec:
+  groups:
+  {{- range $path, $_ := .Files.Glob "rules/*" }}
+    - name: {{ $path | trimPrefix "rules/" }}
+      rules:
+        {{- $.Files.Get $path | nindent 8 }}
+  {{- end }}
+{{- end }}

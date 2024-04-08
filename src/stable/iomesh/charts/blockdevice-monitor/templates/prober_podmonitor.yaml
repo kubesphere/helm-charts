@@ -1,0 +1,29 @@
+{{- if .Values.podMonitor.create -}}
+apiVersion: monitoring.coreos.com/v1
+kind: PodMonitor
+metadata:
+  name: blockdevice-monitor-prober
+  namespace: {{ default .Release.Namespace .Values.podMonitor.namespace }}
+  labels:
+    release: {{ .Release.Name }}
+    {{- if .Values.podMonitor.labels }}
+    {{- toYaml .Values.podMonitor.labels | nindent 4 }}
+    {{- end }}
+spec:
+  jobLabel: prometheus.io/name
+  namespaceSelector:
+    matchNames:
+    - {{ .Release.Namespace }}
+  podMetricsEndpoints:
+  - port: {{ .Values.prober.metrics.portName }}
+    path: {{ .Values.prober.metrics.path }}
+    {{- if .Values.prober.podMonitor.relabelings }}
+    relablings:
+    {{- range .Values.prober.podMonitor.relabelings }}
+    - {{ toYaml . }}
+    {{- end }}
+    {{- end }}
+  selector:
+    matchLabels:
+      app: blockdevice-monitor-prober
+{{- end }}

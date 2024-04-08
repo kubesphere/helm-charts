@@ -1,0 +1,14 @@
+apiVersion: v2
+appVersion: v0.1.0
+dependencies:
+- condition: openebs-ndm.enabled
+  name: openebs-ndm
+  repository: http://iomesh.com/charts
+  version: 1.8.0
+description: 'iomesh-localpv-manager is a CSI driver for Direct Attached Storage on
+  K8s Node. '
+home: http://iomesh.com
+kubeVersion: ^1.13.0-0
+name: iomesh-localpv-manager
+type: application
+version: 0.1.0
