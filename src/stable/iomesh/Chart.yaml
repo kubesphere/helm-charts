@@ -25,3 +25,11 @@ description: Install all IOMesh components
 name: iomesh
 type: application
 version: v1.0.1
+home: https://www.iomesh.com
+icon: https://www.iomesh.com/IOMesh_logo_on_white.svg
+maintainers:
+- name: SmartX
+  email: info@smartx.com
+  url: https://www.iomesh.com
+annotations:
+  "app.kubesphere.io/category": "Storage"
