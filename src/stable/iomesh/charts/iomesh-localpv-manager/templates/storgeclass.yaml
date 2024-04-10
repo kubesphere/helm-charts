@@ -1,0 +1,27 @@
+{{- if .Values.storageClass.create }}
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: {{ include "localpvManager.storageClass.name.prefix" .}}-hostpath
+provisioner: {{ include "localpvManager.csi.name" . }}
+parameters:
+  volumeType: hostpath
+{{- with .Values.storageClass.parameters.hostpath }}
+{{- toYaml . | nindent 2}}
+{{- end }}
+reclaimPolicy: Delete
+volumeBindingMode: WaitForFirstConsumer
+---
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: {{ include "localpvManager.storageClass.name.prefix" .}}-device
+provisioner: {{ include "localpvManager.csi.name" . }}
+parameters:
+  volumeType: device
+{{- with .Values.storageClass.parameters.device }}
+{{- toYaml . | nindent 2}}
+{{- end }}
+reclaimPolicy: Delete
+volumeBindingMode: WaitForFirstConsumer
+{{- end }}

@@ -1,0 +1,150 @@
+- alert: High average storage latency
+  expr: sum(zbs_chunk_avg_readwrite_latency_ns) by (_chunk,name) > 2000000000
+  for: 1m
+  labels:
+    severity: Critical
+  annotations:
+    summary: The average storage latency of node {{ $labels.name }} has exceeded 2000000000 ns.
+    description: There could be multiple reasons.
+    impact: The overall storage performance of the cluster will be affected.
+    solution: Please contact IOMesh team for technical support.
+- alert: Unhealthy storage status
+  expr: sum(zbs_chunk_connect_status) by (_chunk,name) != 2
+  for: 1m
+  labels:
+    severity: Critical
+  annotations:
+    summary: The storage status of node {{ $labels.name }} is unhealthy.
+    description: The storage node is not working properly, either because it is restarting or has been shut down, or its services are not started.
+    impact: The storage service of this node might be unable to work. 
+    solution: "Please wait for the status to recover automatically. If the alarm persists or cannot be resolved automatically, please contact IOMesh team for technical support."
+- alert: High node storage usage
+  expr: sum(zbs_chunk_data_space_use_rate) by (_chunk,name) > 90
+  for: 1m
+  labels:
+    severity: Critical
+  annotations:
+    summary: Storage usage of node {{ $labels.name }} exceeds 90%.
+    description: This node has high data space usage. Note that space usage includes space that has not been reclaimed yet and may differ from the storage node space usage shown.
+    impact: Data migration might be triggered to achieve automatic storage balancing across multiple nodes.
+    solution: It is recommended to add physical disks to the node or add nodes. If a host is added, data migration will be triggered.
+- alert: Long-time hot data cache occupation
+  expr: sum(zbs_chunk_dirty_cache_ratio) by (_chunk,name) > 90
+  for: 12h
+  labels:
+    severity: Info
+  annotations:
+    summary: "Node {{ $labels.name }}: Hot data has used more than 90% of the total cache size of this node for over 12 hours."
+    description: The node is under high workload for a long time.
+    impact: Node performance will be affected.
+    solution: It is recommended to expand the cache disk of this node or migrate pods under high workload on this node to other nodes.
+- alert: Insufficient cluster space for node failure
+  expr: zbs_cluster_chunks_unsafe_failure_space > 0
+  for: 1m
+  labels:
+    severity: Notice
+  annotations:
+    summary: "The remaining space of this cluster is not sufficient to restore data to the expected number of replicas when any of the following nodes fails: {{ $labels.chunks }}."
+    description: The remaining space of the cluster is not sufficient to restore data to the expected number of replicas if any of the nodes fails.
+    impact: If the node fails, cluster data cannot be recovered to the expected number of replicas for ensuring data integrity.
+    solution: Please contact IOMesh team to increase the capacity or clean up unnecessary resources.
+- alert: High cluster storage usage
+  expr: sum(zbs_cluster_data_space_use_rate) by (_cluster,namespace) > 80
+  for: 1m
+  labels:
+    severity: Notice
+  annotations:
+    summary: More than 80% of cluster storage space has been used.
+    description: The cluster has high data space usage.
+    impact: The cluster is running out of capacity and will stop processing I/O requests.
+    solution: Please add physical disks or nodes or clean up unnecessary resources.
+- alert: High cluster storage usage
+  expr: sum(zbs_cluster_data_space_use_rate) by (_cluster,namespace) > 90
+  for: 1m
+  labels:
+    severity: Critical
+  annotations:
+    summary: More than 90% of cluster storage space has been used.
+    description: The cluster has high data space usage.
+    impact: The cluster is running out of capacity and will stop processing I/O requests.
+    solution: Please add physical disks or nodes or clean up unnecessary resources.
+- alert: Trial license expired
+  expr: sum((iomesh_license_expiration_date < time()) and (iomesh_license_type == 1)) by (namespace,cluster_name)
+  for: 1m
+  labels:
+   severity: Critical
+  annotations:
+    summary: Trial license has expired.
+    description: The license has expired.
+    impact: Cluster storage is out of service.
+    solution: Please contact IOMesh team to renew your license.
+- alert: Trial license expiring
+  expr: sum(floor((iomesh_license_expiration_date - time()) / 86400 < 14) and (iomesh_license_type == 1)) by (namespace, cluster_name)
+  for: 1m
+  labels:
+    severity: Critical
+  annotations:
+    summary: The trial license will expire in {{ $value }} days.
+    description: The trail license will expire in 14 day(s).
+    impact: Cluster storage will be out of service.
+    solution: Please contact IOMesh team to renew your license.
+- alert: Subscription license expired
+  expr: sum((iomesh_license_expiration_date < time()) and (iomesh_license_type == 3)) by (namespace,cluster_name)
+  for: 1m
+  labels:
+    severity: Critical
+  annotations:
+    summary: Subscription license has expired.
+    description: The subscription license has expired.
+    impact: Upgrade or maintenance will be unavailable to this cluster.
+    solution: Please contact IOMesh team for technical support.
+- alert: Subscription license expiring
+  expr: sum(floor((iomesh_license_expiration_date - time()) / 86400 < 90) and (iomesh_license_type == 3)) by (namespace, cluster_name) 
+  for: 1m
+  labels:
+    severity: Info
+  annotations:
+    summary: The subscription license will expire in {{ $value }} days.
+    description: The subscription license will expire in 90 day(s).
+    impact: Upgrade or maintenance will be unavailable to this cluster.
+    solution: Please contact IOMesh team for technical support.
+- alert: Subscription license expiring
+  expr: sum(floor((iomesh_license_expiration_date - time()) / 86400 < 30) and (iomesh_license_type == 3)) by (namespace, cluster_name)
+  for: 1m
+  labels:
+    severity: Notice
+  annotations:
+    summary: The subscription license will expire in {{ $value }} days.
+    description: The subscription license will expire in 30 day(s).
+    impact: Upgrade or maintenance will be unavailable to this cluster.
+    solution: Please contact IOMesh team for technical support.
+- alert: Subscription license expiring
+  expr: sum(floor((iomesh_license_expiration_date - time()) / 86400 < 7) and (iomesh_license_type == 3)) by (namespace, cluster_name)
+  for: 1m
+  labels:
+    severity: Critical
+  annotations:
+    summary: The subscription license will expire in {{ $value }} days.
+    description: The subscription license will expire in 7 day(s).
+    impact: Upgrade or maintenance will be unavailable to this cluster.
+    solution: Please contact IOMesh team for technical support.
+- alert: Migrating cluster data
+  expr: sum(zbs_cluster_migrate_speed_bps > 0) by (_cluster, namespace)
+  for: 1m
+  labels:
+    severity: Info
+  annotations:
+    summary: Cluster data is being migrated.
+    description: Data migration is often triggered to automatically balance data space between nodes or when a host is removed from a cluster.
+    impact: Cluster storage performance might be affected during data migration.
+    solution: Wait for the data migration to complete.
+- alert: Recovering cluster data
+  expr: sum(zbs_cluster_recover_speed_bps > 0) by (_cluster, namespace)
+  for: 1m
+  labels:
+    severity: Info
+  annotations:
+    summary: Cluster data is being recovered.
+    description: Data recovery occurs when the number of replicas does not meet expectations, for example, after the data disk is unmounted through CLI or is directly pulled out. 
+    impact: Cluster storage performance might be affected during data recovery. Unplugging the disk right now might cause data loss.
+    solution: Wait for the data recovery to complete. 

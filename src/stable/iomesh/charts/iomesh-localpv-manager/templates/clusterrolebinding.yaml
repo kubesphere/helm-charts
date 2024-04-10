@@ -1,0 +1,27 @@
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: {{ include "localpvManager.name" .}}-provisioner-binding
+  labels:
+    {{- include "localpvManager.labels" . | nindent 4 }}
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "localpvManager.name" . }}
+    namespace: {{ .Release.Namespace }}
+roleRef:
+  kind: ClusterRole
+  name: {{ include "localpvManager.name" . }}-provisioner
+  apiGroup: rbac.authorization.k8s.io
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1
+metadata:
+  name: {{ include "localpvManager.name" . }}-binding
+subjects:
+  - kind: ServiceAccount
+    name: {{ include "localpvManager.name" . }}
+    namespace: {{ .Release.Namespace }}
+roleRef:
+  kind: ClusterRole
+  name: {{ include "localpvManager.name" . }}
+  apiGroup: rbac.authorization.k8s.io
