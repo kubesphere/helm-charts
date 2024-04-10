@@ -1,0 +1,109 @@
+# Default values for csi-driver.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+nameOverride: ""
+fullnameOverride: ""
+
+global:
+  # global variable registry to locate the images, It is convenient for users to specify private dockerhub
+  registry: docker.io/
+
+rbac:
+  create: true
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+
+# Container Orchestration system (eg. "kubernetes"/"openshift" )
+co: "kubernetes"
+coVersion: "1.18"
+
+# Create a StorageClass with the fullname of the chart
+storageClass:
+  # with `true` to create StorageClass
+  create: true
+  # with `true` to mark this StorageClass as default
+  # more default StorageClass detail: https://kubernetes.io/docs/concepts/storage/persistent-volumes/#persistentvolumeclaims
+  default: false
+  # override the default name
+  nameOverride: ""
+  # default parameters for StorageClass
+  parameters:
+    csi.storage.k8s.io/fstype: "ext4"
+    replicaFactor: "2"
+    thinProvision: "true"
+
+  reclaimPolicy: Delete
+  allowVolumeExpansion: true
+  volumeBindingMode: Immediate
+
+driver:
+  image:
+    repository: iomesh/csi-driver
+    tag: ""
+    pullPolicy: IfNotPresent
+  # The unique csi driver name in a kubernetes cluster.
+  nameOverride: ""
+  # kubernetes-cluster-id
+  clusterID: "my-iomesh"
+  # IOMesh Meta server address
+  metaAddr: ""
+  # IOMesh Chunk server iscsi portal address
+  iscsiPortal: "127.0.0.1:3260"
+  # EXTERNAL / HCI
+  deploymentMode: "EXTERNAL"
+
+  controller:
+    # controller replicas
+    replicas: 3
+    # use hostNetwork to access IOMesh cluster
+    hostNetwork: true
+    # nodeSelector of csi-controller-plugin Pod
+    nodeSelector: {}
+    # affinity of csi-controller-plugin Pod
+    affinity: {}
+    driver:
+      # driver ports(If hostNetwork is true, ports are host ports)
+      ports:
+        health: 9810
+      # pod delete setting
+      podDeletePolicy: "no-delete-pod"
+      podDeleteLatency: "90s"
+    resources:
+      limits:
+        cpu: 100m
+        memory: 150Mi
+      requests:
+        cpu: 100m
+        memory: 150Mi
+
+  node:
+    # nodeSelector of csi-node-plugin Pod
+    nodeSelector: {}
+    # affinity of csi-node-plugin Pod
+    affinity: {}
+    driver:
+      # iscsi config
+      iscsi: {}
+        # node.session.queue_depth: 128
+        # node.session.cmds_max: 128
+        # node.session.timeo.replacement_timeout: 120
+      # host ports
+      ports:
+        health: 9811
+        liveness: 9812
+      # If your worker is CentOS8 or CoreOS, please set this to true.
+      mountIscsiLock: false
+      # kubelet root directory
+      kubeletRootDir: "/var/lib/kubelet"
+    resources:
+      limits:
+        cpu: 100m
+        memory: 150Mi
+      requests:
+        cpu: 100m
+        memory: 150Mi
+
+sidecar:
+  registry: "iomesh"
