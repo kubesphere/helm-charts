@@ -1828,6 +1828,38 @@ entries:
     urls:
     - https://charts.kubesphere.io/stable/fpga-operator-2.6.1.tgz
     version: 2.6.1
+  iomesh:
+  - apiVersion: v2
+    appVersion: v5.3.0-rc13
+    created: "2024-04-10T08:30:13.866953476Z"
+    dependencies:
+    - name: zookeeper-operator
+      repository: http://iomesh.com/charts
+      version: 0.2.15
+    - name: hostpath-provisioner
+      repository: http://iomesh.com/charts
+      version: 0.5.3
+    - condition: openebs-ndm.enabled
+      name: openebs-ndm
+      repository: http://iomesh.com/charts
+      version: 1.8.0
+    - name: csi-driver
+      repository: http://iomesh.com/charts
+      version: 2.6.0
+    - name: blockdevice-monitor
+      repository: http://iomesh.com/charts
+      version: 0.1.0
+    - condition: iomesh-localpv-manager.enabled
+      name: iomesh-localpv-manager
+      repository: http://iomesh.com/charts
+      version: 0.1.0
+    description: Install all IOMesh components
+    digest: 7cd6285c86615ab401723e936f49d238fc015bb883d0f42f21d2ef96af0f045e
+    name: iomesh
+    type: application
+    urls:
+    - https://charts.kubesphere.io/stable/iomesh-v1.0.1.tgz
+    version: v1.0.1
   jh-gitlab:
   - apiVersion: v1
     appVersion: 14.8.2
@@ -2510,4 +2542,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/stable/vsphere-csi-driver-1.3.0.tgz
     version: 1.3.0
-generated: "2024-03-21T20:33:46.881847456Z"
+generated: "2024-04-10T08:30:13.853254055Z"
