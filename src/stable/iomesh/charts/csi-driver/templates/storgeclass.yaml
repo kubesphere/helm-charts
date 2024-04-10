@@ -1,0 +1,18 @@
+{{- if .Values.storageClass.create }}
+apiVersion: storage.k8s.io/v1
+kind: StorageClass
+metadata:
+  name: {{ include "csi-driver.storageClass.name" .}}
+{{- if .Values.storageClass.default }}
+  annotations:
+    "storageclass.kubernetes.io/is-default-class": "true"
+{{- end }}
+provisioner: {{ include "csi-driver.driver.name" . }}
+{{- with .Values.storageClass.parameters }}
+parameters:
+{{- toYaml . | nindent 2}}
+{{- end }}
+reclaimPolicy: {{ default "Delete" .Values.storageClass.reclaimPolicy }}
+allowVolumeExpansion: {{ default "true" .Values.storageClass.allowVolumeExpansion }}
+volumeBindingMode: {{ default "Immediate" .Values.storageClass.volumeBindingMode }}
+{{- end }}

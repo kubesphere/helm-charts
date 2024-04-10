@@ -1,0 +1,70 @@
+nameOverride: ""
+
+localpvManager:
+  image:
+    repository: iomesh/localpv-manager
+    tag: ""
+    pullPolicy: IfNotPresent
+  csi:
+    nameOverride: ""
+  hostNetwork: false
+  nodeSelector: {}
+  affinity: {}
+  tolerations: []
+  ports:
+    health: 9810
+    liveness: 9611
+  resources:
+    limits:
+      cpu: 200m
+      memory: 200Mi
+
+serviceAccount:
+  # Specifies whether a service account should be created
+  create: true
+  name: ""
+
+# Create a StorageClass with the fullname of the chart
+storageClass:
+  create: true
+  nameOverride: ""
+  parameters:
+    # default parameters for hostpath type StorageClass
+    hostpath:
+      basePath: "/var/iomesh/local"
+      enableQuota: "false"
+    # default parameters for device type StorageClass
+    device:
+      csi.storage.k8s.io/fstype: "ext4"
+      deviceSelector: ""
+
+kubeletRootDir: "/var/lib/kubelet"
+
+openebs-ndm:
+  enabled: true
+  ndm:
+    enabled: true
+  filters:
+    enableOsDiskExcludeFilter: true
+    osDiskExcludePaths: "/,/etc/hosts,/boot"
+    enableVendorFilter: true
+    excludeVendors: "ZBS"
+    enablePathFilter: true
+    includePaths: ""
+    excludePaths: "/dev/fd0,/dev/sr0,/dev/ram,/dev/dm-,/dev/md,loop"
+  probes:
+    enableSeachest: true
+    enableUdevProbe: true
+    enableSmartProbe: true
+  featureGates:
+    # https://github.com/openebs/node-disk-manager/pull/635
+    PartitionTableUUID:
+      enabled: true
+      featureGateFlag: "PartitionTableUUID"
+    APIService:
+      enabled: true
+      featureGateFlag: "APIService"
+      address: "0.0.0.0:9115"
+
+sidecar:
+  registry: "iomesh"

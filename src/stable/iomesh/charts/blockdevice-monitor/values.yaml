@@ -1,0 +1,82 @@
+global:
+  # global variable registry to locate the images, It is convenient for users to specify private dockerhub
+  registry: docker.io/
+
+podMonitor:
+  create: false
+  namespace: ""
+  labels: {}
+
+prometheusRule:
+  create: false
+  namespace: ""
+  labels: {}
+
+blockdevicemonitor:
+  image:
+    repository: iomesh/blockdevice-monitor
+    pullPolicy: IfNotPresent 
+    tag: ""
+
+  metrics:
+    portName: http-metrics
+    port: 8443
+
+  podMonitor:
+    # RelabelConfigs to apply to samples before scraping.
+    # More info: https://prometheus.io/docs/prometheus/latest/configuration/configuration/#relabel_config
+    relabelings: []
+
+  resources:
+    limits:
+      memory: 100Mi
+
+  # nodeSelector of Pod
+  nodeSelector: {}
+
+  # affinity of Pod
+
+  affinity: {}
+
+  # tolerations of Pod
+  tolerations: []
+  # - key: "node-role.kubernetes.io/master"
+  #   operator: "Exists"
+  #   effect: "NoSchedule"
+
+prober:
+  image:
+    repository: iomesh/blockdevice-monitor-prober
+    pullPolicy: IfNotPresent 
+    tag: ""
+  iostat:
+    enable: true
+    loopIntervalSec: 15
+    samplingWinSize: 6
+    thresholdSSDLatencyMS: 500
+    thresholdSSDIOPS: 5000
+    thresholdSSDTotalBandwidth: 314572800
+    thresholdHDDLatencyMS: 3000
+    thresholdHDDIOPS: 50
+    thresholdHDDTotalBandwidth: 104857600
+  smart:
+    enable: true
+    loopIntervalSec: 21600
+  zbsDeviceHealth:
+    loopIntervalSec: 10 
+    enable: true
+    chunk:
+      rpc:
+        ip: 127.0.0.1
+        port: 10200
+  resources:
+    limits:
+      memory: 100Mi
+  metrics:
+    portName: http-metrics
+    port: 8443
+    path: /metrics
+  podMonitor:
+    # RelabelConfigs to apply to samples before scraping.
+    # More info: https://prometheus.io/docs/prometheus/latest/configuration/configuration/#relabel_config
+    relabelings: []

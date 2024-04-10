@@ -1,0 +1,86 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: {{ include "csi-driver.fullname" . }}-controller-plugin
+  namespace: {{ .Release.Namespace }}
+spec:
+  replicas: {{ .Values.driver.controller.replicas }}
+  selector:
+    matchLabels:
+      app: {{ include "csi-driver.fullname" . }}-controller-plugin
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 0
+      maxUnavailable: 1
+  template:
+    metadata:
+      labels:
+        app: {{ include "csi-driver.fullname" . }}-controller-plugin
+    spec:
+      dnsPolicy: ClusterFirstWithHostNet
+      hostNetwork: {{ .Values.driver.controller.hostNetwork }}
+      serviceAccountName: {{ include "csi-driver.fullname" .}}-controller-account
+      containers:
+        {{- include "csi-driver.controller.sidecar" . | indent 8 }}
+        - name: csi-driver
+          image: {{ include "csi-driver.image" . }}
+          imagePullPolicy: {{ .Values.driver.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.driver.controller.driver.ports.health }}
+              name: health
+              protocol: TCP
+          resources: {{ toYaml .Values.driver.controller.resources | nindent 12 }}
+          livenessProbe:
+            failureThreshold: 5
+            initialDelaySeconds: 10
+            timeoutSeconds: 3
+            periodSeconds: 2
+            httpGet:
+              path: /healthz
+              port: health
+          command:
+          - /usr/bin/bash          
+          args:
+            - /usr/sbin/csi-entrypoint.sh
+            - --csi_addr=unix:///csi/csi.sock
+            - --driver_name={{- include "csi-driver.driver.name" .}}
+            - --role=controller
+            # iomesh-cluster-vip:10206
+            - --meta_proxy={{ .Values.driver.metaAddr | default "iomesh-access.$(NAMESPACE).svc:10206" }}
+            # unique cluster id
+            - --cluster_id={{ .Values.driver.clusterID }}
+            # HCI / EXTERNAL
+            - --deployment_mode={{ .Values.driver.deploymentMode }}
+            - --namespace=$(NAMESPACE)
+            - --node_map={{ include "csi-driver.fullname" . }}-node-map
+            - --pod_delete_policy={{ .Values.driver.controller.driver.podDeletePolicy | default "no-delete-pod" }}
+            - --pod_delete_latency={{ .Values.driver.controller.driver.podDeleteLatency | default "90s" }}
+            - --v=1
+          volumeMounts:
+            - name: socket-dir
+              mountPath: /csi
+          env:
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            - name: NODE_IP
+              valueFrom:
+                fieldRef:
+                  fieldPath: status.hostIP
+            - name: NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+      {{- with .Values.driver.controller.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.driver.controller.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      volumes:
+        - name: socket-dir
+          emptyDir: {}
