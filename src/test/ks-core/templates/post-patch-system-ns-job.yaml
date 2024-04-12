@@ -13,7 +13,7 @@ spec:
       serviceAccountName: {{ include "ks-core.serviceAccountName" . }}
       containers:
         - name: post-patch-system-ns
-          image:  {{ template "kubectl.image" . }}
+          image: {{ template "kubectl.image" . }}
           command:
             - /bin/bash
             - -c
