@@ -2,7 +2,7 @@
 ## @param global.tag Global Docker image tag
 global:
   imageRegistry: registry.cn-beijing.aliyuncs.com
-  tag: v4.1.0-rc.1
+  tag: v4.1.0
   imagePullSecrets: []
 
 ## @param nameOverride String to partially override common.names.fullname
@@ -104,7 +104,7 @@ apiserver:
     repository: kse/ks-apiserver
     tag: ""
     digest: ""
-    pullPolicy: Always
+    pullPolicy: IfNotPresent
     ## Optionally, specify an array of imagePullSecrets.
     ## Secrets must be manually created in the namespace.
     ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
@@ -154,7 +154,7 @@ console:
     repository: kse/ks-console
     tag: ""
     digest: ""
-    pullPolicy: Always
+    pullPolicy: IfNotPresent
     ## Optionally, specify an array of imagePullSecrets.
     ## Secrets must be manually created in the namespace.
     ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
@@ -196,7 +196,7 @@ controller:
     repository: kse/ks-controller-manager
     tag: ""
     digest: ""
-    pullPolicy: Always
+    pullPolicy: IfNotPresent
     ## Optionally, specify an array of imagePullSecrets.
     ## Secrets must be manually created in the namespace.
     ## ref: https://kubernetes.io/docs/tasks/configure-pod-container/pull-image-private-registry/
