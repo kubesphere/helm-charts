@@ -124,8 +124,8 @@ spec:
         - name: sys-cert
           emptyDir: {}
         {{- end }}
----
 
+---
 apiVersion: v1
 kind: Service
 metadata:
@@ -143,17 +143,16 @@ metadata:
 spec:
   ports:
     - name: nginx
-  {{- if .Values.internalTLS }}
+{{- if .Values.internalTLS }}
       port: 443
-  {{- else }}
+{{- else }}
       port: 80
-  {{- end }}
+{{- end }}
       protocol: TCP
       targetPort: 8000
-    {{- with .Values.console.nodePort }}
-      nodePort:
-      {{- toYaml . | nindent 6 }}
-    {{- end }}
+  {{- with .Values.console.nodePort }}
+      nodePort: {{ . }}
+  {{- end }}
   selector:
     app: ks-console
     tier: frontend
