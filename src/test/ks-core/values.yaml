@@ -308,6 +308,13 @@ cloud:
 extension:
   imageRegistry: ""
   nodeSelector: {}
+  ingress:
+    ingressClassName: ""
+    # The domain name suffix used to create the ingress of each extension.
+    # Depending on your ingress address, it can be an LB hostname address (xx.com), {node_ip}.nip.io or an internal DNS address (kse.local).
+    domainSuffix: ""
+    httpPort: 80
+    httpsPort: 443
 
 hook:
   resources:

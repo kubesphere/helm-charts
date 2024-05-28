@@ -47,6 +47,13 @@ data:
       {{- if .Values.extension.nodeSelector }}
       nodeSelector: {{- toYaml .Values.extension.nodeSelector | nindent 8 }}
       {{- end }}
+      {{- if and .Values.extension.ingress .Values.extension.ingress.domainSuffix }}
+      ingress:
+        ingressClassName: {{ .Values.extension.ingress.ingressClassName }}
+        domainSuffix: {{ .Values.extension.ingress.domainSuffix }}
+        httpPort: {{ .Values.extension.ingress.httpPort }}
+        httpsPort: {{ .Values.extension.ingress.httpsPort }}
+      {{- end }}
     composedApp:
       appSelector: {{ .Values.composedApp.appSelector | quote }}
     kubesphere:
