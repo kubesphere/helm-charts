@@ -109,7 +109,6 @@ spec:
                 properties:
                   compliance:
                     description: Compliance is standards/specifications version implemented by device firmware  such as SPC-1, SPC-2, etc
-                    nullable: true
                     type: string
                   deviceType:
                     description: DeviceType represents the type of device like sparse, disk, partition, lvm, crypt
@@ -144,7 +143,6 @@ spec:
                     type: integer
                   model:
                     description: Model is model of disk
-                    nullable: true
                     type: string
                   physicalBlockSize:
                     description: PhysicalBlockSize is the physical block size in bytes reported by /sys/class/block/sda/queue/physical_block_size
@@ -155,7 +153,6 @@ spec:
                     type: string
                   vendor:
                     description: Vendor is vendor of disk
-                    nullable: true
                     type: string
                 type: object
               devlinks:

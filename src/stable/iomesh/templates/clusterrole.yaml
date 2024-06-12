@@ -32,6 +32,7 @@ rules:
   - ""
   resources:
   - nodes
+  - nodes/proxy
   verbs: ["get", "list", "watch"]
 - apiGroups:
   - apps
@@ -42,6 +43,8 @@ rules:
 - apiGroups:
   - rbac.authorization.k8s.io
   resources:
+  - roles
+  - rolebindings
   - clusterroles
   - clusterrolebindings
   verbs: ["*"]
@@ -66,10 +69,12 @@ apiVersion: rbac.authorization.k8s.io/v1
 kind: ClusterRole
 metadata:
   name: iomesh:chunk
+  annotations:
+    helm.sh/resource-policy: keep
 rules:
 - apiGroups: [""]
-  resources: ["configmaps"]
-  verbs:     ["get", "list", "watch"]
+  resources: ["configmaps", "nodes", "nodes/proxy"]
+  verbs:     ["get", "list", "watch", "patch"]
 - apiGroups: [""]
   resources: ["pods"]
   verbs:     ["get", "list", "watch"]
@@ -79,3 +84,33 @@ rules:
 - apiGroups: ["iomesh.com"]
   resources: ["*"]
   verbs:     ["*"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: iomesh:apiserver
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - namespaces
+  - configmaps
+  verbs:
+  - get
+  - list
+  - watch
+- apiGroups:
+  - authorization.k8s.io
+  resources:
+  - subjectaccessreviews
+  verbs:
+  - create
+- apiGroups:
+  - admissionregistration.k8s.io
+  resources:
+  - mutatingwebhookconfigurations
+  - validatingwebhookconfigurations
+  verbs:
+  - get
+  - list
+  - watch

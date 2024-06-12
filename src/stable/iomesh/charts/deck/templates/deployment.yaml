@@ -1,0 +1,45 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "deck.fullname" . }}
+  labels:
+    {{- include "deck.labels" . | nindent 4 }}
+spec:
+  replicas: {{ .Values.replicaCount }}
+  selector:
+    matchLabels:
+      {{- include "deck.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "deck.selectorLabels" . | nindent 8 }}
+    spec:
+      serviceAccountName: {{ include "deck.serviceAccountName" . }}
+      containers:
+        - name: {{ .Chart.Name }}
+          image: "{{ .Values.global.registry }}{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          args:
+            - -bind=0.0.0.0:8080
+            - -plugins=/var/lib/deck/plugins
+            - -namespace={{ .Release.Namespace }}
+            - -release-name={{ .Release.Name }}
+            - -global-registry={{ .Values.global.registry }}
+            - -prometheus={{ .Values.prometheus.address }}
+            - -alertmanager={{ .Values.alertmanager.address }}
+          ports:
+            - containerPort: 8080
+              name: http
+          resources:
+            {{- toYaml .Values.resources | nindent 12 }}
+          volumeMounts:
+            - name: plugins
+              mountPath: /var/lib/deck/plugins
+            - name: run
+              mountPath: /var/run/deck
+      volumes:
+        - name: plugins
+          hostPath:
+            path: /var/lib/deck/plugins
+        - name: run
+          emptyDir: {}

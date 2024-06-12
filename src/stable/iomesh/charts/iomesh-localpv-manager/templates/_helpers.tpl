@@ -60,7 +60,7 @@ volumeMounts:
 image
 */}}
 {{- define "localpvManager.image" -}}
-{{ .Values.localpvManager.image.repository }}:{{ .Values.localpvManager.image.tag | default .Chart.AppVersion }}
+{{ .Values.global.registry }}{{ .Values.localpvManager.image.repository }}:{{ .Values.localpvManager.image.tag | default .Chart.AppVersion }}
 {{- end }}
 
 {{/*

@@ -1,27 +1,41 @@
 apiVersion: v2
-appVersion: v5.3.0-rc13
+appVersion: v5.5.0-rc27
 dependencies:
 - name: zookeeper-operator
-  repository: http://iomesh.com/charts
-  version: 0.2.15
+  repository: file://charts/zookeeper-operator
+  version: 0.2.15-1
 - name: hostpath-provisioner
-  repository: http://iomesh.com/charts
-  version: 0.5.3
+  repository: file://charts/hostpath-provisioner
+  version: 0.5.3-1
 - condition: openebs-ndm.enabled
   name: openebs-ndm
-  repository: http://iomesh.com/charts
-  version: 1.8.0
+  repository: file://charts/openebs-ndm
+  version: 1.8.0-1
 - name: csi-driver
-  repository: http://iomesh.com/charts
-  version: 2.6.0
+  repository: file://charts/csi-driver
+  version: 2.7.2
 - name: blockdevice-monitor
-  repository: http://iomesh.com/charts
+  repository: file://charts/blockdevice-monitor
   version: 0.1.0
 - condition: iomesh-localpv-manager.enabled
   name: iomesh-localpv-manager
-  repository: http://iomesh.com/charts
+  repository: file://charts/iomesh-localpv-manager
+  version: 0.2.0
+- name: deck
+  repository: file://charts/deck
+  version: 0.1.0
+- name: deck-plugin-iomesh
+  repository: file://charts/deck-plugin-iomesh
   version: 0.1.0
 description: Install all IOMesh components
 name: iomesh
 type: application
-version: v1.0.1
+version: v1.1.0
+home: https://www.iomesh.com
+icon: https://www.iomesh.com/IOMesh_logo_on_white.svg
+maintainers:
+- name: SmartX
+  email: info@smartx.com
+  url: https://www.iomesh.com
+annotations:
+  "app.kubesphere.io/category": "Storage"

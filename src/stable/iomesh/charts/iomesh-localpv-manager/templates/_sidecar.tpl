@@ -1,4 +1,5 @@
 {{- define "localpvManager.sidecar.registry" -}}
+{{ $.Values.global.registry }}
 {{- if $.Values.sidecar }}
 {{- if $.Values.sidecar.registry }}
 {{- $.Values.sidecar.registry }}
@@ -67,7 +68,7 @@ csi-provisioner sidecar.
     - --extra-create-metadata=true
     - --immediate-topology=false
     - --strict-topology=true
-    - "--v=5"
+    - "--v=3"
 {{ include "localpvManager.sidecar.containerCommon" . | indent 2 }}
 {{- /*
 liveness-probe sidecar

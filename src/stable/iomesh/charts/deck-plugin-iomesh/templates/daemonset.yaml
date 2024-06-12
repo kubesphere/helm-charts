@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: DaemonSet
+metadata:
+  name: {{ include "deck-plugin-iomesh.fullname" . }}
+  labels:
+    {{- include "deck-plugin-iomesh.labels" . | nindent 4 }}
+spec:
+  selector:
+    matchLabels:
+      {{- include "deck-plugin-iomesh.selectorLabels" . | nindent 6 }}
+  template:
+    metadata:
+      labels:
+        {{- include "deck-plugin-iomesh.selectorLabels" . | nindent 8 }}
+    spec:
+      containers:
+        - name: deck-plugin-iomesh
+          image: "{{.Values.global.registry}}{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          imagePullPolicy: {{ .Values.image.pullPolicy }}
+          volumeMounts:
+            - name: plugins
+              mountPath: /var/lib/deck/plugins
+      volumes:
+        - name: plugins
+          hostPath:
+            path: /var/lib/deck/plugins
+
+      {{- with .Values.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}

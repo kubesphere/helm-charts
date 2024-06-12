@@ -54,6 +54,7 @@ spec:
             - --deployment_mode={{ .Values.driver.deploymentMode }}
             - --namespace=$(NAMESPACE)
             - --node_map={{ include "csi-driver.fullname" . }}-node-map
+            - --enable_nvmf={{ .Values.driver.nvmf.enable }}
             - --pod_delete_policy={{ .Values.driver.controller.driver.podDeletePolicy | default "no-delete-pod" }}
             - --pod_delete_latency={{ .Values.driver.controller.driver.podDeleteLatency | default "90s" }}
             - --v=1
@@ -73,6 +74,8 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
+            - name: CHART_RELEASE_INFO
+              value: {{ .Release.Namespace }}/{{ .Release.Name }}
       {{- with .Values.driver.controller.nodeSelector }}
       nodeSelector:
         {{- toYaml . | nindent 8 }}
