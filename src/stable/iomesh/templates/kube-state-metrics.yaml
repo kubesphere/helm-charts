@@ -116,7 +116,7 @@ spec:
     spec:
       automountServiceAccountToken: true
       containers:
-      - image: {{ .Values.operator.kubeStateMetrics.image.registry }}/{{ .Values.operator.kubeStateMetrics.image.repo }}:{{ .Values.operator.kubeStateMetrics.image.tag }}
+      - image: {{ .Values.global.registry }}{{ .Values.operator.kubeStateMetrics.image.repo }}:{{ .Values.operator.kubeStateMetrics.image.tag }}
         args:
         - --resources=persistentvolumeclaims,persistentvolumes,storageclasses,volumeattachments
         livenessProbe:

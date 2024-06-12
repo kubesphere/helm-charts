@@ -51,3 +51,4 @@ webhooks:
     resources:
     - iomeshclusters
   sideEffects: None
+  timeoutSeconds: 30

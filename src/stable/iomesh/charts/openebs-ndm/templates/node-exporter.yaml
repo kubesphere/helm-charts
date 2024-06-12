@@ -22,7 +22,7 @@ spec:
       serviceAccountName: {{ template "openebs-ndm.serviceAccountName" . }}
       containers:
         - name: {{ template "openebs-ndm.node-exporter.fullname" . }}
-          image: "{{ .Values.ndmExporter.image.registry }}{{ .Values.ndmExporter.image.repository }}:{{ .Values.ndmExporter.image.tag }}"
+          image: "{{ .Values.global.registry }}{{ .Values.ndmExporter.image.repository }}:{{ .Values.ndmExporter.image.tag }}"
           command:
             - /usr/local/bin/exporter
           args:

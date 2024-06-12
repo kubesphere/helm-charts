@@ -1,0 +1,33 @@
+{{- $apiserverName := printf "%s.%s.svc" "iomesh-apiserver" .Release.Namespace }}
+{{- $ca := genCA "iomesh-apiserver-ca" 3650 }}
+{{- $apiserverCert := genSignedCert $apiserverName nil (list $apiserverName) 3650 $ca }}
+
+---
+apiVersion: apiregistration.k8s.io/v1
+kind: APIService
+metadata:
+  name: v1alpha1.subresource.iomesh.com
+  labels:
+    {{- include "operator.selectorLabels" . | nindent 6 }}
+spec:
+  group: subresource.iomesh.com
+  groupPriorityMinimum: 100
+  version: v1alpha1
+  versionPriority: 100
+  caBundle: {{ b64enc $ca.Cert }}
+  service:
+    name: iomesh-apiserver
+    namespace: {{ .Release.Namespace }}
+---
+kind: Secret
+apiVersion: v1
+metadata:
+  name: {{ template "iomesh.apiserver.cert" . }}
+  namespace: {{ .Release.Namespace | quote }}
+  labels:
+    {{- include "operator.selectorLabels" . | nindent 6 }}
+type: Opaque
+data:
+  ca.crt: {{ b64enc $ca.Cert }}
+  tls.crt: {{ b64enc $apiserverCert.Cert }}
+  tls.key: {{ b64enc $apiserverCert.Key }}
