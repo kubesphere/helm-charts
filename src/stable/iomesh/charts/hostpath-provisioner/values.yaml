@@ -2,8 +2,12 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 
+global:
+  # global variable registry to locate the images, It is convenient for users to specify private dockerhub
+  registry: docker.io/
+
 image:
-  repository: quay.io/kubevirt/hostpath-provisioner
+  repository: kubevirt/hostpath-provisioner
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
   tag: "v0.5.1"

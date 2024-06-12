@@ -51,8 +51,17 @@ driver:
   metaAddr: ""
   # IOMesh Chunk server iscsi portal address
   iscsiPortal: "127.0.0.1:3260"
+  # The maximum number of volumes attachable per node
+  maxVolumesPerNode: 128
   # EXTERNAL / HCI
   deploymentMode: "EXTERNAL"
+  nvmf:
+    # enable nvmf access protocol. The backend storage system must support the nvmf protocol to enable it
+    enable: false
+    nvmfAgentIntervalSecond: 90
+    nvmfAgentConnectTimeoutSecond: 15
+    nvmfAgentDisconnectTimeoutSecond: 15
+
 
   controller:
     # controller replicas
@@ -72,11 +81,8 @@ driver:
       podDeleteLatency: "90s"
     resources:
       limits:
-        cpu: 100m
-        memory: 150Mi
-      requests:
-        cpu: 100m
-        memory: 150Mi
+        cpu: 1
+        memory: 1Gi
 
   node:
     # nodeSelector of csi-node-plugin Pod
@@ -99,11 +105,18 @@ driver:
       kubeletRootDir: "/var/lib/kubelet"
     resources:
       limits:
-        cpu: 100m
-        memory: 150Mi
-      requests:
-        cpu: 100m
-        memory: 150Mi
+        cpu: 500m
+        memory: 500Mi
 
 sidecar:
   registry: "iomesh"
+
+prepareCSI:
+  # Whether to deploy prepare-csi
+  enabled: true
+  # Image config for prepare-csi
+  image:
+    # Default repository of the prepare-csi image.
+    repository: iomesh/prepare-csi
+    # The image tag. Default tag is `.Chart.AppVersion`
+    tag: ""

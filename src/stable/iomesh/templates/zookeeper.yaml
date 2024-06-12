@@ -9,7 +9,11 @@ metadata:
 spec:
   replicas: {{ .Values.iomesh.zookeeper.replicas | default 3 }}
   image:
+    {{- if eq .Values.global.registry "docker.io/"}}
     repository: {{ .Values.iomesh.zookeeper.image.repository }}
+    {{- else }}
+    repository: {{ .Values.global.registry }}{{ .Values.iomesh.zookeeper.image.repository }}
+    {{- end }}
     tag: {{ .Values.iomesh.zookeeper.image.tag }}
     pullPolicy: {{ .Values.iomesh.zookeeper.image.pullPolicy | default "IfNotPresent" }}
   pod:

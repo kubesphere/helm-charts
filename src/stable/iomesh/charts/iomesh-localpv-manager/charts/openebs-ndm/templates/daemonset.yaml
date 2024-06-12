@@ -8,6 +8,8 @@ metadata:
   {{- end }}
   labels:
     {{- include "openebs-ndm.labels" . | nindent 4 }}
+  annotations:
+    helm.sh/resource-policy: keep
 spec:
   updateStrategy:
 {{ toYaml .Values.ndm.updateStrategy | indent 4 }}
@@ -33,7 +35,7 @@ spec:
 {{- end}}
       containers:
       - name: {{ template "openebs-ndm.name" . }}
-        image: "{{ .Values.ndm.image.registry }}{{ .Values.ndm.image.repository }}:{{ .Values.ndm.image.tag }}"
+        image: "{{ .Values.global.registry }}{{ .Values.ndm.image.repository }}:{{ .Values.ndm.image.tag }}"
         args:
           - -v=4
 {{- if .Values.featureGates.enabled }}
