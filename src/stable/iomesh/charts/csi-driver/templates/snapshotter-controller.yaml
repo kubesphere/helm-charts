@@ -1,4 +1,4 @@
-{{- if and (not (.Capabilities.APIVersions.Has "snapshot.storage.k8s.io/v1beta1")) (not (.Capabilities.APIVersions.Has "snapshot.storage.k8s.io/v1")) }}
+{{- if and (not (.Capabilities.APIVersions.Has "snapshot.storage.k8s.io/v1alpha1")) (not (.Capabilities.APIVersions.Has "snapshot.storage.k8s.io/v1beta1")) (not (.Capabilities.APIVersions.Has "snapshot.storage.k8s.io/v1")) }}
 {{- $kubeMajorVersion := int .Capabilities.KubeVersion.Major }}
 {{- $kubeMinorVersion := int .Capabilities.KubeVersion.Minor }}
 {{- if and (eq $kubeMajorVersion 1) (ge $kubeMinorVersion 22) }}
@@ -7,8 +7,8 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.4.0
-    api-approved.kubernetes.io: "https://github.com/kubernetes-csi/external-snapshotter/pull/419"
+    controller-gen.kubebuilder.io/version: v0.8.0
+    api-approved.kubernetes.io: "https://github.com/kubernetes-csi/external-snapshotter/pull/665"
     helm.sh/resource-policy: keep
   creationTimestamp: null
   name: volumesnapshotclasses.snapshot.storage.k8s.io
@@ -18,6 +18,9 @@ spec:
     kind: VolumeSnapshotClass
     listKind: VolumeSnapshotClassList
     plural: volumesnapshotclasses
+    shortNames:
+    - vsclass
+    - vsclasses
     singular: volumesnapshotclass
   scope: Cluster
   versions:
@@ -124,8 +127,8 @@ apiVersion: apiextensions.k8s.io/v1
 kind: CustomResourceDefinition
 metadata:
   annotations:
-    controller-gen.kubebuilder.io/version: v0.4.0
-    api-approved.kubernetes.io: "https://github.com/kubernetes-csi/external-snapshotter/pull/419"
+    controller-gen.kubebuilder.io/version: v0.8.0
+    api-approved.kubernetes.io: "https://github.com/kubernetes-csi/external-snapshotter/pull/665"
     helm.sh/resource-policy: keep
   creationTimestamp: null
   name: volumesnapshotcontents.snapshot.storage.k8s.io
@@ -135,6 +138,9 @@ spec:
     kind: VolumeSnapshotContent
     listKind: VolumeSnapshotContentList
     plural: volumesnapshotcontents
+    shortNames:
+    - vsc
+    - vscs
     singular: volumesnapshotcontent
   scope: Cluster
   versions:
@@ -185,7 +191,7 @@ spec:
             description: spec defines properties of a VolumeSnapshotContent created by the underlying storage system. Required.
             properties:
               deletionPolicy:
-                description: deletionPolicy determines whether this VolumeSnapshotContent and its physical snapshot on the underlying storage system should be deleted when its bound VolumeSnapshot is deleted. Supported values are "Retain" and "Delete". "Retain" means that the VolumeSnapshotContent and its physical snapshot on underlying storage system are kept. "Delete" means that the VolumeSnapshotContent and its physical snapshot on underlying storage system are deleted. For dynamically provisioned snapshots, this field will automatically be filled in by the CSI snapshotter sidecar with the "DeletionPolicy" field defined in the corresponding VolumeSnapshotClass. For pre-existing snapshots, users MUST specify this field when creating the  VolumeSnapshotContent object. Required.
+                description: deletionPolicy determines whether this VolumeSnapshotContent and its physical snapshot on the underlying storage system should be deleted when its bound VolumeSnapshot is deleted. Supported values are "Retain" and "Delete". "Retain" means that the VolumeSnapshotContent and its physical snapshot on underlying storage system are kept. "Delete" means that the VolumeSnapshotContent and its physical snapshot on underlying storage system are deleted. For dynamically provisioned snapshots, this field will automatically be filled in by the CSI snapshotter sidecar with the "DeletionPolicy" field defined in the corresponding VolumeSnapshotClass. For pre-existing snapshots, users MUST specify this field when creating the VolumeSnapshotContent object. Required.
                 enum:
                 - Delete
                 - Retain
@@ -206,6 +212,9 @@ spec:
                 oneOf:
                 - required: ["snapshotHandle"]
                 - required: ["volumeHandle"]
+              sourceVolumeMode:
+                description: SourceVolumeMode is the mode of the volume whose snapshot is taken. Can be either “Filesystem” or “Block”. If not specified, it indicates the source volume's mode is unknown. This field is immutable. This field is an alpha field.
+                type: string
               volumeSnapshotClassName:
                 description: name of the VolumeSnapshotClass from which this snapshot was (or will be) created. Note that after provisioning, the VolumeSnapshotClass may be deleted or recreated with different set of values, and as such, should not be referenced post-snapshot creation.
                 type: string
@@ -431,8 +440,8 @@ kind: CustomResourceDefinition
 metadata:
   annotations:
     helm.sh/resource-policy: keep
-    controller-gen.kubebuilder.io/version: v0.4.0
-    api-approved.kubernetes.io: "https://github.com/kubernetes-csi/external-snapshotter/pull/419"
+    controller-gen.kubebuilder.io/version: v0.8.0
+    api-approved.kubernetes.io: "https://github.com/kubernetes-csi/external-snapshotter/pull/665"
   creationTimestamp: null
   name: volumesnapshots.snapshot.storage.k8s.io
 spec:
@@ -441,6 +450,8 @@ spec:
     kind: VolumeSnapshot
     listKind: VolumeSnapshotList
     plural: volumesnapshots
+    shortNames:
+    - vs
     singular: volumesnapshot
   scope: Namespaced
   versions:
@@ -520,7 +531,7 @@ spec:
                 format: date-time
                 type: string
               error:
-                description: error is the last observed error during snapshot creation, if any. This field could be helpful to upper level controllers(i.e., application controller) to decide whether they should continue on waiting for the snapshot to be created based on the type of error reported. The snapshot controller will keep retrying when an error occurrs during the snapshot creation. Upon success, this error field will be cleared.
+                description: error is the last observed error during snapshot creation, if any. This field could be helpful to upper level controllers(i.e., application controller) to decide whether they should continue on waiting for the snapshot to be created based on the type of error reported. The snapshot controller will keep retrying when an error occurs during the snapshot creation. Upon success, this error field will be cleared.
                 properties:
                   message:
                     description: 'message is a string detailing the encountered error during snapshot creation if specified. NOTE: message may be logged, and it should not contain sensitive information.'
@@ -624,7 +635,7 @@ spec:
                 format: date-time
                 type: string
               error:
-                description: error is the last observed error during snapshot creation, if any. This field could be helpful to upper level controllers(i.e., application controller) to decide whether they should continue on waiting for the snapshot to be created based on the type of error reported. The snapshot controller will keep retrying when an error occurrs during the snapshot creation. Upon success, this error field will be cleared.
+                description: error is the last observed error during snapshot creation, if any. This field could be helpful to upper level controllers(i.e., application controller) to decide whether they should continue on waiting for the snapshot to be created based on the type of error reported. The snapshot controller will keep retrying when an error occurs during the snapshot creation. Upon success, this error field will be cleared.
                 properties:
                   message:
                     description: 'message is a string detailing the encountered error during snapshot creation if specified. NOTE: message may be logged, and it should not contain sensitive information.'
@@ -691,13 +702,16 @@ rules:
     verbs: ["get", "list", "watch"]
   - apiGroups: ["snapshot.storage.k8s.io"]
     resources: ["volumesnapshotcontents"]
-    verbs: ["create", "get", "list", "watch", "update", "delete"]
+    verbs: ["create", "get", "list", "watch", "update", "delete", "patch"]
+  - apiGroups: ["snapshot.storage.k8s.io"]
+    resources: ["volumesnapshotcontents/status"]
+    verbs: ["update", "patch"]
   - apiGroups: ["snapshot.storage.k8s.io"]
     resources: ["volumesnapshots"]
-    verbs: ["get", "list", "watch", "update"]
+    verbs: ["get", "list", "watch", "update", "patch"]
   - apiGroups: ["snapshot.storage.k8s.io"]
     resources: ["volumesnapshots/status"]
-    verbs: ["update"]
+    verbs: ["update", "patch"]
 
 ---
 kind: ClusterRoleBinding
@@ -774,7 +788,7 @@ spec:
       serviceAccount: snapshot-controller
       containers:
         - name: snapshot-controller
-          image: {{ include "csi-driver.sidecar.registry" . }}/snapshot-controller:v4.2.1
+          image: {{ include "csi-driver.sidecar.registry" . }}/snapshot-controller:v6.2.2
           args:
             - "--v=5"
             - "--leader-election=true"

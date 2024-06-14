@@ -9,6 +9,8 @@ metadata:
   {{- end }}
   labels:
     {{- include "openebs-ndm.operator.labels" . | nindent 4 }}
+  annotations:
+    helm.sh/resource-policy: keep
 spec:
   replicas: {{ .Values.ndmOperator.replicas }}
   strategy:
@@ -31,7 +33,7 @@ spec:
       serviceAccountName: {{ template "openebs-ndm.serviceAccountName" . }}
       containers:
       - name: {{ template "openebs-ndm.operator.fullname" . }}
-        image: "{{ .Values.ndmOperator.image.registry }}{{ .Values.ndmOperator.image.repository }}:{{ .Values.ndmOperator.image.tag }}"
+        image: "{{ .Values.global.registry }}{{ .Values.ndmOperator.image.repository }}:{{ .Values.ndmOperator.image.tag }}"
         imagePullPolicy: {{ .Values.ndmOperator.image.pullPolicy }}
         resources:
 {{ toYaml .Values.ndmOperator.resources | indent 12 }}
@@ -63,7 +65,7 @@ spec:
         - name: OPERATOR_NAME
           value: "node-disk-operator"
         - name: CLEANUP_JOB_IMAGE
-          value: "{{ .Values.helperPod.image.registry }}{{ .Values.helperPod.image.repository }}:{{ .Values.helperPod.image.tag }}"
+          value: "{{ .Values.global.registry }}{{ .Values.helperPod.image.repository }}:{{ .Values.helperPod.image.tag }}"
 {{- if .Values.imagePullSecrets }}
         - name: OPENEBS_IO_IMAGE_PULL_SECRETS
           value: "{{- range $index, $secret := .Values.imagePullSecrets}}{{if $index}},{{end}}{{ $secret.name }}{{- end}}"

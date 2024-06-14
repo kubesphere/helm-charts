@@ -111,6 +111,12 @@ volumes:
   hostPath:
     path: /sbin/iscsiadm
     type: File
+{{- if .Values.driver.nvmf.enable }}
+- name: nvme
+  hostPath:
+    path: /usr/sbin/nvme
+    type: File
+{{- end }}
 - name: lib
   hostPath:
     path: /lib
@@ -154,6 +160,12 @@ volumeMounts:
   mountPath: /host/etc/iscsi
 - name: iscsiadm
   mountPath: /host/sbin/iscsiadm
+{{- if .Values.driver.nvmf.enable }}
+- name: nvme
+  mountPath: /host/usr/sbin/nvme
+- name: device-dir
+  mountPath: /host/dev
+{{- end }}
 - name: iscsi-lib
   mountPath: /host/var/lib/iscsi
 - name: lib
@@ -194,4 +206,11 @@ smtx-{{include "csi-driver.name" .}}
 {{- else -}}
 com.smartx.{{ include "csi-driver.name" . }}
 {{- end }}
+{{- end }}
+
+{{/*
+Prepare-csi image
+*/}}
+{{- define "prepareCSI.image" -}}
+{{ .Values.global.registry }}{{ .Values.prepareCSI.image.repository | default "iomesh/prepare-csi"}}:{{ .Values.prepareCSI.image.tag | default "v1.0.2" }}
 {{- end }}

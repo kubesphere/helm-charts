@@ -35,16 +35,21 @@ csi-driver controller sidecar
 {{- $snapshotterVersion := "" }}
 {{- $attacherVersion := "" }}
 {{- $resizerVersion := "" }}
-{{- $livenessProbeVersion := "v2.8.0" -}}
+{{- $livenessProbeVersion := "v2.10.0" -}}
 
 {{- /*
 k8s 1.22+
 */}}
 {{- if and (eq $kubeMajorVersion 1) (ge $kubeMinorVersion 22) }}
-{{- $provisionerVersion = "v3.0.0" }}
-{{- $snapshotterVersion = "v4.2.1" }}
-{{- $attacherVersion = "v3.3.0" }}
-{{- $resizerVersion = "v1.3.0" }}
+{{- if and (not (.Capabilities.APIVersions.Has "snapshot.storage.k8s.io/v1alpha1")) (.Capabilities.APIVersions.Has "snapshot.storage.k8s.io/v1beta1") (not (.Capabilities.APIVersions.Has "snapshot.storage.k8s.io/v1")) }}
+{{- $provisionerVersion = "v2.1.2" }}
+{{- $snapshotterVersion = "v2.1.1" }}
+{{- else }}
+{{- $provisionerVersion = "v3.5.0" }}
+{{- $snapshotterVersion = "v6.2.2" }}
+{{- end }}
+{{- $attacherVersion = "v4.3.0" }}
+{{- $resizerVersion = "v1.8.0" }}
 {{- /*
 k8s 1.17~1.21
 */}}
@@ -58,7 +63,6 @@ k8s 1.15~1.16
 */}}
 {{- else if and (eq $kubeMajorVersion 1) (ge $kubeMinorVersion 15) (le $kubeMinorVersion 16) }}
 {{- $provisionerVersion = "v1.6.0" }}
-{{- $snapshotterVersion = "v1.2.2" }}
 {{- $attacherVersion = "v2.2.0" }}
 {{- $resizerVersion = "v0.5.0" }}
 {{- /*
@@ -66,7 +70,6 @@ k8s 1.13~1.14
 */}}
 {{- else if and (eq $kubeMajorVersion 1) (ge $kubeMinorVersion 13) (le $kubeMinorVersion 14) }}
 {{- $provisionerVersion = "v1.6.0" }}
-{{- $snapshotterVersion = "v1.2.2" }}
 {{- $attacherVersion = "v1.1.1" }}
 {{- $resizerVersion = "v0.5.0" }}
 {{- end }}
@@ -95,20 +98,21 @@ let the sidecar use the default election method (configmap or endpoint)
     {{- if eq .Values.driver.deploymentMode "HCI" }}
     - "--feature-gates=Topology=true"
     {{- end }}
-    - "--v=5"
+    - "--v=3"
 {{ include "csi-driver.sidecar.container-common" . | indent 2 }}
 {{- /*
 csi-snapshotter sidecar
+k8s support csi-snapshotter sidecar in k8s 1.17+
 */}}
+{{- if and (eq $kubeMajorVersion 1) (ge $kubeMinorVersion 17) }}
 - name: csi-snapshotter
   image: {{ include "csi-driver.sidecar.registry" . }}/csi-snapshotter:{{ $snapshotterVersion }}
   args:
   - "--csi-address=$(ADDRESS)"
-  {{- if and (eq $kubeMajorVersion 1) (ge $kubeMinorVersion 17) }}
   - "--leader-election"
-  {{- end }}
-  - "--v=5"
+  - "--v=3"
 {{ include "csi-driver.sidecar.container-common" . | indent 2 }}
+{{- end }}
 {{- /*
 csi-attacher sidecar.
 */}}
@@ -117,7 +121,7 @@ csi-attacher sidecar.
   args:
     - "--csi-address=$(ADDRESS)"
     - "--leader-election"
-    - "--v=5"
+    - "--v=3"
 {{ include "csi-driver.sidecar.container-common" . | indent 2 }}
 {{- /*
 csi-resizer sidecar.
@@ -129,7 +133,7 @@ k8s support csi-resizer sidecar in k8s 1.14+
   args:
     - "--csi-address=$(ADDRESS)"
     - "--leader-election"
-    - "--v=5"
+    - "--v=3"
 {{ include "csi-driver.sidecar.container-common" . | indent 2 }}
 {{- end }}
 {{- /*
@@ -152,7 +156,7 @@ driver-registrar sidecar
 - name: driver-registrar
   securityContext:
     privileged: true
-  image: {{ include "csi-driver.sidecar.registry" . }}/csi-node-driver-registrar:v2.5.0
+  image: {{ include "csi-driver.sidecar.registry" . }}/csi-node-driver-registrar:v2.8.0
   args:
     - --v=5
     - --csi-address=/csi/csi.sock
@@ -175,7 +179,7 @@ driver-registrar sidecar
 liveness-probe sidecar
 */}}
 - name: liveness-probe
-  image: {{ include "csi-driver.sidecar.registry" . }}/livenessprobe:v2.8.0
+  image: {{ include "csi-driver.sidecar.registry" . }}/livenessprobe:v2.10.0
   args:
     - --csi-address=/csi/csi.sock
     - --health-port={{ $.Values.driver.node.driver.ports.health }}

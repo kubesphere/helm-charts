@@ -7,8 +7,19 @@ metadata:
   labels:
   {{- include "iomesh.labels" . | nindent 4 }}
 spec:
+  version: {{ .Chart.Version }}
+  {{- if .Values.iomesh.edition }}
+  edition: {{ .Values.iomesh.edition }}
+  {{- end }}
+  {{- if .Values.iomesh.platform }}
+  platform: {{ .Values.iomesh.platform }}
+  {{- end }}
   {{- if .Values.iomesh.diskDeploymentMode }}
   diskDeploymentMode: {{ .Values.iomesh.diskDeploymentMode }}
+  {{- end }}
+  {{- with .Values.iomesh.cpuExclusiveOptions }}
+  cpuExclusiveOptions:
+    {{- toYaml . | nindent 4 }}
   {{- end }}
   storageClass: {{ .Values.iomesh.storageClass }}
   reclaimPolicy:
@@ -17,7 +28,7 @@ spec:
   meta:
     replicas: {{ .Values.iomesh.meta.replicaCount }}
     image:
-      repository: {{ .Values.iomesh.meta.image.repository }}
+      repository: {{ .Values.global.registry }}{{ .Values.iomesh.meta.image.repository }}
       tag: {{ .Values.iomesh.meta.image.tag | default (include "iomesh.version" .) }}
       pullPolicy: {{ .Values.iomesh.meta.image.pullPolicy }}
     {{- with .Values.iomesh.meta.podPolicy }}
@@ -46,12 +57,12 @@ spec:
     {{- end }}
     replicas: {{ .Values.iomesh.chunk.replicaCount }}
     image:
-      repository: {{ .Values.iomesh.chunk.image.repository }}
+      repository: {{ .Values.global.registry }}{{ .Values.iomesh.chunk.image.repository }}
       tag: {{ .Values.iomesh.chunk.image.tag | default (include "iomesh.version" .) }}
       pullPolicy: {{ .Values.iomesh.chunk.image.pullPolicy }}
     devicemanager:
       image:
-        repository: {{ .Values.iomesh.chunk.devicemanager.image.repository }}
+        repository: {{ .Values.global.registry }}{{ .Values.iomesh.chunk.devicemanager.image.repository }}
         tag: {{ .Values.iomesh.chunk.devicemanager.image.tag | default (include "iomesh.operatorVersion" .)}}
         pullPolicy: {{ .Values.iomesh.chunk.devicemanager.image.pullPolicy }}
       {{- if .Values.iomesh.chunk.devicemanager.blockDeviceNamespace }}
@@ -59,6 +70,10 @@ spec:
       {{- end }}
     {{- with .Values.iomesh.chunk.deviceMap }}
     deviceMap: 
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    {{- with .Values.iomesh.chunk.extraEnvs }}
+    extraEnvs:
       {{- toYaml . | nindent 6 }}
     {{- end }}
     {{- with .Values.iomesh.chunk.podPolicy }}
@@ -86,7 +101,7 @@ spec:
     iscsiVirtualIP: {{ .Values.iomesh.redirector.iscsiVirtualIP }}
     {{- end }}
     image:
-      repository: {{ .Values.iomesh.redirector.image.repository }}
+      repository: {{ .Values.global.registry }}{{ .Values.iomesh.redirector.image.repository }}
       tag: {{ .Values.iomesh.redirector.image.tag | default (include "iomesh.version" .) }}
       pullPolicy: {{ .Values.iomesh.redirector.image.pullPolicy }}
     {{- with .Values.iomesh.redirector.podPolicy }}
@@ -110,12 +125,12 @@ spec:
     {{- end }}
   probe:
     image:
-      repository: {{ .Values.iomesh.probe.image.repository }}
+      repository: {{ .Values.global.registry }}{{ .Values.iomesh.probe.image.repository }}
       tag: {{ .Values.iomesh.probe.image.tag | default (include "iomesh.operatorVersion" .) }}
       pullPolicy: {{ .Values.iomesh.probe.image.pullPolicy }}
   toolbox:
     image:
-      repository: {{ .Values.iomesh.toolbox.image.repository }}
+      repository: {{ .Values.global.registry }}{{ .Values.iomesh.toolbox.image.repository }}
       tag: {{ .Values.iomesh.toolbox.image.tag | default (include "iomesh.operatorVersion" .) }}
       pullPolicy: {{ .Values.iomesh.toolbox.image.pullPolicy }}
 {{- end }}

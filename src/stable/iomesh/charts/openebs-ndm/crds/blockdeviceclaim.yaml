@@ -76,7 +76,6 @@ spec:
                 type: string
               hostName:
                 description: Node name from where blockdevice has to be claimed. To be deprecated. Use NodeAttributes.HostName instead
-                nullable: true
                 type: string
               resources:
                 description: Resources will help with placing claims on Capacity, IOPS
@@ -129,7 +128,6 @@ spec:
             properties:
               phase:
                 description: Phase represents the current phase of the claim
-                nullable: true
                 type: string
             required:
             - phase

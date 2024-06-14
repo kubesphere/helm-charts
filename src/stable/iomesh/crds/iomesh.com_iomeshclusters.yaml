@@ -18,7 +18,38 @@ spec:
     singular: iomeshcluster
   scope: Namespaced
   versions:
-  - name: v1alpha1
+  - additionalPrinterColumns:
+    - jsonPath: .spec.version
+      name: Version
+      type: string
+    - jsonPath: .spec.diskDeploymentMode
+      name: DiskDeploymentMode
+      type: string
+    - jsonPath: .spec.chunk.replicas
+      name: Nodes
+      type: integer
+    - jsonPath: .status.readyReplicas.iomesh-chunk
+      name: ReadyNodes
+      type: integer
+    - jsonPath: .spec.redirector.iscsiVirtualIP
+      name: ISCSIVirtualIP
+      type: string
+    - jsonPath: .spec.redirector.iscsiServerPort
+      name: ISCSIServerPort
+      type: integer
+    - jsonPath: .status.summary.clusterSummary.spaceInfo.totalDataCapacity
+      name: TotalDataCapacity
+      type: string
+    - jsonPath: .status.summary.clusterSummary.spaceInfo.allocatedDataSpace
+      name: AllocatedDataSpace
+      type: string
+    - jsonPath: .spec.clusterID
+      name: ClusterID
+      type: integer
+    - jsonPath: .metadata.creationTimestamp
+      name: Age
+      type: date
+    name: v1alpha1
     schema:
       openAPIV3Schema:
         properties:
@@ -44,6 +75,10 @@ spec:
                       description: DeviceMappingStrategy is a query over a set of device. If you want to exclude some device in select result, add the device name in to Exclude.
                       properties:
                         exclude:
+                          items:
+                            type: string
+                          type: array
+                        include:
                           items:
                             type: string
                           type: array
@@ -98,6 +133,11 @@ spec:
                         type: object
                     required:
                     - image
+                    type: object
+                  extraEnvs:
+                    additionalProperties:
+                      type: string
+                    description: ExtraEnvs declares additional environment variable key-value pairs that are appended when the process is started.
                     type: object
                   image:
                     properties:
@@ -514,6 +554,23 @@ spec:
                 - image
                 - replicas
                 type: object
+              clusterID:
+                default: -1
+                description: ClusterID set to 0 or negative integer means let operator allocate id
+                type: integer
+              cpuExclusiveOptions:
+                properties:
+                  cpuExclusivePolicy:
+                    type: string
+                  exclusiveCpusets:
+                    description: "ExclusiveCpusets is used to specify the cpu list that the IOMesh Pod can exclusively use. ExclusiveCpusets format should according http://man7.org/linux/man-pages/man7/cpuset.7.html#FORMATS, for example: \"1,3-5\" meaning provide cpu 1,3,4,5 \n Note: configuring ExclusiveCpusets is currently only allowed when CpuExclusivePolicy is set to kernelCpuIsolation. When CpuExclusivePolicy is set to kubeletCpuManager, cpuset is dynamically allocated by kubelet"
+                    properties:
+                      chunk:
+                        type: string
+                      meta:
+                        type: string
+                    type: object
+                type: object
               diskDeploymentMode:
                 default: hybridFlash
                 description: DiskDeploymentMode set this IOMesh cluster start with all-flash mode or hybrid-flash mode. In all-flash mode, the DeviceManager will reject mount any `Cache` type partition. In hybrid-flash mode, the DeviceManager will reject mount `dataStoreWithJournal` type partition.
@@ -521,11 +578,18 @@ spec:
                 - hybridFlash
                 - allFlash
                 type: string
+              edition:
+                type: string
               licenseSecretName:
                 type: string
               meta:
                 description: MetaClusterSpec defines the desired state of MetaCluster
                 properties:
+                  extraEnvs:
+                    additionalProperties:
+                      type: string
+                    description: ExtraEnvs declares additional environment variable key-value pairs that are appended when the process is started.
+                    type: object
                   image:
                     properties:
                       pullPolicy:
@@ -939,6 +1003,8 @@ spec:
                 - image
                 - replicas
                 type: object
+              platform:
+                type: string
               portOffset:
                 default: -1
                 description: PortOffset set to -1 means let operator allocate port offset Other values(includes negative values) are all valid
@@ -975,6 +1041,11 @@ spec:
                 properties:
                   dataCIDR:
                     type: string
+                  extraEnvs:
+                    additionalProperties:
+                      type: string
+                    description: ExtraEnvs declares additional environment variable key-value pairs that are appended when the process is started.
+                    type: object
                   image:
                     properties:
                       pullPolicy:
@@ -987,6 +1058,8 @@ spec:
                     required:
                     - repository
                     type: object
+                  iscsiServerPort:
+                    type: integer
                   iscsiVirtualIP:
                     type: string
                   podPolicy:
@@ -1406,6 +1479,8 @@ spec:
                 required:
                 - image
                 type: object
+              version:
+                type: string
             required:
             - chunk
             - meta
@@ -1487,8 +1562,12 @@ spec:
                               type: integer
                             ip:
                               type: string
+                            nodename:
+                              type: string
                             spaceInfo:
                               properties:
+                                allocatedDataSpace:
+                                  type: string
                                 dirtyCacheSpace:
                                   type: string
                                 failureCacheSpace:
@@ -1505,15 +1584,6 @@ spec:
                                   type: string
                                 usedDataSpace:
                                   type: string
-                              required:
-                              - dirtyCacheSpace
-                              - failureCacheSpace
-                              - failureDataSpace
-                              - provisionedDataSpace
-                              - totalCacheCapacity
-                              - totalDataCapacity
-                              - usedCacheSpace
-                              - usedDataSpace
                               type: object
                             status:
                               type: string
@@ -1524,6 +1594,8 @@ spec:
                     properties:
                       spaceInfo:
                         properties:
+                          allocatedDataSpace:
+                            type: string
                           dirtyCacheSpace:
                             type: string
                           failureCacheSpace:
@@ -1540,15 +1612,6 @@ spec:
                             type: string
                           usedDataSpace:
                             type: string
-                        required:
-                        - dirtyCacheSpace
-                        - failureCacheSpace
-                        - failureDataSpace
-                        - provisionedDataSpace
-                        - totalCacheCapacity
-                        - totalDataCapacity
-                        - usedCacheSpace
-                        - usedDataSpace
                         type: object
                     type: object
                   metaSummary:
