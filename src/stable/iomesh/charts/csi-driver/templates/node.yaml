@@ -59,6 +59,11 @@ spec:
             - --node_map={{ include "csi-driver.fullname" . }}-node-map
             - --iscsi_config_path=/etc/iomesh/iscsi.yaml
             - --liveness_port={{ .Values.driver.node.driver.ports.liveness }}
+            - --max_volumes_per_node={{ .Values.driver.maxVolumesPerNode | default 128 }}
+            - --enable_nvmf={{ .Values.driver.nvmf.enable }}
+            - --nvmf_agent_interval_second={{ .Values.driver.nvmf.nvmfAgentIntervalSecond }}
+            - --nvmf_agent_connect_timeout_second={{ .Values.driver.nvmf.nvmfAgentConnectTimeoutSecond }}
+            - --nvmf_agent_disconnect_timeout_second={{ .Values.driver.nvmf.nvmfAgentDisconnectTimeoutSecond }}
             - --v=1
           env:
             - name: NODE_NAME
@@ -73,6 +78,8 @@ spec:
               valueFrom:
                 fieldRef:
                   fieldPath: metadata.namespace
+            - name: CHART_RELEASE_INFO
+              value: {{ .Release.Namespace }}/{{ .Release.Name }}
       {{- include "csi-driver.node.volumeMounts" . | nindent 10 -}}
       {{- with .Values.driver.node.nodeSelector }}
       nodeSelector:

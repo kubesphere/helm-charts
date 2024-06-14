@@ -4,6 +4,12 @@
 release:
   version: "1.8.0"
 
+global:
+  # Global variable registry to locate the images, It is convenient for users to specify private dockerhub
+  # Make sure that registry name end with a '/'.
+  # For example : docker.io/ is a correct value here and quay.io is incorrect
+  registry: docker.io/
+
 imagePullSecrets:
 #  - name: "image-pull-secret"
 
@@ -11,9 +17,7 @@ ndm:
   componentName: ndm
   enabled: true
   image:
-    # Make sure that registry name end with a '/'.
-    # For example : quay.io/ is a correct value here and quay.io is incorrect
-    registry:
+
     repository: openebs/node-disk-manager
     pullPolicy: IfNotPresent
     # Overrides the image tag whose default is the chart appVersion.
@@ -62,7 +66,6 @@ ndmOperator:
   name: operator
   enabled: true
   image:
-    registry:
     repository: openebs/node-disk-operator
     pullPolicy: IfNotPresent
     # Overrides the image tag whose default is the chart appVersion.
@@ -87,7 +90,6 @@ ndmOperator:
 ndmExporter:
   enabled: false
   image:
-    registry:
     repository: openebs/node-disk-exporter
     pullPolicy: IfNotPresent
     # Overrides the image tag whose default is the chart appVersion.
@@ -111,7 +113,6 @@ ndmExporter:
 
 helperPod:
   image:
-    registry: ""
     repository: openebs/linux-utils
     pullPolicy: IfNotPresent
     # Overrides the image tag whose default is the chart appVersion.

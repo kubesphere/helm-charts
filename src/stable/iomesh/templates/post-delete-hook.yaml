@@ -4,7 +4,7 @@ metadata:
   name: iomesh-post-delete-hook
   namespace: {{ .Release.Namespace }}
   annotations:
-    "helm.sh/hook": post-delete
+    "helm.sh/hook": pre-delete
     "helm.sh/hook-weight": "1"
     "helm.sh/hook-delete-policy": hook-succeeded, before-hook-creation, hook-failed
 ---
@@ -13,7 +13,7 @@ kind: ClusterRole
 metadata:
   name: iomesh-post-delete-hook
   annotations:
-    "helm.sh/hook": post-delete
+    "helm.sh/hook": pre-delete
     "helm.sh/hook-weight": "1"
     "helm.sh/hook-delete-policy": hook-succeeded, before-hook-creation, hook-failed
 rules:
@@ -22,6 +22,7 @@ rules:
   resources:
   - serviceaccounts
   - configmaps
+  - pods
   verbs: ["*"]
 - apiGroups:
   - "rbac.authorization.k8s.io"
@@ -59,7 +60,7 @@ kind: ClusterRoleBinding
 metadata:
   name: iomesh-post-delete-hook
   annotations:
-    "helm.sh/hook": post-delete
+    "helm.sh/hook": pre-delete
     "helm.sh/hook-weight": "1"
     "helm.sh/hook-delete-policy": hook-succeeded, before-hook-creation, hook-failed
 subjects:
@@ -77,7 +78,7 @@ metadata:
   name: iomesh-post-delete-hook
   namespace: {{ .Release.Namespace }}
   annotations:
-    "helm.sh/hook": post-delete
+    "helm.sh/hook": pre-delete
     "helm.sh/hook-weight": "1"
     "helm.sh/hook-delete-policy": hook-succeeded, before-hook-creation, hook-failed
 spec:
@@ -85,10 +86,18 @@ spec:
   restartPolicy: Never
   containers:
   - name: post-delete
-    image: iomesh/post-delete-hook:{{ .Values.operator.image.tag | default .Chart.Version }}
+    image: {{ .Values.global.registry }}iomesh/post-delete-hook:{{ .Values.operator.image.tag | default .Chart.Version }}
     imagePullPolicy: IfNotPresent
     env:
     - name: RELEASE_NAME
       value: {{ .Release.Name }}
     - name: RELEASE_NAMESPACE
       value: {{ .Release.Namespace }}
+    volumeMounts:
+    - mountPath: /sys/fs/cgroup
+      name: cgroup
+  volumes:
+  - hostPath:
+      path: /sys/fs/cgroup
+      type: Directory
+    name: cgroup

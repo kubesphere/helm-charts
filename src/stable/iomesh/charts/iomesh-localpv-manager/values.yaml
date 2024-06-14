@@ -1,5 +1,9 @@
 nameOverride: ""
 
+global:
+  # global variable registry to locate the images, It is convenient for users to specify private dockerhub
+  registry: docker.io/
+
 localpvManager:
   image:
     repository: iomesh/localpv-manager
@@ -44,18 +48,31 @@ openebs-ndm:
   enabled: true
   ndm:
     enabled: true
-  filters:
-    enableOsDiskExcludeFilter: true
-    osDiskExcludePaths: "/,/etc/hosts,/boot"
-    enableVendorFilter: true
-    excludeVendors: "ZBS"
-    enablePathFilter: true
-    includePaths: ""
-    excludePaths: "/dev/fd0,/dev/sr0,/dev/ram,/dev/dm-,/dev/md,loop"
-  probes:
-    enableSeachest: true
-    enableUdevProbe: true
-    enableSmartProbe: true
+    image:
+      repository: iomesh/node-disk-manager
+    filters:
+      enableOsDiskExcludeFilter: true
+      osDiskExcludePaths: "/,/etc/hosts,/boot"
+      enableVendorFilter: true
+      excludeVendors: "ZBS"
+      enablePathFilter: true
+      includePaths: ""
+      excludePaths: "/dev/fd0,/dev/sr0,/dev/ram,/dev/dm-,/dev/md,loop"
+    probes:
+      enableSeachest: true
+      enableUdevProbe: true
+      enableSmartProbe: true
+  ndmOperator:
+    enabled: true
+    image:
+      repository: iomesh/node-disk-operator
+  ndmExporter:
+    enabled: false
+    image:
+      repository: iomesh/node-disk-exporter
+  helperPod:
+    image:
+      repository: iomesh/linux-utils
   featureGates:
     # https://github.com/openebs/node-disk-manager/pull/635
     PartitionTableUUID:

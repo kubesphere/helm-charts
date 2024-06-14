@@ -65,7 +65,7 @@ Create the name of the service account to use
 Operator image
 */}}
 {{- define "operator.image" -}}
-{{ .Values.operator.image.repository | default "iomesh/operator"}}:{{ .Values.operator.image.tag | default .Chart.Version }}
+{{ .Values.global.registry }}{{ .Values.operator.image.repository | default "iomesh/operator"}}:{{ .Values.operator.image.tag | default .Chart.Version }}
 {{- end }}
 
 {{/*
@@ -73,6 +73,9 @@ Secret's name of certs
 */}}
 {{- define "iomesh.webhook.cert" -}}
 {{- printf "iomesh-webhook-cert" -}}
+{{- end -}}
+{{- define "iomesh.apiserver.cert" -}}
+{{- printf "iomesh-apiserver-cert" -}}
 {{- end -}}
 
 {{/*
@@ -84,15 +87,6 @@ E2E test
 {{- toYaml . }}
 {{- end }}
 {{- end }}
-
-
-{{/*
-Prepare-csi image
-*/}}
-{{- define "prepareCSI.image" -}}
-{{ .Values.prepareCSI.image.repository | default "iomesh/prepare-csi"}}:{{ .Values.prepareCSI.image.tag | default .Chart.Version }}
-{{- end }}
-
 
 {{/*
 Expand the name of the chart.
@@ -178,7 +172,7 @@ App Version
 meta image
 */}}
 {{- define "iomesh.metaImage" -}}
-{{ .Values.iomesh.meta.image.repository }}:{{ .Values.iomesh.meta.image.tag | default (include "iomesh.version" .) }}
+{{ .Values.global.registry }}{{ .Values.iomesh.meta.image.repository }}:{{ .Values.iomesh.meta.image.tag | default (include "iomesh.version" .) }}
 {{- end }}
 
 
@@ -186,12 +180,12 @@ meta image
 chunk image
 */}}
 {{- define "iomesh.chunkImage" -}}
-{{ .Values.iomesh.chunk.image.repository }}:{{ .Values.iomesh.chunk.image.tag | default (include "iomesh.version" .) }}
+{{ .Values.global.registry }}{{ .Values.iomesh.chunk.image.repository }}:{{ .Values.iomesh.chunk.image.tag | default (include "iomesh.version" .) }}
 {{- end }}
 
 {{/*
 iSCSI redirector image
 */}}
 {{- define "iomesh.redirectorImage" -}}
-{{ .Values.iomesh.redirector.image.repository }}:{{ .Values.iomesh.redirector.image.tag | default (include "iomesh.version" .) }}
+{{ .Values.global.registry }}{{ .Values.iomesh.redirector.image.repository }}:{{ .Values.iomesh.redirector.image.tag | default (include "iomesh.version" .) }}
 {{- end }}
