@@ -27,8 +27,8 @@ dependencies:
 - name: deck-plugin-iomesh
   repository: file://charts/deck-plugin-iomesh
   version: 0.1.0
-description: Install all IOMesh components
-name: iomesh
+description: Enterprise Kubernetes-Native Distributed Storage
+name: IOMesh
 type: application
 version: v1.1.0
 home: https://www.iomesh.com
@@ -39,3 +39,6 @@ maintainers:
   url: https://www.iomesh.com
 annotations:
   "app.kubesphere.io/category": "Storage"
+keywords:
+- storage
+- block-storage
