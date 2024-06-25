@@ -1,5 +1,54 @@
 apiVersion: v1
 entries:
+  IOMesh:
+  - annotations:
+      app.kubesphere.io/category: Storage
+    apiVersion: v2
+    appVersion: v5.5.0-rc27
+    created: "2024-06-25T02:18:54.926147992Z"
+    dependencies:
+    - name: zookeeper-operator
+      repository: file://charts/zookeeper-operator
+      version: 0.2.15-1
+    - name: hostpath-provisioner
+      repository: file://charts/hostpath-provisioner
+      version: 0.5.3-1
+    - condition: openebs-ndm.enabled
+      name: openebs-ndm
+      repository: file://charts/openebs-ndm
+      version: 1.8.0-1
+    - name: csi-driver
+      repository: file://charts/csi-driver
+      version: 2.7.2
+    - name: blockdevice-monitor
+      repository: file://charts/blockdevice-monitor
+      version: 0.1.0
+    - condition: iomesh-localpv-manager.enabled
+      name: iomesh-localpv-manager
+      repository: file://charts/iomesh-localpv-manager
+      version: 0.2.0
+    - name: deck
+      repository: file://charts/deck
+      version: 0.1.0
+    - name: deck-plugin-iomesh
+      repository: file://charts/deck-plugin-iomesh
+      version: 0.1.0
+    description: Enterprise Kubernetes-Native Distributed Storage
+    digest: 799f75c5a8276bd3d2a9ff122bc31e7cc09a345ae45a5a247681a7e9d8590831
+    home: https://www.iomesh.com
+    icon: https://www.iomesh.com/IOMesh_logo_on_white.svg
+    keywords:
+    - storage
+    - block-storage
+    maintainers:
+    - email: info@smartx.com
+      name: SmartX
+      url: https://www.iomesh.com
+    name: IOMesh
+    type: application
+    urls:
+    - https://charts.kubesphere.io/stable/IOMesh-v1.1.0.tgz
+    version: v1.1.0
   antrea:
   - annotations:
       artifacthub.io/license: Apache-2.0
@@ -2669,4 +2718,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/stable/vsphere-csi-driver-1.3.0.tgz
     version: 1.3.0
-generated: "2024-06-14T12:24:43.871343536Z"
+generated: "2024-06-25T02:18:54.912782486Z"
