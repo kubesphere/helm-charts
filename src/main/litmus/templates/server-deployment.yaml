@@ -1,0 +1,127 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "litmus-portal.fullname" . }}-server
+  namespace: {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/component: {{ include "litmus-portal.name" . }}-server
+    {{- include "litmus-portal.labels" . | nindent 4 }}
+    {{- if .Values.portal.server.customLabels }}
+      {{ toYaml .Values.portal.server.customLabels | nindent 4 }}
+    {{- end }}
+spec:
+  replicas: {{ .Values.portal.server.replicas }}
+  {{- if .Values.portal.server.updateStrategy }}
+  strategy:
+  {{- toYaml .Values.portal.server.updateStrategy | nindent 4 }}
+  {{- end }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: {{ include "litmus-portal.name" . }}-server
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: {{ include "litmus-portal.name" . }}-server
+        {{- include "litmus-portal.labels" . | nindent 8 }}
+        {{- if .Values.portal.server.customLabels }}
+          {{ toYaml .Values.portal.server.customLabels | nindent 8 }}
+        {{- end }}
+    spec:
+      serviceAccountName: {{ .Values.portal.server.serviceAccountName }}
+      {{- if .Values.image.imagePullSecrets }}
+      imagePullSecrets:
+        {{ toYaml .Values.image.imagePullSecrets | indent 8 }}
+      {{- end }}
+      initContainers:
+        - name: wait-for-mongodb
+          image: {{ .Values.image.imageRegistryName }}/{{ .Values.portal.server.waitForMongodb.image.repository }}:{{ .Values.portal.server.waitForMongodb.image.tag }}
+          imagePullPolicy: {{ .Values.portal.server.waitForMongodb.image.pullPolicy }}
+          command: ["/bin/sh", "-c"]
+          args:
+            [
+              "while [[ $(curl -sw '%{http_code}' http://{{ include "litmus-portal.fullname" . }}-mongo:{{ .Values.adminConfig.DB_PORT }} -o /dev/null) -ne 200 ]]; do sleep 5; echo 'Waiting for the MongoDB to be ready...'; done; echo 'Connection with MongoDB established'",
+            ]
+      containers:
+        - name: graphql-server
+          image: {{ .Values.image.imageRegistryName }}/{{ .Values.portal.server.graphqlServer.image.repository }}:{{ .Values.portal.server.graphqlServer.image.tag }}
+          imagePullPolicy: {{ .Values.portal.server.graphqlServer.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.portal.server.graphqlServer.containerPort }}
+              name: graphql-server
+          resources:
+            {{- toYaml .Values.portal.server.graphqlServer.resources | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /
+              port: graphql-server
+            {{- toYaml .Values.portal.server.graphqlServer.livenessProbe | nindent 12 }}
+          readinessProbe:
+            httpGet:
+              path: /
+              port: graphql-server
+            {{- toYaml .Values.portal.server.graphqlServer.readinessProbe | nindent 12 }}
+          envFrom:
+            - secretRef:
+                name: {{ include "litmus-portal.fullname" . }}-admin-secret
+            - configMapRef:
+                name: {{ include "litmus-portal.fullname" . }}-admin-config
+          env:
+            - name: LITMUS_PORTAL_NAMESPACE
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.namespace
+            - name: PORTAL_SCOPE
+              value: {{ .Values.portalScope }}
+            - name: SERVER_SERVICE_NAME
+              value: {{ include "litmus-portal.fullname" . }}-server-service
+            {{- if eq .Values.portalScope "namespace" }}
+            - name: PORTAL_ENDPOINT
+              value: "http://{{ include "litmus-portal.fullname" . }}-server-service:{{ .Values.portal.server.service.graphqlServer.port }}"
+            {{- end }}
+            - name: INGRESS
+              value: "{{ .Values.ingress.enabled }}"
+            - name: INGRESS_NAME
+              value: "{{ .Values.ingress.name }}"
+            - name: NODE_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: spec.nodeName
+            {{- $imageRegistry := .Values.image.imageRegistryName -}}
+            {{- range $key, $val := .Values.portal.server.graphqlServer.imageEnv }}
+            - name: {{ $key }}
+              value: {{ $imageRegistry }}/{{ $val }}
+            {{- end }}
+            {{- range $key, $val := .Values.portal.server.graphqlServer.genericEnv }}
+            - name: {{ $key }}
+              value: {{ $val | quote }}
+            {{- end }}
+        - name: auth-server
+          image: {{ .Values.image.imageRegistryName }}/{{ .Values.portal.server.authServer.image.repository }}:{{ .Values.portal.server.authServer.image.tag }}
+          imagePullPolicy: {{ .Values.portal.server.authServer.image.pullPolicy }}
+          ports:
+            - containerPort: {{ .Values.portal.server.authServer.containerPort }}
+              name: auth-server
+          resources:
+            {{- toYaml .Values.portal.server.authServer.resources | nindent 12 }}
+          envFrom:
+            - secretRef:
+                name: {{ include "litmus-portal.fullname" . }}-admin-secret
+            - configMapRef:
+                name: {{ include "litmus-portal.fullname" . }}-admin-config
+          env:
+            {{- range $key, $val := .Values.portal.server.authServer.env }}
+            - name: {{ $key }}
+              value: {{ $val | quote }}
+            {{- end }}
+    {{- with .Values.portal.server.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.portal.server.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.portal.server.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
