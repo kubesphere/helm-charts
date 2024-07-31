@@ -442,6 +442,47 @@ entries:
   deepflow:
   - apiVersion: v2
     appVersion: 6.5.9
+    created: "2024-07-31T02:24:45.39200393Z"
+    dependencies:
+    - condition: clickhouse.enabled
+      name: clickhouse
+      repository: ""
+      version: '*.*.*'
+    - condition: mysql.enabled
+      name: mysql
+      repository: ""
+      version: '*.*.*'
+    - condition: deepflow-agent.enabled
+      name: deepflow-agent
+      repository: ""
+      version: '*.*.*'
+    - condition: grafana.enabled
+      name: grafana
+      repository: https://grafana.github.io/helm-charts
+      version: 7.*.*
+    - condition: stella-agent-ce.enabled
+      name: stella-agent-ce
+      repository: ""
+      version: '*.*.*'
+    description: An automated observability platform for cloud-native developers.
+    digest: 660010e6f8996944c33ab831299bd152545cbf2e68f3062b8a95eb64f55b4d03
+    home: https://github.com/deepflowio/deepflow
+    icon: https://raw.githubusercontent.com/deepflowio/deepflow-charts/main/deepflow.svg
+    keywords:
+    - deepflow
+    kubeVersion: '>=1.16.0-0'
+    maintainers:
+    - name: deepflow
+      url: https://github.com/deepflowio/deepflow
+    name: deepflow
+    sources:
+    - https://github.com/deepflowio/deepflow
+    type: application
+    urls:
+    - https://charts.kubesphere.io/stable/deepflow-6.5.011.tgz
+    version: 6.5.011
+  - apiVersion: v2
+    appVersion: 6.5.9
     created: "2024-06-14T12:24:43.881287225Z"
     dependencies:
     - condition: clickhouse.enabled
@@ -2718,4 +2759,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/stable/vsphere-csi-driver-1.3.0.tgz
     version: 1.3.0
-generated: "2024-06-25T02:18:54.912782486Z"
+generated: "2024-07-31T02:24:45.38149525Z"
