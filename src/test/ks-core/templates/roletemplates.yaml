@@ -637,6 +637,7 @@ metadata:
   labels:
     iam.kubesphere.io/category: cluster-resource-management
     iam.kubesphere.io/scope: "cluster"
+    iam.kubesphere.io/aggregate-to-cluster-viewer: ""
     kubesphere.io/managed: 'true'
   name: cluster-view-nodes
 spec:
