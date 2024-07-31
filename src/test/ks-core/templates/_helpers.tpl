@@ -171,12 +171,17 @@ Returns user's password or use default. Used by NOTES.txt
 
 {{- define "getNodeAddress" -}}
 {{- $address := "127.0.0.1"}}
+{{- $found := false }}
 {{- with $nodes := lookup "v1" "Node" "" "" }}
-{{- $node := first $nodes.items -}}
+{{- range $nodeKey, $node := $nodes.items }}
+{{- if (hasKey $node.metadata.labels "node-role.kubernetes.io/control-plane") }}
 {{- range $k, $v := $node.status.addresses }}
-  {{- if (eq $v.type "InternalIP") }}
-     {{- $address = $v.address }}
-  {{- end }}
+{{- if and (eq $v.type "InternalIP") (not $found) }}
+{{- $address = $v.address }}
+{{- $found = true }}
+{{- end }}
+{{- end }}
+{{- end }}
 {{- end }}
 {{- else }}
 {{- end }}

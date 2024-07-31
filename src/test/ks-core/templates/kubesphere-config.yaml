@@ -8,7 +8,7 @@ data:
       authenticateRateLimiterMaxTries: {{ .Values.authentication.authenticateRateLimiterMaxTries | default 10 }}
       authenticateRateLimiterDuration: {{ .Values.authentication.authenticationRateLimiterDuration | default "10m0s" }}
       loginHistoryRetentionPeriod: {{ .Values.authentication.loginHistoryRetentionPeriod | default "168h"  }}
-      multipleLogin: {{ .Values.authentication.enableMultiLogin | default true }}
+      multipleLogin: {{ .Values.authentication.enableMultiLogin | default false }}
       issuer:
         host: {{ include "portal.host" . | quote }}
         jwtSecret: {{ include "jwtSecret" . | quote }}
@@ -23,8 +23,8 @@ data:
     s3:
       endpoint: {{ .Values.s3.endpoint | quote  }}
       region: {{ .Values.s3.region | default "us-east-1"  }}
-      disableSSL: {{ .Values.s3.disableSSL | default true  }}
-      forcePathStyle: {{ .Values.s3.forcePathStyle | default true  }}
+      disableSSL: {{ .Values.s3.disableSSL | default false  }}
+      forcePathStyle: {{ .Values.s3.forcePathStyle | default false  }}
       accessKeyID: {{ .Values.s3.accessKeyID | default "admin"  }}
       secretAccessKey: {{ .Values.s3.secretAccessKey | default "admin"  }}
       bucket: {{ .Values.s3.bucket | default "uploads"  }}
@@ -46,6 +46,13 @@ data:
       imageRegistry: {{ default .Values.extension.imageRegistry "" | quote }}
       {{- if .Values.extension.nodeSelector }}
       nodeSelector: {{- toYaml .Values.extension.nodeSelector | nindent 8 }}
+      {{- end }}
+      {{- if and .Values.extension.ingress .Values.extension.ingress.domainSuffix }}
+      ingress:
+        ingressClassName: {{ .Values.extension.ingress.ingressClassName }}
+        domainSuffix: {{ .Values.extension.ingress.domainSuffix }}
+        httpPort: {{ .Values.extension.ingress.httpPort }}
+        httpsPort: {{ .Values.extension.ingress.httpsPort }}
       {{- end }}
     composedApp:
       appSelector: {{ .Values.composedApp.appSelector | quote }}

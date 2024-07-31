@@ -2,7 +2,7 @@
 ## @param global.tag Global Docker image tag
 global:
   imageRegistry: registry.cn-beijing.aliyuncs.com
-  tag: v4.1.0
+  tag: v4.1.1-edgewize
   imagePullSecrets: []
 
 ## @param nameOverride String to partially override common.names.fullname
@@ -118,7 +118,7 @@ apiserver:
   containerPorts:
     - protocol: TCP
       containerPort: 9090
-  nodePort: 30881
+  # nodePort: 30881
   ## @param resources.limits The resource limits for the ks-apiserver containers
   ## @param resources.requests The requested resources for the ks-apiserver containers
   ##
@@ -308,6 +308,13 @@ cloud:
 extension:
   imageRegistry: ""
   nodeSelector: {}
+  ingress:
+    ingressClassName: ""
+    # The domain name suffix used to create the ingress of each extension.
+    # Depending on your ingress address, it can be an LB hostname address (xx.com), {node_ip}.nip.io or an internal DNS address (kse.local).
+    domainSuffix: ""
+    httpPort: 80
+    httpsPort: 443
 
 hook:
   resources:
