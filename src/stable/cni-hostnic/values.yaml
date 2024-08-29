@@ -1,0 +1,25 @@
+# Default values for cni-hostnic.
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+config:
+  image: qingcloud/hostnic-plus:v1.0.3
+  cidr:
+  networkpolicy:
+  blocksize:
+  vxnets:
+  auto:
+  ipam:
+  qy_access_key_id:
+  qy_secret_access_key:
+  zone:
+  host: api.qingcloud.com
+  port: 443
+  protocol: https
+  uri: /iaas
+  connection_retries: 3
+  connection_timeout: 30
+  vxnet:
+  clusterID:
+  userID:
+  clusterTag:  
