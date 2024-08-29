@@ -1,0 +1,63 @@
+---
+
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: hostnic-node
+  namespace: kube-system
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: hostnic-node
+rules:
+  - apiGroups:
+      - ""
+    resources:
+      - pods
+      - pods/status
+      - nodes
+      - configmaps
+      - namespaces
+    verbs:
+      - list
+      - watch
+      - get
+      - update
+      - patch
+  - apiGroups:
+      - extensions
+    resources:
+      - daemonsets
+    verbs:
+      - list
+      - watch
+  - apiGroups:
+      - network.qingcloud.com
+    resources:
+      - '*'
+    verbs:
+      - '*'
+  - apiGroups:
+      - ""
+    resources:
+      - events
+    verbs:
+      - '*'
+
+---
+
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: hostnic-node
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: hostnic-node
+subjects:
+  - kind: ServiceAccount
+    name: hostnic-node
+    namespace: kube-system

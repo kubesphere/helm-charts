@@ -1,0 +1,57 @@
+{{ if .Values.enableVPA }}
+---
+apiVersion: "autoscaling.k8s.io/v1"
+kind: VerticalPodAutoscaler
+metadata:
+  name: csi-qingcloud-controller-vpa
+  namespace: kube-system
+spec:
+  targetRef:
+    apiVersion: "apps/v1"
+    kind: Deployment
+    name: csi-qingcloud-controller
+  updatePolicy:
+    updateMode: "Auto"
+  resourcePolicy:
+    containerPolicies:
+      - containerName: 'csi-qingcloud'
+        minAllowed:
+          cpu: "{{ .Values.controller.vpa.minAllowed.cpu }}"
+          memory: "{{ .Values.controller.vpa.minAllowed.memory }}"
+        maxAllowed:
+          cpu: "{{ .Values.controller.vpa.maxAllowed.cpu }}"
+          memory: "{{ .Values.controller.vpa.maxAllowed.memory }}"
+        controlledResources: ["cpu", "memory"]
+      - containerName: 'csi-provisioner'
+        minAllowed:
+          cpu: "{{ .Values.provisioner.vpa.minAllowed.cpu }}"
+          memory: "{{ .Values.provisioner.vpa.minAllowed.memory }}"
+        maxAllowed:
+          cpu: "{{ .Values.provisioner.vpa.maxAllowed.cpu }}"
+          memory: "{{ .Values.provisioner.vpa.maxAllowed.memory }}"
+        controlledResources: ["cpu", "memory"]
+      - containerName: 'csi-attacher'
+        minAllowed:
+          cpu: "{{ .Values.attacher.vpa.minAllowed.cpu }}"
+          memory: "{{ .Values.attacher.vpa.minAllowed.memory }}"
+        maxAllowed:
+          cpu: "{{ .Values.attacher.vpa.maxAllowed.cpu }}"
+          memory: "{{ .Values.attacher.vpa.maxAllowed.memory }}"
+        controlledResources: ["cpu", "memory"]
+      - containerName: 'csi-snapshotter'
+        minAllowed:
+          cpu: "{{ .Values.snapshotter.vpa.minAllowed.cpu }}"
+          memory: "{{ .Values.snapshotter.vpa.minAllowed.memory }}"
+        maxAllowed:
+          cpu: "{{ .Values.snapshotter.vpa.maxAllowed.cpu }}"
+          memory: "{{ .Values.snapshotter.vpa.maxAllowed.memory }}"
+        controlledResources: ["cpu", "memory"]
+      - containerName: 'csi-resizer'
+        minAllowed:
+          cpu: "{{ .Values.resizer.vpa.minAllowed.cpu }}"
+          memory: "{{ .Values.resizer.vpa.minAllowed.memory }}"
+        maxAllowed:
+          cpu: "{{ .Values.resizer.vpa.maxAllowed.cpu }}"
+          memory: "{{ .Values.resizer.vpa.maxAllowed.memory }}"
+        controlledResources: ["cpu", "memory"]
+{{- end}}

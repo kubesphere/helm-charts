@@ -1,0 +1,162 @@
+#  Copyright (C) 2018 Yunify, Inc.
+#
+#  Licensed under the Apache License, Version 2.0 (the "License");
+#  you may not use this work except in compliance with the License.
+#  You may obtain a copy of the License in the LICENSE file, or at:
+#
+#  http://www.apache.org/licenses/LICENSE-2.0
+#
+#  Unless required by applicable law or agreed to in writing, software
+#  distributed under the License is distributed on an "AS IS" BASIS,
+#  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+#  See the License for the specific language governing permissions and
+#  limitations under the License.
+
+
+config:
+  qy_access_key_id:
+  qy_secret_access_key:
+  zone:
+  host: api.qingcloud.com
+  port: 443
+  protocol: https
+  uri: /iaas
+  connection_retries: 3
+  connection_timeout: 30
+
+driver:
+  name: disk.csi.qingcloud.com
+  repository: csiplugin/csi-qingcloud
+  pullPolicy: IfNotPresent
+  maxVolume: 9
+  retryDetachTimesMax: 100
+  kubeletDir: /var/lib/kubelet
+
+tolerations:
+  - key: CriticalAddonsOnly
+    operator: Exists
+  - key: dedicated
+    operator: Exists
+  - effect: NoSchedule
+    key: node-role.kubernetes.io/master
+  - effect: NoSchedule
+    key: node.cloudprovider.kubernetes.io/uninitialized
+    value: "true"
+
+controller:
+  resources:
+    limits:
+      memory: 100Mi
+      cpu: 100m
+    requests:
+      memory: 100Mi
+      cpu: 100m
+  vpa:
+    minAllowed:
+      cpu: 100m
+      memory: 100Mi
+    maxAllowed:
+      cpu: 1
+      memory: 1000Mi
+provisioner:
+  repository: csiplugin/csi-provisioner
+  tag: v2.2.2
+  volumeNamePrefix: pvc
+  resources:
+    limits:
+      memory: 100Mi
+      cpu: 100m
+    requests:
+      memory: 100Mi
+      cpu: 100m
+  vpa:
+    minAllowed:
+      cpu: 20m
+      memory: 50Mi
+    maxAllowed:
+      cpu: 1
+      memory: 1000Mi
+attacher:
+  repository: csiplugin/csi-attacher
+  tag: v3.2.1
+  resources:
+    limits:
+      memory: 100Mi
+      cpu: 100m
+    requests:
+      memory: 100Mi
+      cpu: 100m
+  vpa:
+    minAllowed:
+      cpu: 20m
+      memory: 50Mi
+    maxAllowed:
+      cpu: 1
+      memory: 1000Mi
+resizer:
+  repository: csiplugin/csi-resizer
+  tag: v1.2.0
+  resources:
+    limits:
+      memory: 100Mi
+      cpu: 100m
+    requests:
+      memory: 100Mi
+      cpu: 100m
+  vpa:
+    minAllowed:
+      cpu: 20m
+      memory: 50Mi
+    maxAllowed:
+      cpu: 1
+      memory: 1000Mi
+snapshotter:
+  repository: csiplugin/csi-snapshotter
+  tag: v4.0.0
+  resources:
+    limits:
+      memory: 100Mi
+      cpu: 100m
+    requests:
+      memory: 100Mi
+      cpu: 100m
+  vpa:
+    minAllowed:
+      cpu: 20m
+      memory: 50Mi
+    maxAllowed:
+      cpu: 1
+      memory: 1000Mi
+
+registrar:
+  repository: csiplugin/csi-node-driver-registrar
+  tag: v2.2.0
+  resources:
+    limits:
+      memory: 20Mi
+      cpu: 10m
+    requests:
+      memory: 20Mi
+      cpu: 10m
+node:
+  resources:
+    limits:
+      memory: 100Mi
+      cpu: 100m
+    requests:
+      memory: 100Mi
+      cpu: 100m
+
+sc:
+  enable: true
+  isDefaultClass: false
+  name: csi-qingcloud
+  type: auto
+  replica: 2
+  tags:
+  fsType: ext4
+  reclaimPolicy: Delete
+  allowVolumeExpansion: true
+  volumeBindingMode: WaitForFirstConsumer
+
+enableVPA: false
