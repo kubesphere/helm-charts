@@ -59,7 +59,7 @@ spec:
               subPath: redis-data
 {{- end }}
           ports:
-            - containerPort: 6379
+            - containerPort: {{ .Values.redis.port | default 6379 }}
               protocol: TCP
           resources:
             limits:
@@ -107,6 +107,7 @@ data:
   redis.conf: |
     requirepass REDIS_PASSWORD
     masterauth REDIS_PASSWORD
+    port {{ .Values.redis.port | default 6379 }}
 
 ---
 apiVersion: v1
@@ -120,9 +121,9 @@ metadata:
 spec:
   ports:
     - name: redis
-      port: 6379
+      port: {{ .Values.redis.port | default 6379 }}
       protocol: TCP
-      targetPort: 6379
+      targetPort: {{ .Values.redis.port | default 6379 }}
   selector:
     app: redis
     tier: database

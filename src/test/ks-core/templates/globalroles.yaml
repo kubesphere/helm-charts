@@ -120,6 +120,7 @@ rules:
       - extensions.kubesphere.io
     resources:
       - jsbundles
+      - extensionentries
     verbs:
       - get
       - list
@@ -137,13 +138,6 @@ rules:
       - 'categories'
       - 'apps/versions'
       - 'applications'
-    verbs:
-      - get
-      - list
-  - apiGroups:
-      - license.kubesphere.io
-    resources:
-      - licenses
     verbs:
       - get
       - list
@@ -219,7 +213,7 @@ metadata:
     kubesphere.io/description: '{"zh": "被邀请加入企业空间之前无法访问任何资源。", "en": "Cannot access any resources before joining a workspace."}'
     kubesphere.io/creator: admin
   name: platform-regular
-rules: []
+rules: [ ]
 
 ---
 apiVersion: iam.kubesphere.io/v1beta1

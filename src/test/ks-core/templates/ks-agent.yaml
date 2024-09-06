@@ -24,8 +24,8 @@ spec:
   template:
     metadata:
       annotations:
-        # force restart ks-agent after the upgrade is complete (even if there is no update)
-        kubesphere.io/update-time: {{ dateInZone "2006-01-02T15:05:05Z" (now) "UTC"| quote }}
+        # force restart ks-agent after the upgrade is complete if kubesphere-config changes
+        checksum/config: {{ include (print $.Template.BasePath "/kubesphere-config.yaml") . | sha256sum }}
       labels:
         app: ks-agent
         tier: backend

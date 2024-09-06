@@ -13,7 +13,6 @@ match if {
 
 match if {
 	listAvailableExtension
-	isSubscribed
 }
 
 match if {
@@ -23,7 +22,6 @@ match if {
 
 match if {
 	listAvailableExtension
-	not hasExtensionID
 }
 
 match if {
@@ -59,11 +57,7 @@ enabledStatusSearch if "enabled" == input.filter.field
 
 listAvailableExtension if "available" == input.filter.field
 
-isSubscribed if input.object.metadata.labels["marketplace.kubesphere.io/subscribed"] == "true"
-
 alreadyInstalled if input.object.status.state != ""
-
-hasExtensionID if input.object.metadata.labels["marketplace.kubesphere.io/extension-id"] != ""
 
 displayNameMatch if {
 	contains(lower(input.object.spec.displayName[_]), lower(input.filter.value))
