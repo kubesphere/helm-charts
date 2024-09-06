@@ -1,8 +1,8 @@
 ## @param global.imageRegistry Global Docker image registry
 ## @param global.tag Global Docker image tag
 global:
-  imageRegistry: registry.cn-beijing.aliyuncs.com
-  tag: v4.1.0
+  imageRegistry: docker.io
+  tag: v4.1.1
   imagePullSecrets: []
 
 ## @param nameOverride String to partially override common.names.fullname
@@ -59,6 +59,11 @@ authentication:
     accessTokenMaxAge: 2h
     accessTokenInactivityTimeout: 30m
 
+experimental:
+  # Strict fails the request on unknown/duplicate fields
+  # Ignore ignores unknown/duplicate fields
+  # Warn responds with a warning, but successfully serve the request
+  validationDirective: ""
 auditing:
   enable: false
   auditLevel: Metadata
@@ -80,18 +85,21 @@ serviceAccount:
 tolerations:
   - key: node-role.kubernetes.io/master
     effect: NoSchedule
+  - key: node-role.kubernetes.io/control-plane
+    effect: NoSchedule
   - key: CriticalAddonsOnly
     operator: Exists
-  - effect: NoExecute
-    key: node.kubernetes.io/not-ready
-    operator: Exists
-    tolerationSeconds: 60
-  - effect: NoExecute
-    key: node.kubernetes.io/unreachable
-    operator: Exists
-    tolerationSeconds: 60
 
-affinity: {}
+affinity:
+  nodeAffinity:
+    preferredDuringSchedulingIgnoredDuringExecution:
+      - weight: 100
+        preference:
+          matchExpressions:
+            - key: node-role.kubernetes.io/control-plane
+              operator: In
+              values:
+                - ""
 
 nodeSelector: {}
 
@@ -101,7 +109,7 @@ internalTLS: false
 apiserver:
   image:
     registry: ""
-    repository: kse/ks-apiserver
+    repository: kubesphere/ks-apiserver
     tag: ""
     digest: ""
     pullPolicy: IfNotPresent
@@ -118,7 +126,7 @@ apiserver:
   containerPorts:
     - protocol: TCP
       containerPort: 9090
-  nodePort: 30881
+  # nodePort: 30881
   ## @param resources.limits The resource limits for the ks-apiserver containers
   ## @param resources.requests The requested resources for the ks-apiserver containers
   ##
@@ -148,10 +156,13 @@ apiserver:
   ##
   extraVolumes: []
 
+  ## Whether the ks-apiserver pods should be forced to run on separate nodes.
+  hardAntiAffinity: false
+
 console:
   image:
     registry: ""
-    repository: kse/ks-console
+    repository: kubesphere/ks-console
     tag: ""
     digest: ""
     pullPolicy: IfNotPresent
@@ -163,6 +174,8 @@ console:
     ##   - myRegistryKeySecretName
     ##
     pullSecrets: []
+  config:
+    enableNodeListTerminal: true
   ## @param containerPorts [array] List of container ports to enable in the ks-console container
   ##
   containerPorts: []
@@ -190,10 +203,13 @@ console:
   ##
   extraVolumes: []
 
+  ## Whether the ks-console pods should be forced to run on separate nodes.
+  hardAntiAffinity: false
+
 controller:
   image:
     registry: ""
-    repository: kse/ks-controller-manager
+    repository: kubesphere/ks-controller-manager
     tag: ""
     digest: ""
     pullPolicy: IfNotPresent
@@ -239,17 +255,29 @@ controller:
   ##
   extraVolumes: []
 
+  ## Whether the ks-controller-manager pods should be forced to run on separate nodes.
+  hardAntiAffinity: false
+
 agent:
   replicaCount: 1
 
 helmExecutor:
-  timeout: 5m
+  timeout: 10m
   historyMax: 2
+  # clean up all finished Jobs after this time, 0s means no to clean up
+  jobTTLAfterFinished: 0s
   image:
     registry: ""
-    repository: kubesphereio/kubectl
-    tag: "v1.27.12"
+    repository: kubesphere/kubectl
+    tag: "v1.27.16"
     pullPolicy: IfNotPresent
+  resources:
+    limits:
+      cpu: 500m
+      memory: 500Mi
+    requests:
+      cpu: 100m
+      memory: 100Mi
 
 composedApp:
   # Selector to filter k8s applications to reconcile
@@ -258,8 +286,8 @@ composedApp:
 kubectl:
   image:
     registry: ""
-    repository: kubesphereio/kubectl
-    tag: "v1.27.12"
+    repository: kubesphere/kubectl
+    tag: "v1.27.16"
     pullPolicy: IfNotPresent
 
 ingress:
@@ -288,26 +316,23 @@ certmanager:
 nodeShell:
   image:
     registry: ""
-    repository: kubesphereio/kubectl
-    tag: "v1.27.12"
+    repository: kubesphere/kubectl
+    tag: "v1.27.16"
     pullPolicy: IfNotPresent
 
 cloud:
   enabled: true
-  ## kubesphere.cloud clouddev.kubesphere.io or custom
-  env: "kubesphere.cloud"
-  customEnv: {}
-#    url: https://kubesphere.cloud
-#    subscription:
-#      syncPeriod: 60m
-#    repository:
-#      url: https://app.kubesphere.cloud
-#      repoName: marketplace
-#      syncPeriod: 60m
 
 extension:
   imageRegistry: ""
   nodeSelector: {}
+  ingress:
+    ingressClassName: ""
+    # The domain name suffix used to create the ingress of each extension.
+    # Depending on your ingress address, it can be an LB hostname address (xx.com), {node_ip}.nip.io or an internal DNS address (ks.local).
+    domainSuffix: ""
+    httpPort: 80
+    httpsPort: 443
 
 hook:
   resources:
@@ -317,110 +342,6 @@ hook:
     requests:
       cpu: 20m
       memory: 100Mi
-
-upgrade:
-  enabled: true
-  image:
-    registry: ""
-    repository: kse/ks-upgrade
-    tag: ""
-    pullPolicy: IfNotPresent
-  persistenceVolume:
-    name: ks-upgrade
-    storageClassName: ""
-    accessMode: ReadWriteOnce
-    size: 5Gi
-  resources:
-    limits:
-      cpu: 1
-      memory: 1024Mi
-    requests:
-      cpu: 20m
-      memory: 100Mi
-  config: {}
-#    storage:
-#      local:
-#        path: /tmp/ks-upgrade
-#    download:
-#      globalRegistryUrl: "oci://hub.kubesphere.com.cn/kse-extensions"
-#      file: {}
-#      http:
-#        timeout: 20
-#      oci: {}
-#    skipValidator: false
-#    jobs:
-#      core:
-#        disabled: false
-#        priority: 10000
-#      iam:
-#        disabled: false
-#        priority: 999
-#      network:
-#        disabled: true
-#        priority: 100
-#      devops:
-#        disabled: true
-#        priority: 100
-#      storage-utils:
-#        disabled: true
-#        priority: 100
-#      tower:
-#        disabled: true
-#        priority: 100
-#      kubefed:
-#        disabled: true
-#        priority: 100
-#      whizard-monitoring:
-#        disabled: true
-#        priority: 100
-#      springcloud:
-#        disabled: true
-#        priority: 100
-#      servicemesh:
-#        disabled: true
-#        priority: 90
-#      application:
-#        disabled: true
-#        priority: 100
-#      dmp:
-#        disabled: true
-#        priority: 100
-#      whizard-notification:
-#        disabled: true
-#        priority: 100
-#      whizard-alerting:
-#        disabled: true
-#        priority: 10
-#      kubeedge:
-#        disabled: true
-#        priority: 100
-#      whizard-events:
-#        disabled: true
-#        priority: 100
-#      gateway:
-#        disabled: true
-#        priority: 90
-#      whizard-auditing:
-#        disabled: true
-#        priority: 100
-#      whizard-logging:
-#        disabled: true
-#        priority: 100
-#      vector:
-#        disabled: true
-#        priority: 101
-#      opensearch:
-#        disabled: true
-#        priority: 100
-#      whizard-telemetry-ruler:
-#        disabled: true
-#        priority: 100
-#      whizard-telemetry:
-#        disabled: true
-#        priority: 100
-#      metrics-server:
-#        disabled: true
-#        priority: 100
 
 ha:
   enabled: false
@@ -433,9 +354,10 @@ ha:
 #      db: 0
 
 redis:
+  port: 6379
   image:
     registry: ""
-    repository: kubesphereio/redis
+    repository: kubesphere/redis
     digest: ""
     tag: 7.2.4-alpine
     pullPolicy: IfNotPresent
@@ -445,19 +367,67 @@ redis:
 
 redisHA:
   enabled: false
+  redis:
+    port: 6379
   image:
     registry: ""
-    repository: kubesphereio/redis
+    repository: kubesphere/redis
     tag: 7.2.4-alpine
     digest: ""
     pullPolicy: IfNotPresent
-  haproxy:
-    image:
-      registry: ""
-      repository: kubesphereio/haproxy
-      tag: 2.9.6-alpine
-      digest: ""
-      pullPolicy: IfNotPresent
   persistentVolume:
     enabled: true
     size: 2Gi
+  tolerations:
+    - key: node-role.kubernetes.io/master
+      effect: NoSchedule
+    - key: node-role.kubernetes.io/control-plane
+      effect: NoSchedule
+    - key: CriticalAddonsOnly
+      operator: Exists
+  hardAntiAffinity: false
+  additionalAffinities:
+    nodeAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          preference:
+            matchExpressions:
+              - key: node-role.kubernetes.io/control-plane
+                operator: In
+                values:
+                  - ""
+  haproxy:
+    servicePort: 6379
+    containerPort: 6379
+    image:
+      registry: ""
+      repository: kubesphere/haproxy
+      tag: 2.9.6-alpine
+      digest: ""
+      pullPolicy: IfNotPresent
+    hardAntiAffinity: false
+    additionalAffinities:
+      nodeAffinity:
+        preferredDuringSchedulingIgnoredDuringExecution:
+          - weight: 100
+            preference:
+              matchExpressions:
+                - key: node-role.kubernetes.io/control-plane
+                  operator: In
+                  values:
+                    - ""
+
+ksCRDs:
+  preUpgrade:
+    image:
+      registry: ""
+      repository: kubesphere/kubectl
+      tag: "v1.27.16"
+      pullPolicy: IfNotPresent
+    resources:
+      limits:
+        cpu: 1
+        memory: 1024Mi
+      requests:
+        cpu: 20m
+        memory: 100Mi

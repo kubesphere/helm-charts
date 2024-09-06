@@ -19,7 +19,8 @@ spec:
     {{- end }}
       targetPort: 9090
     {{- with .Values.apiserver.nodePort }}
-      nodePort: {{ . }}
+      nodePort:
+      {{- toYaml . | nindent 8 }}
     {{- end }}
   selector:
     {{- if eq (include "role" .) "host" }}

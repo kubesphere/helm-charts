@@ -28,6 +28,7 @@ data:
         kubesphere: {{ .Chart.AppVersion }}
         kubernetes: {{ .Capabilities.KubeVersion.Version }}
       enableKubeConfig: true
+      enableNodeListTerminal: {{ .Values.console.config.enableNodeListTerminal }}
 kind: ConfigMap
 metadata:
   name: ks-console-config

@@ -10,7 +10,7 @@ metadata:
 data:
   map.yaml: |
     mappings:
-    {{- range $path, $_ := .Files.Glob "crds/**" }}
+    {{- range $path, $_ := .Files.Glob "charts/ks-crds/crds/**" }}
     {{- $crd := $.Files.Get $path | fromYaml }}
     {{- range $_, $version := $crd.spec.versions }}
       - deprecatedAPI: "apiVersion: {{ $crd.spec.group }}/{{ $version.name }}\nkind: {{ $crd.spec.names.kind }}\n"
@@ -52,7 +52,7 @@ subjects:
 ---
 
 {{- $crdNameList := list }}
-{{- range $path, $_ := .Files.Glob "crds/**" }}
+{{- range $path, $_ := .Files.Glob "charts/ks-crds/crds/**" }}
 {{- $crd := $.Files.Get $path | fromYaml }}
 {{- $crdNameList = append $crdNameList $crd.metadata.name }}
 {{- end }}
@@ -81,7 +81,6 @@ spec:
           volumeMounts:
             - mountPath: /scripts
               name: scripts
-          resources: {{- toYaml .Values.upgrade.resources | nindent 12 }}
       volumes:
         - name: scripts
           configMap:

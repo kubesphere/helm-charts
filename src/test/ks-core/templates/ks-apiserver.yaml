@@ -24,13 +24,36 @@ spec:
       labels:
         app: ks-apiserver
         tier: backend
+      annotations:
+        # force restart ks-apiserver after the upgrade is complete if kubesphere-config changes
+        checksum/config: {{ include (print $.Template.BasePath "/kubesphere-config.yaml") . | sha256sum }}
     spec:
       serviceAccountName: {{ template "ks-core.serviceAccountName" . }}
       {{- include "apiserver.imagePullSecrets" . | nindent 6 }}
-      {{- with .Values.affinity }}
       affinity:
+      {{- with .Values.affinity }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
+        podAntiAffinity:
+        {{- if .Values.apiserver.hardAntiAffinity }}
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  app: ks-apiserver
+              topologyKey: kubernetes.io/hostname
+              namespaces:
+                - {{ .Release.Namespace | quote }}
+        {{- else }}
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app: ks-apiserver
+                topologyKey: kubernetes.io/hostname
+                namespaces:
+                  - {{ .Release.Namespace | quote }}
+        {{- end }}
       {{- if .Values.nodeSelector }}
       nodeSelector: {{- include "common.tplvalues.render" ( dict "value" .Values.nodeSelector "context" $) | nindent 8 }}
       {{- end }}

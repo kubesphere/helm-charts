@@ -33,6 +33,10 @@ Return the proper image name
 {{ include "common.images.image" (dict "imageRoot" .Values.redis.image "global" .Values.global) }}
 {{- end -}}
 
+{{- define "preUpgrade.image" -}}
+{{ include "common.images.image" (dict "imageRoot" .Values.preUpgrade.image "global" .Values.global) }}
+{{- end -}}
+
 {{- define "common.images.image" -}}
 {{- $registryName := .global.imageRegistry -}}
 {{- $repositoryName := .imageRoot.repository -}}

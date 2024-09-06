@@ -5,20 +5,33 @@
 CRD_NAMES=$1
 MAPPING_CONFIG=$2
 
-for extension in `kubectl get extension | grep 'Installed' | awk '{print $1}'`
+for extension in `kubectl get installplan -o json | jq -r '.items[] | select(.status.state == "Installed") | .metadata.name'`
 do
+  namespace=$(kubectl get installplan $extension -o=jsonpath='{.status.targetNamespace}')
   version=$(kubectl get extension $extension -o=jsonpath='{.status.installedVersion}')
   extensionversion=$extension-$version
   echo "Found extension $extensionversion installed"
-  helm status $extension --namespace extension-$extension
+  helm status $extension --namespace $namespace
   if [ $? -eq 0 ]; then
-    helm mapkubeapis $extension --namespace extension-$extension --mapfile $MAPPING_CONFIG
+    helm mapkubeapis $extension --namespace $namespace --mapfile $MAPPING_CONFIG
   fi
-  helm status $extension-agent --namespace extension-$extension
+  helm status $extension-agent --namespace $namespace
   if [ $? -eq 0 ]; then
-    helm mapkubeapis $extension-agent --namespace extension-$extension --mapfile $MAPPING_CONFIG
+    helm mapkubeapis $extension-agent --namespace $namespace --mapfile $MAPPING_CONFIG
   fi
 done
+
+
+# remove namespace's finalizers && ownerReferences
+kubectl patch workspaces.tenant.kubesphere.io system-workspace -p '{"metadata":{"finalizers":[]}}' --type=merge
+kubectl patch workspacetemplates.tenant.kubesphere.io system-workspace -p '{"metadata":{"finalizers":[]}}' --type=merge
+for ns in $(kubectl get ns -o jsonpath='{.items[*].metadata.name}' -l 'kubesphere.io/managed=true')
+do
+  kubectl label ns $ns kubesphere.io/workspace- && \
+  kubectl patch ns $ns -p '{"metadata":{"ownerReferences":[]}}' --type=merge && \
+  echo "{\"kind\":\"Namespace\",\"apiVersion\":\"v1\",\"metadata\":{\"name\":\"$ns\",\"finalizers\":null}}" | kubectl replace --raw "/api/v1/namespaces/$ns/finalize" -f -
+done
+
 
 # delete crds
 for crd in `kubectl get crds -o jsonpath="{.items[*].metadata.name}"`
