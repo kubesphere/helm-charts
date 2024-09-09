@@ -1,4 +1,4 @@
-{{ if eq .Values.role "host" }}
+{{ if eq (include "role" .) "host" }}
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -11,10 +11,11 @@ metadata:
 spec:
   strategy:
     rollingUpdate:
-      maxSurge: 0
+      maxSurge: 1
+      maxUnavailable: 0
     type: RollingUpdate
   progressDeadlineSeconds: 600
-  replicas: {{ .Values.controller.replicaCount }}
+  replicas: {{ if .Values.ha.enabled }}3{{ else }}1{{ end }}
   revisionHistoryLimit: 10
   selector:
     matchLabels:
@@ -25,16 +26,39 @@ spec:
       labels:
         app: ks-controller-manager
         tier: backend
+      annotations:
+        # force restart ks-controller-manager after the upgrade is complete if kubesphere-config changes
+        checksum/config: {{ include (print $.Template.BasePath "/kubesphere-config.yaml") . | sha256sum }}
     spec:
       serviceAccountName: {{ template "ks-core.serviceAccountName" . }}
       {{- include "controller.imagePullSecrets" . | nindent 6 }}
       {{- if .Values.nodeSelector }}
       nodeSelector: {{- include "common.tplvalues.render" ( dict "value" .Values.nodeSelector "context" $) | nindent 8 }}
       {{- end }}
-      {{- with .Values.affinity }}
       affinity:
+      {{- with .Values.affinity }}
         {{- toYaml . | nindent 8 }}
       {{- end }}
+        podAntiAffinity:
+        {{- if .Values.controller.hardAntiAffinity }}
+          requiredDuringSchedulingIgnoredDuringExecution:
+            - labelSelector:
+                matchLabels:
+                  app: ks-controller-manager
+              topologyKey: kubernetes.io/hostname
+              namespaces:
+                - {{ .Release.Namespace | quote }}
+        {{- else }}
+          preferredDuringSchedulingIgnoredDuringExecution:
+            - weight: 100
+              podAffinityTerm:
+                labelSelector:
+                  matchLabels:
+                    app: ks-controller-manager
+                topologyKey: kubernetes.io/hostname
+                namespaces:
+                  - {{ .Release.Namespace | quote }}
+        {{- end }}
       {{- if .Values.tolerations }}
       tolerations: {{- include "common.tplvalues.render" (dict "value" .Values.tolerations "context" .) | nindent 8 }}
       {{- end }}
