@@ -17,6 +17,26 @@ Return the proper image name
 {{ include "common.images.image" (dict "imageRoot" .Values.kubectl.image "global" .Values.global) }}
 {{- end -}}
 
+{{- define "nodeShell.image" -}}
+{{ include "common.images.image" (dict "imageRoot" .Values.nodeShell.image "global" .Values.global) }}
+{{- end -}}
+
+{{- define "helm.image" -}}
+{{ include "common.images.image" (dict "imageRoot" .Values.helmExecutor.image "global" .Values.global) }}
+{{- end -}}
+
+{{- define "upgrade.image" -}}
+{{ include "common.images.image" (dict "imageRoot" .Values.upgrade.image "global" .Values.global) }}
+{{- end -}}
+
+{{- define "redis.image" -}}
+{{ include "common.images.image" (dict "imageRoot" .Values.redis.image "global" .Values.global) }}
+{{- end -}}
+
+{{- define "preUpgrade.image" -}}
+{{ include "common.images.image" (dict "imageRoot" .Values.preUpgrade.image "global" .Values.global) }}
+{{- end -}}
+
 {{- define "common.images.image" -}}
 {{- $registryName := .global.imageRegistry -}}
 {{- $repositoryName := .imageRoot.repository -}}

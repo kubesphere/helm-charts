@@ -1,36 +1,95 @@
-{{- if .Values.config.create -}}
 apiVersion: v1
 kind: ConfigMap
 metadata:
   name: kubesphere-config
-  namespace: kubesphere-system
 data:
   kubesphere.yaml: |
     authentication:
-      authenticateRateLimiterMaxTries: {{ .Values.config.authentication.authenticateRateLimiterMaxTries | default 10 }}
-      authenticateRateLimiterDuration: {{ .Values.config.authentication.authenticationRateLimiterDuration | default "10m0s" }}
-      loginHistoryRetentionPeriod: {{ .Values.config.authentication.loginHistoryRetentionPeriod | default "168h"  }}
-      maximumClockSkew: {{ .Values.config.authentication.maximumClockSkew | default "10s" }}
-      multipleLogin: {{ .Values.config.authentication.enableMultiLogin | default true }}
-      kubectlImage: {{ template "kubectl.image" . }}
-{{- if eq .Values.role "host" }}
-      {{- with lookup "v1" "ConfigMap" (printf "%s" .Release.Namespace) "kubesphere-config" }}
-      jwtSecret: "{{ (fromYaml (index .data "kubesphere.yaml")).authentication.jwtSecret }}"
-      {{- else }}
-      jwtSecret: "{{ .Values.config.jwtSecret | default (randAlphaNum 32 ) }}"
+      authenticateRateLimiterMaxTries: {{ .Values.authentication.authenticateRateLimiterMaxTries | default 10 }}
+      authenticateRateLimiterDuration: {{ .Values.authentication.authenticationRateLimiterDuration | default "10m0s" }}
+      loginHistoryRetentionPeriod: {{ .Values.authentication.loginHistoryRetentionPeriod | default "168h"  }}
+      multipleLogin: {{ .Values.authentication.enableMultiLogin | default true }}
+      issuer:
+        url: {{ include "portal.url" . | quote }}
+        jwtSecret: {{ include "jwtSecret" . | quote }}
+        maximumClockSkew: {{ .Values.authentication.issuer.maximumClockSkew | default "10s" }}
+        {{- if eq (include "role" .) "member" }}
+        accessTokenMaxAge: 0s
+        {{- else }}
+        accessTokenMaxAge: {{ .Values.authentication.issuer.accessTokenMaxAge }}
+        {{- end }}
+        accessTokenInactivityTimeout: {{ .Values.authentication.issuer.accessTokenInactivityTimeout }}
+    {{- if .Values.s3 }}
+    s3:
+      endpoint: {{ .Values.s3.endpoint | quote  }}
+      region: {{ .Values.s3.region | default "us-east-1"  }}
+      disableSSL: {{ .Values.s3.disableSSL | default false  }}
+      forcePathStyle: {{ .Values.s3.forcePathStyle | default false  }}
+      accessKeyID: {{ .Values.s3.accessKeyID | default "admin"  }}
+      secretAccessKey: {{ .Values.s3.secretAccessKey | default "admin"  }}
+      bucket: {{ .Values.s3.bucket | default "uploads"  }}
       {{- end }}
-{{- else }}
-      jwtSecret: "{{ .Values.config.jwtSecret }}"
-{{- end }}
-{{- if .Values.config.authentication.oauthOptions }}
-      {{- with .Values.config.authentication.oauthOptions }}
-      oauthOptions:
-        {{- toYaml . | nindent 8 }}
-      {{- end }}
-{{- else if eq (default .Values.role "none") "member" }}
-      oauthOptions:
-        accessTokenMaxAge: 0
-{{- end }}
     multicluster:
-      clusterRole: {{ .Values.role }}
-{{- end }}
+      clusterRole: {{ include "role" . | quote }}
+      hostClusterName: {{ include "hostClusterName" . | include "validateHostClusterName" | quote }}
+    terminal:
+      kubectl:
+        image: {{ template "kubectl.image" . }}
+      node:
+        image:  {{ template "nodeShell.image" . }}
+      uploadFileLimit: 100Mi
+    helmExecutor:
+      image: {{ template "helm.image" . }}
+      timeout: {{ .Values.helmExecutor.timeout }}
+      historyMax: {{ .Values.helmExecutor.historyMax }}
+      jobTTLAfterFinished: {{ .Values.helmExecutor.jobTTLAfterFinished }}
+      {{- if .Values.helmExecutor.resources }}
+      resources: {{- toYaml .Values.helmExecutor.resources | nindent 8 }}
+      {{- end }}
+    extension:
+      imageRegistry: {{ default .Values.extension.imageRegistry "" | quote }}
+      {{- if .Values.extension.nodeSelector }}
+      nodeSelector: {{- toYaml .Values.extension.nodeSelector | nindent 8 }}
+      {{- end }}
+      {{- if and .Values.extension.ingress .Values.extension.ingress.domainSuffix }}
+      ingress:
+        ingressClassName: {{ .Values.extension.ingress.ingressClassName }}
+        domainSuffix: {{ .Values.extension.ingress.domainSuffix }}
+        httpPort: {{ .Values.extension.ingress.httpPort }}
+        httpsPort: {{ .Values.extension.ingress.httpsPort }}
+      {{- end }}
+    experimental:
+      {{- $validationDirective := (.Values.experimental).validationDirective | default ""  }}
+      {{- if not (or (eq $validationDirective "") (eq $validationDirective "Ignore") (eq $validationDirective "Strict") (eq $validationDirective "Warn")) }}
+        {{- fail "Invalid value for validationDirective. Must be '', 'Ignore', 'Strict', or 'Warn'." }}
+      {{- else }}
+      validationDirective: {{ $validationDirective | quote }}
+      {{- end }}
+    composedApp:
+      appSelector: {{ .Values.composedApp.appSelector | quote }}
+    kubesphere:
+      tls: {{ .Values.internalTLS }}
+    {{- if and .Values.cloud.enabled (eq (include "role" .) "host") }}
+    telemetry:
+      {{- if eq .Values.cloud.env "clouddev.kubesphere.io" }}
+      ksCloudURL: "https://clouddev.kubesphere.io"
+      {{- else if eq .Values.cloud.env "kubesphere.cloud" }}
+      ksCloudURL: "https://kubesphere.cloud"
+      {{- else if and .Values.cloud.customEnv .Values.cloud.customEnv.url }}
+      ksCloudURL: {{ $.Values.cloud.customEnv.url | quote }}
+      {{- end }}
+    {{- end }}
+    {{- if .Values.ha.enabled -}}
+    {{- if .Values.ha.cache }}
+    cache: {{- toYaml .Values.ha.cache | nindent 6}}
+    {{- else }}
+    cache:
+      type: redis
+      options:
+        host: redis.kubesphere-system.svc
+        port: {{ if .Values.redisHA.enabled }}{{ .Values.redisHA.haproxy.servicePort | default 6379 }}{{ else }}{{ .Values.redis.port | default 6379 }}{{ end }}
+        password: KUBESPHERE_CACHE_OPTIONS_PASSWORD
+        db: 0
+    {{- end }}
+    {{- end }}
+    auditing: {{- toYaml .Values.auditing | nindent 6}}

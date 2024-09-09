@@ -3,8 +3,15 @@ kind: GlobalRole
 metadata:
   name: anonymous
 rules:
+  - apiGroups:
+      - config.kubesphere.io
+    resources:
+      - configs
+    verbs:
+      - get
+      - list
   - nonResourceURLs:
-      - /dist/*
+      - '/static/images/*'
     verbs:
       - GET
 
@@ -13,6 +20,7 @@ apiVersion: iam.kubesphere.io/v1beta1
 kind: GlobalRole
 metadata:
   annotations:
+    iam.kubesphere.io/auto-aggregate: "true"
     iam.kubesphere.io/rego-override: |-
       package authz
       default allow = false
@@ -38,7 +46,23 @@ metadata:
         allowedVerbs := ["get","list","watch"]
         allowedVerbs[_] == input.Verb
       }
+      allow = true {
+        input.Resource == "pods"
+        input.Subresource == "exec"
+        allowedVerbs := ["get","create"]
+        allowedVerbs[_] == input.Verb
+        podName := input.Name
+        prefix := "ks-managed-kubectl-"
+        startswith(podName, prefix) == true
+        input.Namespace == "kubesphere-system"
+        input.User.Name == trim_prefix(podName, prefix)
+      }
   name: authenticated
+aggregationRoleTemplates:
+  roleSelector:
+    matchLabels:
+      iam.kubesphere.io/aggregate-to-authenticated: ""
+      iam.kubesphere.io/scope: "global"
 rules:
   - apiGroups:
       - config.kubesphere.io
@@ -96,6 +120,7 @@ rules:
       - extensions.kubesphere.io
     resources:
       - jsbundles
+      - extensionentries
     verbs:
       - get
       - list
@@ -106,6 +131,27 @@ rules:
     verbs:
       - get
       - list
+  - apiGroups:
+      - application.kubesphere.io
+    resources:
+      - 'apps'
+      - 'categories'
+      - 'apps/versions'
+      - 'applications'
+    verbs:
+      - get
+      - list
+  - apiGroups:
+      - cluster.kubesphere.io
+    resources:
+      - 'labels'
+    verbs:
+      - get
+      - list
+  - nonResourceURLs:
+      - '/static/images/*'
+    verbs:
+      - GET
 
 ---
 apiVersion: iam.kubesphere.io/v1beta1
@@ -114,7 +160,19 @@ metadata:
   annotations:
     kubesphere.io/creator: admin
     kubesphere.io/description: '{"zh": "管理 KubeSphere 平台上的所有资源。", "en": "Manage all resources on the KubeSphere platform."}'
-  labels:
+    iam.kubesphere.io/rego-override: >-
+      package authz
+      default allow = false
+      allow = true {
+        allowedScopes := ["Workspace","Namespace","Cluster"]
+        allowedScopes[_] == input.ResourceScope
+        allowedVerbs := ["get","list","watch"]
+        allowedVerbs[_] == input.Verb
+      }
+      allow = true {
+        allowedScopes := ["Workspace","Namespace","Cluster"]
+        allowedScopes[_] == input.ResourceScope
+      }
     iam.kubesphere.io/auto-aggregate: "true"
   name: platform-admin
 aggregationRoleTemplates:
@@ -155,7 +213,7 @@ metadata:
     kubesphere.io/description: '{"zh": "被邀请加入企业空间之前无法访问任何资源。", "en": "Cannot access any resources before joining a workspace."}'
     kubesphere.io/creator: admin
   name: platform-regular
-rules: []
+rules: [ ]
 
 ---
 apiVersion: iam.kubesphere.io/v1beta1
@@ -164,8 +222,6 @@ metadata:
   annotations:
     kubesphere.io/creator: admin
     kubesphere.io/description: '{"zh": "创建企业空间并成为所创建的企业空间的管理员。", "en": "Create workspaces and become an administrator of the created workspaces."}'
-  labels:
-    iam.kubesphere.io/auto-aggregate: "true"
   name: platform-self-provisioner
 aggregationRoleTemplates:
   templateNames:

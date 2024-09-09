@@ -5,6 +5,7 @@ metadata:
   annotations:
     iam.kubesphere.io/uninitialized: "true"
     iam.kubesphere.io/globalrole: "platform-admin"
+    kubesphere.io/creator: "system"
 spec:
   email: admin@kubesphere.io
   password: {{ include "getOrDefaultPass" . | quote }}
