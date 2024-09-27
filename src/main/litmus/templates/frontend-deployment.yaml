@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: {{ include "litmus-portal.fullname" . }}-frontend
+  namespace:  {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/component: {{ include "litmus-portal.name" . }}-frontend
+    {{- include "litmus-portal.labels" . | nindent 4 }}
+    {{- if .Values.portal.frontend.customLabels }}
+      {{ toYaml .Values.portal.frontend.customLabels | nindent 4 }}
+    {{- end }}
+spec:
+  replicas: {{ .Values.portal.frontend.replicas }}
+  {{- if .Values.portal.frontend.updateStrategy }}
+  strategy:
+  {{ toYaml .Values.portal.frontend.updateStrategy | indent 2 }}
+  {{- end }}
+  selector:
+    matchLabels:
+      app.kubernetes.io/component: {{ include "litmus-portal.name" . }}-frontend
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/component: {{ include "litmus-portal.name" . }}-frontend
+        {{- include "litmus-portal.labels" . | nindent 8 }}
+        {{- if .Values.portal.frontend.customLabels }}
+          {{ toYaml .Values.portal.frontend.customLabels | nindent 8 }}
+        {{- end }}
+    spec:
+      {{- if .Values.image.imagePullSecrets }}
+      imagePullSecrets:
+        {{ toYaml .Values.image.imagePullSecrets | indent 8 }}
+      {{- end }}
+      volumes:
+        - name: nginx-config
+          configMap:
+            name: {{ include "litmus-portal.fullname" . }}-frontend-nginx-configuration
+      containers:
+        - name: litmusportal-frontend
+          image: {{ .Values.image.imageRegistryName }}/{{ .Values.portal.frontend.image.repository }}:{{ .Values.portal.frontend.image.tag }}
+          imagePullPolicy: {{ .Values.portal.frontend.image.pullPolicy }}
+          resources:
+            {{- toYaml .Values.portal.frontend.resources | nindent 12 }}
+          livenessProbe:
+            httpGet:
+              path: /
+              port: http
+            {{- toYaml .Values.portal.frontend.livenessProbe | nindent 12 }}
+          readinessProbe:
+            httpGet:
+              path: /
+              port: http
+            {{- toYaml .Values.portal.frontend.readinessProbe | nindent 12 }}
+          ports:
+            - containerPort: {{ .Values.portal.frontend.containerPort }}
+              name: http
+          env:
+            - name: AGENT_SCOPE
+              valueFrom:
+                configMapKeyRef:
+                  name: {{ include "litmus-portal.fullname" . }}-admin-config
+                  key: AGENT_SCOPE
+          volumeMounts:
+            - name: nginx-config
+              mountPath: /etc/nginx/conf.d/default.conf
+              subPath: default.conf
+    {{- with .Values.portal.frontend.nodeSelector }}
+      nodeSelector:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.portal.frontend.affinity }}
+      affinity:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+    {{- with .Values.portal.frontend.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+    {{- end }}
+
