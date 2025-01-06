@@ -2,7 +2,7 @@
 ## @param global.tag Global Docker image tag
 global:
   imageRegistry: docker.io
-  tag: v4.1.2
+  tag: v4.1.1
   imagePullSecrets: []
 
 ## @param nameOverride String to partially override common.names.fullname
@@ -278,6 +278,17 @@ helmExecutor:
     requests:
       cpu: 100m
       memory: 100Mi
+  affinity:
+    podAffinity:
+      preferredDuringSchedulingIgnoredDuringExecution:
+        - weight: 100
+          podAffinityTerm:
+            labelSelector:
+              matchLabels:
+                app: ks-controller-manager
+            topologyKey: "kubernetes.io/hostname"
+            namespaces:
+              - kubesphere-system
 
 composedApp:
   # Selector to filter k8s applications to reconcile
