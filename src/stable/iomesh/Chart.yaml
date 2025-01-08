@@ -1,36 +1,36 @@
 apiVersion: v2
-appVersion: v5.5.0-rc27
+appVersion: v5.6.0-rc112
 dependencies:
 - name: zookeeper-operator
-  repository: file://charts/zookeeper-operator
+  repository: file://charts
   version: 0.2.15-1
 - name: hostpath-provisioner
-  repository: file://charts/hostpath-provisioner
+  repository: file://charts
   version: 0.5.3-1
 - condition: openebs-ndm.enabled
   name: openebs-ndm
-  repository: file://charts/openebs-ndm
-  version: 1.8.0-1
+  repository: file://charts
+  version: 1.8.0-3
 - name: csi-driver
-  repository: file://charts/csi-driver
-  version: 2.7.2
+  repository: file://charts
+  version: 2.8.0
 - name: blockdevice-monitor
-  repository: file://charts/blockdevice-monitor
-  version: 0.1.0
+  repository: file://charts
+  version: 0.2.1
 - condition: iomesh-localpv-manager.enabled
   name: iomesh-localpv-manager
-  repository: file://charts/iomesh-localpv-manager
+  repository: file://charts
   version: 0.2.0
 - name: deck
-  repository: file://charts/deck
-  version: 0.1.0
+  repository: file://charts
+  version: 0.2.0
 - name: deck-plugin-iomesh
-  repository: file://charts/deck-plugin-iomesh
-  version: 0.1.0
+  repository: file://charts
+  version: 0.2.0
 description: Enterprise Kubernetes-Native Distributed Storage
 name: IOMesh
 type: application
-version: v1.1.0
+version: v1.2.0
 home: https://www.iomesh.com
 icon: https://www.iomesh.com/IOMesh_logo_on_white.svg
 maintainers:

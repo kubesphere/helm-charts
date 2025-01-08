@@ -1,0 +1,16 @@
+{{ if .Values.operator.enableLimitRange | default true }}
+apiVersion: v1
+kind: LimitRange
+metadata:
+  name: {{ .Release.Name }}-limit-range
+  namespace: {{ .Release.Namespace }}
+spec:
+  limits:
+    - default:
+        cpu: "2"
+        memory: 4Gi
+      defaultRequest:
+        cpu: "0"
+        memory: "0"
+      type: Container
+{{- end }}

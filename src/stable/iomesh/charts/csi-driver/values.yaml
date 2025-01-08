@@ -53,6 +53,8 @@ driver:
   iscsiPortal: "127.0.0.1:3260"
   # The maximum number of volumes attachable per node
   maxVolumesPerNode: 128
+  # Automatic capacity alignment, ensuring the volume size is a multiple of 2Gi.
+  autoCapacityAlign: false
   # EXTERNAL / HCI
   deploymentMode: "EXTERNAL"
   nvmf:
@@ -61,7 +63,11 @@ driver:
     nvmfAgentIntervalSecond: 90
     nvmfAgentConnectTimeoutSecond: 15
     nvmfAgentDisconnectTimeoutSecond: 15
-
+  # tolerations of csi-controller-plugin, csi-node-plugin and snapshot-controller
+  tolerations: []
+  # - key: "node-role.kubernetes.io/master"
+  #   operator: "Exists"
+  #   effect: "NoSchedule"
 
   controller:
     # controller replicas

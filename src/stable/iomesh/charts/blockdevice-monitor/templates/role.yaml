@@ -27,4 +27,16 @@ rules:
   - openebs.io
   resources:
   - blockdevices
-  verbs: [list,watch]
+  verbs:
+  - list
+  - watch
+- apiGroups:
+  - ""
+  resources:
+  - nodes
+  verbs:
+  - get
+  - list
+  - watch
+  - update
+  - patch

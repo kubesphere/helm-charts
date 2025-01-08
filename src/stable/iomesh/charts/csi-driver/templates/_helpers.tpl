@@ -212,5 +212,5 @@ com.smartx.{{ include "csi-driver.name" . }}
 Prepare-csi image
 */}}
 {{- define "prepareCSI.image" -}}
-{{ .Values.global.registry }}{{ .Values.prepareCSI.image.repository | default "iomesh/prepare-csi"}}:{{ .Values.prepareCSI.image.tag | default "v1.0.2" }}
+{{ .Values.global.registry }}{{ .Values.prepareCSI.image.repository | default "iomesh/prepare-csi"}}:{{ .Values.prepareCSI.image.tag | default "v1.0.3-rc0" }}
 {{- end }}

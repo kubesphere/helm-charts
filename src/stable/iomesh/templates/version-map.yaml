@@ -6,3 +6,4 @@ metadata:
   namespace: {{ .Release.Namespace }}
 data:
   v1.1.0: "v5.5.0-rc27"
+  v1.2.0: "v5.6.0-rc112"

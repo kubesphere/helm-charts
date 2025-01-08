@@ -74,7 +74,7 @@ prober:
       memory: 100Mi
   metrics:
     portName: http-metrics
-    port: 8443
+    port: 3269
     path: /metrics
   podMonitor:
     # RelabelConfigs to apply to samples before scraping.
