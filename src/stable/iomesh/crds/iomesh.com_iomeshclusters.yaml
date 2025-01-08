@@ -70,6 +70,9 @@ spec:
                     type: string
                   dataCIDR:
                     type: string
+                  defaultPrioSpaceRatio:
+                    format: int32
+                    type: integer
                   deviceMap:
                     additionalProperties:
                       description: DeviceMappingStrategy is a query over a set of device. If you want to exclude some device in select result, add the device name in to Exclude.
@@ -522,6 +525,12 @@ spec:
                               type: string
                           type: object
                         type: array
+                    type: object
+                  prioritizedSpaceRatioMap:
+                    additionalProperties:
+                      format: int32
+                      type: integer
+                    description: 'PrioritizedSpaceRatioMap:   key: chunk data ip   value: prioritized space percentage'
                     type: object
                   replicas:
                     format: int32
@@ -1568,11 +1577,19 @@ spec:
                               properties:
                                 allocatedDataSpace:
                                   type: string
+                                allocatedPrioritizedSpace:
+                                  type: string
                                 dirtyCacheSpace:
+                                  type: string
+                                downgradedPrioritizedSpace:
                                   type: string
                                 failureCacheSpace:
                                   type: string
                                 failureDataSpace:
+                                  type: string
+                                plannedPrioritizedSpace:
+                                  type: string
+                                prioritizedPercentage:
                                   type: string
                                 provisionedDataSpace:
                                   type: string
@@ -1596,11 +1613,19 @@ spec:
                         properties:
                           allocatedDataSpace:
                             type: string
+                          allocatedPrioritizedSpace:
+                            type: string
                           dirtyCacheSpace:
+                            type: string
+                          downgradedPrioritizedSpace:
                             type: string
                           failureCacheSpace:
                             type: string
                           failureDataSpace:
+                            type: string
+                          plannedPrioritizedSpace:
+                            type: string
+                          prioritizedPercentage:
                             type: string
                           provisionedDataSpace:
                             type: string

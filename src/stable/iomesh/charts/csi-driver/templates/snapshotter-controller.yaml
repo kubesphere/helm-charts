@@ -793,6 +793,10 @@ spec:
             - "--v=5"
             - "--leader-election=true"
           imagePullPolicy: IfNotPresent
+      {{- with .Values.driver.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
 {{- end }}
 
 {{- if and (eq $kubeMajorVersion 1) (ge $kubeMinorVersion 17) (le $kubeMinorVersion 21)}}
@@ -1421,5 +1425,9 @@ spec:
             - "--v=5"
             - "--leader-election=false"
           imagePullPolicy: IfNotPresent
+      {{- with .Values.driver.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
 {{- end }}
 {{- end }}
