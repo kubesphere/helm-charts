@@ -12,7 +12,7 @@ image:
 
 nfs:
   server:
-  path: /ifs/kubernetes
+  path: /nfs/kubernetes
   mountOptions:
 
 # For creating the StorageClass automatically:
