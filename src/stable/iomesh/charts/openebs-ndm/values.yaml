@@ -2,7 +2,7 @@
 # This is a YAML-formatted file.
 # Declare variables to be passed into your templates.
 release:
-  version: "1.8.0"
+  version: "1.8.0-3"
 
 global:
   # Global variable registry to locate the images, It is convenient for users to specify private dockerhub
@@ -17,11 +17,10 @@ ndm:
   componentName: ndm
   enabled: true
   image:
-
-    repository: openebs/node-disk-manager
+    repository: iomesh/node-disk-manager
     pullPolicy: IfNotPresent
     # Overrides the image tag whose default is the chart appVersion.
-    tag: 1.8.0
+    tag: 1.8.0-2
   sparse:
     path: "/var/openebs/sparse"
     size: "10737418240"
@@ -69,7 +68,7 @@ ndmOperator:
     repository: openebs/node-disk-operator
     pullPolicy: IfNotPresent
     # Overrides the image tag whose default is the chart appVersion.
-    tag: 1.8.0
+    tag: 1.8.0-1
   podLabels:
     name: openebs-ndm-operator
   annotations: {}

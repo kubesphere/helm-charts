@@ -86,7 +86,7 @@ spec:
   restartPolicy: Never
   containers:
   - name: post-delete
-    image: {{ .Values.global.registry }}iomesh/post-delete-hook:{{ .Values.operator.image.tag | default .Chart.Version }}
+    image: {{ .Values.global.registry }}{{ .Values.iomesh.postDeleteHook.image.repository | default "iomesh/post-delete-hook"}}:{{ .Values.iomesh.postDeleteHook.image.tag | default (.Values.operator.image.tag | default .Chart.Version) }}
     imagePullPolicy: IfNotPresent
     env:
     - name: RELEASE_NAME

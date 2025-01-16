@@ -76,6 +76,13 @@ spec:
     extraEnvs:
       {{- toYaml . | nindent 6 }}
     {{- end }}
+    {{- with .Values.iomesh.chunk.prioritizedSpaceRatioMap }}
+    prioritizedSpaceRatioMap:
+      {{- toYaml . | nindent 6 }}
+    {{- end }}
+    {{- if .Values.iomesh.chunk.defaultPrioSpaceRatio }}
+    defaultPrioSpaceRatio: {{ .Values.iomesh.chunk.defaultPrioSpaceRatio }}
+    {{- end }}
     {{- with .Values.iomesh.chunk.podPolicy }}
     podPolicy:
       {{- with .nodeSelector }}

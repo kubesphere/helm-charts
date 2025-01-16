@@ -40,7 +40,7 @@ spec:
               path: /healthz
               port: health
           command:
-          - /usr/bin/bash          
+          - /usr/bin/bash
           args:
             - /usr/sbin/csi-entrypoint.sh
             - --csi_addr=unix:///csi/csi.sock
@@ -54,6 +54,7 @@ spec:
             - --deployment_mode={{ .Values.driver.deploymentMode }}
             - --namespace=$(NAMESPACE)
             - --node_map={{ include "csi-driver.fullname" . }}-node-map
+            - --auto_capacity_align={{ .Values.driver.autoCapacityAlign | default false }}
             - --enable_nvmf={{ .Values.driver.nvmf.enable }}
             - --pod_delete_policy={{ .Values.driver.controller.driver.podDeletePolicy | default "no-delete-pod" }}
             - --pod_delete_latency={{ .Values.driver.controller.driver.podDeleteLatency | default "90s" }}
@@ -82,6 +83,10 @@ spec:
       {{- end }}
       {{- with .Values.driver.controller.affinity }}
       affinity:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
+      {{- with .Values.driver.tolerations }}
+      tolerations:
         {{- toYaml . | nindent 8 }}
       {{- end }}
       volumes:

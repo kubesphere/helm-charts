@@ -21,11 +21,11 @@ spec:
       runAsUser: 0
     resources:
       limits:
-        cpu: "400m"
-        memory: "2000Mi"
+        cpu: "1"
+        memory: "2Gi"
       requests:
-        cpu: "400m"
-        memory: "2000Mi"
+        cpu: "1"
+        memory: "2Gi"
   {{- with .Values.iomesh.zookeeper.podPolicy }}
     {{- with .nodeSelector }}
     nodeSelector: 
