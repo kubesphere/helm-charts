@@ -89,4 +89,8 @@ spec:
       affinity:
         {{- toYaml . | nindent 8 }}
       {{- end }}
+      {{- with .Values.driver.tolerations }}
+      tolerations:
+        {{- toYaml . | nindent 8 }}
+      {{- end }}
       {{- include "csi-driver.node.volumes" . | nindent 6 -}}

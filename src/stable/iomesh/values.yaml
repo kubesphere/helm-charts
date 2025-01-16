@@ -32,6 +32,8 @@ operator:
       cpu: 500m
       memory: 500Mi
 
+  enableLimitRange: true
+
   metricsPort: 8080
 
   autoUpgradeCluster: true
@@ -66,7 +68,7 @@ iomesh:
   # Whether to create IOMeshCluster object
   create: true
 
-  # Hardware platform. Only when your k8s cluster uses hygon cpu, this field needs to be 
+  # Hardware platform. Only when your k8s cluster uses hygon cpu, this field needs to be
   # filled in as hygon_x86_64. In other cases this field is empty
   platform: ""
 
@@ -78,7 +80,7 @@ iomesh:
   diskDeploymentMode: "hybridFlash"
 
   cpuExclusiveOptions:
-    # Cpu isolation and exclusive policy for IOMesh, support kubeletCpuManager/kernelCpuIsolation/noExclusive. 
+    # Cpu isolation and exclusive policy for IOMesh, support kubeletCpuManager/kernelCpuIsolation/noExclusive.
     # The default value is kubeletCpuManager
     cpuExclusivePolicy: "kubeletCpuManager"
 
@@ -105,7 +107,7 @@ iomesh:
   zookeeper:
     image:
       repository: iomesh/zookeeper
-      tag: "3.5.9"
+      tag: "3.5.9-20"
       pullPolicy: IfNotPresent
 
     replicas: 3
@@ -161,6 +163,8 @@ iomesh:
         pullPolicy: IfNotPresent
         tag: ""
     extraEnvs: {}
+    prioritizedSpaceRatioMap: {}
+    defaultPrioSpaceRatio: 0
     # Pod schedule policy config.
     podPolicy:
       # nodeSelector: {}
@@ -195,11 +199,14 @@ iomesh:
       tag: ""
 
   toolbox:
-      image:
-        repository: iomesh/operator-toolbox
-        pullPolicy: IfNotPresent
-        tag: ""
+    image:
+      repository: iomesh/operator-toolbox
+      pullPolicy: IfNotPresent
+      tag: ""
 
+  postDeleteHook:
+    image:
+      repository: iomesh/post-delete-hook
 
 openebs-ndm:
   enabled: true
@@ -236,7 +243,7 @@ openebs-ndm:
       repository: iomesh/linux-utils
       pullPolicy: IfNotPresent
       tag: 3.1.0
-      
+
   featureGates:
     # https://github.com/openebs/node-disk-manager/pull/635
     PartitionTableUUID:
@@ -299,12 +306,16 @@ csi-driver:
       nvmfAgentIntervalSecond: 90
       nvmfAgentConnectTimeoutSecond: 15
       nvmfAgentDisconnectTimeoutSecond: 15
-
+    # tolerations of csi-controller-plugin, csi-node-plugin and snapshot-controller
+    tolerations: []
+    # - key: "node-role.kubernetes.io/master"
+    #   operator: "Exists"
+    #   effect: "NoSchedule"
     controller:
       # controller replicas
       replicas: 3
       # use hostNetwork to access IOMesh cluster
-      hostNetwork: true
+      hostNetwork: false
       # nodeSelector of csi-controller-plugin Pod
       nodeSelector: {}
       # affinity of csi-controller-plugin Pod
@@ -313,7 +324,12 @@ csi-driver:
         # driver ports(If hostNetwork is true, ports are host ports)
         ports:
           health: 9810
+        # supports "no-delete-pod", "delete-deployment-pod", "delete-statefulset-pod", or "delete-both-statefulset-and-deployment-pod".
+        podDeletePolicy: "no-delete-pod" 
       resources:
+        requests:
+          cpu: 100m
+          memory: 150Mi
         limits:
           cpu: 1
           memory: 1Gi
@@ -336,6 +352,9 @@ csi-driver:
         # kubelet root directory
         kubeletRootDir: "/var/lib/kubelet"
       resources:
+        requests:
+          cpu: 100m
+          memory: 150Mi
         limits:
           cpu: 500m
           memory: 500Mi
@@ -365,7 +384,7 @@ blockdevice-monitor:
   blockdevicemonitor:
     image:
       repository: iomesh/blockdevice-monitor
-      pullPolicy: IfNotPresent 
+      pullPolicy: IfNotPresent
       tag: ""
     metrics:
       portName: http-metrics
@@ -391,7 +410,7 @@ blockdevice-monitor:
   prober:
     image:
       repository: iomesh/blockdevice-monitor-prober
-      pullPolicy: IfNotPresent 
+      pullPolicy: IfNotPresent
       tag: ""
     iostat:
       enable: true
@@ -407,7 +426,7 @@ blockdevice-monitor:
       enable: true
       loopIntervalSec: 21600
     zbsDeviceHealth:
-      loopIntervalSec: 10 
+      loopIntervalSec: 10
       enable: true
       chunk:
         rpc:
@@ -445,6 +464,9 @@ deck:
     namespace: "monitoring"
     matchLabels:
       app.kubernetes.io/name: alertmanager
+  service:
+    type: ClusterIP
+    port: 80
 
 deck-plugin-iomesh:
   image:
