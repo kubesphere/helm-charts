@@ -17,7 +17,7 @@ spec:
     spec:
       containers:
         - name: storageclass-accessor
-          image: "{{ .Values.image.repository }}:{{  .Chart.AppVersion  }}"
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: IfNotPresent
           args: ['--tls-cert-file=/etc/storageclass-accessor-webhook/certs/cert.pem', '--tls-private-key-file=/etc/storageclass-accessor-webhook/certs/key.pem']
           ports:
