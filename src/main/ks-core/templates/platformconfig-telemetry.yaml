@@ -1,0 +1,11 @@
+{{- if eq (include "multicluster.role" .) "host" }}
+apiVersion: v1
+kind: Secret
+metadata:
+  name: io.kubesphere.config.platformconfig.telemetry
+type: config.kubesphere.io/generic-platform-config
+stringData:
+  configuration.yaml: |
+    enabled: {{ include "telemetry.enabled" . }}
+    endpoint: "https://kubesphere.cloud"
+{{- end }}
