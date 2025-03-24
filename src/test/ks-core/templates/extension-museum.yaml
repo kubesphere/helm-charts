@@ -1,4 +1,4 @@
-{{- if .Values.ksExtensionRepository.enabled }}
+{{- if and (eq (include "multicluster.role" .) "host") .Values.ksExtensionRepository.enabled }}
 
 {{- $ca := genCA "self-signed-ca" 3650 }}
 {{- $cn := printf "%s-extensions-museum" .Release.Name }}
@@ -10,7 +10,6 @@ apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: extensions-museum
-  namespace: {{ .Release.Namespace }}
   labels:
     app: extensions-museum
 spec:
@@ -26,10 +25,12 @@ spec:
         # force restart ks-apiserver after the upgrade is complete if kubesphere-config changes
         checksum/cert: {{ sha256sum $cert.Cert }}
     spec:
-{{- include "extensions_museum.imagePullSecrets" . | nindent 6 }}
+      {{- if .Values.global.imagePullSecrets }}
+      imagePullSecrets: {{ toYaml .Values.global.imagePullSecrets | nindent 8 }}
+      {{- end }}
       containers:
         - name: extensions-museum
-          image: {{ template "extensions_museum.image" . }}
+          image: {{ template "extensionRepo.image" . }}
           command:
             - "/chartmuseum"
             - "--storage-local-rootdir"
@@ -55,7 +56,6 @@ apiVersion: v1
 kind: Secret
 metadata:
   name: extensions-museum-certs
-  namespace: {{ .Release.Namespace }}
 type: kubernetes.io/tls
 data:
   ca.crt: {{ b64enc $ca.Cert }}
@@ -67,7 +67,6 @@ apiVersion: v1
 kind: Service
 metadata:
   name: extensions-museum
-  namespace: {{ .Release.Namespace }}
 spec:
   selector:
     app: extensions-museum
@@ -84,26 +83,6 @@ metadata:
 spec:
   url: https://extensions-museum.{{ .Release.Namespace }}.svc
   caBundle: {{ b64enc $ca.Cert }}
-
----
-apiVersion: {{ if semverCompare ">=1.21.0-0" .Capabilities.KubeVersion.Version }}batch/v1{{ else }}batch/v1beta1{{end}}
-kind: CronJob
-metadata:
-  name: restart-extensions-museum
-  namespace: {{ .Release.Namespace }}
-spec:
-  schedule: "0 0 * * *"
-  jobTemplate:
-    spec:
-      template:
-        spec:
-          containers:
-            - name: restart-extensions-museum
-              image: {{ template "kubectl.image" . }}
-              command:
-                - /bin/sh
-                - -c
-                - "kubectl rollout restart deployment/extensions-museum -n {{ .Release.Namespace }}"
-          restartPolicy: OnFailure
-          serviceAccountName: {{ template "ks-core.serviceAccountName" . }}
+status:
+  lastSyncTime: null
 {{end}}
