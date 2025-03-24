@@ -412,6 +412,26 @@ entries:
     version: 1.2.1
   ks-core:
   - apiVersion: v2
+    appVersion: v4.1.3
+    created: "2025-03-24T09:56:11.034100439Z"
+    dependencies:
+    - alias: redisHA
+      condition: redisHA.enabled
+      name: redis-ha
+      repository: ""
+      version: 4.26.1
+    - alias: ksCRDs
+      name: ks-crds
+      repository: ""
+      version: 1.0.0
+    description: A Helm chart for KubeSphere Core components
+    digest: e832f76f1f60f181f68618dce044e47cd36e8cf46e5f50007503b873d4ba8fae
+    name: ks-core
+    type: application
+    urls:
+    - https://charts.kubesphere.io/main/ks-core-1.1.4.tgz
+    version: 1.1.4
+  - apiVersion: v2
     appVersion: v4.1.2
     created: "2024-10-18T06:41:48.727653264Z"
     dependencies:
@@ -1284,4 +1304,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/main/tomcat-0.4.0-r1.tgz
     version: 0.4.0-r1
-generated: "2024-10-18T06:41:48.722423606Z"
+generated: "2025-03-24T09:56:11.028804897Z"
