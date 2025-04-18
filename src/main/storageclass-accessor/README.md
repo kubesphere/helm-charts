@@ -28,7 +28,8 @@ helm delete storageclass-accessor --namespace storageclass-accessor
 
 The following table lists the configurable parameters of the chart and their default values.
 
-Parameter | Description | Default
+Parameter | Description                                                 | Default
 --- | --- | ---
-`image.repository` | Image repository of accessor deployment | `kubesphere/storageclass-accessor`
+`image.repository` | Image repository of accessor deployment                     | `kubesphere/storageclass-accessor`
+`image.tag` | Image tag of accessor deployment                            | `latest`
 `webhook.timeoutSeconds` | The maximum number of seconds used by the webhook to verify | `5`

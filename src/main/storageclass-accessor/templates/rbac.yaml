@@ -12,18 +12,21 @@ metadata:
   labels:
     role: controller
 rules:
-  - apiGroups: [ "" ]
-    resources: [ "namespaces" ]
-    verbs: [ "get", "list", "watch", "create", "delete", "update" ]
+  - apiGroups: [""]
+    resources: ["namespaces"]
+    verbs: ["get", "list", "watch"]
 
   - apiGroups: [""]
     resources: ["persistentvolumeclaims"]
-    verbs: ["get", "list", "watch", "create", "delete", "update"]
+    verbs: ["get", "list", "watch"]
 
   - apiGroups: ["storage.kubesphere.io"]
     resources: ["accessors"]
-    verbs: [ "get", "list", "watch", "create", "delete", "update"]
+    verbs: ["get", "list", "watch"]
 
+  - apiGroups: ["tenant.kubesphere.io"]
+    resources: ["workspaces"]
+    verbs: ["get", "list", "watch"]
 ---
 kind: ClusterRoleBinding
 apiVersion: rbac.authorization.k8s.io/v1
