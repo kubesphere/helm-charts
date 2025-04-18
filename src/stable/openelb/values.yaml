@@ -12,10 +12,12 @@ admission:
 
 manager:
   apiHosts: ":50051"
+  monitorEnable: false
+  monitorPort: 50052
   webhookPort: 443
   image:
     repository: kubesphere/openelb
-    tag: v0.5.0
+    tag: v0.5.1
     pullPolicy: IfNotPresent
   resources:
     limits:
@@ -36,3 +38,9 @@ manager:
   serviceAccount:
     create: true
     name: openelb-manager
+
+customImage:
+  enable: true
+  vipImage: ""      # "kubesphere/kube-keepalived-vip:0.35"
+  forwardImage: ""  # kubesphere/openelb-forward:master
+  proxyImage: ""    # kubesphere/openelb-proxy:master
