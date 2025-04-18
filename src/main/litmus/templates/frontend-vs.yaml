@@ -1,0 +1,26 @@
+{{- if .Values.portal.frontend.virtualService.enabled }}
+---
+apiVersion: networking.istio.io/v1beta1
+kind: VirtualService
+metadata:
+  name: litmusportal-frontend-service
+  namespace:  {{ .Release.Namespace }}
+  labels:
+    app.kubernetes.io/component: {{ include "litmus-portal.name" . }}-frontend
+    {{- include "litmus-portal.labels" . | nindent 4 }}
+spec:
+  hosts:
+{{- with .Values.portal.frontend.virtualService.hosts }}
+    {{- toYaml . | nindent 4 }}
+{{- end }}
+  gateways:
+{{- with .Values.portal.frontend.virtualService.gateways }}
+    {{- toYaml . | nindent 4 }}
+{{- end }}
+  http:
+    - route:
+      - destination:
+          host: litmusportal-frontend-service
+          port:
+            number: {{ .Values.portal.frontend.service.port }}
+{{- end -}}
