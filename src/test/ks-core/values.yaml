@@ -2,7 +2,7 @@
 ## @param global.tag Global Docker image tag
 global:
   imageRegistry: docker.io
-  tag: v4.1.3
+  tag: v4.1.1
   imagePullSecrets: []
   # - name: "image-pull-secret"
 
@@ -161,6 +161,7 @@ console:
     digest: ""
     pullPolicy: IfNotPresent
   config:
+    enableKubeConfig: true
     enableNodeListTerminal: true
   ## @param containerPorts [array] List of container ports to enable in the ks-console container
   ##
@@ -219,7 +220,7 @@ controller:
   ## @param command Override default container command (useful when using custom images)
   ##
   command:
-    - controller-manager
+    - ks-controller-manager
     - --logtostderr=true
     - --leader-elect=true
     - --controllers=*
@@ -443,5 +444,5 @@ ksExtensionRepository:
   image:
     registry: ""
     repository: kubesphere/ks-extensions-museum
-    tag: "v1.1.5"
+    tag: "latest"
     pullPolicy: IfNotPresent
