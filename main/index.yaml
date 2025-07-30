@@ -410,7 +410,7 @@ entries:
     urls:
     - https://charts.kubesphere.io/main/harbor-1.2.1.tgz
     version: 1.2.1
- ks-installer:
+  ks-installer:
   - apiVersion: v2
     appVersion: 3.2.1
     created: "2022-01-05T09:13:56.916119641Z"
