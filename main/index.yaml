@@ -1,0 +1,1196 @@
+apiVersion: v1
+entries:
+  apisix:
+  - apiVersion: v2
+    appVersion: 2.10.0
+    created: "2021-11-15T08:23:00.343234584Z"
+    dependencies:
+    - condition: etcd.enabled
+      name: etcd
+      repository: https://charts.bitnami.com/bitnami
+      version: 6.2.6
+    - alias: dashboard
+      condition: dashboard.enabled
+      name: apisix-dashboard
+      repository: https://charts.apiseven.com
+      version: 0.3.0
+    - alias: ingress-controller
+      condition: ingress-controller.enabled
+      name: apisix-ingress-controller
+      repository: https://charts.apiseven.com
+      version: 0.8.0
+    description: A Helm chart for Apache APISIX
+    digest: fed38a11c0fb54d385144767227e43cb2961d1b50d36ea207fdd122bddd3de28
+    icon: https://apache.org/logos/res/apisix/apisix.png
+    maintainers:
+    - email: zhangjintao@apache.org
+      name: tao12345666333
+    name: apisix
+    type: application
+    urls:
+    - https://charts.kubesphere.io/main/apisix-0.7.2.tgz
+    version: 0.7.2
+  apisix-dashboard:
+  - apiVersion: v2
+    appVersion: 2.9.0
+    created: "2021-11-15T08:23:00.343784368Z"
+    description: A Helm chart for Apache APISIX Dashboard
+    digest: 76f794b1300f7bfb756ede352fe71eb863b89f1995b495e8b683990709e310ad
+    icon: https://apache.org/logos/res/apisix/apisix.png
+    maintainers:
+    - email: zhangjintao@apache.org
+      name: tao12345666333
+    name: apisix-dashboard
+    type: application
+    urls:
+    - https://charts.kubesphere.io/main/apisix-dashboard-0.3.0.tgz
+    version: 0.3.0
+  apisix-ingress-controller:
+  - apiVersion: v2
+    appVersion: 1.3.0
+    created: "2021-11-15T08:23:00.344520513Z"
+    description: Apache APISIX Ingress Controller for Kubernetes
+    digest: 16c32185473832e6eacb0954df64679decf781097e418d513c74db3f233404d5
+    icon: https://apache.org/logos/res/apisix/apisix.png
+    keywords:
+    - ingress
+    - apisix
+    - nginx
+    - crd
+    maintainers:
+    - email: zhangjintao@apache.org
+      name: tao12345666333
+    name: apisix-ingress-controller
+    type: application
+    urls:
+    - https://charts.kubesphere.io/main/apisix-ingress-controller-0.8.0.tgz
+    version: 0.8.0
+  elasticsearch-exporter:
+  - annotations:
+      app.kubesphere.io/category: Prometheus Exporter
+    apiVersion: v1
+    appVersion: 1.1.0
+    created: "2022-03-21T07:11:45.509566438Z"
+    description: Elasticsearch stats exporter for Prometheus
+    digest: 8eb279c0135d196533eca81a535fcbbc377b0e240655a7b4f360597028865e3c
+    home: https://github.com/justwatchcom/elasticsearch_exporter
+    keywords:
+    - metrics
+    - elasticsearch
+    - monitoring
+    kubeVersion: '>=1.10.0-0'
+    maintainers:
+    - email: sven.mueller@commercetools.com
+      name: svenmueller
+    - email: carlos@carlosbecker.com
+      name: caarlos0
+    - email: cedric@desaintmartin.fr
+      name: desaintmartin
+    name: elasticsearch-exporter
+    sources:
+    - https://github.com/justwatchcom/elasticsearch_exporter
+    urls:
+    - https://charts.kubesphere.io/main/elasticsearch-exporter-3.4.0.tgz
+    version: 3.4.0
+  - annotations:
+      app.kubesphere.io/category: Prometheus Exporter
+    apiVersion: v1
+    appVersion: 1.1.0
+    created: "2021-12-15T06:57:27.728568497Z"
+    description: Elasticsearch stats exporter for Prometheus
+    digest: a476692a385cee005d317928f240a939b5dbecda276c58b21198f41653d151d8
+    home: https://github.com/justwatchcom/elasticsearch_exporter
+    keywords:
+    - metrics
+    - elasticsearch
+    - monitoring
+    kubeVersion: '>=1.10.0-0'
+    maintainers:
+    - email: sven.mueller@commercetools.com
+      name: svenmueller
+    - email: carlos@carlosbecker.com
+      name: caarlos0
+    - email: cedric@desaintmartin.fr
+      name: desaintmartin
+    name: elasticsearch-exporter
+    sources:
+    - https://github.com/justwatchcom/elasticsearch_exporter
+    urls:
+    - https://charts.kubesphere.io/main/elasticsearch-exporter-3.3.4.tgz
+    version: 3.3.4
+  - annotations:
+      app.kubesphere.io/category: Prometheus Exporter
+    apiVersion: v1
+    appVersion: 1.1.0
+    created: "2021-04-15T14:28:25.80680627Z"
+    description: Elasticsearch stats exporter for Prometheus
+    digest: 2b296729364f83ebd0a9dd8d82c564f18a282e058ce37986ec3e32170e015f58
+    home: https://github.com/justwatchcom/elasticsearch_exporter
+    keywords:
+    - metrics
+    - elasticsearch
+    - monitoring
+    kubeVersion: '>=1.10.0-0'
+    maintainers:
+    - email: sven.mueller@commercetools.com
+      name: svenmueller
+    - email: carlos@carlosbecker.com
+      name: caarlos0
+    - email: cedric@desaintmartin.fr
+      name: desaintmartin
+    name: elasticsearch-exporter
+    sources:
+    - https://github.com/justwatchcom/elasticsearch_exporter
+    urls:
+    - https://charts.kubesphere.io/main/elasticsearch-exporter-3.3.3.tgz
+    version: 3.3.3
+  - annotations:
+      app.kubesphere.io/category: Big Data
+    apiVersion: v1
+    appVersion: 1.1.0
+    created: "2021-04-09T08:44:57.860466365Z"
+    description: Elasticsearch stats exporter for Prometheus
+    digest: d1bf8be6adffb1627ec3330ffe8ce7d48cf4dd8a66c4c8813a50f7ef10742c39
+    home: https://github.com/justwatchcom/elasticsearch_exporter
+    keywords:
+    - metrics
+    - elasticsearch
+    - monitoring
+    kubeVersion: '>=1.10.0-0'
+    maintainers:
+    - email: sven.mueller@commercetools.com
+      name: svenmueller
+    - email: carlos@carlosbecker.com
+      name: caarlos0
+    - email: cedric@desaintmartin.fr
+      name: desaintmartin
+    name: elasticsearch-exporter
+    sources:
+    - https://github.com/justwatchcom/elasticsearch_exporter
+    urls:
+    - https://charts.kubesphere.io/main/elasticsearch-exporter-3.3.2.tgz
+    version: 3.3.2
+  - apiVersion: v1
+    appVersion: 1.1.0
+    created: "2020-11-10T03:50:44.525086201Z"
+    description: Elasticsearch stats exporter for Prometheus
+    digest: d2d59f9a63f5022ecbb6f4b85d836b3756960b019d348d84c0d5911c10ba8669
+    home: https://github.com/justwatchcom/elasticsearch_exporter
+    keywords:
+    - metrics
+    - elasticsearch
+    - monitoring
+    kubeVersion: '>=1.10.0-0'
+    maintainers:
+    - email: sven.mueller@commercetools.com
+      name: svenmueller
+    - email: carlos@carlosbecker.com
+      name: caarlos0
+    - email: cedric@desaintmartin.fr
+      name: desaintmartin
+    name: elasticsearch-exporter
+    sources:
+    - https://github.com/justwatchcom/elasticsearch_exporter
+    urls:
+    - https://charts.kubesphere.io/main/elasticsearch-exporter-3.3.1.tgz
+    version: 3.3.1
+  fluentbit-operator:
+  - apiVersion: v2
+    appVersion: 0.9.0
+    created: "2021-08-19T02:44:53.777289146Z"
+    description: A Helm chart for Kubernetes
+    digest: bba667475dbb88870bde889caec9e5b96ab873c60f72a342be141d548b23daa1
+    name: fluentbit-operator
+    urls:
+    - https://charts.kubesphere.io/main/fluentbit-operator-0.1.0.tgz
+    version: 0.1.0
+  gitlab:
+  - apiVersion: v1
+    appVersion: 13.2.2
+    created: "2021-08-09T14:53:27.94268187Z"
+    dependencies:
+    - alias: certmanager
+      condition: certmanager.install
+      name: cert-manager
+      repository: https://charts.jetstack.io/
+      version: 0.10.1
+    - condition: prometheus.install
+      name: prometheus
+      repository: https://charts.helm.sh/stable/
+      version: 10.0.0
+    - condition: postgresql.install
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: 8.9.4
+    - condition: gitlab-runner.install
+      name: gitlab-runner
+      repository: https://charts.gitlab.io/
+      version: 0.19.1
+    - condition: global.grafana.enabled
+      name: grafana
+      repository: https://charts.helm.sh/stable
+      version: 4.0.1
+    - condition: redis.install
+      name: redis
+      repository: https://charts.bitnami.com/bitnami
+      version: 10.3.4
+    - name: minio
+      repository: ""
+      version: 0.4.3
+    - name: certmanager-issuer
+      repository: ""
+      version: 0.1.0
+    - name: shared-secrets
+      repository: ""
+      version: 0.1.0
+    - name: nginx-ingress
+      repository: ""
+      version: 0.30.0-1
+    - name: registry
+      repository: ""
+      version: 0.5.0
+    - name: gitlab
+      repository: ""
+      version: 0.1.0
+    description: Web-based Git-repository manager with wiki and issue-tracking features.
+    digest: da3f2bb355b8f897c4cfddde57cfc188063f2225f59e3ed88dad584d707493b0
+    home: https://about.gitlab.com/
+    icon: https://gitlab.com/gitlab-com/gitlab-artwork/raw/master/logo/logo-square.png
+    keywords:
+    - gitlab
+    maintainers:
+    - email: support@gitlab.com
+      name: GitLab Inc.
+    name: gitlab
+    sources:
+    - https://gitlab.com/gitlab-org/charts/gitlab
+    urls:
+    - https://charts.kubesphere.io/main/gitlab-4.2.3.tgz
+    version: 4.2.3
+  - apiVersion: v1
+    appVersion: 13.2.2
+    created: "2020-08-03T14:36:29.574424388Z"
+    description: Web-based Git-repository manager with wiki and issue-tracking features.
+    digest: b2a224ea068046f99568567a7508f2e314f4be575b9d10d9ff8b1b598131ab9f
+    home: https://about.gitlab.com/
+    icon: https://gitlab.com/gitlab-com/gitlab-artwork/raw/master/logo/logo-square.png
+    keywords:
+    - gitlab
+    maintainers:
+    - email: support@gitlab.com
+      name: GitLab Inc.
+    name: gitlab
+    sources:
+    - https://gitlab.com/gitlab-org/charts/gitlab
+    urls:
+    - https://charts.kubesphere.io/main/gitlab-4.2.2.tgz
+    version: 4.2.2
+  - apiVersion: v1
+    appVersion: 12.4.1
+    created: "2020-05-12T00:56:27.266233113Z"
+    description: Web-based Git-repository manager with wiki and issue-tracking features.
+    digest: 2b48596bc1122cf279a40ca8200c74d13cb7e6d3fed9c7ed3509b2b7d712ee68
+    home: https://about.gitlab.com/
+    icon: https://gitlab.com/gitlab-com/gitlab-artwork/raw/master/logo/logo-square.png
+    keywords:
+    - gitlab
+    maintainers:
+    - email: support@gitlab.com
+      name: GitLab Inc.
+    name: gitlab
+    sources:
+    - https://gitlab.com/gitlab-org/charts/gitlab
+    urls:
+    - https://charts.kubesphere.io/main/gitlab-2.4.5.tgz
+    version: 2.4.5
+  harbor:
+  - annotations:
+      app.kubesphere.io/category: Image Registry
+    apiVersion: v1
+    appVersion: 2.5.3
+    created: "2022-08-23T07:00:57.947878291Z"
+    description: An open source trusted cloud native registry that stores, signs,
+      and scans content
+    digest: de600672e4a9cf7bf090e3384619b5a88ca84895f47892ccab36ee74c5e4bfe7
+    home: https://goharbor.io
+    icon: https://raw.githubusercontent.com/goharbor/website/master/static/img/logos/harbor-icon-color.png
+    keywords:
+    - docker
+    - registry
+    - harbor
+    maintainers:
+    - email: yinw@vmware.com
+      name: Wenkai Yin
+    - email: hweiwei@vmware.com
+      name: Weiwei He
+    - email: yshengwen@vmware.com
+      name: Shengwen Yu
+    name: harbor
+    sources:
+    - https://github.com/goharbor/harbor
+    - https://github.com/goharbor/harbor-helm
+    urls:
+    - https://charts.kubesphere.io/main/harbor-1.9.3.tgz
+    version: 1.9.3
+  - annotations:
+      app.kubesphere.io/category: Image Registry
+    apiVersion: v1
+    appVersion: 2.0.1
+    created: "2021-04-15T14:28:25.809958115Z"
+    description: An open source trusted cloud native registry that stores, signs,
+      and scans content
+    digest: c3aa3a91fb880f189a127e93abc3ff794b374d401a15cb544efe0e631400e9aa
+    home: https://goharbor.io
+    icon: https://raw.githubusercontent.com/goharbor/harbor/master/docs/img/harbor_logo.png
+    keywords:
+    - docker
+    - registry
+    - harbor
+    maintainers:
+    - email: yinw@vmware.com
+      name: Wenkai Yin
+    - email: hweiwei@vmware.com
+      name: Weiwei He
+    - email: dengq@vmware.com
+      name: Qian Deng
+    name: harbor
+    sources:
+    - https://github.com/goharbor/harbor
+    - https://github.com/goharbor/harbor-helm
+    urls:
+    - https://charts.kubesphere.io/main/harbor-1.4.1.tgz
+    version: 1.4.1
+  - apiVersion: v1
+    appVersion: 2.0.0
+    created: "2020-06-02T13:03:55.684778759Z"
+    description: An open source trusted cloud native registry that stores, signs,
+      and scans content
+    digest: 107472dac1f522af4793526396dafa0e169b77c3fdcc631989855dac9a3cd219
+    home: https://goharbor.io
+    icon: https://raw.githubusercontent.com/goharbor/harbor/master/docs/img/harbor_logo.png
+    keywords:
+    - docker
+    - registry
+    - harbor
+    maintainers:
+    - email: yinw@vmware.com
+      name: Wenkai Yin
+    - email: hweiwei@vmware.com
+      name: Weiwei He
+    - email: dengq@vmware.com
+      name: Qian Deng
+    name: harbor
+    sources:
+    - https://github.com/goharbor/harbor
+    - https://github.com/goharbor/harbor-helm
+    urls:
+    - https://charts.kubesphere.io/main/harbor-1.4.0.tgz
+    version: 1.4.0
+  - apiVersion: v1
+    appVersion: 1.9.1
+    created: "2020-05-12T00:56:27.26956401Z"
+    description: An open source trusted cloud native registry that stores, signs,
+      and scans content
+    digest: d4abdb2cfd2b72267b6cab652c320cd59ac2b9b5b6575aca2669c5da47c57fc2
+    home: https://goharbor.io
+    icon: https://raw.githubusercontent.com/goharbor/harbor/master/docs/img/harbor_logo.png
+    keywords:
+    - docker
+    - registry
+    - harbor
+    maintainers:
+    - email: huh@vmware.com
+      name: Jesse Hu
+    - email: username.taken@gmail.com
+      name: paulczar
+    name: harbor
+    sources:
+    - https://github.com/goharbor/harbor
+    - https://github.com/goharbor/harbor-helm
+    urls:
+    - https://charts.kubesphere.io/main/harbor-1.2.1.tgz
+    version: 1.2.1
+  ks-installer:
+  - apiVersion: v2
+    appVersion: 3.2.1
+    created: "2022-01-05T09:13:56.916119641Z"
+    description: The helm chart of KubeSphere, supports installing KubeSphere on existing
+      Kubernetes.
+    digest: 873613d23da5c2c000ca8b07da8252998592a72b8c293bcab1f47c3aeb027285
+    icon: https://kubesphere.io/static/logo.16097928.svg
+    keywords:
+    - kubesphere
+    - installer
+    name: ks-installer
+    type: application
+    urls:
+    - https://charts.kubesphere.io/main/ks-installer-0.3.1.tgz
+    version: 0.3.1
+  - apiVersion: v2
+    appVersion: 3.2.0
+    created: "2021-11-25T05:59:14.522531613Z"
+    description: The helm chart of KubeSphere, supports installing KubeSphere on existing
+      Kubernetes.
+    digest: 8486f069778ae86f69375013b2fead921cd286b84102281f3744fbb18915aab1
+    icon: https://kubesphere.io/static/logo.16097928.svg
+    keywords:
+    - kubesphere
+    - installer
+    name: ks-installer
+    type: application
+    urls:
+    - https://charts.kubesphere.io/main/ks-installer-0.3.0.tgz
+    version: 0.3.0
+  - apiVersion: v2
+    appVersion: 3.1.0
+    created: "2021-06-23T07:01:31.082186494Z"
+    description: The helm chart of KubeSphere, supports installing KubeSphere on existing
+      Kubernetes.
+    digest: 7e5a0cf809a248b6e8e527db907262194c6a96917a7d638c8d2022f452d93f86
+    icon: https://kubesphere.io/static/logo.16097928.svg
+    keywords:
+    - kubesphere
+    - installer
+    name: ks-installer
+    type: application
+    urls:
+    - https://charts.kubesphere.io/main/ks-installer-0.2.2.tgz
+    version: 0.2.2
+  memcached:
+  - annotations:
+      app.kubesphere.io/category: Database & Cache
+    apiVersion: v1
+    appVersion: 1.5.20
+    created: "2021-04-15T14:28:25.810518451Z"
+    description: Free & open source, high-performance, distributed memory object caching
+      system.
+    digest: f4098e9ce7ff9a48a5723b51518b3148468aadaa0dd50ea910616cd740933dff
+    home: http://memcached.org/
+    icon: https://upload.wikimedia.org/wikipedia/en/thumb/2/27/Memcached.svg/1024px-Memcached.svg.png
+    keywords:
+    - memcached
+    - cache
+    maintainers:
+    - email: gtaylor@gc-taylor.com
+      name: gtaylor
+    - email: o.with@sportradar.com
+      name: olemarkus
+    - email: k.aasan@sportradar.com
+      name: kennethaasan
+    name: memcached
+    sources:
+    - https://github.com/docker-library/memcached
+    urls:
+    - https://charts.kubesphere.io/main/memcached-3.2.5.tgz
+    version: 3.2.5
+  - annotations:
+      app.kubesphere.io/category: Database
+    apiVersion: v1
+    appVersion: 1.5.20
+    created: "2021-04-09T08:44:57.861065784Z"
+    description: Free & open source, high-performance, distributed memory object caching
+      system.
+    digest: 762a4cfbf44afb837a800bbe2fa0e371839550572e05b025a33c3b0247175a72
+    home: http://memcached.org/
+    icon: https://upload.wikimedia.org/wikipedia/en/thumb/2/27/Memcached.svg/1024px-Memcached.svg.png
+    keywords:
+    - memcached
+    - cache
+    maintainers:
+    - email: gtaylor@gc-taylor.com
+      name: gtaylor
+    - email: o.with@sportradar.com
+      name: olemarkus
+    - email: k.aasan@sportradar.com
+      name: kennethaasan
+    name: memcached
+    sources:
+    - https://github.com/docker-library/memcached
+    urls:
+    - https://charts.kubesphere.io/main/memcached-3.2.4.tgz
+    version: 3.2.4
+  - annotations:
+      app.kubesphere.io/category: Database
+    apiVersion: v1
+    appVersion: 1.5.20
+    created: "2021-04-09T08:10:26.544183185Z"
+    description: Free & open source, high-performance, distributed memory object caching
+      system.
+    digest: 63d11b780a396bde4c328572503548c68830fafc359e550ac510259cbb3dace7
+    home: http://memcached.org/
+    icon: https://upload.wikimedia.org/wikipedia/en/thumb/2/27/Memcached.svg/1024px-Memcached.svg.png
+    keywords:
+    - memcached
+    - cache
+    maintainers:
+    - email: gtaylor@gc-taylor.com
+      name: gtaylor
+    - email: o.with@sportradar.com
+      name: olemarkus
+    - email: k.aasan@sportradar.com
+      name: kennethaasan
+    name: memcached
+    sources:
+    - https://github.com/docker-library/memcached
+    urls:
+    - https://charts.kubesphere.io/main/memcached-3.2.3.tgz
+    version: 3.2.3
+  minio:
+  - annotations:
+      app.kubesphere.io/category: Storage
+    apiVersion: v1
+    appVersion: RELEASE.2020-08-08T04-50-06Z
+    created: "2021-04-09T08:44:57.864004804Z"
+    description: High Performance, Kubernetes Native Object Storage
+    digest: 44c437fd7638e3bd7e935dd88a48e20692ca46eae380218e03bbf343e13ff8b8
+    home: https://min.io
+    icon: https://min.io/resources/img/logo/MINIO_wordmark.png
+    keywords:
+    - storage
+    - object-storage
+    - S3
+    maintainers:
+    - email: dev@minio.io
+      name: Minio
+    name: minio
+    sources:
+    - https://github.com/minio/minio
+    urls:
+    - https://charts.kubesphere.io/main/minio-6.0.5.tgz
+    version: 6.0.5
+  - apiVersion: v1
+    appVersion: RELEASE.2020-08-08T04-50-06Z
+    created: "2020-08-19T00:23:06.765252243Z"
+    description: High Performance, Kubernetes Native Object Storage
+    digest: 2a3d959d9f3b594a4d7d3a615a57c608471706494c94494a44694f07aff17946
+    home: https://min.io
+    icon: https://min.io/resources/img/logo/MINIO_wordmark.png
+    keywords:
+    - storage
+    - object-storage
+    - S3
+    maintainers:
+    - email: dev@minio.io
+      name: Minio
+    name: minio
+    sources:
+    - https://github.com/minio/minio
+    urls:
+    - https://charts.kubesphere.io/main/minio-6.0.4.tgz
+    version: 6.0.4
+  - apiVersion: v1
+    appVersion: master
+    created: "2020-06-08T10:41:41.069973041Z"
+    description: MinIO is a high performance data infrastructure for machine learning,
+      analytics and application data workloads.
+    digest: 2402497b1cba90ed22ee0142adbc0ce4505c005523332d43ea0db4cfc626ff7e
+    home: https://min.io
+    icon: https://min.io/resources/img/logo/MINIO_wordmark.png
+    keywords:
+    - storage
+    - object-storage
+    - S3
+    maintainers:
+    - email: dev@minio.io
+      name: Minio
+    - email: hello@acale.ph
+      name: Acaleph
+    name: minio
+    sources:
+    - https://github.com/minio/minio
+    urls:
+    - https://charts.kubesphere.io/main/minio-5.0.26.tgz
+    version: 5.0.26
+  mysql:
+  - annotations:
+      app.kubesphere.io/category: Database & Cache
+    apiVersion: v1
+    appVersion: 5.7.31
+    created: "2021-04-27T10:39:13.8645514Z"
+    description: Fast, reliable, scalable, and easy to use open-source relational
+      database system.
+    digest: ed2bbe9b66dcbb54b8aab08f4f116b4db56339a0c097d6a76bc75abd17fde22e
+    home: https://www.mysql.com/
+    icon: https://www.mysql.com/common/logos/powered-by-mysql-167x86.png
+    keywords:
+    - mysql
+    - database
+    - sql
+    maintainers:
+    - email: o.with@sportradar.com
+      name: olemarkus
+    - email: viglesias@google.com
+      name: viglesiasce
+    name: mysql
+    sources:
+    - https://github.com/kubernetes/charts
+    - https://github.com/docker-library/mysql
+    urls:
+    - https://charts.kubesphere.io/main/mysql-1.6.8.tgz
+    version: 1.6.8
+  - annotations:
+      app.kubesphere.io/category: Database & Cache
+    apiVersion: v1
+    appVersion: 5.7.31
+    created: "2021-04-15T14:28:25.811459153Z"
+    description: Fast, reliable, scalable, and easy to use open-source relational
+      database system.
+    digest: 856558b2e5225b10640b55e48c6fdc746a55eb7f9fc9097597dec7046aeca5f3
+    home: https://www.mysql.com/
+    icon: https://www.mysql.com/common/logos/logo-mysql-170x115.png
+    keywords:
+    - mysql
+    - database
+    - sql
+    maintainers:
+    - email: o.with@sportradar.com
+      name: olemarkus
+    - email: viglesias@google.com
+      name: viglesiasce
+    name: mysql
+    sources:
+    - https://github.com/kubernetes/charts
+    - https://github.com/docker-library/mysql
+    urls:
+    - https://charts.kubesphere.io/main/mysql-1.6.7.tgz
+    version: 1.6.7
+  - annotations:
+      app.kubesphere.io/category: Database
+    apiVersion: v1
+    appVersion: 5.7.30
+    created: "2021-04-09T08:10:26.545144375Z"
+    description: Fast, reliable, scalable, and easy to use open-source relational
+      database system.
+    digest: 380c408b78f051d45b4a6f3baf4ecd3e9ebdb06d45604b2def5132d0c63bfcc7
+    home: https://www.mysql.com/
+    icon: https://www.mysql.com/common/logos/logo-mysql-170x115.png
+    keywords:
+    - mysql
+    - database
+    - sql
+    maintainers:
+    - email: o.with@sportradar.com
+      name: olemarkus
+    - email: viglesias@google.com
+      name: viglesiasce
+    name: mysql
+    sources:
+    - https://github.com/kubernetes/charts
+    - https://github.com/docker-library/mysql
+    urls:
+    - https://charts.kubesphere.io/main/mysql-1.6.6.tgz
+    version: 1.6.6
+  mysql-exporter:
+  - annotations:
+      app.kubesphere.io/category: Prometheus Exporter
+    apiVersion: v1
+    appVersion: v0.11.0
+    created: "2021-04-15T14:28:25.812047527Z"
+    description: A Helm chart for prometheus mysql exporter with cloudsqlproxy
+    digest: 40140dff69e04558e395a8d05cf1a7fcf2d5f5e91e571a7e7bae95c44909cbec
+    home: https://github.com/prometheus/mysqld_exporter
+    maintainers:
+    - email: juan.chimienti@gmail.com
+      name: juanchimienti
+    - email: monotek23@gmail.com
+      name: monotek
+    name: mysql-exporter
+    sources:
+    - https://github.com/prometheus/mysqld_exporter
+    urls:
+    - https://charts.kubesphere.io/main/mysql-exporter-0.5.6.tgz
+    version: 0.5.6
+  - annotations:
+      app.kubesphere.io/category: Database
+    apiVersion: v1
+    appVersion: v0.11.0
+    created: "2021-04-09T08:44:57.865459822Z"
+    description: A Helm chart for prometheus mysql exporter with cloudsqlproxy
+    digest: 1e8526bd4f1bd59c5bdc436ce3adeb260a7ebde5ce18964b7b794d700ce1f4f1
+    home: https://github.com/prometheus/mysqld_exporter
+    maintainers:
+    - email: juan.chimienti@gmail.com
+      name: juanchimienti
+    - email: monotek23@gmail.com
+      name: monotek
+    name: mysql-exporter
+    sources:
+    - https://github.com/prometheus/mysqld_exporter
+    urls:
+    - https://charts.kubesphere.io/main/mysql-exporter-0.5.5.tgz
+    version: 0.5.5
+  - apiVersion: v1
+    appVersion: v0.11.0
+    created: "2020-11-10T03:50:44.525700971Z"
+    description: A Helm chart for prometheus mysql exporter with cloudsqlproxy
+    digest: 93376612b17f43b290a03427f90b6dcb9eddf09bcbb3a8fe0007b649b5a8a4bc
+    home: https://github.com/prometheus/mysqld_exporter
+    maintainers:
+    - email: juan.chimienti@gmail.com
+      name: juanchimienti
+    - email: monotek23@gmail.com
+      name: monotek
+    name: mysql-exporter
+    sources:
+    - https://github.com/prometheus/mysqld_exporter
+    urls:
+    - https://charts.kubesphere.io/main/mysql-exporter-0.5.4.tgz
+    version: 0.5.4
+  nfs-client-provisioner:
+  - apiVersion: v1
+    appVersion: 4.0.2
+    created: "2021-09-26T08:41:16.363149281Z"
+    description: nfs-client is an automatic provisioner that used your *already configured*
+      NFS server, automatically creating Persistent Volumes.
+    digest: 034dc6e93560dd24312d6f9bb40e85245469a57dfa49ec181f67e2cce2a641e2
+    home: https://github.com/kubernetes-incubator/external-storage/tree/master/nfs-client
+    keywords:
+    - nfs
+    - storage
+    maintainers:
+    - email: bart@verwilst.be
+      name: verwilst
+    name: nfs-client-provisioner
+    sources:
+    - https://github.com/kubernetes-incubator/external-storage/tree/master/nfs-client
+    urls:
+    - https://charts.kubesphere.io/main/nfs-client-provisioner-4.0.11.tgz
+    version: 4.0.11
+  - apiVersion: v1
+    appVersion: 4.0.2
+    created: "2021-06-21T03:45:22.405686907Z"
+    description: nfs-client is an automatic provisioner that used your *already configured*
+      NFS server, automatically creating Persistent Volumes.
+    digest: 1167afc167361490b0c73fe6e696b227286105d0d00687dcfceb5b73702770c2
+    home: https://github.com/kubernetes-incubator/external-storage/tree/master/nfs-client
+    keywords:
+    - nfs
+    - storage
+    maintainers:
+    - email: bart@verwilst.be
+      name: verwilst
+    name: nfs-client-provisioner
+    sources:
+    - https://github.com/kubernetes-incubator/external-storage/tree/master/nfs-client
+    urls:
+    - https://charts.kubesphere.io/main/nfs-client-provisioner-4.0.10.tgz
+    version: 4.0.10
+  - apiVersion: v1
+    appVersion: 3.1.0
+    created: "2020-05-12T00:56:27.270356843Z"
+    description: nfs-client is an automatic provisioner that used your *already configured*
+      NFS server, automatically creating Persistent Volumes.
+    digest: 45bd6d7e26c6613f7419676bd415ea0ffd05618fee615a7d932ad4078624e337
+    home: https://github.com/kubernetes-incubator/external-storage/tree/master/nfs-client
+    keywords:
+    - nfs
+    - storage
+    maintainers:
+    - email: bart@verwilst.be
+      name: verwilst
+    name: nfs-client-provisioner
+    sources:
+    - https://github.com/kubernetes-incubator/external-storage/tree/master/nfs-client
+    urls:
+    - https://charts.kubesphere.io/main/nfs-client-provisioner-1.2.8.tgz
+    version: 1.2.8
+  nginx:
+  - annotations:
+      app.kubesphere.io/category: Networking
+    apiVersion: v1
+    appVersion: 1.18.0
+    created: "2021-04-15T14:28:25.81283358Z"
+    description: nginx is an HTTP and reverse proxy server, a mail proxy server, and
+      a generic TCP/UDP proxy server, originally written by Igor Sysoev.
+    digest: 180d72cf26a8443f890b3848dd378ed7867c90d15c2a9497b372c1f0d9175936
+    icon: https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Nginx_logo.svg/500px-Nginx_logo.svg.png
+    maintainers:
+    - email: kubesphere@yunify.com
+      name: KubeSphere
+    name: nginx
+    sources:
+    - https://github.com/kubesphere/helm-charts/tree/master/src/main/nginx
+    urls:
+    - https://charts.kubesphere.io/main/nginx-1.3.5.tgz
+    version: 1.3.5
+  - annotations:
+      app.kubesphere.io/category: HTTP Service
+    apiVersion: v1
+    appVersion: 1.18.0
+    created: "2021-04-09T08:44:57.866150265Z"
+    description: nginx is an HTTP and reverse proxy server, a mail proxy server, and
+      a generic TCP/UDP proxy server, originally written by Igor Sysoev.
+    digest: 9a53a429e3d958fa2ed15e8c2c30e542447433fba1d0e86504559adb152ae3d8
+    icon: https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Nginx_logo.svg/500px-Nginx_logo.svg.png
+    maintainers:
+    - email: kubesphere@yunify.com
+      name: KubeSphere
+    name: nginx
+    sources:
+    - https://github.com/kubesphere/helm-charts/tree/master/src/main/nginx
+    urls:
+    - https://charts.kubesphere.io/main/nginx-1.3.4.tgz
+    version: 1.3.4
+  - apiVersion: v1
+    appVersion: 1.18.0
+    created: "2020-11-04T12:59:31.301373175Z"
+    description: nginx is an HTTP and reverse proxy server, a mail proxy server, and
+      a generic TCP/UDP proxy server, originally written by Igor Sysoev.
+    digest: 451848496ef4f33b67aede5a8468265b0d639086aa70ebba2700fec62f105870
+    icon: https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Nginx_logo.svg/500px-Nginx_logo.svg.png
+    maintainers:
+    - email: kubesphere@yunify.com
+      name: KubeSphere
+    name: nginx
+    sources:
+    - https://github.com/kubesphere/helm-charts/tree/master/src/main/nginx
+    urls:
+    - https://charts.kubesphere.io/main/nginx-1.3.3.tgz
+    version: 1.3.3
+  - apiVersion: v1
+    appVersion: 1.18.0
+    created: "2020-08-17T11:08:21.115004124Z"
+    description: nginx is an HTTP and reverse proxy server, a mail proxy server, and
+      a generic TCP/UDP proxy server, originally written by Igor Sysoev.
+    digest: c5698cbc4e01567cc81e7fb5e72a804647bccfeca351a178b176b9d46df5864c
+    icon: https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Nginx_logo.svg/500px-Nginx_logo.svg.png
+    maintainers:
+    - email: kubesphere@yunify.com
+      name: KubeSphere
+    name: nginx
+    sources:
+    - https://github.com/kubesphere/helm-charts/tree/master/src/main/nginx
+    urls:
+    - https://charts.kubesphere.io/main/nginx-1.3.2.tgz
+    version: 1.3.2
+  - apiVersion: v1
+    appVersion: 1.17.5
+    created: "2020-08-14T10:08:56.214664302Z"
+    description: nginx is an HTTP and reverse proxy server, a mail proxy server, and
+      a generic TCP/UDP proxy server, originally written by Igor Sysoev.
+    digest: e988a665dba1648b66dd1207fb4cc31602d3e2210b518d331245402413af030e
+    icon: https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Nginx_logo.svg/500px-Nginx_logo.svg.png
+    maintainers:
+    - email: kubesphere@yunify.com
+      name: KubeSphere
+    name: nginx
+    sources:
+    - https://github.com/kubesphere/helm-charts/tree/master/src/main/nginx
+    urls:
+    - https://charts.kubesphere.io/main/nginx-1.3.1.tgz
+    version: 1.3.1
+  - apiVersion: v1
+    appVersion: 1.17.5
+    created: "2020-07-09T02:22:10.158795362Z"
+    description: nginx is an HTTP and reverse proxy server, a mail proxy server, and
+      a generic TCP/UDP proxy server, originally written by Igor Sysoev.
+    digest: 9c03933005e93e207fa5cf2e8e2b7d31d19c1a3eb225fb6d5248fecc336c4905
+    icon: https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Nginx_logo.svg/500px-Nginx_logo.svg.png
+    maintainers:
+    - email: kubesphere@yunify.com
+      name: KubeSphere
+    name: nginx
+    sources:
+    - https://github.com/kubesphere/helm-charts/tree/master/src/main/nginx
+    urls:
+    - https://charts.kubesphere.io/main/nginx-1.3.0.tgz
+    version: 1.3.0
+  - apiVersion: v1
+    appVersion: 1.17.5
+    created: "2020-05-12T00:56:27.271355959Z"
+    description: nginx is an HTTP and reverse proxy server, a mail proxy server, and
+      a generic TCP/UDP proxy server, originally written by Igor Sysoev.
+    digest: 391b551706b33e68efb30532b1dc090922494eabf0e864d1afc1c38d172f68de
+    icon: https://upload.wikimedia.org/wikipedia/commons/thumb/c/c5/Nginx_logo.svg/500px-Nginx_logo.svg.png
+    maintainers:
+    - email: kubesphere@yunify.com
+      name: KubeSphere
+    name: nginx
+    sources:
+    - https://github.com/kubesphere/helm-charts/tree/master/src/main/nginx
+    urls:
+    - https://charts.kubesphere.io/main/nginx-1.2.1.tgz
+    version: 1.2.1
+  pvc-autoresizer:
+  - apiVersion: v2
+    appVersion: v0.1
+    created: "2021-12-27T08:23:46.343223811Z"
+    description: Auto-resize PersistentVolumeClaim objects based on Prometheus metrics.
+    digest: 931338a42d27296401438fa327693d18903ef02f0cfa2335ea16ef0c8aaf17b8
+    home: https://github.com/kubesphere/pvc-autoresizer
+    name: pvc-autoresizer
+    sources:
+    - https://github.com/kubesphere/pvc-autoresizer
+    type: application
+    urls:
+    - https://charts.kubesphere.io/main/pvc-autoresizer-0.1.0.tgz
+    version: 0.1.0
+  redis-exporter:
+  - annotations:
+      app.kubesphere.io/category: Prometheus Exporter
+    apiVersion: v1
+    appVersion: 1.3.4
+    created: "2021-12-17T07:51:21.947340249Z"
+    description: Prometheus exporter for Redis metrics
+    digest: c12c4f120d132a4bdc38c6a54fbb80b09b00222e8947aff195809a0c6a6bde67
+    home: https://github.com/oliver006/redis_exporter
+    keywords:
+    - prometheus
+    - redis
+    maintainers:
+    - email: arcadie.condrat@gmail.com
+      name: acondrat
+    name: redis-exporter
+    sources:
+    - https://github.com/oliver006/redis_exporter
+    urls:
+    - https://charts.kubesphere.io/main/redis-exporter-3.4.6.tgz
+    version: 3.4.6
+  - annotations:
+      app.kubesphere.io/category: Prometheus Exporter
+    apiVersion: v1
+    appVersion: 1.3.4
+    created: "2021-12-15T06:57:27.72918598Z"
+    description: Prometheus exporter for Redis metrics
+    digest: c306d9c0643c8fb951b553a17d69b506018ff17ca11fff5217f003c07bae518b
+    home: https://github.com/oliver006/redis_exporter
+    keywords:
+    - prometheus
+    - redis
+    maintainers:
+    - email: arcadie.condrat@gmail.com
+      name: acondrat
+    name: redis-exporter
+    sources:
+    - https://github.com/oliver006/redis_exporter
+    urls:
+    - https://charts.kubesphere.io/main/redis-exporter-3.4.5.tgz
+    version: 3.4.5
+  - annotations:
+      app.kubesphere.io/category: Prometheus Exporter
+    apiVersion: v1
+    appVersion: 1.3.4
+    created: "2021-04-15T14:28:25.813895934Z"
+    description: Prometheus exporter for Redis metrics
+    digest: 543e761b57ac94c2b853b91ffcbd673d667ff8990b132cbc62f4d259460130f6
+    home: https://github.com/oliver006/redis_exporter
+    keywords:
+    - prometheus
+    - redis
+    maintainers:
+    - email: arcadie.condrat@gmail.com
+      name: acondrat
+    name: redis-exporter
+    sources:
+    - https://github.com/oliver006/redis_exporter
+    urls:
+    - https://charts.kubesphere.io/main/redis-exporter-3.4.4.tgz
+    version: 3.4.4
+  - annotations:
+      app.kubesphere.io/category: Database
+    apiVersion: v1
+    appVersion: 1.3.4
+    created: "2021-04-09T08:44:57.866778772Z"
+    description: Prometheus exporter for Redis metrics
+    digest: ae8c3b1eaf22770bcaeadc47b2c7da67812702c0d5ff9e3d88ae89cd7bd58088
+    home: https://github.com/oliver006/redis_exporter
+    keywords:
+    - prometheus
+    - redis
+    maintainers:
+    - email: arcadie.condrat@gmail.com
+      name: acondrat
+    name: redis-exporter
+    sources:
+    - https://github.com/oliver006/redis_exporter
+    urls:
+    - https://charts.kubesphere.io/main/redis-exporter-3.4.3.tgz
+    version: 3.4.3
+  - apiVersion: v1
+    appVersion: 1.3.4
+    created: "2020-11-10T03:50:44.526307734Z"
+    description: Prometheus exporter for Redis metrics
+    digest: a1e18adb1b8b4b1de9cc9ad54ac6e22e3a437b9c7c103c880aaef469bd3716b0
+    home: https://github.com/oliver006/redis_exporter
+    keywords:
+    - prometheus
+    - redis
+    maintainers:
+    - email: arcadie.condrat@gmail.com
+      name: acondrat
+    name: redis-exporter
+    sources:
+    - https://github.com/oliver006/redis_exporter
+    urls:
+    - https://charts.kubesphere.io/main/redis-exporter-3.4.2.tgz
+    version: 3.4.2
+  sonarqube:
+  - apiVersion: v1
+    appVersion: 8.9-community
+    created: "2021-12-01T04:06:14.359261805Z"
+    dependencies:
+    - condition: postgresql.enabled
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: 8.6.4
+    description: SonarQube is an open sourced code quality scanning tool
+    digest: 2a422df173a5b7e8fc613248d8135f3d3351dac72166ec7d26ddc23ece0ea65f
+    home: https://www.sonarqube.org/
+    icon: https://www.sonarqube.org/assets/logo-31ad3115b1b4b120f3d1efd63e6b13ac9f1f89437f0cf6881cc4d8b5603a52b4.svg
+    keywords:
+    - coverage
+    - security
+    - code
+    - quality
+    maintainers:
+    - email: rjkernick@gmail.com
+      name: rjkernick
+    - email: tsiddique@live.com
+      name: tsiddique
+    name: sonarqube
+    sources:
+    - https://github.com/SonarSource/docker-sonarqube
+    urls:
+    - https://charts.kubesphere.io/main/sonarqube-6.7.0.tgz
+    version: 6.7.0
+  - apiVersion: v1
+    appVersion: 8.2-community
+    created: "2021-10-18T12:04:41.854383413Z"
+    dependencies:
+    - condition: postgresql.enabled
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: 8.6.4
+    description: SonarQube is an open sourced code quality scanning tool
+    digest: 52926fc2dcd48aac8a7a27acfc0880e70bf65184d1cf4d3e1b5e9e997ea8dbfd
+    home: https://www.sonarqube.org/
+    icon: https://www.sonarqube.org/assets/logo-31ad3115b1b4b120f3d1efd63e6b13ac9f1f89437f0cf6881cc4d8b5603a52b4.svg
+    keywords:
+    - coverage
+    - security
+    - code
+    - quality
+    maintainers:
+    - email: rjkernick@gmail.com
+      name: rjkernick
+    - email: tsiddique@live.com
+      name: tsiddique
+    name: sonarqube
+    sources:
+    - https://github.com/SonarSource/docker-sonarqube
+    urls:
+    - https://charts.kubesphere.io/main/sonarqube-6.6.1.tgz
+    version: 6.6.1
+  - apiVersion: v1
+    appVersion: 8.2-community
+    created: "2020-08-18T23:47:58.82915888Z"
+    dependencies:
+    - condition: postgresql.enabled
+      name: postgresql
+      repository: https://charts.bitnami.com/bitnami
+      version: 8.6.4
+    description: SonarQube is an open sourced code quality scanning tool
+    digest: 7bf526af2c575c655a41067e463d980bb296cccceffecf7ca7831535b4e05419
+    home: https://www.sonarqube.org/
+    icon: https://www.sonarqube.org/assets/logo-31ad3115b1b4b120f3d1efd63e6b13ac9f1f89437f0cf6881cc4d8b5603a52b4.svg
+    keywords:
+    - coverage
+    - security
+    - code
+    - quality
+    maintainers:
+    - email: rjkernick@gmail.com
+      name: rjkernick
+    - email: tsiddique@live.com
+      name: tsiddique
+    name: sonarqube
+    sources:
+    - https://github.com/SonarSource/docker-sonarqube
+    urls:
+    - https://charts.kubesphere.io/main/sonarqube-6.6.0.tgz
+    version: 6.6.0
+  storageclass-accessor:
+  - apiVersion: v2
+    appVersion: v0.1.1
+    created: "2022-01-04T07:02:20.64129611Z"
+    description: The storageclass-accessor webhook is an HTTP callback which responds
+      to admission requests. When creating and deleting the PVC, it will take out
+      the accessor related to this storage class, and the request will be allowed
+      only when all accessors pass the verification. Users can create accessors and
+      set namespaceSelector to achieve namespace-level management on the storage class
+      which provisions PVC.
+    digest: 3912ae07813db22d6c825ddbc8a113956a78fe7a2c38c70ad5b5d89cc2fc2ae1
+    home: https://github.com/kubesphere/storageclass-accessor
+    name: storageclass-accessor
+    sources:
+    - https://github.com/kubesphere/storageclass-accessor
+    type: application
+    urls:
+    - https://charts.kubesphere.io/main/storageclass-accessor-0.1.0.tgz
+    version: 0.1.0
+  tomcat:
+  - annotations:
+      app.kubesphere.io/category: Web Server
+    apiVersion: v1
+    appVersion: 8.5.41
+    created: "2021-04-15T14:28:25.814946334Z"
+    description: Deploy a basic tomcat application server with sidecar as web archive
+      container
+    digest: 8f4e8bc745a26c3cd95c5dccd10d6d1997f83287bd46a8f2eff8b9ef6561fca7
+    home: https://github.com/yahavb
+    icon: http://tomcat.apache.org/res/images/tomcat.png
+    maintainers:
+    - email: ybiran@ananware.systems
+      name: yahavb
+    name: tomcat
+    urls:
+    - https://charts.kubesphere.io/main/tomcat-0.4.3.tgz
+    version: 0.4.3
+  - annotations:
+      app.kubesphere.io/category: HTTP Service
+    apiVersion: v1
+    appVersion: 8.5.41
+    created: "2021-04-09T08:44:57.867293317Z"
+    description: Deploy a basic tomcat application server with sidecar as web archive
+      container
+    digest: 9c2c5eed4119d6550717ff25b5d2e8b00ff185e4bf441e7eb2487e6c565b7bd5
+    home: https://github.com/yahavb
+    icon: http://tomcat.apache.org/res/images/tomcat.png
+    maintainers:
+    - email: ybiran@ananware.systems
+      name: yahavb
+    name: tomcat
+    urls:
+    - https://charts.kubesphere.io/main/tomcat-0.4.2.tgz
+    version: 0.4.2
+  - apiVersion: v1
+    appVersion: 8.5.41
+    created: "2020-06-29T13:19:55.382399249Z"
+    description: Deploy a basic tomcat application server with sidecar as web archive
+      container
+    digest: ad55d9b71c7eee0025aa75ab07efaceb70f0ab2b5b06c45426df188ed25e65d5
+    home: https://github.com/yahavb
+    icon: http://tomcat.apache.org/res/images/tomcat.png
+    maintainers:
+    - email: ybiran@ananware.systems
+      name: yahavb
+    name: tomcat
+    urls:
+    - https://charts.kubesphere.io/main/tomcat-0.4.1+1.tgz
+    version: 0.4.1+1
+  - apiVersion: v1
+    appVersion: 8.5.41
+    created: "2020-05-12T00:56:27.271662814Z"
+    description: Deploy a basic tomcat application server with sidecar as web archive
+      container
+    digest: d6331d24894103af91a94284c36451001c41b3b61c72fc4f75d55f8099079ca0
+    home: https://github.com/yahavb
+    icon: http://tomcat.apache.org/res/images/tomcat.png
+    maintainers:
+    - email: ybiran@ananware.systems
+      name: yahavb
+    name: tomcat
+    urls:
+    - https://charts.kubesphere.io/main/tomcat-0.4.0-r1.tgz
+    version: 0.4.0-r1
+generated: "2025-04-18T05:38:15.402208164Z"
