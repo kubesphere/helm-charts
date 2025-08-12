@@ -152,8 +152,7 @@ entries:
     apiVersion: v2
     appVersion: 2.5.1
     created: "2023-03-09T08:38:11.215173106Z"
-    description: Chaos Mesh is a cloud-native Chaos Engineering platform that orchestrates
-      chaos on Kubernetes environments.
+    description: Chaos Mesh is a cloud-native Chaos Engineering platform that orchestrates chaos on Kubernetes environments.
     digest: 0d783bbbb8ab44932f4b409dcadb17dd49f0e1b5da78f10eba3a517ed5d6f8ad
     home: https://chaos-mesh.org
     icon: https://raw.githubusercontent.com/pingcap/chaos-mesh/master/static/logo.svg
@@ -189,8 +188,7 @@ entries:
     apiVersion: v2
     appVersion: 2.4.1
     created: "2022-11-02T08:40:31.45438048Z"
-    description: Chaos Mesh is a cloud-native Chaos Engineering platform that orchestrates
-      chaos on Kubernetes environments.
+    description: Chaos Mesh is a cloud-native Chaos Engineering platform that orchestrates chaos on Kubernetes environments.
     digest: f0471f17edd451f980879aff0c270aec8348c8aaab5fc34a0df67af1ee6dde91
     home: https://chaos-mesh.org
     icon: https://raw.githubusercontent.com/pingcap/chaos-mesh/master/static/logo.svg
@@ -220,8 +218,7 @@ entries:
   - apiVersion: v2
     appVersion: 2.0.4
     created: "2022-10-27T03:50:54.931442931Z"
-    description: Chaos Mesh® is a cloud-native Chaos Engineering platform that orchestrates
-      chaos on Kubernetes environments.
+    description: Chaos Mesh® is a cloud-native Chaos Engineering platform that orchestrates chaos on Kubernetes environments.
     digest: 7e4c922eef6498888869a2edafafd03ff0fd018bf6d0f9856a812c8e15cf359f
     home: https://chaos-mesh.org
     icon: https://raw.githubusercontent.com/pingcap/chaos-mesh/master/static/logo.svg
@@ -240,8 +237,7 @@ entries:
   - apiVersion: v2
     appVersion: 2.0.3
     created: "2021-11-25T06:01:26.889811233Z"
-    description: Chaos Mesh® is a cloud-native Chaos Engineering platform that orchestrates
-      chaos on Kubernetes environments.
+    description: Chaos Mesh® is a cloud-native Chaos Engineering platform that orchestrates chaos on Kubernetes environments.
     digest: 88097c8a0c48465d91c7528b2953dae84b06169e3acdaa5c104982a7be1ce0a1
     home: https://chaos-mesh.org
     icon: https://raw.githubusercontent.com/pingcap/chaos-mesh/master/static/logo.svg
@@ -279,8 +275,7 @@ entries:
     apiVersion: v2
     appVersion: v0.5.2
     created: "2022-08-23T07:02:56.355170887Z"
-    description: Crane (FinOps Crane) is an opensource project which manages cloud
-      resource on Kubernetes stack, it is inspired by FinOps concepts.
+    description: Crane (FinOps Crane) is an opensource project which manages cloud resource on Kubernetes stack, it is inspired by FinOps concepts.
     digest: fad71a2c743c4c38ccf46430a924ba22b84e3efc6fcd024b32a871236cc20ac0
     home: https://github.com/gocrane/crane
     icon: https://docs.gocrane.io/dev/images/crane.svg
@@ -307,8 +302,7 @@ entries:
     apiVersion: v2
     appVersion: v0.5.1
     created: "2022-07-06T01:22:56.849769663Z"
-    description: Crane (FinOps Crane) is an opensource project which manages cloud
-      resource on Kubernetes stack, it is inspired by FinOps concepts.
+    description: Crane (FinOps Crane) is an opensource project which manages cloud resource on Kubernetes stack, it is inspired by FinOps concepts.
     digest: 6f3cf57089a0411d7a21798f600d5b65d9ccac91e3a998f7bb1bd1b0a1820c52
     home: https://github.com/gocrane/crane
     icon: https://docs.gocrane.io/dev/images/crane.svg
@@ -2768,8 +2762,7 @@ entries:
   - apiVersion: v2
     appVersion: 2.2.2
     created: "2022-03-08T09:17:40.157557602Z"
-    description: ys1000 provides data protection and management services for cloud
-      native applications.
+    description: ys1000 provides data protection and management services for cloud native applications.
     digest: 517e0e14476c7b6a39837f6a699698fb989d2f3de58c923f8c409d0a4a540639
     name: qiming-operator
     type: application
