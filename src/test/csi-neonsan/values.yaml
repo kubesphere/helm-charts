@@ -61,3 +61,9 @@ sc:
   role:
   min_rep_count:
   max_bs:
+
+snapclass:
+  enable: false
+  isDefaultClass: false
+  deletionPolicy: Delete
+  name: csi-neonsan
