@@ -244,6 +244,28 @@ entries:
   csi-neonsan:
   - apiVersion: v2
     appVersion: 1.2.2
+    created: "2026-06-17T07:47:37.153953952Z"
+    description: A Helm chart for NeonSAN CSI Driver
+    digest: 8354b609fad2a0050e318f8d78edba788a5fad0163eba4f3f83605e77f427fc1
+    home: https://github.com/yunify/qingstor-csi
+    icon: https://s3.qingcloud.com/files/2020/01/qing-stor-neon-san.png
+    keywords:
+    - neonsan
+    - csi
+    kubeVersion: '>=1.17.0-0'
+    maintainers:
+    - email: arminzhang@yunify.com
+      name: Min Zhang
+    - email: yangzhou@yunify.com
+      name: Yang Zhou
+    name: csi-neonsan
+    sources:
+    - https://github.com/yunify/qingstor-csi
+    urls:
+    - https://charts.kubesphere.io/test/csi-neonsan-1.3.0.tgz
+    version: 1.3.0
+  - apiVersion: v2
+    appVersion: 1.2.2
     created: "2025-09-08T03:17:58.297921838Z"
     description: A Helm chart for NeonSAN CSI Driver
     digest: bef2f2b60e9d56b7812a1ab5b1f3219222ff329578ea1efca3359cb6b5b61cf3
@@ -2444,4 +2466,4 @@ entries:
     urls:
     - https://charts.kubesphere.io/test/xenondb-1.0.0.tgz
     version: 1.0.0
-generated: "2025-09-08T03:17:58.297340765Z"
+generated: "2026-06-17T07:47:37.153323611Z"
